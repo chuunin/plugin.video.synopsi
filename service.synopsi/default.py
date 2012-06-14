@@ -3,7 +3,8 @@ import xbmcgui
 import xbmcaddon
 import json
 import urllib2
-import sqlite3
+import re
+
 
 def SendInfoStart(plyer, status):
         InfoTag = plyer.getVideoInfoTag()
@@ -29,13 +30,66 @@ def SendInfoStart(plyer, status):
 
 
 def runLibSearch():
-        req = urllib2.Request(url='http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase(select%20all%20c00%20from%20movie)')
+        def chunks(l, n):
+                return [l[i:i+n] for i in range(0, len(l), n)]
+        req = urllib2.Request(url='http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase(select%20all%20c16,%20c00,%20c09,%20c22%20from%20movie)')
         f = urllib2.urlopen(req)
-        xbmc.log('SynopsiTV: Response: ' + f.read())
+
+        fread = f.read()
+        #xbmc.log('XML: ' + fread)
+        fields = re.compile("<field>(.+?)</field>").findall(fread.replace("\n",""))
+        #TODO: Add full data send
+        """
+        header = ["Primary Key", "Local Movie Title", "Movie Plot", "Movie Plot Outline", "Movie Tagline",
+                  "Rating Votes", "Rating", "Writers", "Year Released", "Thumbnails", "IMDB ID", "Title formatted for sorting",
+                  "Runtime", "MPAA Rating", "listed as Top250", "Genre", "Director", "Original Movie Title", "listed as Thumbnail URL Spoof",
+                  "Studio", "Trailer URL", "Fanart URLs", "Country", "Path", "idPath"]
+        """
+
+        head = ["Original Movie Title", "Local Movie Title", "IMDB ID", "Path"]
+
+        result= []
+        #xbmc.log(str(fields))
+        for movie in chunks(fields, 4):
+                result.append(dict(zip(head, movie)))
+                
+
+        xbmc.log(json.dumps({'data':result, 'token' : 12345}))
+
+        #TODO: Sending data
+
         
-        
+                
 
 
+        """
+idMovie	 integer	 Primary Key
+c00	 text	 Local Movie Title
+c01	 text	 Movie Plot
+c02	 text	 Movie Plot Outline
+c03	 text	 Movie Tagline
+c04	 text	 Rating Votes
+c05	 text	 Rating
+c06	 text	 Writers
+c07	 text	 Year Released
+c08	 text	 Thumbnails
+c09	 text	 IMDB ID
+c10	 text	 Title formatted for sorting
+c11	 text	 Runtime [UPnP devices see this as seconds]
+c12	 text	 MPAA Rating
+c13	 text	 [unknown - listed as Top250]
+c14	 text	 Genre
+c15	 text	 Director
+c16	 text	 Original Movie Title
+c17	 text	 [unknown - listed as Thumbnail URL Spoof]
+c18	 text	 Studio
+c19	 text	 Trailer URL
+c20	 text	 Fanart URLs
+c21	 text	 Country (Added in r29886[1]
+c23	 text	 idPath
+        """
+        
+        
 # ADDON INFORMATION
 __addon__     = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -86,7 +140,7 @@ class MyPlayer(xbmc.Player) :
             SendInfoStart(xbmc.Player(),'resumed')
             
 player=MyPlayer()
-xbmc.log('SynopsiTV: ------------------->TEST')
+#xbmc.log('SynopsiTV: ------------------->TEST')
 
 runLibSearch()
 
