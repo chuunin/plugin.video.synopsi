@@ -133,6 +133,9 @@ class MyPlayer(xbmc.Player) :
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
             SendInfoStart(xbmc.Player(),'paused')
+            dialog = xbmcgui.Dialog()
+            dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
+            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay', 'Amazing', 'Terrible', 'Terrible')
             
     def onPlayBackResumed(self):
         if xbmc.Player().isPlayingVideo():
