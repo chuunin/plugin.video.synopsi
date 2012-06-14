@@ -136,6 +136,7 @@ class MyPlayer(xbmc.Player) :
             dialog = xbmcgui.Dialog()
             dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
             #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay', 'Amazing', 'Terrible', 'Terrible')
+            #TODO: Popup rating
             
     def onPlayBackResumed(self):
         if xbmc.Player().isPlayingVideo():

@@ -47,6 +47,14 @@ User's movie database: !!May change
 
 
 ### Installation
+
+#### For users
 * Download zip and install as zip
 * Add public repository #TODO
 
+#### For developers
+##### Windows
+Download zipball. Extract content to C:\Users\Username\AppData\Roaming\XBMC\addons .
+
+##### UNIX
+TODO
