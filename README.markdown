@@ -4,8 +4,11 @@
 
 This is deamon that starts on startup or login and runs in the background.
 
+It sends whole movie library on startup and waits for user's interaction with movies. 
+
 ### Sends
 
+User's interaction Json:
 ```
 {
         "data": {
@@ -19,6 +22,27 @@ This is deamon that starts on startup or login and runs in the background.
             "Path": ""
         }
     }
+```
+
+User's movie database: !!May change
+```
+{
+    "token": 12345,
+    "data": [
+        {
+            "IMDB ID": "tt1268799",
+            "Path": "C:\\\\dmd-vhakc.avi",
+            "Local Movie Title": "A Very Harold & Kumar Christmas",
+            "Original Movie Title": "A Very Harold & Kumar Christmas"
+        },
+        {
+            "IMDB ID": "tt0110116",
+            "Path": "",
+            "Local Movie Title": "Immortal Beloved",
+            "Original Movie Title": "Immortal Beloved"
+        }
+    ]
+}
 ```
 
 
