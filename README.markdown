@@ -1,5 +1,9 @@
 # SynopsiTV XBMC plugin
 
+## plugin.video.synopsi
+
+This is SynopsiTV App that provides reccomendations. IN ALPHA PHASE!!
+
 ## service.synopsi
 
 This is deamon that starts on startup or login and runs in the background.

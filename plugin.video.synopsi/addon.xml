@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.synopsi"
+       name="SynopsiTV App"
+       version="1.0"
+       provider-name="SynopsiTV s.r.o.">
+  <requires>
+    <import addon="xbmc.python" version="1.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+            library="addon.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary>SynopsiTV App</summary>
+    <description>WARNING!  ULTRA ALPHA TEST. This app provides you everything.</description>
+  </extension>
+</addon>
