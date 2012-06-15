@@ -4,65 +4,75 @@ import xbmcaddon
 import json
 import urllib2
 import re
+import uuid
+#Local imports
+import RatingDialog
+
+
+def GenerateOSInfo():
+    """Function that generates unique device info."""
+    uid = str(uuid.uuid4())
+    #TODO: Add OS specific info.
 
 
 def SendInfoStart(plyer, status):
-        InfoTag = plyer.getVideoInfoTag()
-        data = {'File': InfoTag.getFile(),
-                'File2': plyer.getPlayingFile(),
-                'Time': plyer.getTime(),
-                'TotalTime': plyer.getTotalTime(),
-                #'SeekTime': plyer.seekTime(),
-                'Path': InfoTag.getPath(),
-                'Title': InfoTag.getTitle(),
-                'IMDB': InfoTag.getIMDBNumber(),
-                'Status': status}
-        #xbmc.log(json.dumps(data))
+    """Function that sends json of current video status."""
+    InfoTag = plyer.getVideoInfoTag()
+    data = {'File': InfoTag.getFile(),
+            'File2': plyer.getPlayingFile(),
+            'Time': plyer.getTime(),
+            'TotalTime': plyer.getTotalTime(),
+            #'SeekTime': plyer.seekTime(),
+            'Path': InfoTag.getPath(),
+            'Title': InfoTag.getTitle(),
+            'IMDB': InfoTag.getIMDBNumber(),
+            'Status': status}
+    #xbmc.log(json.dumps(data))
 
 
-        req=urllib2.Request('http://dev.synopsi.tv/api/desktop/', data=json.dumps({'data':data, 'token': 12345}),
-                            headers={'content-type':'application/json', 'user-agent': 'linux'},
-                            origin_req_host='dev.synopsi.tv')
-        f = urllib2.urlopen(req)
-        
-        xbmc.log('SynopsiTV: Response: ' + f.read())
+    req=urllib2.Request('http://dev.synopsi.tv/api/desktop/', data=json.dumps({'data':data, 'token': 12345}),
+                        headers={'content-type':'application/json', 'user-agent': 'linux'},
+                        origin_req_host='dev.synopsi.tv')
+    f = urllib2.urlopen(req)
+    
+    xbmc.log('SynopsiTV: Response: ' + f.read())
 
 
 
 def runLibSearch():
-        def chunks(l, n):
-                return [l[i:i+n] for i in range(0, len(l), n)]
-        req = urllib2.Request(url='http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase(select%20all%20c16,%20c00,%20c09,%20c22%20from%20movie)')
-        f = urllib2.urlopen(req)
+    def chunks(l, n):
+            return [l[i:i+n] for i in range(0, len(l), n)]
+    req = urllib2.Request(url='http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase(select%20all%20c16,%20c00,%20c09,%20c22%20from%20movie)')
+    f = urllib2.urlopen(req)
 
-        fread = f.read()
-        #xbmc.log('XML: ' + fread)
-        fields = re.compile("<field>(.+?)</field>").findall(fread.replace("\n",""))
-        #TODO: Add full data send
-        """
-        header = ["Primary Key", "Local Movie Title", "Movie Plot", "Movie Plot Outline", "Movie Tagline",
-                  "Rating Votes", "Rating", "Writers", "Year Released", "Thumbnails", "IMDB ID", "Title formatted for sorting",
-                  "Runtime", "MPAA Rating", "listed as Top250", "Genre", "Director", "Original Movie Title", "listed as Thumbnail URL Spoof",
-                  "Studio", "Trailer URL", "Fanart URLs", "Country", "Path", "idPath"]
-        """
+    fread = f.read()
+    #xbmc.log('XML: ' + fread)
+    fields = re.compile("<field>(.+?)</field>").findall(fread.replace("\n",""))
+    #TODO: Add full data send
+    """
+    header = ["Primary Key", "Local Movie Title", "Movie Plot", "Movie Plot Outline", "Movie Tagline",
+              "Rating Votes", "Rating", "Writers", "Year Released", "Thumbnails", "IMDB ID", "Title formatted for sorting",
+              "Runtime", "MPAA Rating", "listed as Top250", "Genre", "Director", "Original Movie Title", "listed as Thumbnail URL Spoof",
+              "Studio", "Trailer URL", "Fanart URLs", "Country", "Path", "idPath"]
+    """
 
-        head = ["Original Movie Title", "Local Movie Title", "IMDB ID", "Path"]
+    head = ["Original Movie Title", "Local Movie Title", "IMDB ID", "Path"]
 
-        result= []
-        #xbmc.log(str(fields))
-        for movie in chunks(fields, 4):
-                result.append(dict(zip(head, movie)))
-                
+    result= []
+    #xbmc.log(str(fields))
+    for movie in chunks(fields, 4):
+            result.append(dict(zip(head, movie)))
+            
 
-        xbmc.log(json.dumps({'data':result, 'token' : 12345}))
+    xbmc.log(json.dumps({'data':result, 'token' : 12345}))
 
-        #TODO: Sending data
+    #TODO: Sending data
 
-        
-                
+    
+            
 
 
-        """
+    """
 idMovie	 integer	 Primary Key
 c00	 text	 Local Movie Title
 c01	 text	 Movie Plot
@@ -87,7 +97,7 @@ c19	 text	 Trailer URL
 c20	 text	 Fanart URLs
 c21	 text	 Country (Added in r29886[1]
 c23	 text	 idPath
-        """
+    """
         
         
 # ADDON INFORMATION
@@ -133,16 +143,37 @@ class MyPlayer(xbmc.Player) :
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
             SendInfoStart(xbmc.Player(),'paused')
-            dialog = xbmcgui.Dialog()
-            dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
-            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay', 'Amazing', 'Terrible', 'Terrible')
-            #TODO: Popup rating
             
+
+            dialog = xbmcgui.Dialog()
+            #dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
+            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
+            
+
+            #TODO: Popup rating
+            #dil = RatingDialog.popupList()
+            #dil.place()
+            
+            #popup = popupList(title= 'Playlists', items=playlists, btns=options, width=0.5)
+            #popup = RatingDialog.popupList(title= 'Playlists')
+
+            #popup.doModal()
+            #selected = popup.selected
+            #del popup
+            #return selected 
+
+
+            mydisplay = RatingDialog.MyClass()
+            mydisplay .doModal()
+            del mydisplay
+
+
     def onPlayBackResumed(self):
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')
             SendInfoStart(xbmc.Player(),'resumed')
             
+
 player=MyPlayer()
 #xbmc.log('SynopsiTV: ------------------->TEST')
 
