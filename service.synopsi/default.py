@@ -7,7 +7,7 @@ import re
 import uuid
 #Local imports
 import RatingDialog
-
+import lib
 
 def GenerateOSInfo():
     """Function that generates unique device info."""
@@ -28,20 +28,27 @@ def SendInfoStart(plyer, status):
             'IMDB': InfoTag.getIMDBNumber(),
             'Status': status}
     #xbmc.log(json.dumps(data))
+    lib.send_data(data,lib.get_token())
 
-
+    """
     req=urllib2.Request('http://dev.synopsi.tv/api/desktop/', data=json.dumps({'data':data, 'token': 12345}),
                         headers={'content-type':'application/json', 'user-agent': 'linux'},
                         origin_req_host='dev.synopsi.tv')
     f = urllib2.urlopen(req)
     
     xbmc.log('SynopsiTV: Response: ' + f.read())
+    """
 
-
+def sendXBMCQuery(query):
+    req = urllib2.Request(url=str('http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase({0})',lib.url_fix(query)))
+    f = urllib2.urlopen(req)
+    return f.read()
 
 def runLibSearch():
+    """Function that runs on first start."""
     def chunks(l, n):
             return [l[i:i+n] for i in range(0, len(l), n)]
+    
     req = urllib2.Request(url='http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase(select%20all%20c16,%20c00,%20c09,%20c22%20from%20movie)')
     f = urllib2.urlopen(req)
 
@@ -49,6 +56,11 @@ def runLibSearch():
     #xbmc.log('XML: ' + fread)
     fields = re.compile("<field>(.+?)</field>").findall(fread.replace("\n",""))
     #TODO: Add full data send
+
+    #http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase(select%20count%20(idMovie)%20from%20movie)
+    #SELECT COUNT(idMovie) FROM movie
+
+
     """
     header = ["Primary Key", "Local Movie Title", "Movie Plot", "Movie Plot Outline", "Movie Tagline",
               "Rating Votes", "Rating", "Writers", "Year Released", "Thumbnails", "IMDB ID", "Title formatted for sorting",
@@ -67,10 +79,6 @@ def runLibSearch():
     xbmc.log(json.dumps({'data':result, 'token' : 12345}))
 
     #TODO: Sending data
-
-    
-            
-
 
     """
 idMovie	 integer	 Primary Key
@@ -147,7 +155,7 @@ class MyPlayer(xbmc.Player) :
 
             dialog = xbmcgui.Dialog()
             #dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
-            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
+            dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
             
 
             #TODO: Popup rating
@@ -163,9 +171,9 @@ class MyPlayer(xbmc.Player) :
             #return selected 
 
 
-            mydisplay = RatingDialog.MyClass()
-            mydisplay .doModal()
-            del mydisplay
+            #mydisplay = RatingDialog.MyClass()
+            #mydisplay .doModal()
+            #del mydisplay
 
 
     def onPlayBackResumed(self):
