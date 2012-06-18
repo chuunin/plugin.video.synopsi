@@ -40,9 +40,14 @@ def SendInfoStart(plyer, status):
     """
 
 def sendXBMCQuery(query):
-    req = urllib2.Request(url=str('http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase({0})',lib.url_fix(query)))
+    req = urllib2.Request(url=str('http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase({0})'.format(lib.url_fix(query))))
     f = urllib2.urlopen(req)
     return f.read()
+
+def LogQuery(query):
+    xbmc.log("----------------------------------------------------------------------------------------------------------------")
+    xbmc.log(query)
+    xbmc.log(sendXBMCQuery(query))
 
 def runLibSearch():
     """Function that runs on first start."""
@@ -77,6 +82,19 @@ def runLibSearch():
             
 
     xbmc.log(json.dumps({'data':result, 'token' : 12345}))
+
+
+    #xbmc.log(sendXBMCQuery("SELECT COUNT(idFile) FROM files"))
+
+    #LogQuery("SELECT COUNT(idFile) FROM files")
+
+    fread =LogQuery("SELECT COUNT(idFile) FROM files")
+    fields = re.compile("<field>(.+?)</field>").findall(fread.replace("\n",""))
+    numfiles = int(__addon__.getSetting("numfiles"))
+
+    #if int(fields[0]) > numfiles:
+
+
 
     #TODO: Sending data
 
@@ -155,7 +173,7 @@ class MyPlayer(xbmc.Player) :
 
             dialog = xbmcgui.Dialog()
             #dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
-            dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
+            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
             
 
             #TODO: Popup rating

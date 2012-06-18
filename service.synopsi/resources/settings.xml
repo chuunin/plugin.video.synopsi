@@ -8,6 +8,10 @@
 	<setting id="TOKEN" label="69503" option="hidden" type="text" visible="false" default=""/>
 
 	<setting type="action" label="69504" action="RunScript($ID,splash)" option="close" default="" visible="true" />
+
+
+	<setting id="numfiles" option="hidden" type="text" visible="false" default="0"/>
+
     </category>
 </settings>
 
