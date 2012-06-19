@@ -205,7 +205,7 @@ class SynopsiPlayer(xbmc.Player) :
 
             dialog = xbmcgui.Dialog()
             #dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
-            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
+            dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
             
 
             #TODO: Popup rating
@@ -227,7 +227,8 @@ class SynopsiPlayer(xbmc.Player) :
 
             """
 
-            ui = RatingDialog.XMLRatingDialog( "service-synopsi-main.xml" , __cwd__, "Default")
+            #ui = RatingDialog.XMLRatingDialog( "service-synopsi-main.xml" , __cwd__, "Default")
+            ui = RatingDialog.XMLRatingDialog( "SynopsiDialog.xml" , __cwd__, "Default")
             ui.doModal()
             del ui
 

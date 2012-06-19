@@ -8,6 +8,7 @@
   <animation effect="fade" time="250">WindowOpen</animation>
   <animation effect="fade" time="250">WindowClose</animation>
   <controls>
+    <!--
     <control type="group">
       <posx>100</posx>
       <posy>50</posy>
@@ -18,7 +19,11 @@
         <height>600</height>
         <texture border="40">default-panel.png</texture>
       </control>
-      <!-- ** Required ** Do not change <id> or <type> -->
+
+
+    
+
+      
 
         <control type="image" >
             <description>page header tab icon</description>
@@ -110,7 +115,7 @@
         <texture>GMseparator.png</texture>
       </control>      
 
-      <!-- ** Required ** Do not change <id> or <type> -->
+      
       <control type="list" id="120">
         <posx>20</posx>
         <posy>126</posy>
@@ -218,5 +223,38 @@
       </control>
 
     </control>
+  -->
+
+
+    <control type="group">
+      <posx>400</posx>
+      <posy>200</posy>
+    <control type="image">
+        <posx>0</posx>
+        <posy>2</posy>
+        <width>537</width>
+        <height>154</height>
+        <texture>Texture.png</texture>
+      </control>
+
+
+
+      <control type="label" id="100">
+        <description>textarea</description>
+        <posx>20</posx>
+        <posy>10</posy>
+        <width>690</width>
+        <height>40</height>
+        <font>font18</font>
+        <textcolor>white</textcolor>
+        <aligny>center</aligny>
+        <align>center</align>
+        <wrapmultiline>true</wrapmultiline>
+        <label>So, how did you like it?</label>
+      </control>
+
+      </control>
+
+
   </controls>
 </window>
