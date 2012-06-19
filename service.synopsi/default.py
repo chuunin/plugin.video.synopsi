@@ -52,7 +52,7 @@ def SendInfoStart(plyer, status):
             'IMDB': InfoTag.getIMDBNumber(),
             'Status': status}
     #xbmc.log(json.dumps(data))
-    lib.send_data(data,lib.get_token()[0])
+    lib.send_data(data,__addon__.getSetting("ACCTOKEN"))
 
     """
     req=urllib2.Request('http://dev.synopsi.tv/api/desktop/', data=json.dumps({'data':data, 'token': 12345}),
@@ -220,10 +220,16 @@ class SynopsiPlayer(xbmc.Player) :
             #del popup
             #return selected 
 
+            """
+            mydisplay = RatingDialog.MyClass()
+            mydisplay .doModal()
+            del mydisplay
 
-            #mydisplay = RatingDialog.MyClass()
-            #mydisplay .doModal()
-            #del mydisplay
+            """
+
+            ui = RatingDialog.XMLRatingDialog( "service-synopsi-main.xml" , __cwd__, "Default")
+            ui.doModal()
+            del ui
 
 
     def onPlayBackResumed(self):

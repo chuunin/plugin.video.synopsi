@@ -69,38 +69,64 @@ class popupList(xbmcgui.WindowDialog):
 		pass
 
 """
+"""
+		self.strActionInfo = xbmcgui.ControlLabel(100, 120, 200, 200, '', 'font13', '0xFFFF00FF')
+		self.addControl(self.strActionInfo)
+		self.strActionInfo.setLabel('Push BACK to quit')
+		self.button0 = xbmcgui.ControlButton(250, 100, 80, 30, "HELLO")
+		self.addControl(self.button0)
+		self.button1 = xbmcgui.ControlButton(250, 200, 80, 30, "HELLO2")
+		self.addControl(self.button1)
+		self.button2 = xbmcgui.ControlButton(450, 200, 80, 30, "HELLO3")
+		self.addControl(self.button2)
+		self.setFocus(self.button0)
+		self.button0.controlDown(self.button1)
+		self.button1.controlUp(self.button0)
+		self.button1.controlRight(self.button2)
+		self.button2.controlLeft(self.button1)
+"""
 #class MyClass(xbmcgui.Window):
 class MyClass(xbmcgui.WindowDialog):
-  def __init__(self):
-    self.strActionInfo = xbmcgui.ControlLabel(100, 120, 200, 200, '', 'font13', '0xFFFF00FF')
-    self.addControl(self.strActionInfo)
-    self.strActionInfo.setLabel('Push BACK to quit')
-    self.button0 = xbmcgui.ControlButton(250, 100, 80, 30, "HELLO")
-    self.addControl(self.button0)
-    self.button1 = xbmcgui.ControlButton(250, 200, 80, 30, "HELLO2")
-    self.addControl(self.button1)
-    self.button2 = xbmcgui.ControlButton(450, 200, 80, 30, "HELLO3")
-    self.addControl(self.button2)
-    self.setFocus(self.button0)
-    self.button0.controlDown(self.button1)
-    self.button1.controlUp(self.button0)
-    self.button1.controlRight(self.button2)
-    self.button2.controlLeft(self.button1)
- 
-  def onAction(self, action):
-    if action == ACTION_PREVIOUS_MENU:
-      self.close()
- 
-  def onControl(self, control):
-    if control == self.button0:
-      self.message('you pushed the 1st button')
-    if control == self.button1:
-      self.message('you pushed the 2nd button')
-    if control == self.button2:
-      self.message('you pushed the 3rd button')
- 
-  def message(self, message):
-    dialog = xbmcgui.Dialog()
-    dialog.ok(" My message title", message)
-    self.close()
- 
+	def __init__(self):
+		self.texture = xbmcgui.ControlImage(0,0,537,154,"special://home/scripts/Texture.png")
+		self.addControl(self.texture)
+
+		self.strActionInfo = xbmcgui.ControlLabel(400, 190, 480, 20, '', 'font13', '0xFFFF00FF')
+		self.addControl(self.strActionInfo)
+		self.strActionInfo.setLabel('SynopsiTV Rating')
+		#self.strActionInfo.setLabel('Please rate this movie.')
+
+		self.button0 = xbmcgui.ControlButton(400, 210, 480, 20, "Skip")
+		self.addControl(self.button0)
+		
+		self.button0 = xbmcgui.ControlButton(400, 230, 480, 20, "Skip")
+		self.addControl(self.button0)
+		
+		self.button0 = xbmcgui.ControlButton(400, 250, 480, 20, "Skip")
+		self.addControl(self.button0)
+		
+
+	def onAction(self, action):
+		pass
+		#if action == ACTION_PREVIOUS_MENU:
+		#	self.close()
+
+	def onControl(self, control):
+		if control == self.button0:
+			self.message('you pushed the 1st button')
+		if control == self.button1:
+			self.message('you pushed the 2nd button')
+		if control == self.button2:
+			self.message('you pushed the 3rd button')
+	
+	def message(self, message):
+		dialog = xbmcgui.Dialog()
+		dialog.ok(" My message title", message)
+		self.close()
+
+
+class XMLRatingDialog(xbmcgui.WindowXMLDialog):
+	"""docstring for XMLRatingDialog"""
+	def __init__( self, *args, **kwargs ):       
+		pass
+		
