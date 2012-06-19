@@ -21,8 +21,10 @@ def get_token(user, passw):
         response_json = json.loads(response.readline())
 
         access_token = response_json['access_token']
-        refresh_token = response_json['refresh_token']
-        return (access_token, refresh_token)
+        #refresh_token = response_json['refresh_token']
+        #Permanent token
+        #return (access_token, refresh_token)
+        return (access_token, "")
 
 def  send_data(json_data,access_token):
         pass
