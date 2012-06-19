@@ -9,6 +9,25 @@ import uuid
 import RatingDialog
 import lib
 
+def Notification(Name, Text):
+    """Sends notification to XBMC."""
+    xbmc.executebuiltin('XBMC.Notification(' + Name +',' + Text +',10)')
+
+def Login(username, password):
+    try:
+        pass
+        token = lib.get_token(username, password)
+        __addon__.setSetting(id='ACCTOKEN', value=token[0])
+        __addon__.setSetting(id='REFTOKEN', value=token[1])
+        __addon__.setSetting(id='BOOLTOK', value="true")
+    except Exception, e:
+        #raise e
+        Notification(e,e)
+    
+    
+
+
+
 def GenerateOSInfo():
     """Function that generates unique device info."""
     uid = str(uuid.uuid4())
@@ -28,7 +47,7 @@ def SendInfoStart(plyer, status):
             'IMDB': InfoTag.getIMDBNumber(),
             'Status': status}
     #xbmc.log(json.dumps(data))
-    lib.send_data(data,lib.get_token())
+    lib.send_data(data,lib.get_token()[0])
 
     """
     req=urllib2.Request('http://dev.synopsi.tv/api/desktop/', data=json.dumps({'data':data, 'token': 12345}),
@@ -139,6 +158,14 @@ xbmc.log('SynopsiTV: ----> Addon author  : ' + __author__ )
 xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
 
 xbmc.log('SynopsiTV: STARTUP')
+#Notification("SynopsiTV: STARTUP")
+
+
+if __addon__.getSetting("BOOLTOK") == "false":
+    Notification("SynopsiTV","Opening Settings")
+    __addon__.openSettings()
+
+
 
 xbmc.log('SynopsiTV: NEW CLASS PLAYER')
 class MyPlayer(xbmc.Player) :
@@ -203,7 +230,8 @@ class MyPlayer(xbmc.Player) :
 player=MyPlayer()
 #xbmc.log('SynopsiTV: ------------------->TEST')
 
-runLibSearch()
+
+#runLibSearch()
 
 while (not xbmc.abortRequested):
     if xbmc.Player().isPlayingVideo():

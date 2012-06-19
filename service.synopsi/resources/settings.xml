@@ -2,14 +2,18 @@
 
 <settings>
     <category label="69500">
-        <setting id="USER" label="69501" type="text" default=""/>
+    <!--Login-->
+    <setting id="USER" label="69501" type="text" default=""/>
 	<setting id="PASS" label="69502" option="hidden" type="text" enable="!eq(-1,)" default=""/>
+	<!--TOKENS-->
+	<setting id="ACCTOKEN" option="hidden" type="text" visible="false" default=""/>
+	<setting id="REFTOKEN" option="hidden" type="text" visible="false" default=""/>
+	<setting id="BOOLTOK" option="hidden" type="bool" visible="false" default="false"/>
 
-	<setting id="TOKEN" label="69503" option="hidden" type="text" visible="false" default=""/>
+
+
 
 	<setting type="action" label="69504" action="RunScript($ID,splash)" option="close" default="" visible="true" />
-
-
 	<setting id="numfiles" option="hidden" type="text" visible="false" default="0"/>
 
     </category>

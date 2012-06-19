@@ -11,17 +11,18 @@ from urllib2 import Request, urlopen
 # definitions of properties
 key = 'd0198f911ef0292c83850f9dd77a5a'
 secret = '69884a55080284e41937e7a007e522'
-data = {'grant_type':'password', 'client_id': key, 'client_secret': secret, 'username': 'virgl@synopsi.tv', 'password': 'asdasd'}
+#data = {'grant_type':'password', 'client_id': key, 'client_secret': secret, 'username': 'virgl@synopsi.tv', 'password': 'asdasd'}
 headers={'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (key,secret)), 'user-agent': 'linux'}
 
 # get token
-def get_token():
+def get_token(user, passw):
+        data = {'grant_type':'password', 'client_id': key, 'client_secret': secret, 'username': user, 'password': passw}
         response = urlopen(Request('http://dev.synopsi.tv/oauth2/token/', data=urlencode(data), headers=headers, origin_req_host='dev.synopsi.tv'))
         response_json = json.loads(response.readline())
 
         access_token = response_json['access_token']
         refresh_token = response_json['refresh_token']
-        return (access_token)
+        return (access_token, refresh_token)
 
 def  send_data(json_data,access_token):
         pass
