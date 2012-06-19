@@ -3,30 +3,35 @@ import xbmcgui
 import xbmcaddon
 import json
 import urllib2
+from urllib2 import HTTPError
 import re
 import uuid
 #Local imports
 import RatingDialog
 import lib
 
+
 def Notification(Name, Text):
     """Sends notification to XBMC."""
-    xbmc.executebuiltin('XBMC.Notification(' + Name +',' + Text +',10)')
+    xbmc.executebuiltin('XBMC.Notification(' + str(Name) +',' + str(Text) +',1)')
 
 def Login(username, password):
+    """Login function."""
+    global loginFailed
     try:
         pass
         token = lib.get_token(username, password)
         __addon__.setSetting(id='ACCTOKEN', value=token[0])
         __addon__.setSetting(id='REFTOKEN', value=token[1])
         __addon__.setSetting(id='BOOLTOK', value="true")
-    except Exception, e:
-        #raise e
-        Notification(e,e)
-    
-    
-
-
+        #Deleting Password
+        pss  = '*'*len(password)
+        __addon__.setSetting(id='PASS', value=pss)
+    except HTTPError, e:
+        if e.code == 400:
+            if not loginFailed:
+                Notification("SynopsiTV","Login failed")
+            loginFailed = True
 
 def GenerateOSInfo():
     """Function that generates unique device info."""
@@ -168,7 +173,7 @@ if __addon__.getSetting("BOOLTOK") == "false":
 
 
 xbmc.log('SynopsiTV: NEW CLASS PLAYER')
-class MyPlayer(xbmc.Player) :
+class SynopsiPlayer(xbmc.Player) :
     xbmc.log('SynopsiTV: Class player is opened')
     
     def __init__ (self):
@@ -227,11 +232,13 @@ class MyPlayer(xbmc.Player) :
             SendInfoStart(xbmc.Player(),'resumed')
             
 
-player=MyPlayer()
+player=SynopsiPlayer()
 #xbmc.log('SynopsiTV: ------------------->TEST')
 
 
 #runLibSearch()
+
+loginFailed = False
 
 while (not xbmc.abortRequested):
     if xbmc.Player().isPlayingVideo():
@@ -240,6 +247,11 @@ while (not xbmc.abortRequested):
         VIDEO = 0
 
     xbmc.sleep(500)
+    if (__addon__.getSetting("BOOLTOK") == "false") and (__addon__.getSetting("USER") != "") and (__addon__.getSetting("PASS") != ""):
+        if not loginFailed:
+            xbmc.log("SynopsiTV: Trying to login")
+            Login(__addon__.getSetting("USER"),__addon__.getSetting("PASS"))
+
     #xbmc.log('VIDEO=' + str(VIDEO))
 
 while (xbmc.abortRequested):
