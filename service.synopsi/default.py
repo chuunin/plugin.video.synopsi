@@ -198,7 +198,7 @@ class SynopsiPlayer(xbmc.Player) :
             #ask about experience when > 70% of film
 
             if curtime > totaltime * 0.7:
-                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime)
+                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"))
                 ui.doModal()
                 del ui
             else:
