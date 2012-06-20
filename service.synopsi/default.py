@@ -64,8 +64,30 @@ def SendInfoStart(plyer, status):
     """
 
 def runQuery():
-    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(select all c16 from movie)")))
+    #xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(SELECT path.strPath, files.strFilename FROM path,files WHERE path.idPath=files.idPath)")))
 
+    """
+    NIGHTMAREEEE
+    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(SELECT path.strPath, strFilename FROM path, files WHERE path.idPath=idPath)")))
+    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(SELECT strPath FROM path, files)")))
+    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(SELECT path.strPath FROM path, files)")))
+    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(SELECT files.strFilename FROM files, path)")))
+    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(SELECT strFilename FROM files)")))
+    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(SELECT%20path.strPath,%20files.strFilename%20FROM%20path,files%20WHERE%20path.idPath=files.idPath)")))
+    """
+    #xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["file", "fanart", "thumbnail"]}, "id": 1}')))
+    xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["file","imdbnumber"]}, "id": 1}')))
+def queryVideoDB(sql, numofcol=1):
+    def chunks(l, n):
+            return [l[i:i+n] for i in range(0, len(l), n)]
+    if numofcol == 1:
+        xml = xbmc.executehttpapi("queryvideodatabase({0})".format(sql))
+        fields = re.compile("<field>(.+?)</field>").findall(xml.replace("\n",""))
+        return fields
+    else:
+        xml = xbmc.executehttpapi("queryvideodatabase({0})".format(sql))
+        fields = re.compile("<field>(.+?)</field>").findall(xml.replace("\n",""))
+        return chunks(fields, numofcol)
 
 def sendXBMCQuery(query):
     req = urllib2.Request(url=str('http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase({0})'.format(lib.url_fix(query))))
@@ -77,7 +99,7 @@ def LogQuery(query):
     xbmc.log(query)
     xbmc.log(sendXBMCQuery(query))
 
-def runLibSearch():
+def runLibSearchOld():
     """Function that runs on first start."""
     def chunks(l, n):
             return [l[i:i+n] for i in range(0, len(l), n)]
@@ -151,6 +173,22 @@ c19	 text	 Trailer URL
 c20	 text	 Fanart URLs
 c21	 text	 Country (Added in r29886[1]
 c23	 text	 idPath
+    """
+
+def runLibSearch():
+    """Find users movies."""
+    xbmc.log("SynopsiTV: Querying")
+    #xbmc.log(str(queryVideoDB("SELECT ALL strFilename from files",1)))
+
+    xbmc.log(str(queryVideoDB("SELECT COUNT(idMovie) FROM movie",1)))
+    xbmc.log(str(queryVideoDB("SELECT idMovie,c00 FROM movie",1)))
+    #for mfile in queryVideoDB("SELECT ALL idFile, idPath, strFilename, playCount, lastPlayed from files",5):
+    #    if not "stack://" in mfile[2]:
+    #for mfile in queryVideoDB("SELECT All path.strPath, files.strFilename FROM path INNER JOIN files ON path.idPath=files.idPath", 2):
+    """
+    for mfile in queryVideoDB("SELECT path.strPath, files.strFilename FROM path,files WHERE path.idPath=files.idPath", 2):
+        if not "stack://" in mfile[1]:
+            xbmc.log(str(mfile[0]+mfile[1]))
     """
         
         
@@ -233,7 +271,7 @@ player=SynopsiPlayer()
 #xbmc.log('SynopsiTV: ------------------->TEST')
 
 runQuery()
-#runLibSearch()
+runLibSearch()
 
 loginFailed = False
 
