@@ -194,6 +194,20 @@ class SynopsiPlayer(xbmc.Player) :
     def onPlayBackStopped(self):
         if (VIDEO == 1):
             xbmc.log('SynopsiTV: PLAYBACK STOPPED')
+
+            #ask about experience when > 70% of film
+
+            if curtime > totaltime * 0.7:
+                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime)
+                ui.doModal()
+                del ui
+            else:
+                pass                    
+
+            ######
+            #ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime)
+            #ui.doModal()
+            #del ui
             #SendInfoStart(xbmc.Player(),'stopped')
             #TODO: dorobit stop
             
@@ -203,9 +217,9 @@ class SynopsiPlayer(xbmc.Player) :
             SendInfoStart(xbmc.Player(),'paused')
             
 
-            dialog = xbmcgui.Dialog()
+            #dialog = xbmcgui.Dialog()
             #dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
-            dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
+            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
             
 
             #TODO: Popup rating
@@ -225,12 +239,13 @@ class SynopsiPlayer(xbmc.Player) :
             mydisplay .doModal()
             del mydisplay
 
-            """
+            
 
             #ui = RatingDialog.XMLRatingDialog( "service-synopsi-main.xml" , __cwd__, "Default")
-            ui = RatingDialog.XMLRatingDialog( "SynopsiDialog.xml" , __cwd__, "Default")
+            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime)
             ui.doModal()
             del ui
+            """
 
 
     def onPlayBackResumed(self):
@@ -247,9 +262,13 @@ player=SynopsiPlayer()
 
 loginFailed = False
 
+curtime, totaltime = (0,0)
+
 while (not xbmc.abortRequested):
     if xbmc.Player().isPlayingVideo():
         VIDEO = 1
+        curtime = xbmc.Player().getTime()
+        totaltime = xbmc.Player().getTotalTime()
     else:
         VIDEO = 0
 
