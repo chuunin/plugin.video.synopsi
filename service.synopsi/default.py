@@ -63,6 +63,10 @@ def SendInfoStart(plyer, status):
     xbmc.log('SynopsiTV: Response: ' + f.read())
     """
 
+def runQuery():
+    xbmc.log(str(xbmc.executehttpapi("queryvideodatabase(select all c16 from movie)")))
+
+
 def sendXBMCQuery(query):
     req = urllib2.Request(url=str('http://localhost/xbmcCmds/xbmcHttp?command=queryvideodatabase({0})'.format(lib.url_fix(query))))
     f = urllib2.urlopen(req)
@@ -190,6 +194,9 @@ class SynopsiPlayer(xbmc.Player) :
             xbmc.log('SynopsiTV: PLAYBACK ENDED')
             #SendInfoStart(xbmc.Player(),'ended')
             #TODO: dorobit end
+            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"))
+            ui.doModal()
+            del ui
             
     def onPlayBackStopped(self):
         if (VIDEO == 1):
@@ -216,38 +223,6 @@ class SynopsiPlayer(xbmc.Player) :
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
             SendInfoStart(xbmc.Player(),'paused')
             
-
-            #dialog = xbmcgui.Dialog()
-            #dialog.select('Rate this movie', ['Skip', 'Terrible', 'Okay', 'Amazing'])
-            #dialog.yesno('SynopsiTV', 'Rate this movie', 'Skip', 'Terrible', 'Okay')
-            
-
-            #TODO: Popup rating
-            #dil = RatingDialog.popupList()
-            #dil.place()
-            
-            #popup = popupList(title= 'Playlists', items=playlists, btns=options, width=0.5)
-            #popup = RatingDialog.popupList(title= 'Playlists')
-
-            #popup.doModal()
-            #selected = popup.selected
-            #del popup
-            #return selected 
-
-            """
-            mydisplay = RatingDialog.MyClass()
-            mydisplay .doModal()
-            del mydisplay
-
-            
-
-            #ui = RatingDialog.XMLRatingDialog( "service-synopsi-main.xml" , __cwd__, "Default")
-            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime)
-            ui.doModal()
-            del ui
-            """
-
-
     def onPlayBackResumed(self):
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')
@@ -257,7 +232,7 @@ class SynopsiPlayer(xbmc.Player) :
 player=SynopsiPlayer()
 #xbmc.log('SynopsiTV: ------------------->TEST')
 
-
+runQuery()
 #runLibSearch()
 
 loginFailed = False
