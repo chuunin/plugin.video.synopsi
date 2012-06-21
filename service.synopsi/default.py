@@ -43,9 +43,44 @@ def GenerateOSInfo():
 
 def SendInfoStart(plyer, status):
     """Function that sends json of current video status."""
+
+    """
+    if not "stack://" in path:
+                #xbmc.log(str(lib.myhash(path)))
+                #xbmc.log(str(lib.hashFile(path)))
+                movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
+                movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+            else:
+                movieDict["result"]['movies'][j]['files'] = []
+                for moviefile in path.strip("stack://").split(" , "):
+                    #xbmc.log(str(lib.myhash(moviefile)))
+                    movieDict["result"]['movies'][j]['files'].append(
+                        {"path":moviefile, 
+                        "synopsihash":str(lib.myhash(moviefile)),
+                        "subtitlehash":str(lib.hashFile(moviefile))
+                        })
+    """
+
+
     InfoTag = plyer.getVideoInfoTag()
+    path = plyer.getPlayingFile()
+
+    hashDic = {}
+    if not "stack://" in path:
+        hashDic['synopsihash'] = str(lib.myhash(path))
+        hashDic['subtitlehash'] = str(lib.hashFile(path))
+    else:
+        hashDic['files'] = []
+        for moviefile in path.strip("stack://").split(" , "):
+            hashDic['files'].append(
+                        {"path":moviefile, 
+                        "synopsihash":str(lib.myhash(moviefile)),
+                        "subtitlehash":str(lib.hashFile(moviefile))
+                        })
+
     data = {'File': InfoTag.getFile(),
-            'File2': plyer.getPlayingFile(),
+            'File2': path, 
+            'Hashes':hashDic,
             'Time': plyer.getTime(),
             'TotalTime': plyer.getTotalTime(),
             #'SeekTime': plyer.seekTime(),
@@ -194,6 +229,9 @@ class SynopsiPlayer(xbmc.Player) :
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK STARTED')
             SendInfoStart(xbmc.Player(),'started')
+
+            #Storing hash
+            #self.synopsihash = f
             
     def onPlayBackEnded(self):
         if (VIDEO == 1):
