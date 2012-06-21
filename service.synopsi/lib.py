@@ -26,7 +26,7 @@ def get_token(user, passw):
 	#return (access_token, refresh_token)
 	return (access_token, "")
 
-def  send_data(json_data,access_token):
+def send_data(json_data,access_token):
 	# example of sending data
 	#json_data = {'test': 'example'}
 	data = {'client_id': key, 'client_secret': secret, 'bearer_token': access_token, 'data': json.dumps(json_data)}
@@ -37,6 +37,17 @@ def sha1(filepath):
 	f = open(filepath, 'rb')
 	try:
 		sha1.update(f.read())
+	finally:
+		f.close()
+	return sha1.hexdigest()
+
+def myhash(filepath):
+	sha1 = hashlib.sha1()
+	f = open(filepath, 'rb')
+	try:
+		sha1.update(f.read(256))
+		f.seek(-256, 2)
+		sha1.update(f.read(256))
 	finally:
 		f.close()
 	return sha1.hexdigest()

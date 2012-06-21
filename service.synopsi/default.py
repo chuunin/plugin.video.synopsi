@@ -10,6 +10,8 @@ import uuid
 import RatingDialog
 import lib
 
+import hashlib
+
 
 def Notification(Name, Text):
     """Sends notification to XBMC."""
@@ -66,7 +68,99 @@ def SendInfoStart(plyer, status):
 def runQuery():
     #xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["file", "fanart", "thumbnail"]}, "id": 1}')))
     xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["file","imdbnumber"]}, "id": 1}')))
-        
+    #xbmc.log(str(xbmc.getInfoLabel()))
+
+    properties =['file', 'imdbnumber']
+    method = 'VideoLibrary.GetMovies'
+#limits=
+    dic = {'params': 
+    {
+    'properties': properties, 
+    'limits': {'end': 5, 'start': 0 }
+    },
+    'jsonrpc': '2.0',
+    'method': method,
+    'id': 1}
+
+    xbmc.log(str(xbmc.executeJSONRPC(json.dumps(dic))))
+
+
+    xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "JSONRPC.Permission", "id": 1}')))
+
+def searchVideoDB():
+    def Getmovies(start, end):
+        properties =['file', 'imdbnumber']
+        method = 'VideoLibrary.GetMovies'
+        dic = {'params': 
+        {
+        'properties': properties, 
+        'limits': {'end': end, 'start': start } #s 1 e 2 writes 2
+        },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1}
+
+        return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
+    nomovies = Getmovies(0,1)["result"]["limits"]["total"]
+
+    pack = 20 #how many movies in one JSON
+
+    for i in range(nomovies//pack):
+        start = i*pack
+        end = start + pack
+
+        movieDict = Getmovies(start, end)
+
+        for j in range(pack):
+            #xbmc.log(str(movieDict["result"]['movies'][j]['label']))
+            #xbmc.log(str(lib.myhash(movieDict["result"]['movies'][j]['file'])))
+
+            path = movieDict["result"]['movies'][j]['file']
+            if not "stack://" in path:
+                #xbmc.log(str(lib.myhash(path)))
+                #xbmc.log(str(lib.hashFile(path)))
+                movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
+                movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+            else:
+                movieDict["result"]['movies'][j]['files'] = []
+                for moviefile in path.strip("stack://").split(" , "):
+                    #xbmc.log(str(lib.myhash(moviefile)))
+                    movieDict["result"]['movies'][j]['files'].append(
+                        {"path":moviefile, 
+                        "synopsihash":str(lib.myhash(moviefile)),
+                        "subtitlehash":str(lib.hashFile(moviefile))
+                        })
+        xbmc.log(str(json.dumps(movieDict)))
+
+        #xbmc.log(str(xbmc.executeJSONRPC(json.dumps(dic))))
+    
+    end = nomovies
+    start = end- nomovies%pack
+
+    movieDict = Getmovies(start, end)
+    for j in range(end-start):
+        #xbmc.log(str(movieDict["result"]["movies"][j]['label']))
+        path = movieDict["result"]['movies'][j]['file']
+        if not "stack://" in path:
+            #xbmc.log(str(lib.myhash(path)))
+            #xbmc.log(str(lib.hashFile(path)))
+            movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
+            movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+        else:
+            movieDict["result"]['movies'][j]['files'] = []
+            for moviefile in path.strip("stack://").split(" , "):
+                #xbmc.log(str(lib.myhash(moviefile)))
+                movieDict["result"]['movies'][j]['files'].append(
+                    {"path":moviefile, 
+                    "synopsihash":str(lib.myhash(moviefile)),
+                    "subtitlehash":str(lib.hashFile(moviefile))
+                    })
+    xbmc.log(str(json.dumps(movieDict)))
+
+
+
+
 # ADDON INFORMATION
 __addon__     = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -144,6 +238,8 @@ class SynopsiPlayer(xbmc.Player) :
 player=SynopsiPlayer()
 loginFailed = False
 curtime, totaltime = (0,0)
+#runQuery()
+searchVideoDB()
 
 while (not xbmc.abortRequested):
     if xbmc.Player().isPlayingVideo():
