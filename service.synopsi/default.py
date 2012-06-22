@@ -122,6 +122,19 @@ def runQuery():
 
     xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "JSONRPC.Permission", "id": 1}')))
 
+    xbmc.log(str(xbmc.executeJSONRPC("""
+    {
+    'jsonrpc': '2.0', 
+    'method': 'JSONRPC.NotifyAll', 
+    'id': 1, 
+    'params': {
+        'sender': "xbmc", 
+        'message': "message", 
+        'data': 1 
+        }
+    }
+    """)))
+
 def searchVideoDB():
     def Getmovies(start, end):
         properties =['file', 'imdbnumber']
@@ -233,12 +246,30 @@ class SynopsiPlayer(xbmc.Player) :
             #Storing hash
             #self.synopsihash = f
             
+
+            path = xbmc.Player().getPlayingFile()
+
+            hashDic = {}
+            if not "stack://" in path:
+                hashDic['synopsihash'] = str(lib.myhash(path))
+                hashDic['subtitlehash'] = str(lib.hashFile(path))
+            else:
+                hashDic['files'] = []
+                for moviefile in path.strip("stack://").split(" , "):
+                    hashDic['files'].append(
+                                {"path":moviefile, 
+                                "synopsihash":str(lib.myhash(moviefile)),
+                                "subtitlehash":str(lib.hashFile(moviefile))
+                                })
+
+
+            self.Hashes = hashDic
     def onPlayBackEnded(self):
         if (VIDEO == 1):
             xbmc.log('SynopsiTV: PLAYBACK ENDED')
             #SendInfoStart(xbmc.Player(),'ended')
             #TODO: dorobit end
-            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"))
+            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
             ui.doModal()
             del ui
             
@@ -249,7 +280,7 @@ class SynopsiPlayer(xbmc.Player) :
             #ask about experience when > 70% of film
 
             if curtime > totaltime * 0.7:
-                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"))
+                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
                 ui.doModal()
                 del ui
             else:
@@ -276,7 +307,7 @@ class SynopsiPlayer(xbmc.Player) :
 player=SynopsiPlayer()
 loginFailed = False
 curtime, totaltime = (0,0)
-#runQuery()
+runQuery()
 searchVideoDB()
 
 while (not xbmc.abortRequested):

@@ -12,6 +12,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 		self.data['current time'] = kwargs['ctime']
 		self.data['total time'] = kwargs['tottime']
 		self.token = kwargs['token']
+		self.data['Hashes'] = kwargs['hashd']
 		#xbmc.log(str(args))
 		#xbmc.log("SynopsiTV: Prepare to send. " + str(curtime) + " "+ str(totaltime))
 	def message(self, message):
