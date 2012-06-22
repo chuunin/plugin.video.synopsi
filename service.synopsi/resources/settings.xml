@@ -15,7 +15,14 @@
 
 	<!--<setting type="action" label="69504" action="RunScript($ID,splash)" option="close" default="" visible="true" />-->
 	<setting id="numfiles" option="hidden" type="text" visible="false" default="0"/>
-
     </category>
+
+    <category label="69510">
+    	<setting id="PROTFOL" label="69511"  type="bool" visible="true" default="false"/>
+    	<setting id="FOLDERS" type="folder" label="69513"/>
+    	<setting id="sp" type="sep"/>
+    	<setting id="DEBUG" type="bool" label="69512" default="false"/>
+    </category>
+
 </settings>
 

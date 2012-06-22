@@ -5,4 +5,12 @@
     <string id="69502">Password</string>
 
     <string id="69504">Login</string>
+
+    <!--Settings-->
+
+    <string id="69510">Settings</string>
+    <string id="69511">Allow protected folders</string>
+    <string id="69512">Allow debugging</string>
+
+    <string id="69513">Protected folders</string>
 </strings>
