@@ -47,7 +47,5 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 			self.data['rating']  = "Not Rated"
 			lib.send_data(self.data,self.token)
 			self.close()
-		#if action.getId() == 11:
-		#	self.message('Ty vole stlacils 11')
 
 		

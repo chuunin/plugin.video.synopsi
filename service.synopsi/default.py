@@ -6,11 +6,10 @@ import urllib2
 from urllib2 import HTTPError
 import re
 import uuid
+
 #Local imports
 import RatingDialog
 import lib
-
-import hashlib
 
 
 def Notification(Name, Text):
@@ -40,31 +39,8 @@ def GenerateOSInfo():
     uid = str(uuid.uuid4())
     #TODO: Add OS specific info.
 
-
-def SendInfoStart(plyer, status):
-    """Function that sends json of current video status."""
-
-    """
-    if not "stack://" in path:
-                #xbmc.log(str(lib.myhash(path)))
-                #xbmc.log(str(lib.hashFile(path)))
-                movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
-                movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
-            else:
-                movieDict["result"]['movies'][j]['files'] = []
-                for moviefile in path.strip("stack://").split(" , "):
-                    #xbmc.log(str(lib.myhash(moviefile)))
-                    movieDict["result"]['movies'][j]['files'].append(
-                        {"path":moviefile, 
-                        "synopsihash":str(lib.myhash(moviefile)),
-                        "subtitlehash":str(lib.hashFile(moviefile))
-                        })
-    """
-
-
-    InfoTag = plyer.getVideoInfoTag()
-    path = plyer.getPlayingFile()
-
+def GetHashDic(path):
+    """Returns hash dictionary."""
     hashDic = {}
     if not "stack://" in path:
         hashDic['synopsihash'] = str(lib.myhash(path))
@@ -77,6 +53,16 @@ def SendInfoStart(plyer, status):
                         "synopsihash":str(lib.myhash(moviefile)),
                         "subtitlehash":str(lib.hashFile(moviefile))
                         })
+    return hashDic
+
+
+def SendInfoStart(plyer, status):
+    """Function that sends json of current video status."""
+
+    InfoTag = plyer.getVideoInfoTag()
+    path = plyer.getPlayingFile()
+
+    hashDic = GetHashDic(path)
 
     data = {'File': InfoTag.getFile(),
             'File2': path, 
@@ -136,6 +122,7 @@ def runQuery():
     """)))
 
 def searchVideoDB():
+    """Function that runs on first start and sends whole movie database."""
     def Getmovies(start, end):
         properties =['file', 'imdbnumber']
         method = 'VideoLibrary.GetMovies'
@@ -248,21 +235,7 @@ class SynopsiPlayer(xbmc.Player) :
             
 
             path = xbmc.Player().getPlayingFile()
-
-            hashDic = {}
-            if not "stack://" in path:
-                hashDic['synopsihash'] = str(lib.myhash(path))
-                hashDic['subtitlehash'] = str(lib.hashFile(path))
-            else:
-                hashDic['files'] = []
-                for moviefile in path.strip("stack://").split(" , "):
-                    hashDic['files'].append(
-                                {"path":moviefile, 
-                                "synopsihash":str(lib.myhash(moviefile)),
-                                "subtitlehash":str(lib.hashFile(moviefile))
-                                })
-
-
+            hashDic = GetHashDic(path)
             self.Hashes = hashDic
     def onPlayBackEnded(self):
         if (VIDEO == 1):
