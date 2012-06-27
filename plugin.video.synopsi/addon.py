@@ -1,4 +1,4 @@
-import xbmc, xbmcgui, xbmcplugin, urllib2, urllib, re, sys, os, time
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon, urllib2, urllib, re, sys, os, time
 import cookielib
 
 import test
@@ -70,6 +70,18 @@ def addDir(name,url,mode,iconimage):
         return ok
         
               
+# ADDON INFORMATION
+__addon__     = xbmcaddon.Addon()
+__addonname__ = __addon__.getAddonInfo('name')
+__cwd__       = __addon__.getAddonInfo('path')
+__author__    = __addon__.getAddonInfo('author')
+__version__   = __addon__.getAddonInfo('version')
+
+if __addon__.getSetting("firststart") == "true":
+        xbmc.executebuiltin("RunAddon(service.synopsi)")
+        __addon__.setSetting(id='firststart', value="false")
+
+
 params=get_params()
 url=None
 name=None

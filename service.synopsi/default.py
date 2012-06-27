@@ -55,7 +55,6 @@ def GetHashDic(path):
                         })
     return hashDic
 
-
 def SendInfoStart(plyer, status):
     """Function that sends json of current video status."""
 
@@ -88,12 +87,12 @@ def SendInfoStart(plyer, status):
 
 def runQuery():
     #xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["file", "fanart", "thumbnail"]}, "id": 1}')))
-    xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["file","imdbnumber"]}, "id": 1}')))
+    xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["lastplayed", "playcount","file","imdbnumber"]}, "id": 1}')))
     #xbmc.log(str(xbmc.getInfoLabel()))
 
     properties =['file', 'imdbnumber']
     method = 'VideoLibrary.GetMovies'
-#limits=
+    #limits=
     dic = {'params': 
     {
     'properties': properties, 
@@ -121,22 +120,23 @@ def runQuery():
     }
     """)))
 
+def Getmovies(start, end):
+    properties =['file', 'imdbnumber',"lastplayed", "playcount"]
+    method = 'VideoLibrary.GetMovies'
+    dic = {'params': 
+    {
+    'properties': properties, 
+    'limits': {'end': end, 'start': start } #s 1 e 2 writes 2
+    },
+    'jsonrpc': '2.0',
+    'method': method,
+    'id': 1}
+
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
 def searchVideoDB():
     """Function that runs on first start and sends whole movie database."""
-    def Getmovies(start, end):
-        properties =['file', 'imdbnumber']
-        method = 'VideoLibrary.GetMovies'
-        dic = {'params': 
-        {
-        'properties': properties, 
-        'limits': {'end': end, 'start': start } #s 1 e 2 writes 2
-        },
-        'jsonrpc': '2.0',
-        'method': method,
-        'id': 1}
-
-        return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
-
+    
     nomovies = Getmovies(0,1)["result"]["limits"]["total"]
 
     pack = 20 #how many movies in one JSON
@@ -193,7 +193,17 @@ def searchVideoDB():
                     })
     xbmc.log(str(json.dumps(movieDict)))
 
+def updateDB():
+    pass
 
+def hasDatabaseChanged():
+    global __addon__
+    numfil = int(xbmc.executehttpapi("queryvideodatabase(SELECT Count(idFile) FROM files)"))
+    if int(__addon__.getSetting('numfiles')) < numfil:
+        __addon__.setSetting(id='numfiles', value=numfil)
+        return True
+    else:
+        return False
 
 
 # ADDON INFORMATION
@@ -217,6 +227,7 @@ if __addon__.getSetting("BOOLTOK") == "false":
     __addon__.openSettings()
 
 
+
 xbmc.log('SynopsiTV: NEW CLASS PLAYER')
 class SynopsiPlayer(xbmc.Player) :
     xbmc.log('SynopsiTV: Class player is opened')
@@ -231,12 +242,10 @@ class SynopsiPlayer(xbmc.Player) :
             SendInfoStart(xbmc.Player(),'started')
 
             #Storing hash
-            #self.synopsihash = f
-            
-
             path = xbmc.Player().getPlayingFile()
             hashDic = GetHashDic(path)
             self.Hashes = hashDic
+
     def onPlayBackEnded(self):
         if (VIDEO == 1):
             xbmc.log('SynopsiTV: PLAYBACK ENDED')
@@ -251,7 +260,6 @@ class SynopsiPlayer(xbmc.Player) :
             xbmc.log('SynopsiTV: PLAYBACK STOPPED')
 
             #ask about experience when > 70% of film
-
             if curtime > totaltime * 0.7:
                 ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
                 ui.doModal()
@@ -259,10 +267,6 @@ class SynopsiPlayer(xbmc.Player) :
             else:
                 pass                    
 
-            ######
-            #ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime)
-            #ui.doModal()
-            #del ui
             #SendInfoStart(xbmc.Player(),'stopped')
             #TODO: dorobit stop
             
@@ -280,7 +284,7 @@ class SynopsiPlayer(xbmc.Player) :
 player=SynopsiPlayer()
 loginFailed = False
 curtime, totaltime = (0,0)
-runQuery()
+#runQuery()
 searchVideoDB()
 
 while (not xbmc.abortRequested):
@@ -292,6 +296,8 @@ while (not xbmc.abortRequested):
         VIDEO = 0
 
     xbmc.sleep(500)
+    if hasDatabaseChanged():
+        updateDB()
     if (__addon__.getSetting("BOOLTOK") == "false") and (__addon__.getSetting("USER") != "") and (__addon__.getSetting("PASS") != ""):
         if not loginFailed:
             xbmc.log("SynopsiTV: Trying to login")

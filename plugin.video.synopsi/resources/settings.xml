@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<settings>
+    <setting id="firststart" option="hidden" type="bool" visible="false" default="true"/>
+
+</settings>
