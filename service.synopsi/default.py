@@ -134,12 +134,33 @@ def Getmovies(start, end):
 
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
-def searchVideoDB():
-    """Function that runs on first start and sends whole movie database."""
-    
-    nomovies = Getmovies(0,1)["result"]["limits"]["total"]
+def WriteSectorMovieToCache(dictionary={}):
+    """
+    Save movieID, filename to cache.txt
+    """
 
-    pack = 20 #how many movies in one JSON
+    with open("cache.txt", "w") as f:
+        f.write(xbmc.executehttpapi("queryvideodatabase(SELECT idMovie, idFile, c00 FROM movie)"))
+    
+    with open("cache2.txt", "w") as f:
+        f.write(xbmc.executehttpapi("queryvideodatabase(SELECT idFile, c00 FROM files)"))
+
+    """
+    with open("cache.txt", "w") as f:
+        pass
+        f.write('This is a test\n')
+        dictionary["result"]['movies']
+    """
+
+
+def searchVideoDB():
+    """
+    Function that runs on first start and sends whole movie database.
+    """
+    
+    nomovies = Getmovies(0, 1)["result"]["limits"]["total"]
+
+    pack = 20 # how many movies in one JSON
 
     for i in range(nomovies//pack):
         start = i*pack
@@ -168,6 +189,8 @@ def searchVideoDB():
                         })
         xbmc.log(str(json.dumps(movieDict)))
 
+        WriteSectorMovieToCache(movieDict)
+
         #xbmc.log(str(xbmc.executeJSONRPC(json.dumps(dic))))
     
     end = nomovies
@@ -193,14 +216,18 @@ def searchVideoDB():
                     })
     xbmc.log(str(json.dumps(movieDict)))
 
+    WriteSectorMovieToCache(movieDict)
+
 def updateDB():
     pass
 
 def hasDatabaseChanged():
     global __addon__
-    numfil = int(xbmc.executehttpapi("queryvideodatabase(SELECT Count(idFile) FROM files)"))
+    fread = xbmc.executehttpapi("queryvideodatabase(SELECT Count(idFile) FROM files)")
+    fields = re.compile("<field>(.+?)</field>").findall(fread.replace("\n",""))
+    numfil = int(fields[0])#TODO: if regex fails
     if int(__addon__.getSetting('numfiles')) < numfil:
-        __addon__.setSetting(id='numfiles', value=numfil)
+        __addon__.setSetting(id='numfiles', value=str(numfil))
         return True
     else:
         return False
@@ -219,7 +246,7 @@ xbmc.log('SynopsiTV: ----> Addon author  : ' + __author__ )
 xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
 
 xbmc.log('SynopsiTV: STARTUP')
-#Notification("SynopsiTV: STARTUP")
+Notification("SynopsiTV","STARTUP")
 
 
 if __addon__.getSetting("BOOLTOK") == "false":
