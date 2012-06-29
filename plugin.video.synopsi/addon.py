@@ -5,31 +5,37 @@ import test
 
 movies = test.jsfile
 
-
+######
+#Need to rewrite completely
+######
 def SEASONS():
     #data = json.loads(jsfile.read())
     #addDir('Name','http://video.markiza.sk',1,'link')
     for film in movies:
         #print film.get('cover_medium'), film.get('name')
-        addDir(film.get('name'),film.get('cover_medium'),1,film.get('cover_medium'))
+        addDir(film.get('name'),"stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",1,film.get('cover_medium'))
 
 def EPISODES(url):
+    """
     data = getHTML(url,baseurl)
-    episodes = re.compile(""" <div class="image"><a href=".+?"><img src="(.+?)" /></a></div>
- <div class="title"><a href="(.+?)">(.+?)</a></div>
- <span>(.+?)<br/>(.+?)</span>""").findall(data, re.DOTALL)
+    
     for image, url, title, date, pv in episodes:
         #addDir(title,bconf + url.split('/')[3],2,image)
         addDir(title +' '+date,bconf + url.split('/')[3],2,image)
-
+    """
+    VIDEOLINKS(url, "Film")
 def VIDEOLINKS(url,name):
-    data = getHTML(url,baseurl)
+    #data = getHTML(url,baseurl)
+    
     pl=xbmc.PlayList(1)
     pl.clear()
+    """
     episode = re.compile('"url":"(.+?)"').findall(data, re.DOTALL)
     for links in episode:
         if links.split('/')[4] == 'video':
             string = links
+    """
+    string = url
                
     item=xbmcgui.ListItem(name, iconImage='', thumbnailImage='')       
     item.setInfo( type="Video", infoLabels={ "Title": name})

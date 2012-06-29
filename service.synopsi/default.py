@@ -9,12 +9,17 @@ import uuid
 import os
 import sqlite3
 import socket
+import time
 
 
 #Local imports
 import RatingDialog
 import lib
 
+
+class Timer():
+   def __enter__(self): self.start = time.time()
+   def __exit__(self, *args): xbmc.log(str(time.time() - self.start))
 
 def Notification(Name, Text):
     """Sends notification to XBMC."""
@@ -349,11 +354,15 @@ class SynopsiPlayer(xbmc.Player) :
             del ui
             
     def onPlayBackStopped(self):
+        # TODO: fix with json
+        xbmc.log("STOPPPPPPPPPPP" + str(VIDEO)+" Curtime: "+str(curtime))
         if (VIDEO == 1):
+        #if True:
             xbmc.log('SynopsiTV: PLAYBACK STOPPED')
 
             #ask about experience when > 70% of film
-            if curtime > totaltime * 0.7:
+            #if curtime > totaltime * 0.7:
+            if True:    
                 ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
                 ui.doModal()
                 del ui
@@ -378,7 +387,9 @@ player=SynopsiPlayer()
 loginFailed = False
 curtime, totaltime = (0,0)
 #runQuery()
-searchVideoDB()
+
+with Timer():
+    searchVideoDB()
 
 
 while (not xbmc.abortRequested):
@@ -397,7 +408,7 @@ while (not xbmc.abortRequested):
             xbmc.log("SynopsiTV: Trying to login")
             Login(__addon__.getSetting("USER"),__addon__.getSetting("PASS"))
     xbmc.log("-------------------------------------------------------------")
-    xbmc.log(str(sc.recieve(4096)))
+    xbmc.log(str(sc.recieve(4096)))# Tu je problemmmmmmm
     xbmc.log("-------------------------------------------------------------")
 
 while (xbmc.abortRequested):
