@@ -6,6 +6,10 @@ import urllib2
 from urllib2 import HTTPError
 import re
 import uuid
+import os
+import sqlite3
+import socket
+
 
 #Local imports
 import RatingDialog
@@ -134,24 +138,23 @@ def Getmovies(start, end):
 
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
-def WriteSectorMovieToCache(dictionary={}):
-    """
-    Save movieID, filename to cache.txt
-    """
 
-    with open("cache.txt", "w") as f:
-        f.write(xbmc.executehttpapi("queryvideodatabase(SELECT idMovie, idFile, c00 FROM movie)"))
-    
-    with open("cache2.txt", "w") as f:
-        f.write(xbmc.executehttpapi("queryvideodatabase(SELECT idFile, c00 FROM files)"))
+def runQuery(Query):
+    path = os.path.dirname(os.path.dirname(__cwd__))
 
-    """
-    with open("cache.txt", "w") as f:
-        pass
-        f.write('This is a test\n')
-        dictionary["result"]['movies']
-    """
+    if os.name == "nt":
+        path = path + "\userdata\Database\MyVideos60.db"
+    else:
+        path = path + "/userdata/Database/MyVideos60.db"
 
+    xbmc.log(str(path))
+    conn = sqlite3.connect(path)
+    c = conn.cursor()
+    #c.execute('SELECT All path.strPath, files.strFilename FROM path INNER JOIN files ON path.idPath=files.idPath')
+    #xbmc.log(str(c.fetchone()))
+
+    for row in c.execute(Query):
+        xbmc.log(str(row))
 
 def searchVideoDB():
     """
@@ -189,7 +192,7 @@ def searchVideoDB():
                         })
         xbmc.log(str(json.dumps(movieDict)))
 
-        WriteSectorMovieToCache(movieDict)
+        # WriteSectorMovieToCache(movieDict)
 
         #xbmc.log(str(xbmc.executeJSONRPC(json.dumps(dic))))
     
@@ -216,7 +219,7 @@ def searchVideoDB():
                     })
     xbmc.log(str(json.dumps(movieDict)))
 
-    WriteSectorMovieToCache(movieDict)
+    # WriteSectorMovieToCache(movieDict)
 
 def updateDB():
     pass
@@ -233,6 +236,60 @@ def hasDatabaseChanged():
         return False
 
 
+class Database(object):
+    """docstring for Database"""
+    def __init__(self):
+        path = os.path.dirname(os.path.dirname(__cwd__))
+
+        if os.name == "nt":
+            path = path + "\userdata\Database\MyVideos60.db"
+        else:
+            path = path + "/userdata/Database/MyVideos60.db"
+
+
+        self.conn = sqlite3.connect(path)
+        self.c = self.conn.cursor()
+
+    def runQuery(self, Query):
+        return self.c.execute(Query)
+        """
+        for row in c.execute(Query):
+            row
+        """
+    def close(self):
+        self.conn.close()
+
+class XBSocket(object):
+    """docstring for XBSocket"""
+    def __init__(self):
+        self.sock = socket.socket()
+        self.sock.settimeout(None)
+        self.sock.connect(("localhost", 9090))
+    def send(self, data):
+        self.sock.send(data)
+    def recieve(self, length):
+        return self.sock.recv(length)
+    def close(self):
+        self.sock.close()
+
+def NotifyAll():
+    xbmc.executeJSONRPC("""
+    {
+    "jsonrpc": "2.0", 
+    "method": "JSONRPC.NotifyAll", 
+    "id": 1, 
+    "params": {
+        "sender": "xbmc", 
+        "message": "message", 
+        "data": 1 
+        }
+    }
+    """)
+
+        
+        
+
+
 # ADDON INFORMATION
 __addon__     = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -246,15 +303,24 @@ xbmc.log('SynopsiTV: ----> Addon author  : ' + __author__ )
 xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
 
 xbmc.log('SynopsiTV: STARTUP')
-Notification("SynopsiTV","STARTUP")
-
+#Notification("SynopsiTV","STARTUP")
+"""
+db = Database()
+db.runQuery("SELECT * FROM movie")
+db.close()
+"""
+sc = XBSocket()
+NotifyAll()
+xbmc.log("-------------------------------------------------------------")
+xbmc.log(str(sc.recieve(4096)))
+xbmc.log("-------------------------------------------------------------")
 
 if __addon__.getSetting("BOOLTOK") == "false":
     Notification("SynopsiTV","Opening Settings")
     __addon__.openSettings()
 
 
-
+xbmc.log(__cwd__)
 xbmc.log('SynopsiTV: NEW CLASS PLAYER')
 class SynopsiPlayer(xbmc.Player) :
     xbmc.log('SynopsiTV: Class player is opened')
@@ -304,7 +370,7 @@ class SynopsiPlayer(xbmc.Player) :
             
     def onPlayBackResumed(self):
         if xbmc.Player().isPlayingVideo():
-            xbmc.log('SynopsiTV: PLAYBACK RESUMED')
+            xbmc.log('SynopsiTV: PLAYBACK RESUMED')  
             SendInfoStart(xbmc.Player(),'resumed')
             
 
@@ -313,6 +379,7 @@ loginFailed = False
 curtime, totaltime = (0,0)
 #runQuery()
 searchVideoDB()
+
 
 while (not xbmc.abortRequested):
     if xbmc.Player().isPlayingVideo():
@@ -329,7 +396,11 @@ while (not xbmc.abortRequested):
         if not loginFailed:
             xbmc.log("SynopsiTV: Trying to login")
             Login(__addon__.getSetting("USER"),__addon__.getSetting("PASS"))
+    xbmc.log("-------------------------------------------------------------")
+    xbmc.log(str(sc.recieve(4096)))
+    xbmc.log("-------------------------------------------------------------")
 
 while (xbmc.abortRequested):
     xbmc.log('SynopsiTV: Aborting...')
+    sc.close()
 
