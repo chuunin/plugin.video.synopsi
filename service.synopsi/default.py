@@ -10,7 +10,7 @@ import os
 import sqlite3
 import socket
 import time
-
+import threading
 
 #Local imports
 import RatingDialog
@@ -263,12 +263,12 @@ class Database(object):
         """
     def close(self):
         self.conn.close()
-
+"""
 class XBSocket(object):
-    """docstring for XBSocket"""
     def __init__(self):
         self.sock = socket.socket()
         self.sock.settimeout(None)
+        #self.sock.settimeout(0)
         self.sock.connect(("localhost", 9090))
     def send(self, data):
         self.sock.send(data)
@@ -276,6 +276,23 @@ class XBSocket(object):
         return self.sock.recv(length)
     def close(self):
         self.sock.close()
+"""
+
+class XBAPIThread(threading.Thread):
+    """docstring for XBAPIThread"""
+    def __init__(self):
+        super(XBAPIThread, self).__init__()
+        self.sock = socket.socket()
+        self.sock.settimeout(None)
+        self.sock.connect(("localhost", 9090))
+
+    def run(self):
+        while True:
+            xbmc.log(str(self.sock.recv(4096)))
+
+    def __del__(self):
+        self.sock.close()
+
 
 def NotifyAll():
     xbmc.executeJSONRPC("""
@@ -309,17 +326,20 @@ xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
 
 xbmc.log('SynopsiTV: STARTUP')
 #Notification("SynopsiTV","STARTUP")
+
+thr = XBAPIThread()
+thr.start()
 """
 db = Database()
 db.runQuery("SELECT * FROM movie")
 db.close()
-"""
+
 sc = XBSocket()
 NotifyAll()
 xbmc.log("-------------------------------------------------------------")
 xbmc.log(str(sc.recieve(4096)))
 xbmc.log("-------------------------------------------------------------")
-
+"""
 if __addon__.getSetting("BOOLTOK") == "false":
     Notification("SynopsiTV","Opening Settings")
     __addon__.openSettings()
@@ -355,7 +375,9 @@ class SynopsiPlayer(xbmc.Player) :
             
     def onPlayBackStopped(self):
         # TODO: fix with json
-        xbmc.log("STOPPPPPPPPPPP" + str(VIDEO)+" Curtime: "+str(curtime))
+        xbmc.log("STOPPPPPPPPPPP  " + str(VIDEO)+" Curtime: "+str(curtime))
+        
+        """
         if (VIDEO == 1):
         #if True:
             xbmc.log('SynopsiTV: PLAYBACK STOPPED')
@@ -367,11 +389,47 @@ class SynopsiPlayer(xbmc.Player) :
                 ui.doModal()
                 del ui
             else:
-                pass                    
+                pass         
 
+        if (VIDEO==0) and not (curtime==0):           
+            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+            ui.doModal()
+            del ui
             #SendInfoStart(xbmc.Player(),'stopped')
             #TODO: dorobit stop
-            
+        """
+        if (VIDEO == 1):
+        #if True:
+            xbmc.log('SynopsiTV: PLAYBACK STOPPED')
+
+            #ask about experience when > 70% of film
+            #if curtime > totaltime * 0.7:
+            if True:    
+                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+                ui.doModal()
+                del ui
+            else:
+                pass         
+        """
+        if (VIDEO==0) and not (curtime==0):           
+            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+            ui.doModal()
+            del ui
+        """
+        """
+        data = json.loads(sc.recieve(4096))
+
+        xbmc.log("PRed podmienkov")
+        # {"jsonrpc":"2.0","method":"Player.OnStop","params":{"data":{"item":{"id":1,"type":"song"}},"sender":"xbmc"}}
+        if data["method"] == "Player.OnStop":
+            xbmc.log("za podmienkov")
+            if data["params"]["data"]["item"]["type"] == "song":
+                xbmc.log("zza podmienkov")
+                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+                ui.doModal()
+                del ui
+        """
+
     def onPlayBackPaused(self):
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
@@ -407,11 +465,12 @@ while (not xbmc.abortRequested):
         if not loginFailed:
             xbmc.log("SynopsiTV: Trying to login")
             Login(__addon__.getSetting("USER"),__addon__.getSetting("PASS"))
-    xbmc.log("-------------------------------------------------------------")
-    xbmc.log(str(sc.recieve(4096)))# Tu je problemmmmmmm
-    xbmc.log("-------------------------------------------------------------")
+    # xbmc.log("-------------------------------------------------------------")
+    # xbmc.log(str(sc.recieve(4096)))# Tu je problemmmmmmm TODO: Threading
+    # xbmc.log("-------------------------------------------------------------")
 
 while (xbmc.abortRequested):
     xbmc.log('SynopsiTV: Aborting...')
-    sc.close()
+    # sc.close()
+    del thr
 
