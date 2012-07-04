@@ -11,10 +11,8 @@ import sqlite3
 import socket
 import time
 import threading
-
 import sys
 
-import asyncore
 
 
 #Local imports
@@ -99,41 +97,6 @@ def SendInfoStart(plyer, status):
     xbmc.log('SynopsiTV: Response: ' + f.read())
     """
 
-def runQuery():
-    #xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["file", "fanart", "thumbnail"]}, "id": 1}')))
-    xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties": ["lastplayed", "playcount","file","imdbnumber"]}, "id": 1}')))
-    #xbmc.log(str(xbmc.getInfoLabel()))
-
-    properties =['file', 'imdbnumber']
-    method = 'VideoLibrary.GetMovies'
-    #limits=
-    dic = {'params': 
-    {
-    'properties': properties, 
-    'limits': {'end': 5, 'start': 0 }
-    },
-    'jsonrpc': '2.0',
-    'method': method,
-    'id': 1}
-
-    xbmc.log(str(xbmc.executeJSONRPC(json.dumps(dic))))
-
-
-    xbmc.log(str(xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "JSONRPC.Permission", "id": 1}')))
-
-    xbmc.log(str(xbmc.executeJSONRPC("""
-    {
-    'jsonrpc': '2.0', 
-    'method': 'JSONRPC.NotifyAll', 
-    'id': 1, 
-    'params': {
-        'sender': "xbmc", 
-        'message': "message", 
-        'data': 1 
-        }
-    }
-    """)))
-
 def Getmovies(start, end):
     properties =['file', 'imdbnumber',"lastplayed", "playcount"]
     method = 'VideoLibrary.GetMovies'
@@ -148,23 +111,6 @@ def Getmovies(start, end):
 
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
-
-def runQuery(Query):
-    path = os.path.dirname(os.path.dirname(__cwd__))
-
-    if os.name == "nt":
-        path = path + "\userdata\Database\MyVideos60.db"
-    else:
-        path = path + "/userdata/Database/MyVideos60.db"
-
-    xbmc.log(str(path))
-    conn = sqlite3.connect(path)
-    c = conn.cursor()
-    #c.execute('SELECT All path.strPath, files.strFilename FROM path INNER JOIN files ON path.idPath=files.idPath')
-    #xbmc.log(str(c.fetchone()))
-
-    for row in c.execute(Query):
-        xbmc.log(str(row))
 
 def searchVideoDB():
     """
@@ -231,21 +177,6 @@ def searchVideoDB():
 
     # WriteSectorMovieToCache(movieDict)
 
-def updateDB():
-    pass
-
-def hasDatabaseChanged():
-    global __addon__
-    fread = xbmc.executehttpapi("queryvideodatabase(SELECT Count(idFile) FROM files)")
-    fields = re.compile("<field>(.+?)</field>").findall(fread.replace("\n",""))
-    numfil = int(fields[0])#TODO: if regex fails
-    if int(__addon__.getSetting('numfiles')) < numfil:
-        __addon__.setSetting(id='numfiles', value=str(numfil))
-        return True
-    else:
-        return False
-
-
 class Database(object):
     """docstring for Database"""
     def __init__(self):
@@ -269,27 +200,6 @@ class Database(object):
     def close(self):
         self.conn.close()
 
-class XBSocket(object):
-    def __init__(self):
-        self.sock = socket.socket()
-        #self.sock.settimeout(None)
-        self.sock.settimeout(500)
-        self.sock.setblocking(1)
-        #self.sock.settimeout(0)
-        self.sock.connect(("localhost", 9090))
-        #self.sock.bind(("localhost", 9090))
-        #self.sock.listen(1)
-        #self.conn, self.addr = self.sock.accept()
-    def send(self, data):
-        self.sock.send(data)
-    def recieve(self, length):
-        return self.sock.recv(length)
-    def recv_into(self, length):
-        return self.sock.recv_into(length)
-    def close(self):
-        self.sock.close()
-
-
 class XBAPIThread(threading.Thread):
     """docstring for XBAPIThread"""
     def __init__(self):
@@ -297,22 +207,25 @@ class XBAPIThread(threading.Thread):
         self._stop = threading.Event()
         self.sock = socket.socket()
         self.sock.settimeout(None)
-        #self.sock.listen(1)
         self.sock.connect(("localhost", 9090))
 
     def run(self):
+        """
         while True:
-            data = self.sock.recv(4096)
+            data = self.sock.recv(1024)
             xbmc.log(str(data))
             if json.loads(str(data)).get("method") == "System.OnQuit":
                 sys.exit(4)
-    
+        """
+        while True:
+            data = self.sock.recv(1024)
+            xbmc.log(str(data))
+            if json.loads(str(data)).get("method") == "System.OnQuit":
+                break
+        sys.exit(4)
+        
     def __del__(self):
         self.sock.close()
-
-    # def __init__(self):
-    #     super(StoppableThread, self).__init__()
-    #     self._stop = threading.Event()
     
     def stop(self):
         self.sock.close()
@@ -320,36 +233,6 @@ class XBAPIThread(threading.Thread):
 
     def stopped(self):
         return self._stop.isSet()
-
-
-# class XBAPIThread(multiprocessing.Process):
-#     """docstring for XBAPIThread"""
-#     def __init__(self):
-#         super(XBAPIThread, self).__init__()
-#         self._stop = threading.Event()
-#         self.sock = socket.socket()
-#         self.sock.settimeout(None)
-#         #self.sock.listen(1)
-#         self.sock.connect(("localhost", 9090))
-
-#     def run(self):
-#         while True:
-#             xbmc.log(str(self.sock.recv(4096)))
-#     """
-#     def __del__(self):
-#         self.sock.close()
-
-#     def __init__(self):
-#         super(StoppableThread, self).__init__()
-#         self._stop = threading.Event()
-#     """
-#     def stop(self):
-#         self.sock.close()
-#         self._stop.set()
-
-#     def stopped(self):
-#         return self._stop.isSet()
-
 
 def NotifyAll():
     xbmc.executeJSONRPC("""
@@ -364,37 +247,6 @@ def NotifyAll():
         }
     }
     """)
-
-class TimeRequest(asyncore.dispatcher):
-    # time requestor (as defined in RFC 868)
-
-    def __init__(self, host="localhost", port=9090):
-        asyncore.dispatcher.__init__(self)
-        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect((host, port))
-
-    def writable(self):
-        return 0 # don't have anything to write
-
-    def handle_connect(self):
-        pass # connection succeeded
-
-    def handle_expt(self):
-        self.close() # connection failed, shutdown
-
-    def handle_read(self):
-        # get local time
-        # get and unpack server time
-        s = self.recv(4096)
-        xbmc.log(str(s))
-
-        #self.handle_close() # we don't expect more data
-
-    def handle_close(self):
-        self.close()
-
-        
-        
 
 
 # ADDON INFORMATION
@@ -411,68 +263,10 @@ xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
 
 xbmc.log('SynopsiTV: STARTUP')
 #Notification("SynopsiTV","STARTUP")
-"""
-HOST = 'localhost'                 # Symbolic name meaning the local host
-PORT = 9090              # Arbitrary non-privileged port
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((HOST, PORT))
-s.listen(1)
-conn, addr = s.accept()
-"""
-#print 'Connected by', addr
-
-#thr = XBAPIThread()
-#thr.deamon = True
-#thr.start()
-"""
-db = Database()
-db.runQuery("SELECT * FROM movie")
-db.close()
-
-sc = XBSocket()
-NotifyAll()
-xbmc.log("-------------------------------------------------------------")
-xbmc.log(str(sc.recieve(4096)))
-xbmc.log("-------------------------------------------------------------")
-"""
-# sc = XBSocket()
-# NotifyAll()
-#thr = XBAPIThread()
-#thr.start()
-
-def run_TCP_proces(x=1):
-    xbmc.log("-------------------------------------------------------------")
-    xbmc.log("-----------------------asdasdasdasdasdasdass-----------------")
-    xbmc.log("---------------------------------------asda------------------")
-    xbmc.log("----------------------afffqwer--------------------------------")
-    xbmc.log("-------------------------------------------------------------")
-    sock = socket.socket()
-    sock.settimeout(None)
-    #self.sock.settimeout(0)
-    sock.connect(("localhost", 9090))
-    #self.sock.bind(("localhost", 9090))
-    #self.sock.listen(1)
-    #self.conn, self.addr = self.sock.accept()
-    while True:
-        xbmc.log(str(sock.recv(1024)))
-    sock.close()
-    return True
-"""
-p = multiprocessing.Process(target=run_TCP_proces)
-p.start()
-p.join()
-"""
-"""
-pool = multiprocessing.Pool(processes=1)
-result = pool.apply_async(run_TCP_proces,1)
-xbmc.log(str(result.get()))
-"""
-
 
 if __addon__.getSetting("BOOLTOK") == "false":
     Notification("SynopsiTV","Opening Settings")
     __addon__.openSettings()
-
 
 xbmc.log(__cwd__)
 xbmc.log('SynopsiTV: NEW CLASS PLAYER')
@@ -532,17 +326,9 @@ class SynopsiPlayer(xbmc.Player) :
 player=SynopsiPlayer()
 loginFailed = False
 curtime, totaltime = (0,0)
-#runQuery()
 
 with Timer():
     searchVideoDB()
-
-#request = TimeRequest()
-#asyncore.loop()
-
-#sc = XBSocket()
-#NotifyAll()
-
 
 thr = XBAPIThread()
 thr.start()
@@ -557,36 +343,14 @@ while (not xbmc.abortRequested):
     else:
         VIDEO = 0
 
+    #xbmc.sleep(500)
     xbmc.sleep(500)
     xbmc.log("Loooooping")
-
-    #asyncore.loop(timeout=1000)
-    #if hasDatabaseChanged():
-    #    updateDB()
-    """
-    data = conn.recv(1024)
-    if not data: break
-    xbmc.log(str(data))
-    """
-    
-    # xbmc.log("-------------------------------------------------------------")
-    # xbmc.log(str(sc.recieve(4096)))# Tu je problemmmmmmm
-    # xbmc.log("-------------------------------------------------------------")
-    
-    # if json.loads(str(sc.recieve(4096))).get("method")=="System.OnQuit":
-    #     sys.exit(4)
        
     if (__addon__.getSetting("BOOLTOK") == "false") and (__addon__.getSetting("USER") != "") and (__addon__.getSetting("PASS") != ""):
         if not loginFailed:
             xbmc.log("SynopsiTV: Trying to login")
             Login(__addon__.getSetting("USER"),__addon__.getSetting("PASS"))
-"""
-while 1:
-    data = conn.recv(1024)
-    if not data: break
-    conn.send(data)
-conn.close()
-"""
 
 if (xbmc.abortRequested):
     if not thr.stopped:
@@ -594,15 +358,3 @@ if (xbmc.abortRequested):
     del thr
     xbmc.log('SynopsiTV: Aborting...')
     sys.exit(4)
-
-    #sc.close()
-    #conn.close()
-
-    #if not thr.stopped():
-    #    thr.stop()
-
-    #del thr
-    #thr.terminate()
-    #if "thr" in globals():
-    #    del thr
-
