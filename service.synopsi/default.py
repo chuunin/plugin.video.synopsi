@@ -1,9 +1,7 @@
-import xbmc
-import xbmcgui
-import xbmcaddon
+import xbmc, xbmcgui, xbmcaddon
 import json
-import urllib2
-from urllib2 import HTTPError
+#import urllib2
+from urllib2 import HTTPError, URLError
 import re
 import uuid
 import os
@@ -12,8 +10,7 @@ import socket
 import time
 import threading
 import sys
-
-
+import types
 
 #Local imports
 import RatingDialog
@@ -32,7 +29,6 @@ def Login(username, password):
     """Login function."""
     global loginFailed
     try:
-        pass
         token = lib.get_token(username, password)
         __addon__.setSetting(id='ACCTOKEN', value=token[0])
         __addon__.setSetting(id='REFTOKEN', value=token[1])
@@ -86,16 +82,15 @@ def SendInfoStart(plyer, status):
             'IMDB': InfoTag.getIMDBNumber(),
             'Status': status}
     #xbmc.log(json.dumps(data))
-    lib.send_data(data,__addon__.getSetting("ACCTOKEN"))
 
-    """
-    req=urllib2.Request('http://dev.synopsi.tv/api/desktop/', data=json.dumps({'data':data, 'token': 12345}),
-                        headers={'content-type':'application/json', 'user-agent': 'linux'},
-                        origin_req_host='dev.synopsi.tv')
-    f = urllib2.urlopen(req)
-    
-    xbmc.log('SynopsiTV: Response: ' + f.read())
-    """
+    # if not conected then go to queue
+    RatingDialog.TrySendData(data,__addon__.getSetting("ACCTOKEN"))    
+    # try:
+    #     lib.send_data(data,__addon__.getSetting("ACCTOKEN"))
+    # except (URLError, HTTPError):
+    #     tmpstring = __addon__.getSetting("SEND_QUEUE")
+    #     tmpstring = tmpstring + json.dumps(data)
+    #     __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
 
 def Getmovies(start, end):
     properties =['file', 'imdbnumber',"lastplayed", "playcount"]
@@ -331,6 +326,30 @@ def NotifyAll():
     }
     """)
 
+def CheckSendQueue():
+    tmpstring = __addon__.getSetting("SEND_QUEUE")
+    try: 
+        tmpData = json.loads(tmpstring)
+    except ValueError:
+        tmpData = []
+
+    if type(tmpData) is not types.ListType:
+        tmpData = []
+    xbmc.log("BEFORE SEND")
+    if tmpData:
+        try:
+            #xbmc.log(str(json.dumps(tmpData)))
+            xbmc.log(str(tmpData))
+            lib.send_data({"array":tmpData}, __addon__.getSetting("ACCTOKEN") )
+            __addon__.setSetting(id='SEND_QUEUE', value="[]")
+        except (URLError, HTTPError):
+            pass
+
+    # tmpData.append(data)
+    # tmpstring = json.dumps(tmpData)
+
+    # __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
+
 
 # ADDON INFORMATION
 __addon__     = xbmcaddon.Addon()
@@ -359,6 +378,7 @@ class SynopsiPlayer(xbmc.Player) :
     def __init__ (self):
         xbmc.Player.__init__(self)
         xbmc.log('SynopsiTV: Class player is initialized')
+        self.Hashes = {}
         
     def onPlayBackStarted(self):
         #global PLAYING
@@ -420,7 +440,7 @@ with Timer():
 """
 QUITING = False
 
-
+CheckSendQueue()
 serThr = Searcher()
 serThr.start()
 
@@ -432,7 +452,7 @@ NotifyAll()
 
 while (not xbmc.abortRequested):
     if xbmc.Player().isPlayingVideo(): 
-       VIDEO = 1
+        VIDEO = 1
         curtime = xbmc.Player().getTime()
         totaltime = xbmc.Player().getTotalTime()
     else:
