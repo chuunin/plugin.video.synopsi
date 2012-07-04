@@ -47,6 +47,31 @@ def GenerateOSInfo():
     uid = str(uuid.uuid4())
     #TODO: Add OS specific info.
 
+def AdvSetLoader():
+    """
+    This function returns TCP port to which is changed RPC. If nothing is changed return defualt 9090.
+    """
+    path = os.path.dirname(os.path.dirname(__cwd__))
+    if os.name == "nt":
+        path = path + "\userdata\advancedsettings.xml"
+    else:
+        path = path + "/userdata/advancedsettings.xml"
+
+    value = 9090
+
+    if os.path.isfile(path):
+        try:
+            with open('filename') as f:
+                temp = f.read()
+                if "tcpport" in temp:
+                    port = re.compile('<tcpport>(.+?)</tcpport>').findall(temp)
+                    if len(port) > 0:
+                        value = port[0]
+        except (IOError, Exception):
+            pass
+    
+    return value
+
 def GetHashDic(path):
     """Returns hash dictionary."""
     hashDic = {}
@@ -82,15 +107,8 @@ def SendInfoStart(plyer, status):
             'IMDB': InfoTag.getIMDBNumber(),
             'Status': status}
     #xbmc.log(json.dumps(data))
-
     # if not conected then go to queue
     RatingDialog.TrySendData(data,__addon__.getSetting("ACCTOKEN"))    
-    # try:
-    #     lib.send_data(data,__addon__.getSetting("ACCTOKEN"))
-    # except (URLError, HTTPError):
-    #     tmpstring = __addon__.getSetting("SEND_QUEUE")
-    #     tmpstring = tmpstring + json.dumps(data)
-    #     __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
 
 def Getmovies(start, end):
     properties =['file', 'imdbnumber',"lastplayed", "playcount"]
@@ -257,7 +275,8 @@ class XBAPIThread(threading.Thread):
         self._stop = threading.Event()
         self.sock = socket.socket()
         self.sock.settimeout(None)
-        self.sock.connect(("localhost", 9090))
+        #self.sock.connect(("localhost", 9090))
+        self.sock.connect(("localhost", AdvSetLoader()))
 
     def run(self):
         """
@@ -344,12 +363,6 @@ def CheckSendQueue():
             __addon__.setSetting(id='SEND_QUEUE', value="[]")
         except (URLError, HTTPError):
             pass
-
-    # tmpData.append(data)
-    # tmpstring = json.dumps(tmpData)
-
-    # __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
-
 
 # ADDON INFORMATION
 __addon__     = xbmcaddon.Addon()
@@ -460,7 +473,7 @@ while (not xbmc.abortRequested):
 
     #xbmc.sleep(500)
     xbmc.sleep(2000)
-    xbmc.log("Loooooping")
+    #xbmc.log("Loooooping")
        
     if (__addon__.getSetting("BOOLTOK") == "false") and (__addon__.getSetting("USER") != "") and (__addon__.getSetting("PASS") != ""):
         if not loginFailed:
