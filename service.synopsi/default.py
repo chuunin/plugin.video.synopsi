@@ -124,7 +124,6 @@ def Getmovies(start, end):
 
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
-
 def searchVideoDB():
     """
     Function that runs on first start and sends whole movie database.
@@ -266,8 +265,6 @@ class Searcher(threading.Thread):
     def stopped(self):
         return self._stop.isSet()
 
-        
-
 class XBAPIThread(threading.Thread):
     """docstring for XBAPIThread"""
     def __init__(self):
@@ -286,33 +283,36 @@ class XBAPIThread(threading.Thread):
             if json.loads(str(data)).get("method") == "System.OnQuit":
                 sys.exit(4)
         """
+        def getMovieDetails(movieID):
+            properties =['file', 'imdbnumber',"lastplayed", "playcount"]
+            method = 'VideoLibrary.GetMovieDetails'
+            dic = {'params': 
+            {
+            'properties': properties, 
+            'movieid': movieID #s 1 e 2 writes 2
+            },
+            'jsonrpc': '2.0',
+            'method': method,
+            'id': 1}
+            return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
         while True:
             data = self.sock.recv(1024)
             xbmc.log(str(data))
             data_json = json.loads(str(data))
+            method = data_json.get("method")
 
-            if data_json.get("method") == "System.OnQuit":
+            if method == "VideoLibrary.OnRemove":
+                #{"jsonrpc":"2.0","method":"VideoLibrary.OnRemove","params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
+                RatingDialog.TrySendData({"Event": "Remove", "ID": data_json["params"]["data"]["id"]},__addon__.getSetting("ACCTOKEN"))
+            elif method == "VideoLibrary.OnUpdate":
+                details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
+                RatingDialog.TrySendData({"Event": "AddORupdate", "ID": data_json["params"]["data"]["item"]["id"], "Details" : details},__addon__.getSetting("ACCTOKEN"))
+
+            if method == "System.OnQuit":
                 # Check if not search running
                 QUITING = True
-                """
-                global serThr
-                if not serThr.stopped():
-                    serThr.stop()
-                """
                 break
-            if data_json.get("method") == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
-                def getMovieDetails(movieID):
-                    properties =['file', 'imdbnumber',"lastplayed", "playcount"]
-                    method = 'VideoLibrary.GetMovieDetails'
-                    dic = {'params': 
-                    {
-                    'properties': properties, 
-                    'movieid': movieID #s 1 e 2 writes 2
-                    },
-                    'jsonrpc': '2.0',
-                    'method': method,
-                    'id': 1}
-                    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+            if method == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
                 details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
                 xbmc.log(str(details))
                 ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime="", tottime="", token=__addon__.getSetting("ACCTOKEN"), hashd=GetHashDic(details["result"]["moviedetails"]["file"]))
@@ -385,6 +385,7 @@ if __addon__.getSetting("BOOLTOK") == "false":
 
 xbmc.log(__cwd__)
 xbmc.log('SynopsiTV: NEW CLASS PLAYER')
+
 class SynopsiPlayer(xbmc.Player) :
     xbmc.log('SynopsiTV: Class player is opened')
     
@@ -461,7 +462,6 @@ thr = XBAPIThread()
 thr.start()
 
 NotifyAll()
-
 
 while (not xbmc.abortRequested):
     if xbmc.Player().isPlayingVideo(): 
