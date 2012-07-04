@@ -200,6 +200,61 @@ class Database(object):
     def close(self):
         self.conn.close()
 
+class Searcher(threading.Thread):
+    """docstring for Searcher"""
+    def __init__(self):
+        super(Searcher, self).__init__()
+    def run(self):
+        nomovies = Getmovies(0, 1)["result"]["limits"]["total"]
+        pack = 20 # how many movies in one JSON
+        for i in range(nomovies//pack):
+            if not QUITING:
+                start = i*pack
+                end = start + pack
+                movieDict = Getmovies(start, end)
+                for j in range(pack):
+                    path = movieDict["result"]['movies'][j]['file']
+                    if not "stack://" in path:
+                        movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
+                        movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+                    else:
+                        movieDict["result"]['movies'][j]['files'] = []
+                        for moviefile in path.strip("stack://").split(" , "):
+                            movieDict["result"]['movies'][j]['files'].append(
+                                {"path":moviefile, 
+                                "synopsihash":str(lib.myhash(moviefile)),
+                                "subtitlehash":str(lib.hashFile(moviefile))
+                                })
+                xbmc.log(str(json.dumps(movieDict)))
+
+
+        if not QUITING:
+            end = nomovies
+            start = end- nomovies%pack
+            movieDict = Getmovies(start, end)
+            for j in range(end-start):
+                path = movieDict["result"]['movies'][j]['file']
+                if not "stack://" in path:
+                    movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
+                    movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+                else:
+                    movieDict["result"]['movies'][j]['files'] = []
+                    for moviefile in path.strip("stack://").split(" , "):
+                        movieDict["result"]['movies'][j]['files'].append(
+                            {"path":moviefile, 
+                            "synopsihash":str(lib.myhash(moviefile)),
+                            "subtitlehash":str(lib.hashFile(moviefile))
+                            })
+            xbmc.log(str(json.dumps(movieDict)))
+
+    def stop(self):
+        self._stop.set()
+
+    def stopped(self):
+        return self._stop.isSet()
+
+        
+
 class XBAPIThread(threading.Thread):
     """docstring for XBAPIThread"""
     def __init__(self):
@@ -220,8 +275,36 @@ class XBAPIThread(threading.Thread):
         while True:
             data = self.sock.recv(1024)
             xbmc.log(str(data))
-            if json.loads(str(data)).get("method") == "System.OnQuit":
+            data_json = json.loads(str(data))
+
+            if data_json.get("method") == "System.OnQuit":
+                # Check if not search running
+                QUITING = True
+                """
+                global serThr
+                if not serThr.stopped():
+                    serThr.stop()
+                """
                 break
+            if data_json.get("method") == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
+                def getMovieDetails(movieID):
+                    properties =['file', 'imdbnumber',"lastplayed", "playcount"]
+                    method = 'VideoLibrary.GetMovieDetails'
+                    dic = {'params': 
+                    {
+                    'properties': properties, 
+                    'movieid': movieID #s 1 e 2 writes 2
+                    },
+                    'jsonrpc': '2.0',
+                    'method': method,
+                    'id': 1}
+                    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+                details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
+                xbmc.log(str(details))
+                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime="", tottime="", token=__addon__.getSetting("ACCTOKEN"), hashd=GetHashDic(details["result"]["moviedetails"]["file"]))
+                ui.doModal()
+                del ui
+
         sys.exit(4)
         
     def __del__(self):
@@ -278,7 +361,9 @@ class SynopsiPlayer(xbmc.Player) :
         xbmc.log('SynopsiTV: Class player is initialized')
         
     def onPlayBackStarted(self):
+        #global PLAYING
         if xbmc.Player().isPlayingVideo():
+            #PLAYING = True
             xbmc.log('SynopsiTV: PLAYBACK STARTED')
             SendInfoStart(xbmc.Player(),'started')
 
@@ -295,6 +380,7 @@ class SynopsiPlayer(xbmc.Player) :
             ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
             ui.doModal()
             del ui
+            #PLAYING = False
             
     def onPlayBackStopped(self):
         # TODO: fix with json
@@ -311,6 +397,7 @@ class SynopsiPlayer(xbmc.Player) :
                 del ui
             else:
                 pass    
+            #PLAYING = False
 
     def onPlayBackPaused(self):
         if xbmc.Player().isPlayingVideo():
@@ -327,24 +414,32 @@ player=SynopsiPlayer()
 loginFailed = False
 curtime, totaltime = (0,0)
 
+"""
 with Timer():
     searchVideoDB()
+"""
+QUITING = False
+
+
+serThr = Searcher()
+serThr.start()
 
 thr = XBAPIThread()
 thr.start()
 
 NotifyAll()
 
+
 while (not xbmc.abortRequested):
-    if xbmc.Player().isPlayingVideo():
-        VIDEO = 1
+    if xbmc.Player().isPlayingVideo(): 
+       VIDEO = 1
         curtime = xbmc.Player().getTime()
         totaltime = xbmc.Player().getTotalTime()
     else:
         VIDEO = 0
 
     #xbmc.sleep(500)
-    xbmc.sleep(500)
+    xbmc.sleep(2000)
     xbmc.log("Loooooping")
        
     if (__addon__.getSetting("BOOLTOK") == "false") and (__addon__.getSetting("USER") != "") and (__addon__.getSetting("PASS") != ""):
@@ -356,5 +451,10 @@ if (xbmc.abortRequested):
     if not thr.stopped:
         thr.stop()
     del thr
+
+    if not serThr.stopped:
+        serThr.stop()
+    del serThr
+
     xbmc.log('SynopsiTV: Aborting...')
     sys.exit(4)
