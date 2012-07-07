@@ -464,6 +464,8 @@ thr.start()
 NotifyAll()
 
 while (not xbmc.abortRequested):
+
+    # TODO: rewrite to TCP client - its faster
     if xbmc.Player().isPlayingVideo(): 
         VIDEO = 1
         curtime = xbmc.Player().getTime()
