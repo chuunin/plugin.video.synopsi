@@ -13,8 +13,85 @@ import sys
 import types
 
 #Local imports
-import RatingDialog
 import lib
+
+
+# 
+# 
+# 
+
+CANCEL_DIALOG  = ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
+
+def TrySendData(data, token):
+    """
+    Try to send data.
+    """
+    try:
+        lib.send_data(data,token)
+    except (URLError, HTTPError):
+        tmpstring = __addon__.getSetting("SEND_QUEUE")
+        try: 
+            tmpData = json.loads(tmpstring)
+        except ValueError:
+            tmpData = []
+
+        if type(tmpData) is not types.ListType:
+            tmpData = []
+
+        tmpData.append(data)
+        tmpstring = json.dumps(tmpData)
+        # tmpstring = tmpstring + json.dumps(self.data)
+
+        __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
+
+class XMLRatingDialog(xbmcgui.WindowXMLDialog):
+    """docstring for XMLRatingDialog"""
+    def __init__( self, *args, **kwargs ):
+        self.data = {'type': "rating"}
+        self.data['current time'] = kwargs['ctime']
+        self.data['total time'] = kwargs['tottime']
+        self.token = kwargs['token']
+        self.data['Hashes'] = kwargs['hashd']
+        #xbmc.log(str(args))
+        #xbmc.log("SynopsiTV: Prepare to send. " + str(curtime) + " "+ str(totaltime))
+    def message(self, message):
+        dialog = xbmcgui.Dialog()
+        dialog.ok(" My message title", message)
+        self.close()
+    def onInit( self ):
+        pass
+    def onClick( self, controlId ):
+        if controlId == 11:
+            xbmc.log("SynopsiTV: Rated Amazing")
+            self.data['rating']  = "Amazing"
+        elif controlId == 10:
+            xbmc.log("SynopsiTV: Rated OK")
+            self.data['rating']  = "OK"
+        elif controlId == 15:
+            xbmc.log("SynopsiTV: Rated Terrible")
+            self.data['rating']  = "Terrible"
+        else:
+            xbmc.log("SynopsiTV: Not Rated")
+            self.data['rating']  = "Not Rated"
+
+        #TrySendData(self.data, self.token)
+        global queue
+        queue.addToQueue(self.data)
+        self.close()
+    def onFocus( self, controlId ):
+        self.controlId = controlId
+    def onAction( self, action ):
+        if (action.getId() in CANCEL_DIALOG):
+            xbmc.log("SynopsiTV: Not Rated")
+            self.data['rating']  = "Not Rated"
+            #TrySendData(self.data,self.token)
+            global queue
+            queue.addToQueue(self.data)
+            self.close()
+
+# 
+# 
+# 
 
 
 class Timer():
@@ -108,7 +185,7 @@ def SendInfoStart(plyer, status):
             'Status': status}
     #xbmc.log(json.dumps(data))
     # if not conected then go to queue
-    RatingDialog.TrySendData(data,__addon__.getSetting("ACCTOKEN"))    
+    TrySendData(data,__addon__.getSetting("ACCTOKEN"))    
 
 def Getmovies(start, end):
     properties =['file', 'imdbnumber',"lastplayed", "playcount"]
@@ -276,13 +353,6 @@ class XBAPIThread(threading.Thread):
         self.sock.connect(("localhost", AdvSetLoader()))
 
     def run(self):
-        """
-        while True:
-            data = self.sock.recv(1024)
-            xbmc.log(str(data))
-            if json.loads(str(data)).get("method") == "System.OnQuit":
-                sys.exit(4)
-        """
         def getMovieDetails(movieID):
             properties =['file', 'imdbnumber',"lastplayed", "playcount"]
             method = 'VideoLibrary.GetMovieDetails'
@@ -303,21 +373,33 @@ class XBAPIThread(threading.Thread):
 
             if method == "VideoLibrary.OnRemove":
                 #{"jsonrpc":"2.0","method":"VideoLibrary.OnRemove","params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
-                RatingDialog.TrySendData({"Event": "Remove", "ID": data_json["params"]["data"]["id"]},__addon__.getSetting("ACCTOKEN"))
+                TrySendData({"Event": "Remove", "ID": data_json["params"]["data"]["id"]},__addon__.getSetting("ACCTOKEN"))
             elif method == "VideoLibrary.OnUpdate":
                 details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
-                RatingDialog.TrySendData({"Event": "AddORupdate", "ID": data_json["params"]["data"]["item"]["id"], "Details" : details},__addon__.getSetting("ACCTOKEN"))
+                TrySendData({"Event": "AddORupdate", "ID": data_json["params"]["data"]["item"]["id"], "Details" : details},__addon__.getSetting("ACCTOKEN"))
 
             if method == "System.OnQuit":
                 # Check if not search running
                 QUITING = True
                 break
-            if method == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
-                details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
-                xbmc.log(str(details))
-                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime="", tottime="", token=__addon__.getSetting("ACCTOKEN"), hashd=GetHashDic(details["result"]["moviedetails"]["file"]))
-                ui.doModal()
-                del ui
+
+            # 11:26:09 T:7244  NOTICE: {"jsonrpc":"2.0","method":"Player.OnStop","params":{"data":null,"sender":"xbmc"}}
+            # 11:26:09 T:7244   ERROR: Exception in thread Thread-2:
+            # Traceback (most recent call last):
+            #   File "C:\Program Files (x86)\XBMC\system\python\Lib\threading.py", line 532, in __bootstrap_inner
+            #     self.run()
+            #   File "C:\Users\Tommy\AppData\Roaming\XBMC\addons\service.synopsi\default.py", line 385, in run
+            #     if method == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
+            # TypeError: 'NoneType' object is unsubscriptable
+
+            # if method == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
+            if method == "Player.OnStop" and (data_json["params"]["data"] is not None):
+                if data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
+                    details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
+                    xbmc.log(str(details))
+                    ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime="", tottime="", token=__addon__.getSetting("ACCTOKEN"), hashd=GetHashDic(details["result"]["moviedetails"]["file"]))
+                    ui.doModal()
+                    del ui
 
         sys.exit(4)
         
@@ -330,6 +412,25 @@ class XBAPIThread(threading.Thread):
 
     def stopped(self):
         return self._stop.isSet()
+
+class QueueWorker(threading.Thread):
+    """Thread that waits for signals that needs to be send or processed."""
+    def __init__(self):
+        super(QueueWorker, self).__init__()
+        self.queue = []
+    def run(self):
+        while (not QUITING) and (not xbmc.abortRequested):
+            if len(self.queue) == 0:
+                xbmc.sleep(1000)
+            else:
+                for data in self.queue:
+                    TrySendData(data, __addon__.getSetting("ACCTOKEN"))
+                self.queue = []
+
+    def TryToSendData(self):
+        pass
+    def addToQueue(self, data):
+        self.queue.append(data)
 
 def NotifyAll():
     xbmc.executeJSONRPC("""
@@ -411,7 +512,7 @@ class SynopsiPlayer(xbmc.Player) :
             xbmc.log('SynopsiTV: PLAYBACK ENDED')
             #SendInfoStart(xbmc.Player(),'ended')
             #TODO: dorobit end
-            ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+            ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
             ui.doModal()
             del ui
             #PLAYING = False
@@ -426,7 +527,7 @@ class SynopsiPlayer(xbmc.Player) :
             #ask about experience when > 70% of film
             #if curtime > totaltime * 0.7:
             if True:    
-                ui = RatingDialog.XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+                ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
                 ui.doModal()
                 del ui
             else:
@@ -455,11 +556,15 @@ with Timer():
 QUITING = False
 
 CheckSendQueue()
+
 serThr = Searcher()
 serThr.start()
 
 thr = XBAPIThread()
 thr.start()
+
+queue = QueueWorker()
+queue.start()
 
 NotifyAll()
 
