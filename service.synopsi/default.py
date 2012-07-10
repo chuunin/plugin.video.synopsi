@@ -36,6 +36,7 @@ def TrySendData(data, token):
     Try to send data.
     """
     try:
+        data["timestamp"] = time.time()
         lib.send_data(data,token)
     except (URLError, HTTPError):
         tmpstring = __addon__.getSetting("SEND_QUEUE")
@@ -620,7 +621,7 @@ while (not xbmc.abortRequested):
         VIDEO = 0
 
     #xbmc.sleep(500)
-    xbmc.sleep(2000)
+    xbmc.sleep(1000)
     #xbmc.log("Loooooping")
        
     if (__addon__.getSetting("BOOLTOK") == "false") and (__addon__.getSetting("USER") != "") and (__addon__.getSetting("PASS") != ""):
