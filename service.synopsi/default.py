@@ -11,6 +11,7 @@ import time
 import threading
 import sys
 import types
+import hashlib
 
 #Local imports
 import lib
@@ -21,6 +22,14 @@ import lib
 # 
 
 CANCEL_DIALOG  = ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
+
+def GenerateOSInfo():
+    """Function that generates unique device info."""
+    uid = str(uuid.getnode())
+    sha1 = hashlib.sha1()
+    sha1.update(uid)
+    return sha1.hexdigest()
+
 
 def TrySendData(data, token):
     """
@@ -47,11 +56,12 @@ def TrySendData(data, token):
 class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     """docstring for XMLRatingDialog"""
     def __init__( self, *args, **kwargs ):
-        self.data = {'type': "rating"}
-        self.data['current time'] = kwargs['ctime']
-        self.data['total time'] = kwargs['tottime']
+        self.data = {'event': "Dialog.Rating"}
+        self.data['currenttime'] = kwargs['ctime']
+        self.data['totaltime'] = kwargs['tottime']
         self.token = kwargs['token']
-        self.data['Hashes'] = kwargs['hashd']
+        self.data['hashes'] = kwargs['hashd']
+        self.data['deviceid'] = GenerateOSInfo()
         #xbmc.log(str(args))
         #xbmc.log("SynopsiTV: Prepare to send. " + str(curtime) + " "+ str(totaltime))
     def message(self, message):
@@ -119,11 +129,6 @@ def Login(username, password):
                 Notification("SynopsiTV","Login failed")
             loginFailed = True
 
-def GenerateOSInfo():
-    """Function that generates unique device info."""
-    uid = str(uuid.uuid4())
-    #TODO: Add OS specific info.
-
 def AdvSetLoader():
     """
     This function returns TCP port to which is changed RPC. If nothing is changed return defualt 9090.
@@ -149,22 +154,40 @@ def AdvSetLoader():
     
     return value
 
+# def GetHashDic(path):
+#     """Returns hash dictionary."""
+#     hashDic = {}
+#     if not "stack://" in path:
+#         hashDic['synopsihash'] = str(lib.myhash(path))
+#         hashDic['subtitlehash'] = str(lib.hashFile(path))
+#     else:
+#         hashDic['files'] = []
+#         for moviefile in path.strip("stack://").split(" , "):
+#             hashDic['files'].append(
+#                         {"path":moviefile, 
+#                         "synopsihash":str(lib.myhash(moviefile)),
+#                         "subtitlehash":str(lib.hashFile(moviefile))
+#                         })
+#     return hashDic
+
+
 def GetHashDic(path):
-    """Returns hash dictionary."""
-    hashDic = {}
+    """Returns hash array."""
+    hashDic = []
     if not "stack://" in path:
-        hashDic['synopsihash'] = str(lib.myhash(path))
-        hashDic['subtitlehash'] = str(lib.hashFile(path))
+        fileDic = {}
+        fileDic['synopsihash'] = str(lib.myhash(path))
+        fileDic['subtitlehash'] = str(lib.hashFile(path))
+        hashDic.append(fileDic)
     else:
-        hashDic['files'] = []
+        #hashDic['files'] = []
         for moviefile in path.strip("stack://").split(" , "):
-            hashDic['files'].append(
+            hashDic.append(
                         {"path":moviefile, 
                         "synopsihash":str(lib.myhash(moviefile)),
                         "subtitlehash":str(lib.hashFile(moviefile))
                         })
     return hashDic
-
 def SendInfoStart(plyer, status):
     """Function that sends json of current video status."""
 
@@ -173,16 +196,27 @@ def SendInfoStart(plyer, status):
 
     hashDic = GetHashDic(path)
 
-    data = {'File': InfoTag.getFile(),
-            'File2': path, 
-            'Hashes':hashDic,
-            'Time': plyer.getTime(),
-            'TotalTime': plyer.getTotalTime(),
-            #'SeekTime': plyer.seekTime(),
-            'Path': InfoTag.getPath(),
-            'Title': InfoTag.getTitle(),
-            'IMDB': InfoTag.getIMDBNumber(),
-            'Status': status}
+    # data = {'File': InfoTag.getFile(),
+    #         'File2': path, 
+    #         'Hashes':hashDic,
+    #         'Time': plyer.getTime(),
+    #         'TotalTime': plyer.getTotalTime(),
+    #         #'SeekTime': plyer.seekTime(),
+    #         'Path': InfoTag.getPath(),
+    #         'Title': InfoTag.getTitle(),
+    #         'IMDB': InfoTag.getIMDBNumber(),
+    #         'Event': status}
+    data = {'event': status,'moviedetails':
+                {
+                "label":InfoTag.getTitle(),
+                "imdbnumber" : InfoTag.getIMDBNumber(),
+                "file": path,
+                "currenttime": plyer.getTime(),
+                "totaltime" : plyer.getTotalTime(),
+                "hashes" : hashDic
+                },
+            "deviceid": GenerateOSInfo()
+            }
     #xbmc.log(json.dumps(data))
     # if not conected then go to queue
     TrySendData(data,__addon__.getSetting("ACCTOKEN"))    
@@ -294,6 +328,8 @@ class Searcher(threading.Thread):
     def __init__(self):
         super(Searcher, self).__init__()
     def run(self):
+        Notification("SynopsiTV", "Started loading database")
+        global queue
         nomovies = Getmovies(0, 1)["result"]["limits"]["total"]
         pack = 20 # how many movies in one JSON
         for i in range(nomovies//pack):
@@ -304,18 +340,22 @@ class Searcher(threading.Thread):
                 for j in range(pack):
                     path = movieDict["result"]['movies'][j]['file']
                     if not "stack://" in path:
-                        movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
-                        movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+                        hashArr =[]
+                        # movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
+                        # movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+                        hashArr.append({"synopsihash":str(lib.myhash(path)),"subtitlehash":str(lib.hashFile(path))})
+                        movieDict["result"]['movies'][j]["hashes"] = hashArr
                     else:
-                        movieDict["result"]['movies'][j]['files'] = []
+                        movieDict["result"]['movies'][j]['hashes'] = []
                         for moviefile in path.strip("stack://").split(" , "):
-                            movieDict["result"]['movies'][j]['files'].append(
+                            movieDict["result"]['movies'][j]['hashes'].append(
                                 {"path":moviefile, 
                                 "synopsihash":str(lib.myhash(moviefile)),
                                 "subtitlehash":str(lib.hashFile(moviefile))
                                 })
-                xbmc.log(str(json.dumps(movieDict)))
-
+                xbmc.log(str(json.dumps(movieDict["result"]["movies"])))
+                data = {"event":"Library.Add", "deviceid": GenerateOSInfo(), "movies":movieDict["result"]["movies"]}
+                queue.addToQueue(data)
 
         if not QUITING:
             end = nomovies
@@ -324,17 +364,23 @@ class Searcher(threading.Thread):
             for j in range(end-start):
                 path = movieDict["result"]['movies'][j]['file']
                 if not "stack://" in path:
-                    movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
-                    movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+                    hashArr =[]
+                    # movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
+                    # movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
+                    hashArr.append({"synopsihash":str(lib.myhash(path)),"subtitlehash":str(lib.hashFile(path))})
+                    movieDict["result"]['movies'][j]["hashes"] = hashArr
                 else:
-                    movieDict["result"]['movies'][j]['files'] = []
+                    movieDict["result"]['movies'][j]['hashes'] = []
                     for moviefile in path.strip("stack://").split(" , "):
-                        movieDict["result"]['movies'][j]['files'].append(
+                        movieDict["result"]['movies'][j]['hashes'].append(
                             {"path":moviefile, 
                             "synopsihash":str(lib.myhash(moviefile)),
                             "subtitlehash":str(lib.hashFile(moviefile))
                             })
-            xbmc.log(str(json.dumps(movieDict)))
+            xbmc.log(str(json.dumps(movieDict["result"]["movies"])))
+            data = {"event":"Library.Add", "deviceid": GenerateOSInfo(), "movies":movieDict["result"]["movies"]}
+            queue.addToQueue(data)
+        Notification("SynopsiTV", "Finished loading database")
 
     def stop(self):
         self._stop.set()
@@ -373,26 +419,17 @@ class XBAPIThread(threading.Thread):
 
             if method == "VideoLibrary.OnRemove":
                 #{"jsonrpc":"2.0","method":"VideoLibrary.OnRemove","params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
-                TrySendData({"Event": "Remove", "ID": data_json["params"]["data"]["id"]},__addon__.getSetting("ACCTOKEN"))
+                TrySendData({"deviceid": GenerateOSInfo(),"event": "Library.Remove", "id": data_json["params"]["data"]["id"]},__addon__.getSetting("ACCTOKEN"))
             elif method == "VideoLibrary.OnUpdate":
                 details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
-                TrySendData({"Event": "AddORupdate", "ID": data_json["params"]["data"]["item"]["id"], "Details" : details},__addon__.getSetting("ACCTOKEN"))
+                #TrySendData({"Event": "Library.AddORupdate", "ID": data_json["params"]["data"]["item"]["id"], "Details" : details},__addon__.getSetting("ACCTOKEN"))
+                TrySendData({"deviceid": GenerateOSInfo(),"event": "Library.AddORupdate", "id": data_json["params"]["data"]["item"]["id"], "moviedetails" : details["result"]["moviedetails"]},__addon__.getSetting("ACCTOKEN"))
 
             if method == "System.OnQuit":
                 # Check if not search running
                 QUITING = True
                 break
 
-            # 11:26:09 T:7244  NOTICE: {"jsonrpc":"2.0","method":"Player.OnStop","params":{"data":null,"sender":"xbmc"}}
-            # 11:26:09 T:7244   ERROR: Exception in thread Thread-2:
-            # Traceback (most recent call last):
-            #   File "C:\Program Files (x86)\XBMC\system\python\Lib\threading.py", line 532, in __bootstrap_inner
-            #     self.run()
-            #   File "C:\Users\Tommy\AppData\Roaming\XBMC\addons\service.synopsi\default.py", line 385, in run
-            #     if method == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
-            # TypeError: 'NoneType' object is unsubscriptable
-
-            # if method == "Player.OnStop" and data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
             if method == "Player.OnStop" and (data_json["params"]["data"] is not None):
                 if data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
                     details= getMovieDetails(data_json["params"]["data"]["item"]["id"])
@@ -500,7 +537,7 @@ class SynopsiPlayer(xbmc.Player) :
         if xbmc.Player().isPlayingVideo():
             #PLAYING = True
             xbmc.log('SynopsiTV: PLAYBACK STARTED')
-            SendInfoStart(xbmc.Player(),'started')
+            SendInfoStart(xbmc.Player(),'Player.Started')
 
             #Storing hash
             path = xbmc.Player().getPlayingFile()
@@ -537,12 +574,12 @@ class SynopsiPlayer(xbmc.Player) :
     def onPlayBackPaused(self):
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
-            SendInfoStart(xbmc.Player(),'paused')
+            SendInfoStart(xbmc.Player(),'Player.Paused')
             
     def onPlayBackResumed(self):
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')  
-            SendInfoStart(xbmc.Player(),'resumed')
+            SendInfoStart(xbmc.Player(),'Player.Resumed')
             
 
 player=SynopsiPlayer()
@@ -567,6 +604,8 @@ queue = QueueWorker()
 queue.start()
 
 NotifyAll()
+
+# xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
 
 while (not xbmc.abortRequested):
 

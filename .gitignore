@@ -189,8 +189,10 @@ script.module.parsedom
 script.module.simple.downloader
 script.module.xbmcswift
 script.randomitems
+script.tv.show.next.aired
 script.watchlist
 service.qlock
 service.watchdog
 skin.transparency
 skin.synopsi
+skin.metropolis
