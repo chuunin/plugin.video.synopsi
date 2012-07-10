@@ -9,6 +9,7 @@
 	<setting id="ACCTOKEN" option="hidden" type="text" visible="false" default=""/>
 	<setting id="REFTOKEN" option="hidden" type="text" visible="false" default=""/>
 	<setting id="BOOLTOK" option="hidden" type="bool" visible="false" default="false"/>
+    <setting id="FIRSTRUN" option="hidden" type="bool" visible="false" default="true"/>
 
 
 

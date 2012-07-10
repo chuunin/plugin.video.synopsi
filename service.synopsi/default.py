@@ -381,6 +381,7 @@ class Searcher(threading.Thread):
             data = {"event":"Library.Add", "deviceid": GenerateOSInfo(), "movies":movieDict["result"]["movies"]}
             queue.addToQueue(data)
         Notification("SynopsiTV", "Finished loading database")
+        __addon__.setSetting(id='FIRSTRUN', value="false")
 
     def stop(self):
         self._stop.set()
@@ -594,8 +595,9 @@ QUITING = False
 
 CheckSendQueue()
 
-serThr = Searcher()
-serThr.start()
+if __addon__.getSetting("FIRSTRUN") == "true":
+    serThr = Searcher()
+    serThr.start()
 
 thr = XBAPIThread()
 thr.start()
