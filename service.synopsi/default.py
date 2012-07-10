@@ -155,23 +155,6 @@ def AdvSetLoader():
     
     return value
 
-# def GetHashDic(path):
-#     """Returns hash dictionary."""
-#     hashDic = {}
-#     if not "stack://" in path:
-#         hashDic['synopsihash'] = str(lib.myhash(path))
-#         hashDic['subtitlehash'] = str(lib.hashFile(path))
-#     else:
-#         hashDic['files'] = []
-#         for moviefile in path.strip("stack://").split(" , "):
-#             hashDic['files'].append(
-#                         {"path":moviefile, 
-#                         "synopsihash":str(lib.myhash(moviefile)),
-#                         "subtitlehash":str(lib.hashFile(moviefile))
-#                         })
-#     return hashDic
-
-
 def GetHashDic(path):
     """Returns hash array."""
     hashDic = []
@@ -189,6 +172,7 @@ def GetHashDic(path):
                         "subtitlehash":str(lib.hashFile(moviefile))
                         })
     return hashDic
+
 def SendInfoStart(plyer, status):
     """Function that sends json of current video status."""
 
@@ -547,31 +531,32 @@ class SynopsiPlayer(xbmc.Player) :
             self.Hashes = hashDic
 
     def onPlayBackEnded(self):
-        if (VIDEO == 1):
-            xbmc.log('SynopsiTV: PLAYBACK ENDED')
-            #SendInfoStart(xbmc.Player(),'ended')
-            #TODO: dorobit end
-            ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
-            ui.doModal()
-            del ui
-            #PLAYING = False
+        pass
+        # if (VIDEO == 1):
+        #     xbmc.log('SynopsiTV: PLAYBACK ENDED')
+        #     #SendInfoStart(xbmc.Player(),'ended')
+        #     #TODO: dorobit end
+        #     ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+        #     ui.doModal()
+        #     del ui
+        #     #PLAYING = False
             
     def onPlayBackStopped(self):
         # TODO: fix with json
         xbmc.log("STOPPPPPPPPPPP  " + str(VIDEO)+" Curtime: "+str(curtime))
         
-        if (VIDEO == 1):
-            xbmc.log('SynopsiTV: PLAYBACK STOPPED')
+        # if (VIDEO == 1):
+        #     xbmc.log('SynopsiTV: PLAYBACK STOPPED')
 
-            #ask about experience when > 70% of film
-            #if curtime > totaltime * 0.7:
-            if True:    
-                ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
-                ui.doModal()
-                del ui
-            else:
-                pass    
-            #PLAYING = False
+        #     #ask about experience when > 70% of film
+        #     #if curtime > totaltime * 0.7:
+        #     if True:    
+        #         ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
+        #         ui.doModal()
+        #         del ui
+        #     else:
+        #         pass    
+        #     #PLAYING = False
 
     def onPlayBackPaused(self):
         if xbmc.Player().isPlayingVideo():
@@ -634,9 +619,9 @@ if (xbmc.abortRequested):
         thr.stop()
     del thr
 
-    if not serThr.stopped:
-        serThr.stop()
-    del serThr
+    # if not serThr.stopped:
+    #     serThr.stop()
+    # del serThr
 
     xbmc.log('SynopsiTV: Aborting...')
     sys.exit(4)
