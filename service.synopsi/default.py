@@ -1,3 +1,6 @@
+"""
+This is default file of SynopsiTV service.
+"""
 import xbmc
 import xbmcgui
 import xbmcaddon
@@ -489,6 +492,9 @@ class QueueWorker(threading.Thread):
 
 
 def NotifyAll():
+    """
+    Notifiy all listeners of API in order to test our listener.
+    """
     xbmc.executeJSONRPC("""
     {
     "jsonrpc": "2.0",
@@ -504,6 +510,9 @@ def NotifyAll():
 
 
 def CheckSendQueue():
+    """
+    Function that checks offline queue.
+    """
     tmpstring = __addon__.getSetting("SEND_QUEUE")
     try:
         tmpData = json.loads(tmpstring)
@@ -570,7 +579,7 @@ class SynopsiPlayer(xbmc.Player):
         # if (VIDEO == 1):
         #     xbmc.log('SynopsiTV: PLAYBACK ENDED')
         #     #SendInfoStart(xbmc.Player(),'ended')
-        #     #TODO: dorobit end
+        #     TODO: dorobit end
         #     ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, 
         #     tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
         #     ui.doModal()
