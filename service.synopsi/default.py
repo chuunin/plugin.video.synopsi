@@ -23,11 +23,17 @@ import lib
 
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
+# ADDON INFORMATION
+__addon__     = xbmcaddon.Addon()
+__addonname__ = __addon__.getAddonInfo('name')
+__cwd__       = __addon__.getAddonInfo('path')
+__author__    = __addon__.getAddonInfo('author')
+__version__   = __addon__.getAddonInfo('version')
 
 
-def GenerateOSInfo():
+def generate_deviceid():
     """
-    Function that generates unique device info.
+    Returns deviceid generated from MAC address.
     """
     uid = str(uuid.getnode())
     sha1 = hashlib.sha1()
@@ -41,6 +47,7 @@ def TrySendData(data, token):
     """
     try:
         data["timestamp"] = time.time()
+        data["deviceid"] = generate_deviceid()
         lib.send_data(data, token)
     except (URLError, HTTPError):
         tmpstring = __addon__.getSetting("SEND_QUEUE")
@@ -69,10 +76,12 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
         self.data['totaltime'] = kwargs['tottime']
         self.token = kwargs['token']
         self.data['hashes'] = kwargs['hashd']
-        self.data['deviceid'] = GenerateOSInfo()
         #xbmc.log(str(args))
 
     def message(self, message):
+        """
+        Shows xbmc dialog with OK and message.
+        """
         dialog = xbmcgui.Dialog()
         dialog.ok(" My message title", message)
         self.close()
@@ -144,9 +153,9 @@ def Login(username, password):
             loginFailed = True
 
 
-def AdvSetLoader():
+def get_api_port():
     """
-    This function returns TCP port to which is changed RPC.
+    This function returns TCP port to which is changed XBMC RPC API.
     If nothing is changed return defualt 9090.
     """
     path = os.path.dirname(os.path.dirname(__cwd__))
@@ -159,8 +168,8 @@ def AdvSetLoader():
 
     if os.path.isfile(path):
         try:
-            with open('filename') as f:
-                temp = f.read()
+            with open('filename') as _file:
+                temp = _file.read()
                 if "tcpport" in temp:
                     port = re.compile('<tcpport>(.+?)</tcpport>').findall(temp)
                     if len(port) > 0:
@@ -171,8 +180,10 @@ def AdvSetLoader():
     return value
 
 
-def GetHashDic(path):
-    """Returns hash array."""
+def get_hash_array(path):
+    """
+    Returns hash array of dictionaries.
+    """
     hashDic = []
     if not "stack://" in path:
         fileDic = {}
@@ -196,7 +207,7 @@ def SendInfoStart(plyer, status):
 
     InfoTag = plyer.getVideoInfoTag()
     path = plyer.getPlayingFile()
-    hashDic = GetHashDic(path)
+    hashDic = get_hash_array(path)
 
     data = {
         'event': status,
@@ -208,12 +219,14 @@ def SendInfoStart(plyer, status):
             "totaltime": plyer.getTotalTime(),
             "hashes": hashDic
         },
-        "deviceid": GenerateOSInfo()
     }
     TrySendData(data, __addon__.getSetting("ACCTOKEN"))
 
 
-def Getmovies(start, end):
+def get_movies(start, end):
+    """
+    Get movies from xbmc library. Start is the first in list and end is the last.
+    """
     properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
     method = 'VideoLibrary.GetMovies'
     dic = {
@@ -234,7 +247,7 @@ def searchVideoDB():
     Function that runs on first start and sends whole movie database.
     """
 
-    nomovies = Getmovies(0, 1)["result"]["limits"]["total"]
+    nomovies = get_movies(0, 1)["result"]["limits"]["total"]
 
     pack = 20  # how many movies in one JSON
 
@@ -242,7 +255,7 @@ def searchVideoDB():
         start = i * pack
         end = start + pack
 
-        movieDict = Getmovies(start, end)
+        movieDict = get_movies(start, end)
 
         for j in range(pack):
             path = movieDict["result"]['movies'][j]['file']
@@ -266,7 +279,7 @@ def searchVideoDB():
     end = nomovies
     start = end - nomovies % pack
 
-    movieDict = Getmovies(start, end)
+    movieDict = get_movies(start, end)
     for j in range(end - start):
         #xbmc.log(str(movieDict["result"]["movies"][j]['label']))
         path = movieDict["result"]['movies'][j]['file']
@@ -320,14 +333,14 @@ class Searcher(threading.Thread):
 
         Notification("SynopsiTV", "Started loading database")
 
-        nomovies = Getmovies(0, 1)["result"]["limits"]["total"]
+        nomovies = get_movies(0, 1)["result"]["limits"]["total"]
         pack = 20  # how many movies in one JSON
 
         for i in range(nomovies // pack):
             if not QUITING:
                 start = i * pack
                 end = start + pack
-                movieDict = Getmovies(start, end)
+                movieDict = get_movies(start, end)
                 for j in range(pack):
                     path = movieDict["result"]['movies'][j]['file']
                     if not "stack://" in path:
@@ -348,7 +361,6 @@ class Searcher(threading.Thread):
                 xbmc.log(str(json.dumps(movieDict["result"]["movies"])))
                 data = {
                     "event": "Library.Add",
-                    "deviceid": GenerateOSInfo(),
                     "movies": movieDict["result"]["movies"]
                 }
                 queue.addToQueue(data)
@@ -356,7 +368,7 @@ class Searcher(threading.Thread):
         if not QUITING:
             end = nomovies
             start = end - nomovies % pack
-            movieDict = Getmovies(start, end)
+            movieDict = get_movies(start, end)
             for j in range(end - start):
                 path = movieDict["result"]['movies'][j]['file']
                 if not "stack://" in path:
@@ -378,7 +390,6 @@ class Searcher(threading.Thread):
             xbmc.log(str(json.dumps(movieDict["result"]["movies"])))
             data = {
                 "event": "Library.Add",
-                "deviceid": GenerateOSInfo(),
                 "movies": movieDict["result"]["movies"]
             }
             queue.addToQueue(data)
@@ -386,9 +397,15 @@ class Searcher(threading.Thread):
         __addon__.setSetting(id='FIRSTRUN', value="false")
 
     def stop(self):
+        """
+        Stop thread
+        """
         self._stop.set()
 
     def stopped(self):
+        """
+        If thread is stopped
+        """
         return self._stop.isSet()
 
 
@@ -400,15 +417,15 @@ class XBAPIThread(threading.Thread):
         self.sock = socket.socket()
         self.sock.settimeout(None)
         #self.sock.connect(("localhost", 9090))
-        self.sock.connect(("localhost", AdvSetLoader()))
+        self.sock.connect(("localhost", get_api_port()))
 
     def run(self):
-        def getMovieDetails(movieID):
+        def getMovieDetails(movie_id):
             properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
             method = 'VideoLibrary.GetMovieDetails'
             dic = {'params': {
                 'properties': properties,
-                'movieid': movieID  # s 1 e 2 writes 2
+                'movieid': movie_id  # s 1 e 2 writes 2
             },
                 'jsonrpc': '2.0',
                 'method': method,
@@ -418,14 +435,21 @@ class XBAPIThread(threading.Thread):
         while True:
             data = self.sock.recv(1024)
             xbmc.log(str(data))
-            data_json = json.loads(str(data))
-            method = data_json.get("method")
+            try:
+                data_json = json.loads(str(data))
+                method = data_json.get("method")
+            except ValueError, e:
+                QUITING = True
+                break
+                method = ""
+            # data_json = json.loads(str(data))
+            # method = data_json.get("method")
+            
 
             if method == "VideoLibrary.OnRemove":
                 # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
                 # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
                 TrySendData({
-                    "deviceid": GenerateOSInfo(),
                     "event": "Library.Remove",
                     "id": data_json["params"]["data"]["id"]
                 }, __addon__.getSetting("ACCTOKEN"))
@@ -435,7 +459,6 @@ class XBAPIThread(threading.Thread):
                 # "ID": data_json["params"]["data"]["item"]["id"],
                 # "Details" : details},__addon__.getSetting("ACCTOKEN"))
                 TrySendData({
-                    "deviceid": GenerateOSInfo(),
                     "event": "Library.AddORupdate",
                     "id": data_json["params"]["data"]["item"]["id"],
                     "moviedetails": details["result"]["moviedetails"]
@@ -452,7 +475,7 @@ class XBAPIThread(threading.Thread):
                     xbmc.log(str(details))
                     ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime="",
                                          tottime="", token=__addon__.getSetting("ACCTOKEN"),
-                                         hashd=GetHashDic(details["result"]["moviedetails"]["file"]))
+                                         hashd=get_hash_array(details["result"]["moviedetails"]["file"]))
                     ui.doModal()
                     del ui
 
@@ -484,9 +507,6 @@ class QueueWorker(threading.Thread):
                     TrySendData(data, __addon__.getSetting("ACCTOKEN"))
                 self.queue = []
 
-    def TryToSendData(self):
-        pass
-
     def addToQueue(self, data):
         self.queue.append(data)
 
@@ -509,7 +529,7 @@ def NotifyAll():
     """)
 
 
-def CheckSendQueue():
+def check_send_queue():
     """
     Function that checks offline queue.
     """
@@ -531,36 +551,16 @@ def CheckSendQueue():
         except (URLError, HTTPError):
             pass
 
-# ADDON INFORMATION
-__addon__     = xbmcaddon.Addon()
-__addonname__ = __addon__.getAddonInfo('name')
-__cwd__       = __addon__.getAddonInfo('path')
-__author__    = __addon__.getAddonInfo('author')
-__version__   = __addon__.getAddonInfo('version')
-xbmc.log('SynopsiTV: Addon information')
-xbmc.log('SynopsiTV: ----> Addon name    : ' + __addonname__)
-xbmc.log('SynopsiTV: ----> Addon path    : ' + __cwd__)
-xbmc.log('SynopsiTV: ----> Addon author  : ' + __author__)
-xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
-
-xbmc.log('SynopsiTV: STARTUP')
-#Notification("SynopsiTV","STARTUP")
-
-if __addon__.getSetting("BOOLTOK") == "false":
-    Notification("SynopsiTV", "Opening Settings")
-    __addon__.openSettings()
-
-xbmc.log(__cwd__)
-xbmc.log('SynopsiTV: NEW CLASS PLAYER')
-
-
 class SynopsiPlayer(xbmc.Player):
+    """
+    Inherited main player class with events.
+    """
     xbmc.log('SynopsiTV: Class player is opened')
 
     def __init__(self):
         xbmc.Player.__init__(self)
         xbmc.log('SynopsiTV: Class player is initialized')
-        self.Hashes = {}
+        self.hashes = {}
 
     def onPlayBackStarted(self):
         #global PLAYING
@@ -571,8 +571,8 @@ class SynopsiPlayer(xbmc.Player):
 
             #Storing hash
             path = xbmc.Player().getPlayingFile()
-            hashDic = GetHashDic(path)
-            self.Hashes = hashDic
+            hashDic = get_hash_array(path)
+            self.hashes = hashDic
 
     def onPlayBackEnded(self):
         pass
@@ -613,58 +613,83 @@ class SynopsiPlayer(xbmc.Player):
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')
             SendInfoStart(xbmc.Player(), 'Player.Resumed')
 
-
-player = SynopsiPlayer()
-loginFailed = False
-curtime, totaltime = (0, 0)
-
-"""
-with Timer():
-    searchVideoDB()
-"""
+PLAYER = SynopsiPlayer()
 QUITING = False
 
-CheckSendQueue()
+def main():
+    xbmc.log('SynopsiTV: Addon information')
+    xbmc.log('SynopsiTV: ----> Addon name    : ' + __addonname__)
+    xbmc.log('SynopsiTV: ----> Addon path    : ' + __cwd__)
+    xbmc.log('SynopsiTV: ----> Addon author  : ' + __author__)
+    xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
 
-if __addon__.getSetting("FIRSTRUN") == "true":
-    serThr = Searcher()
-    serThr.start()
+    xbmc.log('SynopsiTV: STARTUP')
+    Notification("SynopsiTV","STARTUP")
 
-thr = XBAPIThread()
-thr.start()
+    if __addon__.getSetting("BOOLTOK") == "false":
+        Notification("SynopsiTV", "Opening Settings")
+        __addon__.openSettings()
 
-queue = QueueWorker()
-queue.start()
+    xbmc.log(__cwd__)
+    xbmc.log('SynopsiTV: NEW CLASS PLAYER')
 
-NotifyAll()
+    
+    loginFailed = False
+    curtime, totaltime = (0, 0)
 
-# xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
+    """
+    with Timer():
+        searchVideoDB()
+    """
+    
 
-while (not xbmc.abortRequested):
+    check_send_queue()
 
-    # TODO: rewrite to TCP client - its faster
-    if xbmc.Player().isPlayingVideo():
-        VIDEO = 1
-        curtime = xbmc.Player().getTime()
-        totaltime = xbmc.Player().getTotalTime()
-    else:
-        VIDEO = 0
+    if __addon__.getSetting("FIRSTRUN") == "true":
+        serThr = Searcher()
+        serThr.start()
 
-    xbmc.sleep(1000)
+    thr = XBAPIThread()
+    thr.start()
 
-    if (__addon__.getSetting("BOOLTOK") == "false") and (__addon__.getSetting("USER") != "") and (__addon__.getSetting("PASS") != ""):
-        if not loginFailed:
-            xbmc.log("SynopsiTV: Trying to login")
-            Login(__addon__.getSetting("USER"), __addon__.getSetting("PASS"))
+    queue = QueueWorker()
+    queue.start()
 
-if (xbmc.abortRequested):
-    if not thr.stopped:
-        thr.stop()
-    del thr
+    NotifyAll()
 
-    # if not serThr.stopped:
-    #     serThr.stop()
-    # del serThr
+    # xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
+    while (not xbmc.abortRequested):
 
-    xbmc.log('SynopsiTV: Aborting...')
-    sys.exit(4)
+        # TODO: rewrite to TCP client - its faster
+        if xbmc.Player().isPlayingVideo():
+            VIDEO = 1
+            curtime = xbmc.Player().getTime()
+            totaltime = xbmc.Player().getTotalTime()
+        else:
+            VIDEO = 0
+
+        xbmc.sleep(1000)
+
+        if (
+            (__addon__.getSetting("BOOLTOK") == "false") and 
+            (__addon__.getSetting("USER") != "") and 
+            (__addon__.getSetting("PASS") != "")
+            ):
+            if not loginFailed:
+                xbmc.log("SynopsiTV: Trying to login")
+                Login(__addon__.getSetting("USER"), __addon__.getSetting("PASS"))
+
+    if (xbmc.abortRequested):
+        if not thr.stopped:
+            thr.stop()
+        del thr
+
+        # if not serThr.stopped:
+        #     serThr.stop()
+        # del serThr
+
+        xbmc.log('SynopsiTV: Aborting...')
+        sys.exit(4)
+
+if __name__ == "__main__":
+    main()

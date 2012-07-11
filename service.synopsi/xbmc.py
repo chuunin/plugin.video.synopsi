@@ -1,4 +1,8 @@
-import os
+import logging
+import sys
+import SocketServer
+import socket
+import threading
 
 
 abortRequested = False
@@ -37,4 +41,9 @@ class Player(object):
     def isPlayingVideo(self):
         return True
 
+    def getTime(self):
+        return "70"
+
+    def getTotalTime(self):
+        return "100"
         

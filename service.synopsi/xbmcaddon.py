@@ -12,7 +12,10 @@ class Addon(object):
         pass
 
     def getSetting(self, id):
-        return ""
+        if id == "FIRSTRUN":
+            return "true"
+        else:
+            return ""
 
     def openSettings(self):
         pass
