@@ -92,7 +92,7 @@ def get_api_port():
 
     if os.path.isfile(path):
         try:
-            with open('filename') as _file:
+            with open(path, 'r') as _file:
                 temp = _file.read()
                 if "tcpport" in temp:
                     port = re.compile('<tcpport>(.+?)</tcpport>').findall(temp)
@@ -196,7 +196,8 @@ def send_player_status(player, status):
             "hashes": hash_array
         },
     }
-    try_send_data(data, get_token())
+    #try_send_data(data, get_token())
+    queue.add_to_queue(data)
 
 
 def get_movies(start, end):
@@ -428,16 +429,41 @@ class ApiListener(threading.Thread):
                 get_token()
                 )
 
+            #elif method == "Player.OnStop":
+
+            # details = get_movie_details(
+            #     data_json["params"]["data"]["item"]["id"]
+            # )
+            
+            # try_send_data({
+            #     "event": "Library.AddORupdate",
+            #     "id": data_json["params"]["data"]["item"]["id"],
+            #     "moviedetails": details["result"]["moviedetails"]
+            # }, 
+            # get_token()
+            # )
+
             if method == "System.OnQuit":
                 QUITING = True
                 break
 
+            # if method == "Player.OnStop" and (data_json["params"]["data"] is not None):
+            #     if data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
+            #         details = get_movie_details(data_json["params"]["data"]["item"]["id"])
+            #         xbmc.log(str(details))
+            #         ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime="",
+            #                              tottime="", token=get_token(),
+            #                              hashd=get_hash_array(
+            #                                 details["result"]["moviedetails"]["file"]))
+            #         ui.doModal()
+            #         del ui
+
             if method == "Player.OnStop" and (data_json["params"]["data"] is not None):
-                if data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
+                if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
                     details = get_movie_details(data_json["params"]["data"]["item"]["id"])
                     xbmc.log(str(details))
-                    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime="",
-                                         tottime="", token=get_token(),
+                    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                                         tottime=TOTAL_TIME, token=get_token(),
                                          hashd=get_hash_array(
                                             details["result"]["moviedetails"]["file"]))
                     ui.doModal()
@@ -623,6 +649,7 @@ TOTAL_TIME = 0
 VIDEO = 0
 queue = QueueWorker()
 queue.start()
+
 
 def main():
     global VIDEO
