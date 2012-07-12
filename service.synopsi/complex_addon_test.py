@@ -213,7 +213,7 @@ class StartAddon(unittest.TestCase):
         # self.api.start_fake_api(NotificationHandler)
         #self.api.start_fake_api(EchoRequestHandler)
         pass
-        # FalseAPI().run()
+        FalseAPI().run()
 
     def test_start_stop(self):
         NOTIFY_DATA = '{"jsonrpc":"2.0", "method":"System.OnQuit", "params":{"data":null, "sender":"xbmc"}}'

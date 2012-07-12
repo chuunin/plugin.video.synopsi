@@ -43,16 +43,14 @@ def myhash(filepath):
     """
 
     sha1 = hashlib.sha1()
-    f = open(filepath, 'rb')
-    
+
     try:
-        sha1.update(f.read(256))
-        f.seek(-256, 2)
-        sha1.update(f.read(256))
-    except (Exception) as e:
-        pass
-    finally:
-        f.close()
+        with open(filepath, 'rb') as f:
+            sha1.update(f.read(256))
+            f.seek(-256, 2)
+            sha1.update(f.read(256))
+    except (IOError) as e:
+        return None
     
     return sha1.hexdigest()
 
@@ -66,8 +64,9 @@ def hashFile(name):
         filesize = os.path.getsize(name) 
         hash = filesize 
               
-        if filesize < 65536 * 2: 
-            return "SizeError" 
+        if filesize < 65536 * 2:
+            return None
+            # return "SizeError" 
              
         for x in range(65536/bytesize): 
             buffer = f.read(bytesize) 
@@ -87,5 +86,6 @@ def hashFile(name):
         
         return returnedhash 
 
-    except(IOError): 
-        return "IOError"
+    except(IOError):
+        return None
+        # return "IOError"
