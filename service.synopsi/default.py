@@ -32,6 +32,9 @@ __version__   = __addon__.getAddonInfo('version')
 
 
 def get_token():
+    """
+    Returns access token.
+    """
     return __addon__.getSetting("ACCTOKEN")
 
 
@@ -49,28 +52,29 @@ def get_hash_array(path):
     """
     Returns hash array of dictionaries.
     """
-    hashDic = []
+    hash_array = []
     if not "stack://" in path:
-        fileDic = {}
+        file_dic = {}
 
         stv_hash = lib.myhash(path)
         sub_hash = lib.hashFile(path)
 
         if stv_hash:
-            fileDic['synopsihash'] = stv_hash
+            file_dic['synopsihash'] = stv_hash
         if sub_hash:
-            fileDic['subtitlehash'] = sub_hash
+            file_dic['subtitlehash'] = sub_hash
 
         if  sub_hash or stv_hash:
-            hashDic.append(fileDic)
+            hash_array.append(file_dic)
+
     else:
-        #hashDic['files'] = []
+        #hash_array['files'] = []
         for moviefile in path.strip("stack://").split(" , "):
-            hashDic.append({"path": moviefile,
+            hash_array.append({"path": moviefile,
                             "synopsihash": str(lib.myhash(moviefile)),
                             "subtitlehash": str(lib.hashFile(moviefile))
                             })
-    return hashDic
+    return hash_array
 
 
 def get_api_port():
@@ -94,11 +98,31 @@ def get_api_port():
                     port = re.compile('<tcpport>(.+?)</tcpport>').findall(temp)
                     if len(port) > 0:
                         value = port[0]
-        except (IOError, Exception):
+        except (IOError, IndexError):
             pass
 
     return value
 
+
+def get_movie_details(movie_id):
+    """
+    Get dict of movie_id details.
+    """
+    properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+    method = 'VideoLibrary.GetMovieDetails'
+    dic = {
+    'params': 
+        {
+            'properties': properties,
+            'movieid': movie_id  # s 1 e 2 writes 2
+        },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1
+    }
+    
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+    
 
 def try_send_data(data, token):
     """
@@ -111,15 +135,15 @@ def try_send_data(data, token):
     except (URLError, HTTPError):
         tmpstring = __addon__.getSetting("SEND_QUEUE")
         try:
-            tmpData = json.loads(tmpstring)
+            tmp_data = json.loads(tmpstring)
         except ValueError:
-            tmpData = []
+            tmp_data = []
 
-        if type(tmpData) is not types.ListType:
-            tmpData = []
+        if type(tmp_data) is not types.ListType:
+            tmp_data = []
 
-        tmpData.append(data)
-        tmpstring = json.dumps(tmpData)
+        tmp_data.append(data)
+        tmpstring = json.dumps(tmp_data)
         # tmpstring = tmpstring + json.dumps(self.data)
 
         __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
@@ -128,11 +152,14 @@ def try_send_data(data, token):
 def notification(name, text):
     """Sends notification to XBMC."""
     xbmc.executebuiltin('XBMC.Notification(' + str(name) + ',' +
-                        str(text) + ',1)')
+                        str(text) + ',1)'
+    )
 
 
 def login(username, password):
-    """Login function."""
+    """
+    Login function.
+    """
     global LOGIN_FAILED
     try:
         token = lib.get_token(username, password)
@@ -142,31 +169,31 @@ def login(username, password):
         #Deleting Password
         pss = '*' * len(password)
         __addon__.setSetting(id='PASS', value=pss)
-    except HTTPError, e:
-        if e.code == 400:
+    except HTTPError, err:
+        if err.code == 400:
             if not LOGIN_FAILED:
                 notification("SynopsiTV", "Login failed")
             LOGIN_FAILED = True
 
 
-def send_player_status(plyer, status):
+def send_player_status(player, status):
     """
     Function that sends json of current video status.
     """
 
-    InfoTag = plyer.getVideoInfoTag()
-    path = plyer.getPlayingFile()
-    hashDic = get_hash_array(path)
+    info_tag = player.getVideoInfoTag()
+    path = player.getPlayingFile()
+    hash_array = get_hash_array(path)
 
     data = {
         'event': status,
         'moviedetails': {
-            "label": InfoTag.getTitle(),
-            "imdbnumber": InfoTag.getIMDBNumber(),
+            "label": info_tag.getTitle(),
+            "imdbnumber": info_tag.getIMDBNumber(),
             "file": path,
-            "currenttime": plyer.getTime(),
-            "totaltime": plyer.getTotalTime(),
-            "hashes": hashDic
+            "currenttime": player.getTime(),
+            "totaltime": player.getTotalTime(),
+            "hashes": hash_array
         },
     }
     try_send_data(data, get_token())
@@ -196,17 +223,18 @@ def notify_all():
     Notifiy all listeners of API in order to test our listener.
     """
     xbmc.executeJSONRPC("""
-    {
-    "jsonrpc": "2.0",
-    "method": "JSONRPC.NotifyAll",
-    "id": 1,
-    "params": {
-        "sender": "xbmc",
-        "message": "message",
-        "data": 1
+        {
+        "jsonrpc": "2.0",
+        "method": "JSONRPC.NotifyAll",
+        "id": 1,
+        "params": {
+            "sender": "xbmc",
+            "message": "message",
+            "data": 1
+            }
         }
-    }
-    """)
+        """
+    )
 
 
 def check_send_queue():
@@ -215,18 +243,18 @@ def check_send_queue():
     """
     tmpstring = __addon__.getSetting("SEND_QUEUE")
     try:
-        tmpData = json.loads(tmpstring)
+        tmp_data = json.loads(tmpstring)
     except ValueError:
-        tmpData = []
+        tmp_data = []
 
-    if type(tmpData) is not types.ListType:
-        tmpData = []
+    if type(tmp_data) is not types.ListType:
+        tmp_data = []
     xbmc.log("BEFORE SEND")
-    if tmpData:
+    if tmp_data:
         try:
-            #xbmc.log(str(json.dumps(tmpData)))
-            xbmc.log(str(tmpData))
-            lib.send_data({"array": tmpData}, get_token())
+            #xbmc.log(str(json.dumps(tmp_data)))
+            xbmc.log(str(tmp_data))
+            lib.send_data({"array": tmp_data}, get_token())
             __addon__.setSetting(id='SEND_QUEUE', value="[]")
         except (URLError, HTTPError):
             pass
@@ -241,7 +269,9 @@ class Timer():
         
 
 class Database(object):
-    """docstring for Database"""
+    """
+    docstring for Database
+    """
     def __init__(self):
         path = os.path.dirname(os.path.dirname(__cwd__))
 
@@ -251,12 +281,12 @@ class Database(object):
             path = path + "/userdata/Database/MyVideos60.db"
 
         self.conn = sqlite3.connect(path)
-        self.c = self.conn.cursor()
+        self.cursor = self.conn.cursor()
 
     def runQuery(self, Query):
-        return self.c.execute(Query)
+        return self.cursor.execute(Query)
         """
-        for row in c.execute(Query):
+        for row in cursor.execute(Query):
             row
         """
     def close(self):
@@ -264,7 +294,10 @@ class Database(object):
 
 
 class Searcher(threading.Thread):
-    """docstring for Searcher"""
+    """
+    Searcher Thread for first data export.
+    TODO: Add if file hash cannot be computed.
+    """
     def __init__(self):
         super(Searcher, self).__init__()
 
@@ -280,60 +313,60 @@ class Searcher(threading.Thread):
             if not QUITING:
                 start = i * pack
                 end = start + pack
-                movieDict = get_movies(start, end)
+                movie_dict = get_movies(start, end)
                 for j in range(pack):
-                    path = movieDict["result"]['movies'][j]['file']
+                    path = movie_dict["result"]['movies'][j]['file']
                     if not "stack://" in path:
-                        hashArr = []
-                        hashArr.append({
+                        hash_array = []
+                        hash_array.append({
                             "synopsihash": str(lib.myhash(path)),
                             "subtitlehash": str(lib.hashFile(path))
                         })
-                        movieDict["result"]['movies'][j]["hashes"] = hashArr
+                        movie_dict["result"]['movies'][j]["hashes"] = hash_array
                     else:
-                        movieDict["result"]['movies'][j]['hashes'] = []
+                        movie_dict["result"]['movies'][j]['hashes'] = []
                         for moviefile in path.strip("stack://").split(" , "):
-                            movieDict["result"]['movies'][j]['hashes'].append({
+                            movie_dict["result"]['movies'][j]['hashes'].append({
                                 "path": moviefile,
                                 "synopsihash": str(lib.myhash(moviefile)),
                                 "subtitlehash": str(lib.hashFile(moviefile))
                             })
-                xbmc.log(str(json.dumps(movieDict["result"]["movies"])))
+                xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
                 data = {
                     "event": "Library.Add",
-                    "movies": movieDict["result"]["movies"]
+                    "movies": movie_dict["result"]["movies"]
                 }
                 queue.add_to_queue(data)
 
         if not QUITING:
             end = nomovies
             start = end - nomovies % pack
-            movieDict = get_movies(start, end)
+            movie_dict = get_movies(start, end)
             for j in range(end - start):
-                path = movieDict["result"]['movies'][j]['file']
+                path = movie_dict["result"]['movies'][j]['file']
                 if not "stack://" in path:
-                    hashArr = []
-                    # movieDict["result"]['movies'][j]["synopsihash"] = str(lib.myhash(path))
-                    # movieDict["result"]['movies'][j]["subtitlehash"] = str(lib.hashFile(path))
-                    hashArr.append({
+                    hash_array = []
+                    hash_array.append({
                         "synopsihash": str(lib.myhash(path)),
                         "subtitlehash": str(lib.hashFile(path))})
-                    movieDict["result"]['movies'][j]["hashes"] = hashArr
+                    movie_dict["result"]['movies'][j]["hashes"] = hash_array
                 else:
-                    movieDict["result"]['movies'][j]['hashes'] = []
+                    movie_dict["result"]['movies'][j]['hashes'] = []
                     for moviefile in path.strip("stack://").split(" , "):
-                        movieDict["result"]['movies'][j]['hashes'].append({
+                        movie_dict["result"]['movies'][j]['hashes'].append({
                             "path": moviefile,
                             "synopsihash": str(lib.myhash(moviefile)),
                             "subtitlehash": str(lib.hashFile(moviefile))
                         })
-            xbmc.log(str(json.dumps(movieDict["result"]["movies"])))
+            xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
             data = {
                 "event": "Library.Add",
-                "movies": movieDict["result"]["movies"]
+                "movies": movie_dict["result"]["movies"]
             }
             queue.add_to_queue(data)
         notification("SynopsiTV", "Finished loading database")
+        # TODO: If searcher crash
+
         __addon__.setSetting(id='FIRSTRUN', value="false")
 
     def stop(self):
@@ -362,38 +395,31 @@ class ApiListener(threading.Thread):
         self.sock.connect(("localhost", get_api_port()))
 
     def run(self):
-        def getMovieDetails(movie_id):
-            properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
-            method = 'VideoLibrary.GetMovieDetails'
-            dic = {'params': {
-                'properties': properties,
-                'movieid': movie_id  # s 1 e 2 writes 2
-            },
-                'jsonrpc': '2.0',
-                'method': method,
-                'id': 1
-            }
-            return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+        global QUITING
+        
         while True:
             data = self.sock.recv(1024)
             xbmc.log(str(data))
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
-            except ValueError, e:
+            except ValueError:
                 continue
 
             if method == "VideoLibrary.OnRemove":
                 # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
                 # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
-               try_send_data({
+                try_send_data({
                         "event": "Library.Remove",
                         "id": data_json["params"]["data"]["id"]
                     }, 
                     get_token()
                 )
             elif method == "VideoLibrary.OnUpdate":
-                details = getMovieDetails(data_json["params"]["data"]["item"]["id"])
+                details = get_movie_details(
+                    data_json["params"]["data"]["item"]["id"]
+                )
+                
                 try_send_data({
                     "event": "Library.AddORupdate",
                     "id": data_json["params"]["data"]["item"]["id"],
@@ -408,11 +434,12 @@ class ApiListener(threading.Thread):
 
             if method == "Player.OnStop" and (data_json["params"]["data"] is not None):
                 if data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
-                    details = getMovieDetails(data_json["params"]["data"]["item"]["id"])
+                    details = get_movie_details(data_json["params"]["data"]["item"]["id"])
                     xbmc.log(str(details))
                     ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime="",
                                          tottime="", token=get_token(),
-                                         hashd=get_hash_array(details["result"]["moviedetails"]["file"]))
+                                         hashd=get_hash_array(
+                                            details["result"]["moviedetails"]["file"]))
                     ui.doModal()
                     del ui
 
@@ -422,15 +449,23 @@ class ApiListener(threading.Thread):
         self.sock.close()
 
     def stop(self):
+        """
+        Stop thread.
+        """
         self.sock.close()
         self._stop.set()
 
     def stopped(self):
+        """
+        If thread is stopped.
+        """
         return self._stop.isSet()
 
 
 class QueueWorker(threading.Thread):
-    """Thread that waits for signals that needs to be send or processed."""
+    """
+    Thread that waits for signals that needs to be send or processed.
+    """
     def __init__(self):
         super(QueueWorker, self).__init__()
         self.queue = []
@@ -445,6 +480,9 @@ class QueueWorker(threading.Thread):
                 self.queue = []
 
     def add_to_queue(self, data):
+        """
+        Add to workers queue.
+        """
         self.queue.append(data)
 
 
@@ -513,7 +551,9 @@ class SynopsiPlayer(xbmc.Player):
         self.hashes = {}
 
     def onPlayBackStarted(self):
-        #global PLAYING
+        """
+        Hook when playback starts.
+        """
         if xbmc.Player().isPlayingVideo():
             #PLAYING = True
             xbmc.log('SynopsiTV: PLAYBACK STARTED')
@@ -521,10 +561,12 @@ class SynopsiPlayer(xbmc.Player):
 
             #Storing hash
             path = xbmc.Player().getPlayingFile()
-            hashDic = get_hash_array(path)
-            self.hashes = hashDic
+            self.hashes = get_hash_array(path)
 
     def onPlayBackEnded(self):
+        """
+        Hook when playback ends.
+        """
         pass
         # if (VIDEO == 1):
         #     xbmc.log('SynopsiTV: PLAYBACK ENDED')
@@ -537,8 +579,11 @@ class SynopsiPlayer(xbmc.Player):
         #     #PLAYING = False
 
     def onPlayBackStopped(self):
-        # TODO: fix with json
-        xbmc.log("STOPPPPPPPPPPP  " + str(VIDEO) + " Curtime: " + str(CURRENT_TIME))
+        """
+        Hook when playback stops.
+        TODO: fix with json
+        """
+        xbmc.log("STOPPP  " + str(VIDEO) + " Curtime: " + str(CURRENT_TIME))
         # if (VIDEO == 1):
         #     xbmc.log('SynopsiTV: PLAYBACK STOPPED')
 
@@ -554,11 +599,17 @@ class SynopsiPlayer(xbmc.Player):
         #     #PLAYING = False
 
     def onPlayBackPaused(self):
+        """
+        Hook when playback is paused.
+        """
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
             send_player_status(xbmc.Player(), 'Player.Paused')
 
     def onPlayBackResumed(self):
+        """
+        Hook when playback is resumed.
+        """
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')
             send_player_status(xbmc.Player(), 'Player.Resumed')
@@ -569,10 +620,15 @@ QUITING = False
 LOGIN_FAILED = False
 CURRENT_TIME = 0
 TOTAL_TIME = 0
+VIDEO = 0
 queue = QueueWorker()
 queue.start()
 
 def main():
+    global VIDEO
+    global CURRENT_TIME
+    global TOTAL_TIME
+
     xbmc.log('SynopsiTV: Addon information')
     xbmc.log('SynopsiTV: ----> Addon name    : ' + __addonname__)
     xbmc.log('SynopsiTV: ----> Addon path    : ' + __cwd__)
@@ -591,8 +647,8 @@ def main():
     check_send_queue()
 
     if __addon__.getSetting("FIRSTRUN") == "true":
-        serThr = Searcher()
-        serThr.start()
+        search_thread = Searcher()
+        search_thread.start()
 
     thr = ApiListener()
     thr.start()
@@ -620,7 +676,8 @@ def main():
             ):
             if not LOGIN_FAILED:
                 xbmc.log("SynopsiTV: Trying to login")
-                login(__addon__.getSetting("USER"), __addon__.getSetting("PASS"))
+                login(__addon__.getSetting("USER"),
+                      __addon__.getSetting("PASS"))
 
         xbmc.sleep(1000)
 
@@ -630,9 +687,9 @@ def main():
             thr.stop()
         del thr
 
-        # if not serThr.stopped:
-        #     serThr.stop()
-        # del serThr
+        # if not search_thread.stopped:
+        #     search_thread.stop()
+        # del search_thread
 
         xbmc.log('SynopsiTV: Aborting...')
         sys.exit(4)

@@ -15,3 +15,6 @@ class WindowXMLDialog(Dialog):
     """docstring for WindowXMLDialog"""
     def __init__(self):
         super(WindowXMLDialog, self).__init__()
+
+    def doModal(self):
+        pass
