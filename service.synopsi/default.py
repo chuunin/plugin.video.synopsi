@@ -366,9 +366,9 @@ class Searcher(threading.Thread):
             }
             queue.add_to_queue(data)
         notification("SynopsiTV", "Finished loading database")
-        # TODO: If searcher crash
 
-        __addon__.setSetting(id='FIRSTRUN', value="false")
+        if not QUITING:
+            __addon__.setSetting(id='FIRSTRUN', value="false")
 
     def stop(self):
         """
@@ -607,7 +607,6 @@ class SynopsiPlayer(xbmc.Player):
     def onPlayBackStopped(self):
         """
         Hook when playback stops.
-        TODO: fix with json
         """
         xbmc.log("STOPPP  " + str(VIDEO) + " Curtime: " + str(CURRENT_TIME))
         # if (VIDEO == 1):
@@ -688,7 +687,6 @@ def main():
     # xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
     while (not xbmc.abortRequested):
 
-        # TODO: rewrite to TCP client - its faster
         if xbmc.Player().isPlayingVideo():
             VIDEO = 1
             CURRENT_TIME = xbmc.Player().getTime()
