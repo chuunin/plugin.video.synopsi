@@ -1,0 +1,21 @@
+<window id="100">
+	<defaultcontrol always="true">10</defaultcontrol>
+	<coordinates>
+		<system>1</system>
+		<posx>335</posx>
+		<posy>230</posy>
+	</coordinates>
+	<include>dialogeffect</include>
+
+	<controls>
+		<control type="image">
+			<posx>0</posx>
+			<posy>0</posy>
+			<width>610</width>
+			<height>240</height>
+			<texture border="40">popup.png</texture>
+		</control>
+	</controls>
+
+
+</window>
