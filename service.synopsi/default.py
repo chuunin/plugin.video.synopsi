@@ -458,15 +458,23 @@ class ApiListener(threading.Thread):
             #         ui.doModal()
             #         del ui
 
-            if method == "Player.OnStop" and (data_json["params"]["data"] is not None):
-                if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
-                    details = get_movie_details(data_json["params"]["data"]["item"]["id"])
-                    xbmc.log(str(details))
-                    # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
+            if method == "Player.OnStop":
+                if data_json["params"]["data"] is not None:
+                    if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                        details = get_movie_details(data_json["params"]["data"]["item"]["id"])
+                        xbmc.log(str(details))
+                        ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                        # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
+                                             tottime=TOTAL_TIME, token=get_token(),
+                                             hashd=get_hash_array(
+                                                details["result"]["moviedetails"]["file"]))
+                        ui.doModal()
+                        del ui
+                else:
+                    # if ended
+                    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
                                          tottime=TOTAL_TIME, token=get_token(),
-                                         hashd=get_hash_array(
-                                            details["result"]["moviedetails"]["file"]))
+                                         hashd=[])
                     ui.doModal()
                     del ui
 

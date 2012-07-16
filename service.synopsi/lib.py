@@ -24,7 +24,7 @@ SECRET = '69884a55080284e41937e7a007e522'
 # 'password': 'asdasd'
 # }
 
-HEADERS = {
+HTTP_HEADERS = {
             'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (KEY, SECRET)),
             'user-agent': 'linux'
 }
@@ -43,7 +43,7 @@ def get_token(user, passwd):
     }
     response = urlopen(Request('http://dev.synopsi.tv/oauth2/token/', 
         data=urlencode(data), 
-        HEADERS=HEADERS, origin_req_host='dev.synopsi.tv'
+        headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
     ))
     response_json = json.loads(response.readline())
 
@@ -70,7 +70,7 @@ def send_data(json_data, access_token):
     
     response = urlopen(Request('http://dev.synopsi.tv/api/desktop/',
         data=urlencode(data),
-        HEADERS=HEADERS, origin_req_host='dev.synopsi.tv'
+        headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
     ))
 
 
