@@ -22,7 +22,7 @@
 			<height>40</height>
 			<texture>dialogheader.png</texture>
 		</control>
-		<control type="label" id="1">
+		<control id="1" type="label">
 			<description>header label</description>
 			<posx>40</posx>
 			<posy>20</posy>
@@ -52,7 +52,7 @@
 			<ondown>10</ondown>
 			<visible>system.getbool(input.enablemouse)</visible>
 		</control>
-		<control type="label" id="2">
+		<control id="2" type="label">
 			<description>dialog line 1</description>
 			<posx>30</posx>
 			<posy>60</posy>
@@ -65,30 +65,8 @@
 			<font>font13</font>
 		</control>
 		<!--
-		<control type="label" id="3">
-			<description>dialog line 2</description>
-			<posx>30</posx>
-			<posy>85</posy>
-			<width>550</width>
-			<height>30</height>
-			<align>left</align>
-			<aligny>center</aligny>
-			<label>-</label>
-			<font>font13</font>
-		</control>
-		<control type="label" id="4">
-			<description>dialog line 3</description>
-			<posx>30</posx>
-			<posy>110</posy>
-			<width>550</width>
-			<height>30</height>
-			<align>left</align>
-			<aligny>center</aligny>
-			<label>-</label>
-			<font>font13</font>
-		</control>
-	-->
-		<control type="button" id="11">
+		<control type="label" id="3"><description>dialog line 2</description><posx>30</posx><posy>85</posy><width>550</width><height>30</height><align>left</align><aligny>center</aligny><label>-</label><font>font13</font></control><control type="label" id="4"><description>dialog line 3</description><posx>30</posx><posy>110</posy><width>550</width><height>30</height><align>left</align><aligny>center</aligny><label>-</label><font>font13</font></control>-->
+		<control id="11" type="button">
 			<description>Amazing button</description>
 			<posx>95</posx>
 			<posy>175</posy>
@@ -104,7 +82,7 @@
 			<onup>11</onup>
 			<ondown>11</ondown>
 		</control>
-		<control type="button" id="10">
+		<control id="10" type="button">
 			<description>ok button</description>
 			<posx>305</posx>
 			<posy>175</posy>
@@ -120,7 +98,7 @@
 			<onup>10</onup>
 			<ondown>10</ondown>
 		</control>
-		<control type="button" id="15">
+		<control id="15" type="button">
 			<description>Terrible button</description>
 			<posx>415</posx>
 			<posy>175</posy>
