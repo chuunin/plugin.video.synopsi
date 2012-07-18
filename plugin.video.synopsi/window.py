@@ -3,6 +3,7 @@ import sys
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 class XMLRatingDialog(xbmcgui.WindowXML):
+# class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     """
     Dialog class that asks user about rating of movie.
     """

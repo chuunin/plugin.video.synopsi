@@ -32,15 +32,10 @@
 			<!-- <visible>!Skin.HasSetting(HideBackGroundFanart) + !IsEmpty(ListItem.Property(Fanart_Image))</visible>-->
 			<include>Window_OpenClose_Animation</include>
 		</control>
-
-
-
-
-
 		<control type="group">
-			<!-- <visible>Control.IsVisible(500)</visible> -->
+			<!-- <visible>Control.IsVisible(500)</visible>-->
 			<include>VisibleFadeEffect</include>
-			<control type="panel" id="50023">
+			<control id="50023" type="panel">
 				<posx>50</posx>
 				<posy>135</posy>
 				<width>1180</width>
@@ -53,27 +48,28 @@
 				<pagecontrol>60</pagecontrol>
 				<scrolltime>200</scrolltime>
 				<preloaditems>2</preloaditems>
+				<include>Window_OpenClose_Animation</include>
 				<itemlayout height="317" width="180">
 					<control type="image">
 						<posx>1</posx>
 						<posy>0</posy>
 						<width>180</width>
 						<height>267</height>
-						<bordertexture border="5">button-nofocus.png</bordertexture>
+						<!-- <bordertexture border="5">button-nofocus.png</bordertexture>-->
 						<bordersize>5</bordersize>
 						<texture background="true">$INFO[Listitem.Icon]</texture>
-						<!-- <visible>!Container.Content(Episodes)</visible> -->
+						<!-- <visible>!Container.Content(Episodes)</visible>-->
 					</control>
 					<control type="image">
 						<posx>1</posx>
 						<posy>0</posy>
 						<width>180</width>
 						<height>267</height>
-						<!-- <aspectratio>scale</aspectratio> -->
-						<bordertexture border="5">button-nofocus.png</bordertexture>
+						<!-- <aspectratio>scale</aspectratio>-->
+						<!-- <bordertexture border="5">button-nofocus.png</bordertexture>-->
 						<bordersize>5</bordersize>
 						<texture background="true">$INFO[Listitem.Icon]</texture>
-						<!-- <visible>Container.Content(Episodes)</visible> -->
+						<!-- <visible>Container.Content(Episodes)</visible>-->
 					</control>
 					<control type="label">
 						<posx>90</posx>
@@ -87,7 +83,6 @@
 						<aligny>center</aligny>
 						<info>ListItem.Label</info>
 					</control>
-					
 					<control type="label">
 						<posx>90</posx>
 						<posy>286</posy>
@@ -100,9 +95,6 @@
 						<aligny>center</aligny>
 						<info>ListItem.Label2</info>
 					</control>
-					
-
-
 					<control type="image">
 						<posx>180</posx>
 						<posy>130</posy>
@@ -118,7 +110,8 @@
 						<posy>0</posy>
 						<width>180</width>
 						<height>267</height>
-						<bordertexture border="5">folder-focus.png</bordertexture>
+						<!-- <bordertexture border="5">folder-focus.png</bordertexture>-->
+						<bordertexture border="5">pix.png</bordertexture>
 						<bordersize>5</bordersize>
 						<texture background="true">$INFO[Listitem.Icon]</texture>
 						<visible>!Container.Content(Episodes)</visible>
@@ -129,7 +122,8 @@
 						<width>180</width>
 						<height>267</height>
 						<aspectratio>scale</aspectratio>
-						<bordertexture border="5">folder-focus.png</bordertexture>
+						<!-- <bordertexture border="5">folder-focus.png</bordertexture>-->
+						<bordertexture border="5">pix.png</bordertexture>
 						<bordersize>5</bordersize>
 						<texture background="true">$INFO[Listitem.Icon]</texture>
 						<visible>Container.Content(Episodes)</visible>
@@ -146,7 +140,6 @@
 						<aligny>center</aligny>
 						<info>ListItem.Label</info>
 					</control>
-
 					<control type="label">
 						<posx>90</posx>
 						<posy>286</posy>
@@ -159,7 +152,6 @@
 						<aligny>center</aligny>
 						<info>ListItem.Label2</info>
 					</control>
-					
 					<control type="image">
 						<posx>180</posx>
 						<posy>130</posy>
@@ -169,225 +161,220 @@
 						<texture>$INFO[ListItem.Overlay]</texture>
 					</control>
 				</focusedlayout>
-
 				<content>
-				<item id="1"> 
-					<label>The Social Network</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="2">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="3">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="4">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="5">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="6">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-
-				<item id="1"> 
-					<label>The Social Network</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="2">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="3">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="4">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="5">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="6">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-
-				<item id="1"> 
-					<label>The Social Network</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="2">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="3">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="4">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="5">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="6">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-
-				<item id="1"> 
-					<label>The Social Network</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="2">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="3">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="4">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="5">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="6">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-
-				<item id="1"> 
-					<label>The Social Network</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="2">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="3">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="4">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="5">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-				<item id="6">
-					<label>Movie 1</label>
-					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
-					<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
-					<thumb>-</thumb>
-				</item>
-			</content>
+					<item id="1">
+						<label>The Social Network</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="2">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="3">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="4">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="5">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="6">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="1">
+						<label>The Social Network</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="2">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="3">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="4">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="5">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="6">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="1">
+						<label>The Social Network</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="2">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="3">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="4">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="5">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="6">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="1">
+						<label>The Social Network</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="2">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="3">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="4">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="5">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="6">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="1">
+						<label>The Social Network</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="2">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.2.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="3">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.3.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/02107999-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="4">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.4.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00456250-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="5">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/00084805-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+					<item id="6">
+						<label>Movie 1</label>
+						<label2>Subtitle</label2>
+						<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.5.Path)])</onclick>
+						<icon>https://s3.amazonaws.com/titles.synopsi.tv/01594623-267.jpg</icon>
+						<thumb>-</thumb>
+					</item>
+				</content>
 			</control>
-			<control type="scrollbar" id="60">
+			<control id="60" type="scrollbar">
 				<posx>1170</posx>
 				<posy>135</posy>
 				<width>25</width>
@@ -397,25 +384,14 @@
 				<texturesliderbarfocus border="2,16,2,16">ScrollBarV_bar_focus.png</texturesliderbarfocus>
 				<textureslidernib>ScrollBarNib.png</textureslidernib>
 				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
-				<onleft>500</onleft>
+				<onleft>50023</onleft>
 				<onright>2</onright>
 				<showonepage>false</showonepage>
 				<orientation>vertical</orientation>
 				<visible>Control.IsVisible(500)</visible>
+				<include>Window_OpenClose_Animation</include>
 			</control>
 		</control>
-
-
-
-
-
-
-
-
-
-
-
-
 		<control id="8001" type="list">
 			<!-- <animation effect="slide" start="0,0" end="-240,0" time="300" condition="Control.HasFocus(8000)">Conditional</animation><animation effect="slide" start="0,0" end="480,0" time="300" condition="Control.HasFocus(8001)">Conditional</animation>-->
 			<posx>50</posx>
@@ -435,21 +411,14 @@
 			<!-- <include>RecentlyAddedTVShowContents</include>-->
 			<!-- <itemlayout height="220" width="240"><control type="image"><description>background</description><posx>0</posx><posy>0</posy><width>240</width><height>220</height><texture border="15">RecentAddedBack.png</texture></control><control type="image"><posx>10</posx><posy>10</posy><width>220</width><height>155</height><aspectratio>scale</aspectratio><texture background="true">$INFO[ListItem.Icon]</texture><bordertexture border="5">button-nofocus.png</bordertexture><bordersize>5</bordersize></control><control type="label"><posx>120</posx><posy>168</posy><width>200</width><height>20</height><font>font10</font><textcolor>grey2</textcolor><shadowcolor>black</shadowcolor><selectedcolor>selected</selectedcolor><align>center</align><aligny>center</aligny><label>$INFO[ListItem.Label2]</label></control><control type="label"><posx>120</posx><posy>185</posy><width>200</width><height>20</height><font>font12</font><textcolor>white</textcolor><shadowcolor>black</shadowcolor><selectedcolor>selected</selectedcolor><align>center</align><aligny>center</aligny><label>$INFO[ListItem.Label]</label></control></itemlayout><focusedlayout height="220" width="240"><control type="image"><description>background</description><posx>0</posx><posy>0</posy><width>240</width><height>220</height><texture border="15">RecentAddedBack.png</texture></control><control type="image"><posx>10</posx><posy>10</posy><width>220</width><height>155</height><aspectratio>scale</aspectratio><texture background="true">$INFO[ListItem.Icon]</texture><bordertexture border="5">folder-focus.png</bordertexture><bordersize>5</bordersize><visible>Control.HasFocus(8001)</visible></control><control type="image"><posx>10</posx><posy>10</posy><width>220</width><height>155</height><aspectratio>scale</aspectratio><texture>$INFO[ListItem.Icon]</texture><bordertexture border="5">button-nofocus.png</bordertexture><bordersize>5</bordersize><visible>!Control.HasFocus(8001)</visible></control><control type="label"><posx>120</posx><posy>168</posy><width>200</width><height>20</height><font>font10</font><textcolor>grey2</textcolor><shadowcolor>black</shadowcolor><selectedcolor>selected</selectedcolor><align>center</align><aligny>center</aligny><label>$INFO[ListItem.Label2]</label></control><control type="label"><posx>120</posx><posy>185</posy><width>200</width><height>20</height><font>font12</font><textcolor>white</textcolor><shadowcolor>black</shadowcolor><selectedcolor>selected</selectedcolor><align>center</align><aligny>center</aligny><label>$INFO[ListItem.Label]</label></control></focusedlayout><content><item id="4"><label>$INFO[Window.Property(LatestEpisode.4.EpisodeTitle)]</label><label2>$INFO[Window.Property(LatestEpisode.4.ShowTitle)] - $INFO[Window.Property(LatestEpisode.4.EpisodeNo)]</label2><onclick>PlayMedia($ESCINFO[Window.Property(LatestEpisode.4.Path)])</onclick><icon>-</icon><thumb>$INFO[Window.Property(LatestEpisode.4.Thumb)]</thumb></item><item id="3"><label>$INFO[Window.Property(LatestEpisode.3.EpisodeTitle)]</label><label2>$INFO[Window.Property(LatestEpisode.3.ShowTitle)] - $INFO[Window.Property(LatestEpisode.3.EpisodeNo)]</label2><onclick>PlayMedia($ESCINFO[Window.Property(LatestEpisode.3.Path)])</onclick><icon>-</icon><thumb>$INFO[Window.Property(LatestEpisode.3.Thumb)]</thumb></item><item id="2"><label>$INFO[Window.Property(LatestEpisode.2.EpisodeTitle)]</label><label2>$INFO[Window.Property(LatestEpisode.2.ShowTitle)] - $INFO[Window.Property(LatestEpisode.2.EpisodeNo)]</label2><onclick>PlayMedia($ESCINFO[Window.Property(LatestEpisode.2.Path)])</onclick><icon>-</icon><thumb>$INFO[Window.Property(LatestEpisode.2.Thumb)]</thumb></item><item id="1"><label>$INFO[Window.Property(LatestEpisode.1.EpisodeTitle)]</label><label2>$INFO[Window.Property(LatestEpisode.1.ShowTitle)] - $INFO[Window.Property(LatestEpisode.1.EpisodeNo)]</label2><onclick>PlayMedia($ESCINFO[Window.Property(LatestEpisode.1.Path)])</onclick><icon>-</icon><thumb>$INFO[Window.Property(LatestEpisode.1.Thumb)]</thumb></item></content>-->
 			<itemlayout height="267" width="200">
-				<!-- <control type="image">
-					<description>background</description>
-					<posx>0</posx>
-					<posy>0</posy>
-					<width>180</width>
-					<height>267</height>
-					<texture border="25">RecentAddedBack.png</texture>
-				</control> -->
+				<!-- <control type="image"><description>background</description><posx>0</posx><posy>0</posy><width>180</width><height>267</height><texture border="25">RecentAddedBack.png</texture></control>-->
 				<control type="image">
 					<posx>0</posx>
 					<posy>0</posy>
 					<width>180</width>
 					<height>267</height>
 					<texture background="true">$INFO[ListItem.Icon]</texture>
-					<!-- <bordertexture border="5">button-nofocus.png</bordertexture> -->
+					<!-- <bordertexture border="5">button-nofocus.png</bordertexture>-->
 					<bordersize>10</bordersize>
 				</control>
 				<control type="label">
@@ -459,13 +428,12 @@
 					<height>20</height>
 					<font>font12</font>
 					<textcolor>white</textcolor>
-					<!-- <shadowcolor>black</shadowcolor> -->
+					<!-- <shadowcolor>black</shadowcolor>-->
 					<selectedcolor>selected</selectedcolor>
 					<align>center</align>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label]</label>
 				</control>
-
 				<control type="label">
 					<posx>90</posx>
 					<posy>300</posy>
@@ -473,7 +441,7 @@
 					<height>20</height>
 					<font>font10</font>
 					<textcolor>white</textcolor>
-					<!-- <shadowcolor>black</shadowcolor> -->
+					<!-- <shadowcolor>black</shadowcolor>-->
 					<selectedcolor>selected</selectedcolor>
 					<align>center</align>
 					<aligny>center</aligny>
@@ -481,25 +449,18 @@
 				</control>
 			</itemlayout>
 			<focusedlayout height="267" width="200">
-				<!-- <control type="image">
-					<description>background</description>
-					<posx>0</posx>
-					<posy>0</posy>
-					<width>180</width>
-					<height>220</height>
-					<texture border="15">RecentAddedBack.png</texture>
-				</control> -->
+				<!-- <control type="image"><description>background</description><posx>0</posx><posy>0</posy><width>180</width><height>220</height><texture border="15">RecentAddedBack.png</texture></control>-->
 				<control type="image">
 					<posx>0</posx>
 					<posy>0</posy>
 					<width>180</width>
 					<height>267</height>
 					<texture>$INFO[ListItem.Icon]</texture>
-					<!-- <texture background="true">$INFO[ListItem.Icon]</texture> -->
-					 <bordertexture border="5">folder-focus.png</bordertexture>
-					 <bordersize>5</bordersize>
-					<!-- <bordertexture border="5">folder-focus.png </bordertexture> -->
-					<!-- <bordersize>5</bordersize> -->
+					<!-- <texture background="true">$INFO[ListItem.Icon]</texture>-->
+					<bordertexture border="5">folder-focus.png</bordertexture>
+					<bordersize>5</bordersize>
+					<!-- <bordertexture border="5">folder-focus.png </bordertexture>-->
+					<!-- <bordersize>5</bordersize>-->
 					<visible>Control.HasFocus(8000)</visible>
 				</control>
 				<control type="image">
@@ -508,8 +469,8 @@
 					<width>180</width>
 					<height>267</height>
 					<texture>$INFO[ListItem.Icon]</texture>
-					 <bordertexture border="5">button-nofocus.png</bordertexture>
-					<bordersize>10</bordersize> 
+					<bordertexture border="5">button-nofocus.png</bordertexture>
+					<bordersize>10</bordersize>
 					<visible>!Control.HasFocus(8000)</visible>
 				</control>
 				<control type="label">
@@ -518,9 +479,9 @@
 					<width>180</width>
 					<height>20</height>
 					<font>font12</font>
-					<!-- <textcolor>white</textcolor> -->
+					<!-- <textcolor>white</textcolor>-->
 					<textcolor>white</textcolor>
-					<!-- <shadowcolor>black</shadowcolor> -->
+					<!-- <shadowcolor>black</shadowcolor>-->
 					<selectedcolor>selected</selectedcolor>
 					<align>center</align>
 					<aligny>center</aligny>
@@ -528,10 +489,10 @@
 				</control>
 			</focusedlayout>
 			<content>
-				<item id="1"> 
+				<item id="1">
 					<label>The Social Network</label>
 					<label2>Subtitle</label2>
-					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
+					<onclick>PlayMedia("C:\Users\Tommy\Downloads\Copying.Beethoven.2006.x264.DTS-WAF\Copying.Beethoven.2006.x264.DTS-WAF.mkv")</onclick>
 					<icon>https://s3.amazonaws.com/titles.synopsi.tv/00053495-267.jpg</icon>
 					<thumb>-</thumb>
 				</item>
@@ -572,9 +533,6 @@
 				</item>
 			</content>
 		</control>
-
-
-
 		<control id="8002" type="list">
 			<!-- <animation effect="slide" start="0,0" end="-240,0" time="300" condition="Control.HasFocus(8000)">Conditional</animation><animation effect="slide" start="0,0" end="480,0" time="300" condition="Control.HasFocus(8001)">Conditional</animation>-->
 			<posx>50</posx>
@@ -592,21 +550,14 @@
 			<include>Window_OpenClose_Animation</include>
 			<visible>false</visible>
 			<itemlayout height="267" width="200">
-				<!-- <control type="image">
-					<description>background</description>
-					<posx>0</posx>
-					<posy>0</posy>
-					<width>180</width>
-					<height>267</height>
-					<texture border="25">RecentAddedBack.png</texture>
-				</control> -->
+				<!-- <control type="image"><description>background</description><posx>0</posx><posy>0</posy><width>180</width><height>267</height><texture border="25">RecentAddedBack.png</texture></control>-->
 				<control type="image">
 					<posx>0</posx>
 					<posy>0</posy>
 					<width>180</width>
 					<height>267</height>
 					<texture background="true">$INFO[ListItem.Icon]</texture>
-					<!-- <bordertexture border="5">button-nofocus.png</bordertexture> -->
+					<!-- <bordertexture border="5">button-nofocus.png</bordertexture>-->
 					<bordersize>10</bordersize>
 				</control>
 				<control type="label">
@@ -616,13 +567,12 @@
 					<height>20</height>
 					<font>font12</font>
 					<textcolor>white</textcolor>
-					<!-- <shadowcolor>black</shadowcolor> -->
+					<!-- <shadowcolor>black</shadowcolor>-->
 					<selectedcolor>selected</selectedcolor>
 					<align>center</align>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label]</label>
 				</control>
-
 				<control type="label">
 					<posx>90</posx>
 					<posy>300</posy>
@@ -630,7 +580,7 @@
 					<height>20</height>
 					<font>font10</font>
 					<textcolor>white</textcolor>
-					<!-- <shadowcolor>black</shadowcolor> -->
+					<!-- <shadowcolor>black</shadowcolor>-->
 					<selectedcolor>selected</selectedcolor>
 					<align>center</align>
 					<aligny>center</aligny>
@@ -638,25 +588,18 @@
 				</control>
 			</itemlayout>
 			<focusedlayout height="267" width="200">
-				<!-- <control type="image">
-					<description>background</description>
-					<posx>0</posx>
-					<posy>0</posy>
-					<width>180</width>
-					<height>220</height>
-					<texture border="15">RecentAddedBack.png</texture>
-				</control> -->
+				<!-- <control type="image"><description>background</description><posx>0</posx><posy>0</posy><width>180</width><height>220</height><texture border="15">RecentAddedBack.png</texture></control>-->
 				<control type="image">
 					<posx>0</posx>
 					<posy>0</posy>
 					<width>180</width>
 					<height>267</height>
 					<texture>$INFO[ListItem.Icon]</texture>
-					<!-- <texture background="true">$INFO[ListItem.Icon]</texture> -->
-					 <bordertexture border="5">folder-focus.png</bordertexture>
-					 <bordersize>5</bordersize>
-					<!-- <bordertexture border="5">folder-focus.png </bordertexture> -->
-					<!-- <bordersize>5</bordersize> -->
+					<!-- <texture background="true">$INFO[ListItem.Icon]</texture>-->
+					<bordertexture border="5">folder-focus.png</bordertexture>
+					<bordersize>5</bordersize>
+					<!-- <bordertexture border="5">folder-focus.png </bordertexture>-->
+					<!-- <bordersize>5</bordersize>-->
 					<visible>Control.HasFocus(8000)</visible>
 				</control>
 				<control type="image">
@@ -665,8 +608,8 @@
 					<width>180</width>
 					<height>267</height>
 					<texture>$INFO[ListItem.Icon]</texture>
-					 <bordertexture border="5">button-nofocus.png</bordertexture>
-					<bordersize>10</bordersize> 
+					<bordertexture border="5">button-nofocus.png</bordertexture>
+					<bordersize>10</bordersize>
 					<visible>!Control.HasFocus(8000)</visible>
 				</control>
 				<control type="label">
@@ -675,9 +618,9 @@
 					<width>180</width>
 					<height>20</height>
 					<font>font12</font>
-					<!-- <textcolor>white</textcolor> -->
+					<!-- <textcolor>white</textcolor>-->
 					<textcolor>white</textcolor>
-					<!-- <shadowcolor>black</shadowcolor> -->
+					<!-- <shadowcolor>black</shadowcolor>-->
 					<selectedcolor>selected</selectedcolor>
 					<align>center</align>
 					<aligny>center</aligny>
@@ -685,7 +628,7 @@
 				</control>
 			</focusedlayout>
 			<content>
-				<item id="1"> 
+				<item id="1">
 					<label>The Social Network</label>
 					<label2>Subtitle</label2>
 					<onclick>PlayMedia($ESCINFO[Window.Property(LatestMovie.1.Path)])</onclick>
@@ -729,9 +672,6 @@
 				</item>
 			</content>
 		</control>
-
-
-
 		<control type="group">
 			<posx>-250</posx>
 			<include>SideBladeLeft</include>
