@@ -20,6 +20,9 @@ import re, sys, os, time
 import test
 from window import *
 
+# from resources.lib import MyFont
+
+# MyFont.addFont( "synopsiTitle" , "LiberationSans-Regular.ttf" , "20") # style and font are optional.
 
 movies = test.jsfile
 
