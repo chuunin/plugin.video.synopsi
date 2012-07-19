@@ -62,6 +62,14 @@ ui = XMLRatingDialog("Main.xml", __cwd__, "Default", ctime=0,
 ui.doModal()
 del ui
 
+
+
+xbmc.executebuiltin("ActivateWindow(Home)")
+print "Plugin: Closing"
+# xbmc.executebuiltin("ReplaceWindow(10000)")
+
+# ActivateWindow(Home)
+
 # xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
 # xbmcplugin.endOfDirectory(int(sys.argv[1]))
 

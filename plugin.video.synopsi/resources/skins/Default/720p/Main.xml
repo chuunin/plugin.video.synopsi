@@ -38,18 +38,24 @@
 			<control id="50023" type="panel">
 				<posx>50</posx>
 				<posy>135</posy>
-				<width>1180</width>
-				<height>558</height>
+				<!-- <width>1180</width> -->
+				<width>1200</width>
+				<!-- <height>558</height> -->
+				
+				<height>620</height>
 				<onleft>2</onleft>
 				<onright>60</onright>
 				<onup>500</onup>
 				<ondown>500</ondown>
 				<viewtype label="21371">list</viewtype>
 				<pagecontrol>60</pagecontrol>
-				<scrolltime>200</scrolltime>
-				<preloaditems>2</preloaditems>
+				<!-- <scrolltime>200</scrolltime> -->
+				<scrolltime>500</scrolltime>
+				<!-- <preloaditems>2</preloaditems> -->
+				<preloaditems>3</preloaditems>
 				<include>Window_OpenClose_Animation</include>
-				<itemlayout height="317" width="180">
+				<!-- <itemlayout height="317" width="180"> -->
+				<itemlayout height="317" width="200">
 					<control type="image">
 						<posx>1</posx>
 						<posy>0</posy>
@@ -104,7 +110,7 @@
 						<texture>$INFO[ListItem.Overlay]</texture>
 					</control>
 				</itemlayout>
-				<focusedlayout height="317" width="180">
+				<focusedlayout height="317" width="200">
 					<control type="image">
 						<posx>1</posx>
 						<posy>0</posy>
@@ -375,7 +381,7 @@
 				</content>
 			</control>
 			<control id="60" type="scrollbar">
-				<posx>1170</posx>
+				<posx>1240</posx>
 				<posy>135</posy>
 				<width>25</width>
 				<height>550</height>
@@ -385,7 +391,7 @@
 				<textureslidernib>ScrollBarNib.png</textureslidernib>
 				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
 				<onleft>50023</onleft>
-				<onright>2</onright>
+				<!-- <onright>2</onright> -->
 				<showonepage>false</showonepage>
 				<orientation>vertical</orientation>
 				<visible>Control.IsVisible(500)</visible>
@@ -681,10 +687,10 @@
 				<width>250</width>
 				<height>600</height>
 				<onleft>9000</onleft>
-				<onright>50</onright>
+				<onright>50023</onright>
 				<onup>9000</onup>
 				<ondown>9000</ondown>
-				<onback>50</onback>
+				<onback>50023</onback>
 				<itemgap>0</itemgap>
 				<control id="200" type="label">
 					<width>250</width>

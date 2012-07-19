@@ -52,4 +52,6 @@ class XMLRatingDialog(xbmcgui.WindowXML):
     def onAction(self, action):
         if (action.getId() in CANCEL_DIALOG):
             # sys.exit()
+            # xbmc.executebuiltin("ReplaceWindow(10000)")
+            xbmc.executebuiltin("ActivateWindow(Home)")
             self.close()
