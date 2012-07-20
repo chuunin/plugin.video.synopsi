@@ -39,11 +39,31 @@ def notification(name, text):
 
     xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name,text))
 
+
 def get_token():
     """
     Returns access token.
     """
     return __addon__.getSetting("ACCTOKEN")
+
+
+def notify_all():
+    """
+    Notifiy all listeners of API in order to test our listener.
+    """
+    xbmc.executeJSONRPC("""
+        {
+        "jsonrpc": "2.0",
+        "method": "JSONRPC.NotifyAll",
+        "id": 1,
+        "params": {
+            "sender": "xbmc",
+            "message": "message",
+            "data": 1
+            }
+        }
+        """
+    )
 
 
 def get_protected_folders():
@@ -144,6 +164,44 @@ def get_api_port():
     return value
 
 
+def get_movies(start, end):
+    """
+    Get movies from xbmc library. Start is the first in list and end is the last.
+    """
+    properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+    method = 'VideoLibrary.GetMovies'
+    dic = {
+        'params': {
+            'properties': properties,
+            'limits': {'end': end, 'start': start}
+        },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1
+    }
+
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
+
+def get_tvshows(start,end):
+    """
+    Get movies from xbmc library. Start is the first in list and end is the last.
+    """
+    properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+    method = 'VideoLibrary.GetTVShows'
+    dic = {
+        'params': {
+            'properties': properties,
+            'limits': {'end': end, 'start': start}
+        },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1
+    }
+
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
+
 def get_movie_details(movie_id):
     """
     Get dict of movie_id details.
@@ -155,6 +213,46 @@ def get_movie_details(movie_id):
         {
             'properties': properties,
             'movieid': movie_id  # s 1 e 2 writes 2
+        },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1
+    }
+    
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
+
+def get_tvshow_details(movie_id):
+    """
+    Get dict of movie_id details.
+    """
+    properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+    method = 'VideoLibrary.GetTVShowDetails'
+    dic = {
+    'params': 
+        {
+            'properties': properties,
+            'movieid': movie_id  # s 1 e 2 writes 2
+        },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1
+    }
+    
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
+
+def get_episode_details(movie_id):
+    """
+    Get dict of movie_id details.
+    """
+    properties = ['file', "lastplayed", "playcount", "season", "episode"]
+    method = 'VideoLibrary.GetEpisodeDetails'
+    dic = {
+    'params': 
+        {
+            'properties': properties,
+            'episodeid': movie_id  # s 1 e 2 writes 2
         },
         'jsonrpc': '2.0',
         'method': method,
@@ -233,44 +331,6 @@ def send_player_status(player, status):
         }
         #try_send_data(data, get_token())
         queue.add_to_queue(data)
-
-
-def get_movies(start, end):
-    """
-    Get movies from xbmc library. Start is the first in list and end is the last.
-    """
-    properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
-    method = 'VideoLibrary.GetMovies'
-    dic = {
-        'params': {
-            'properties': properties,
-            'limits': {'end': end, 'start': start}
-        },
-        'jsonrpc': '2.0',
-        'method': method,
-        'id': 1
-    }
-
-    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
-
-
-def notify_all():
-    """
-    Notifiy all listeners of API in order to test our listener.
-    """
-    xbmc.executeJSONRPC("""
-        {
-        "jsonrpc": "2.0",
-        "method": "JSONRPC.NotifyAll",
-        "id": 1,
-        "params": {
-            "sender": "xbmc",
-            "message": "message",
-            "data": 1
-            }
-        }
-        """
-    )
 
 
 def check_send_queue():
@@ -457,6 +517,10 @@ class ApiListener(threading.Thread):
                     data_json["params"]["data"]["item"]["id"]
                 )
 
+                """
+                TODO: If not movie.
+                """
+
                 if not is_protected(details["result"]["moviedetails"]["file"]):
                     try_send_data({
                             "event": "Library.Remove",
@@ -471,6 +535,9 @@ class ApiListener(threading.Thread):
                     data_json["params"]["data"]["item"]["id"]
                 )
                 
+                """
+                TODO: If not movie.
+                """
                 if not is_protected(details["result"]["moviedetails"]["file"]):
                     try_send_data({
                         "event": "Library.AddORupdate",
@@ -512,7 +579,8 @@ class ApiListener(threading.Thread):
             if method == "Player.OnStop":
                 if not IS_PROTECTED:
                     if data_json["params"]["data"] is not None:
-                        if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                        # if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                        if (data_json["params"]["data"]["item"]["type"] == "movie") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
                             details = get_movie_details(data_json["params"]["data"]["item"]["id"])
                             xbmc.log(str(details))
                             ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
@@ -520,6 +588,16 @@ class ApiListener(threading.Thread):
                                                  tottime=TOTAL_TIME, token=get_token(),
                                                  hashd=get_hash_array(
                                                     details["result"]["moviedetails"]["file"]))
+                            ui.doModal()
+                            del ui
+                        elif (data_json["params"]["data"]["item"]["type"] == "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                            details = get_episode_details(data_json["params"]["data"]["item"]["id"])
+                            xbmc.log(str(details))
+                            ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                            # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
+                                                 tottime=TOTAL_TIME, token=get_token(),
+                                                 hashd=get_hash_array(
+                                                    details["result"]["episodedetails"]["file"]))
                             ui.doModal()
                             del ui
                     else:
