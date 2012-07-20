@@ -31,6 +31,13 @@ __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 
 
+def notification(name, text):
+    """Sends notification to XBMC."""
+    xbmc.executebuiltin('XBMC.Notification(' + str(name) + ',' +
+                        str(text) + ',1)'
+    )
+
+
 def get_token():
     """
     Returns access token.
@@ -44,12 +51,30 @@ def get_protected_folders():
     """
     array = []
     if __addon__.getSetting("PROTFOL") == "true":
-        num_folders = __addon__.getSetting("NUMFOLD")
-        for i in range(int(num_folders)):
+        num_folders = int(__addon__.getSetting("NUMFOLD"))+1
+        for i in range(num_folders):
             path = __addon__.getSetting("FOLDER{0}".format(i+1))
             array.append(path)
     
     return array
+
+
+def is_protected(path):
+    """
+    If file is protected.
+    """
+    protected = get_protected_folders()
+
+    # xbmc.log(str("protected"))
+    # xbmc.log(str(protected))
+    # xbmc.log(str(path))
+
+    for _file in protected:
+        if _file in path:
+            notification("Ignoring file", str(path))
+            return True
+
+    return False
 
 
 def generate_deviceid():
@@ -94,7 +119,7 @@ def get_hash_array(path):
 def get_api_port():
     """
     This function returns TCP port to which is changed XBMC RPC API.
-    If nothing is changed return defualt 9090.
+    If nothing is changed return default 9090.
     """
     path = os.path.dirname(os.path.dirname(__cwd__))
     if os.name == "nt":
@@ -163,13 +188,6 @@ def try_send_data(data, token):
         __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
 
 
-def notification(name, text):
-    """Sends notification to XBMC."""
-    xbmc.executebuiltin('XBMC.Notification(' + str(name) + ',' +
-                        str(text) + ',1)'
-    )
-
-
 def login(username, password):
     """
     Login function.
@@ -199,19 +217,21 @@ def send_player_status(player, status):
     path = player.getPlayingFile()
     hash_array = get_hash_array(path)
 
-    data = {
-        'event': status,
-        'moviedetails': {
-            "label": info_tag.getTitle(),
-            "imdbnumber": info_tag.getIMDBNumber(),
-            "file": path,
-            "currenttime": player.getTime(),
-            "totaltime": player.getTotalTime(),
-            "hashes": hash_array
-        },
-    }
-    #try_send_data(data, get_token())
-    queue.add_to_queue(data)
+    # if not is_protected(path):
+    if not IS_PROTECTED:
+        data = {
+            'event': status,
+            'moviedetails': {
+                "label": info_tag.getTitle(),
+                "imdbnumber": info_tag.getIMDBNumber(),
+                "file": path,
+                "currenttime": player.getTime(),
+                "totaltime": player.getTotalTime(),
+                "hashes": hash_array
+            },
+        }
+        #try_send_data(data, get_token())
+        queue.add_to_queue(data)
 
 
 def get_movies(start, end):
@@ -473,24 +493,25 @@ class ApiListener(threading.Thread):
             #         del ui
 
             if method == "Player.OnStop":
-                if data_json["params"]["data"] is not None:
-                    if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
-                        details = get_movie_details(data_json["params"]["data"]["item"]["id"])
-                        xbmc.log(str(details))
+                if not IS_PROTECTED:
+                    if data_json["params"]["data"] is not None:
+                        if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                            details = get_movie_details(data_json["params"]["data"]["item"]["id"])
+                            xbmc.log(str(details))
+                            ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                            # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
+                                                 tottime=TOTAL_TIME, token=get_token(),
+                                                 hashd=get_hash_array(
+                                                    details["result"]["moviedetails"]["file"]))
+                            ui.doModal()
+                            del ui
+                    else:
+                        # if ended
                         ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                        # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
                                              tottime=TOTAL_TIME, token=get_token(),
-                                             hashd=get_hash_array(
-                                                details["result"]["moviedetails"]["file"]))
+                                             hashd=[])
                         ui.doModal()
                         del ui
-                else:
-                    # if ended
-                    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                                         tottime=TOTAL_TIME, token=get_token(),
-                                         hashd=[])
-                    ui.doModal()
-                    del ui
 
         sys.exit(4)
 
@@ -612,6 +633,9 @@ class SynopsiPlayer(xbmc.Player):
             path = xbmc.Player().getPlayingFile()
             self.hashes = get_hash_array(path)
 
+            # if is_protected(path):
+            #     IS_PROTECTED = True
+
     def onPlayBackEnded(self):
         """
         Hook when playback ends.
@@ -669,6 +693,7 @@ LOGIN_FAILED = False
 CURRENT_TIME = 0
 TOTAL_TIME = 0
 VIDEO = 0
+IS_PROTECTED = False
 queue = QueueWorker()
 queue.start()
 
@@ -691,7 +716,7 @@ def main():
         notification("SynopsiTV", "Opening Settings")
         __addon__.openSettings()
 
-    __addon__.openSettings()
+    # __addon__.openSettings()
 
     xbmc.log(__cwd__)
 
@@ -716,6 +741,10 @@ def main():
             VIDEO = 1
             CURRENT_TIME = xbmc.Player().getTime()
             TOTAL_TIME = xbmc.Player().getTotalTime()
+            if is_protected(xbmc.Player().getPlayingFile()):
+                IS_PROTECTED = True
+            else:
+                IS_PROTECTED = False
         else:
             VIDEO = 0
 
