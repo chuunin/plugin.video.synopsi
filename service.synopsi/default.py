@@ -33,10 +33,11 @@ __version__   = __addon__.getAddonInfo('version')
 
 def notification(name, text):
     """Sends notification to XBMC."""
-    xbmc.executebuiltin('XBMC.Notification(' + str(name) + ',' +
-                        str(text) + ',1)'
-    )
+    # xbmc.executebuiltin('XBMC.Notification(' + str(name) + ',' +
+    #                     str(text) + ',1)'
+    # )
 
+    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name,text))
 
 def get_token():
     """
@@ -351,21 +352,24 @@ class Searcher(threading.Thread):
                 movie_dict = get_movies(start, end)
                 for j in range(pack):
                     path = movie_dict["result"]['movies'][j]['file']
-                    if not "stack://" in path:
-                        hash_array = []
-                        hash_array.append({
-                            "synopsihash": str(lib.myhash(path)),
-                            "subtitlehash": str(lib.hashFile(path))
-                        })
-                        movie_dict["result"]['movies'][j]["hashes"] = hash_array
-                    else:
-                        movie_dict["result"]['movies'][j]['hashes'] = []
-                        for moviefile in path.strip("stack://").split(" , "):
-                            movie_dict["result"]['movies'][j]['hashes'].append({
-                                "path": moviefile,
-                                "synopsihash": str(lib.myhash(moviefile)),
-                                "subtitlehash": str(lib.hashFile(moviefile))
+                    if not is_protected(path):
+                        if not "stack://" in path:
+                            hash_array = []
+                            hash_array.append({
+                                "synopsihash": str(lib.myhash(path)),
+                                "subtitlehash": str(lib.hashFile(path))
                             })
+                            movie_dict["result"]['movies'][j]["hashes"] = hash_array
+                        else:
+                            movie_dict["result"]['movies'][j]['hashes'] = []
+                            for moviefile in path.strip("stack://").split(" , "):
+                                movie_dict["result"]['movies'][j]['hashes'].append({
+                                    "path": moviefile,
+                                    "synopsihash": str(lib.myhash(moviefile)),
+                                    "subtitlehash": str(lib.hashFile(moviefile))
+                                })
+
+
                 xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
                 data = {
                     "event": "Library.Add",
@@ -379,20 +383,21 @@ class Searcher(threading.Thread):
             movie_dict = get_movies(start, end)
             for j in range(end - start):
                 path = movie_dict["result"]['movies'][j]['file']
-                if not "stack://" in path:
-                    hash_array = []
-                    hash_array.append({
-                        "synopsihash": str(lib.myhash(path)),
-                        "subtitlehash": str(lib.hashFile(path))})
-                    movie_dict["result"]['movies'][j]["hashes"] = hash_array
-                else:
-                    movie_dict["result"]['movies'][j]['hashes'] = []
-                    for moviefile in path.strip("stack://").split(" , "):
-                        movie_dict["result"]['movies'][j]['hashes'].append({
-                            "path": moviefile,
-                            "synopsihash": str(lib.myhash(moviefile)),
-                            "subtitlehash": str(lib.hashFile(moviefile))
-                        })
+                if not is_protected(path):
+                    if not "stack://" in path:
+                        hash_array = []
+                        hash_array.append({
+                            "synopsihash": str(lib.myhash(path)),
+                            "subtitlehash": str(lib.hashFile(path))})
+                        movie_dict["result"]['movies'][j]["hashes"] = hash_array
+                    else:
+                        movie_dict["result"]['movies'][j]['hashes'] = []
+                        for moviefile in path.strip("stack://").split(" , "):
+                            movie_dict["result"]['movies'][j]['hashes'].append({
+                                "path": moviefile,
+                                "synopsihash": str(lib.myhash(moviefile)),
+                                "subtitlehash": str(lib.hashFile(moviefile))
+                            })
             xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
             data = {
                 "event": "Library.Add",
@@ -431,6 +436,7 @@ class ApiListener(threading.Thread):
 
     def run(self):
         global QUITING
+        global IS_PROTECTED
         
         while True:
             data = self.sock.recv(1024)
@@ -444,24 +450,32 @@ class ApiListener(threading.Thread):
             if method == "VideoLibrary.OnRemove":
                 # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
                 # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
-                try_send_data({
-                        "event": "Library.Remove",
-                        "id": data_json["params"]["data"]["id"]
-                    }, 
-                    get_token()
+                details = get_movie_details(
+                    data_json["params"]["data"]["item"]["id"]
                 )
+
+                if not is_protected(details["result"]["moviedetails"]["file"]):
+                    try_send_data({
+                            "event": "Library.Remove",
+                            "id": data_json["params"]["data"]["id"],
+                            "moviedetails": details["result"]["moviedetails"]
+                        }, 
+                        get_token()
+                    )
+
             elif method == "VideoLibrary.OnUpdate":
                 details = get_movie_details(
                     data_json["params"]["data"]["item"]["id"]
                 )
                 
-                try_send_data({
-                    "event": "Library.AddORupdate",
-                    "id": data_json["params"]["data"]["item"]["id"],
-                    "moviedetails": details["result"]["moviedetails"]
-                }, 
-                get_token()
-                )
+                if not is_protected(details["result"]["moviedetails"]["file"]):
+                    try_send_data({
+                        "event": "Library.AddORupdate",
+                        "id": data_json["params"]["data"]["item"]["id"],
+                        "moviedetails": details["result"]["moviedetails"]
+                    }, 
+                    get_token()
+                    )
 
             #elif method == "Player.OnStop":
 
@@ -702,6 +716,7 @@ def main():
     global VIDEO
     global CURRENT_TIME
     global TOTAL_TIME
+    global IS_PROTECTED
 
     xbmc.log('SynopsiTV: Addon information')
     xbmc.log('SynopsiTV: ----> Addon name    : ' + __addonname__)
@@ -747,6 +762,7 @@ def main():
                 IS_PROTECTED = False
         else:
             VIDEO = 0
+            IS_PROTECTED = False
 
         if (
             (__addon__.getSetting("BOOLTOK") == "false") and 
