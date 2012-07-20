@@ -38,6 +38,20 @@ def get_token():
     return __addon__.getSetting("ACCTOKEN")
 
 
+def get_protected_folders():
+    """
+    Returns array of protected folders.
+    """
+    array = []
+    if __addon__.getSetting("PROTFOL") == "true":
+        num_folders = __addon__.getSetting("NUMFOLD")
+        for i in range(int(num_folders)):
+            path = __addon__.getSetting("FOLDER{0}".format(i+1))
+            array.append(path)
+    
+    return array
+
+
 def generate_deviceid():
     """
     Returns deviceid generated from MAC address.
@@ -676,6 +690,8 @@ def main():
     if __addon__.getSetting("BOOLTOK") == "false":
         notification("SynopsiTV", "Opening Settings")
         __addon__.openSettings()
+
+    __addon__.openSettings()
 
     xbmc.log(__cwd__)
 

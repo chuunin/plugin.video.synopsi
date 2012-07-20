@@ -12,5 +12,6 @@
     <string id="69511">Allow protected folders</string>
     <string id="69512">Allow debugging</string>
 
-    <string id="69513">Protected folders</string>
+    <string id="69513">Protected folder</string>
+    <string id="69514">Number of protected folders</string>
 </strings>
