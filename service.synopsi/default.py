@@ -343,22 +343,54 @@ class Searcher(threading.Thread):
         notification("SynopsiTV", "Started loading database")
 
         nomovies = get_movies(0, 1)["result"]["limits"]["total"]
+
         pack = 20  # how many movies in one JSON
 
-        for i in range(nomovies // pack):
+        if nomovies > 0:
+            for i in range(nomovies // pack):
+                if not QUITING:
+                    start = i * pack
+                    end = start + pack
+                    movie_dict = get_movies(start, end)
+                    for j in range(pack):
+                        path = movie_dict["result"]['movies'][j]['file']
+                        if not is_protected(path):
+                            if not "stack://" in path:
+                                hash_array = []
+                                hash_array.append({
+                                    "synopsihash": str(lib.myhash(path)),
+                                    "subtitlehash": str(lib.hashFile(path))
+                                })
+                                movie_dict["result"]['movies'][j]["hashes"] = hash_array
+                            else:
+                                movie_dict["result"]['movies'][j]['hashes'] = []
+                                for moviefile in path.strip("stack://").split(" , "):
+                                    movie_dict["result"]['movies'][j]['hashes'].append({
+                                        "path": moviefile,
+                                        "synopsihash": str(lib.myhash(moviefile)),
+                                        "subtitlehash": str(lib.hashFile(moviefile))
+                                    })
+
+
+                    xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
+                    data = {
+                        "event": "Library.Add",
+                        "movies": movie_dict["result"]["movies"]
+                    }
+                    queue.add_to_queue(data)
+
             if not QUITING:
-                start = i * pack
-                end = start + pack
+                end = nomovies
+                start = end - nomovies % pack
                 movie_dict = get_movies(start, end)
-                for j in range(pack):
+                for j in range(end - start):
                     path = movie_dict["result"]['movies'][j]['file']
                     if not is_protected(path):
                         if not "stack://" in path:
                             hash_array = []
                             hash_array.append({
                                 "synopsihash": str(lib.myhash(path)),
-                                "subtitlehash": str(lib.hashFile(path))
-                            })
+                                "subtitlehash": str(lib.hashFile(path))})
                             movie_dict["result"]['movies'][j]["hashes"] = hash_array
                         else:
                             movie_dict["result"]['movies'][j]['hashes'] = []
@@ -368,8 +400,6 @@ class Searcher(threading.Thread):
                                     "synopsihash": str(lib.myhash(moviefile)),
                                     "subtitlehash": str(lib.hashFile(moviefile))
                                 })
-
-
                 xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
                 data = {
                     "event": "Library.Add",
@@ -377,33 +407,6 @@ class Searcher(threading.Thread):
                 }
                 queue.add_to_queue(data)
 
-        if not QUITING:
-            end = nomovies
-            start = end - nomovies % pack
-            movie_dict = get_movies(start, end)
-            for j in range(end - start):
-                path = movie_dict["result"]['movies'][j]['file']
-                if not is_protected(path):
-                    if not "stack://" in path:
-                        hash_array = []
-                        hash_array.append({
-                            "synopsihash": str(lib.myhash(path)),
-                            "subtitlehash": str(lib.hashFile(path))})
-                        movie_dict["result"]['movies'][j]["hashes"] = hash_array
-                    else:
-                        movie_dict["result"]['movies'][j]['hashes'] = []
-                        for moviefile in path.strip("stack://").split(" , "):
-                            movie_dict["result"]['movies'][j]['hashes'].append({
-                                "path": moviefile,
-                                "synopsihash": str(lib.myhash(moviefile)),
-                                "subtitlehash": str(lib.hashFile(moviefile))
-                            })
-            xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
-            data = {
-                "event": "Library.Add",
-                "movies": movie_dict["result"]["movies"]
-            }
-            queue.add_to_queue(data)
         notification("SynopsiTV", "Finished loading database")
 
         if not QUITING:
