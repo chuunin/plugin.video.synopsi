@@ -671,13 +671,13 @@ class ApiListener(threading.Thread):
                                                 details["result"]["episodedetails"]["file"]))
                         ui.doModal()
                         del ui
-                else:
-                    # if ended
-                    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                                         tottime=TOTAL_TIME, token=get_token(),
-                                         hashd=[])
-                    ui.doModal()
-                    del ui
+                # else:
+                #     # if ended
+                #     ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                #                          tottime=TOTAL_TIME, token=get_token(),
+                #                          hashd=[])
+                #     ui.doModal()
+                #     del ui
 
                 # TODO: Send global DATA_PACK
 
@@ -991,9 +991,6 @@ def main():
             thr.stop()
         del thr
 
-        # if not search_thread.stopped:
-        #     search_thread.stop()
-        # del search_thread
 
         xbmc.log('SynopsiTV: Aborting...')
         sys.exit(4)
