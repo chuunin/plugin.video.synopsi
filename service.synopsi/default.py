@@ -507,9 +507,7 @@ class Searcher(threading.Thread):
     def run(self):
         global queue
 
-
         nomovies = get_movies(0, 1)["result"]["limits"]["total"]
-
         pack = 20  # how many movies in one JSON
 
         if nomovies > 0:
@@ -531,23 +529,8 @@ class Searcher(threading.Thread):
                                     movie_dict["result"]['movies'][j]['movieid'], all_prop=True
                                     )["result"]["moviedetails"]
 
-                            if not "stack://" in path:
-                                hash_array = []
-                                hash_array.append({
-                                    "synopsihash": str(lib.myhash(path)),
-                                    "subtitlehash": str(lib.hashFile(path))
-                                })
-                                movie_dict["result"]['movies'][j]["hashes"] = hash_array
-                            else:
-                                movie_dict["result"]['movies'][j]['hashes'] = []
-                                for moviefile in path.strip("stack://").split(" , "):
-                                    movie_dict["result"]['movies'][j]['hashes'].append({
-                                        "path": moviefile,
-                                        "synopsihash": str(lib.myhash(moviefile)),
-                                        "subtitlehash": str(lib.hashFile(moviefile))
-                                    })
-
-
+                            movie_dict["result"]['movies'][j]["hashes"] = get_hash_array(path)
+            
                     xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
                     data = {
                         "event": "Library.Add",
@@ -562,20 +545,8 @@ class Searcher(threading.Thread):
                 for j in range(end - start):
                     path = movie_dict["result"]['movies'][j]['file']
                     if not is_protected(path):
-                        if not "stack://" in path:
-                            hash_array = []
-                            hash_array.append({
-                                "synopsihash": str(lib.myhash(path)),
-                                "subtitlehash": str(lib.hashFile(path))})
-                            movie_dict["result"]['movies'][j]["hashes"] = hash_array
-                        else:
-                            movie_dict["result"]['movies'][j]['hashes'] = []
-                            for moviefile in path.strip("stack://").split(" , "):
-                                movie_dict["result"]['movies'][j]['hashes'].append({
-                                    "path": moviefile,
-                                    "synopsihash": str(lib.myhash(moviefile)),
-                                    "subtitlehash": str(lib.hashFile(moviefile))
-                                })
+                        movie_dict["result"]['movies'][j]["hashes"] = get_hash_array(path)
+
                 xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
                 data = {
                     "event": "Library.Add",
@@ -605,6 +576,11 @@ class ApiListener(threading.Thread):
     """
     Thread that listens in the background for xbmc notifications.
     """
+
+    global QUITING
+    global IS_PROTECTED
+    global LIBRARY_CACHE
+    
     def __init__(self):
         super(ApiListener, self).__init__()
         self._stop = threading.Event()
@@ -613,11 +589,111 @@ class ApiListener(threading.Thread):
         #self.sock.connect(("localhost", 9090))
         self.sock.connect(("localhost", get_api_port()))
 
-    def run(self):
-        global QUITING
-        global IS_PROTECTED
-        global LIBRARY_CACHE
+
+    def process(self, data_json):
+        """
+        Process notification data from xbmc.
+        """
+        method = data_json.get("method")
+
+        try:
+            if method == "VideoLibrary.OnRemove":
+                # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
+                # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
+                details = get_movie_details(
+                    data_json["params"]["data"]["item"]["id"]
+                )
+
+                """
+                TODO: If not movie.
+                """
+
+                if not is_protected(details["result"]["moviedetails"]["file"]):
+                    try_send_data({
+                            "event": "Library.Remove",
+                            "id": data_json["params"]["data"]["id"],
+                            "moviedetails": details["result"]["moviedetails"]
+                        }, 
+                        get_token()
+                    )
+
+            elif method == "VideoLibrary.OnUpdate":
+                details = get_movie_details(
+                    data_json["params"]["data"]["item"]["id"]
+                )
+                
+                """
+                TODO: If not movie.
+                """
+                if not is_protected(details["result"]["moviedetails"]["file"]):
+
+                    if (
+                        (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
+                        (details["result"]["moviedetails"]["imdbnumber"] == None )
+                        ):
+                        # if True:    
+                        details = get_movie_details(
+                        data_json["params"]["data"]["item"]["id"], all_prop=True
+                        )
+
+                    # xbmc.log(str(json.dumps(details)))
+                    try_send_data({
+                        "event": "Library.AddORupdate",
+                        "id": data_json["params"]["data"]["item"]["id"],
+                        "moviedetails": details["result"]["moviedetails"]
+                    }, 
+                    get_token()
+                    )
+        except KeyError:
+            pass
         
+        if method == "Player.OnStop":
+            if not IS_PROTECTED:
+                if data_json["params"]["data"] is not None:
+                    # if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                    if (data_json["params"]["data"]["item"]["type"] == "movie") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                        details = get_movie_details(data_json["params"]["data"]["item"]["id"])
+                        xbmc.log(str(details))
+                        ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                        # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
+                                             tottime=TOTAL_TIME, token=get_token(),
+                                             hashd=get_hash_array(
+                                                details["result"]["moviedetails"]["file"]))
+                        ui.doModal()
+                        del ui
+                    elif (data_json["params"]["data"]["item"]["type"] == "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
+                        details = get_episode_details(data_json["params"]["data"]["item"]["id"])
+                        xbmc.log(str(details))
+                        ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                        # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
+                                             tottime=TOTAL_TIME, token=get_token(),
+                                             hashd=get_hash_array(
+                                                details["result"]["episodedetails"]["file"]))
+                        ui.doModal()
+                        del ui
+                else:
+                    # if ended
+                    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                                         tottime=TOTAL_TIME, token=get_token(),
+                                         hashd=[])
+                    ui.doModal()
+                    del ui
+
+                # TODO: Send global DATA_PACK
+
+                __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
+
+        # if method == "Player.OnSeek":
+        #     if not IS_PROTECTED:
+        #         if data_json["params"]["data"] is not None:
+        #             LIBRARY_CACHE["events"].append({
+        #                 "timestamp": 1343132282.1719999,
+        #                 "event": "Seek",
+        #                 "currenttime": 4365.2912073401967
+        #             })
+        pass
+
+    def run(self):
         while True:
             data = self.sock.recv(1024)
             xbmc.log(str(data))
@@ -629,106 +705,11 @@ class ApiListener(threading.Thread):
             except ValueError:
                 continue
 
-            try:
-                if method == "VideoLibrary.OnRemove":
-                    # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
-                    # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
-                    details = get_movie_details(
-                        data_json["params"]["data"]["item"]["id"]
-                    )
-
-                    """
-                    TODO: If not movie.
-                    """
-
-                    if not is_protected(details["result"]["moviedetails"]["file"]):
-                        try_send_data({
-                                "event": "Library.Remove",
-                                "id": data_json["params"]["data"]["id"],
-                                "moviedetails": details["result"]["moviedetails"]
-                            }, 
-                            get_token()
-                        )
-
-                elif method == "VideoLibrary.OnUpdate":
-                    details = get_movie_details(
-                        data_json["params"]["data"]["item"]["id"]
-                    )
-                    
-                    """
-                    TODO: If not movie.
-                    """
-                    if not is_protected(details["result"]["moviedetails"]["file"]):
-
-                        if (
-                            (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
-                            (details["result"]["moviedetails"]["imdbnumber"] == None )
-                            ):
-                            # if True:    
-                            details = get_movie_details(
-                            data_json["params"]["data"]["item"]["id"], all_prop=True
-                            )
-
-                        # xbmc.log(str(json.dumps(details)))
-                        try_send_data({
-                            "event": "Library.AddORupdate",
-                            "id": data_json["params"]["data"]["item"]["id"],
-                            "moviedetails": details["result"]["moviedetails"]
-                        }, 
-                        get_token()
-                        )
-            except KeyError:
-                pass
-
             if method == "System.OnQuit":
                 QUITING = True
                 break
-
-            if method == "Player.OnStop":
-                if not IS_PROTECTED:
-                    if data_json["params"]["data"] is not None:
-                        # if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
-                        if (data_json["params"]["data"]["item"]["type"] == "movie") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
-                            details = get_movie_details(data_json["params"]["data"]["item"]["id"])
-                            xbmc.log(str(details))
-                            ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                            # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
-                                                 tottime=TOTAL_TIME, token=get_token(),
-                                                 hashd=get_hash_array(
-                                                    details["result"]["moviedetails"]["file"]))
-                            ui.doModal()
-                            del ui
-                        elif (data_json["params"]["data"]["item"]["type"] == "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
-                            details = get_episode_details(data_json["params"]["data"]["item"]["id"])
-                            xbmc.log(str(details))
-                            ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                            # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
-                                                 tottime=TOTAL_TIME, token=get_token(),
-                                                 hashd=get_hash_array(
-                                                    details["result"]["episodedetails"]["file"]))
-                            ui.doModal()
-                            del ui
-                    else:
-                        # if ended
-                        ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                                             tottime=TOTAL_TIME, token=get_token(),
-                                             hashd=[])
-                        ui.doModal()
-                        del ui
-
-                    # TODO: Send global DATA_PACK
-
-                    __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
-
-            # if method == "Player.OnSeek":
-            #     if not IS_PROTECTED:
-            #         if data_json["params"]["data"] is not None:
-            #             LIBRARY_CACHE["events"].append({
-            #                 "timestamp": 1343132282.1719999,
-            #                 "event": "Seek",
-            #                 "currenttime": 4365.2912073401967
-            #             })
-
+            else:
+                self.process(data_json)
 
         sys.exit(4)
 
