@@ -322,14 +322,14 @@ def try_send_data(data, token):
         data["timestamp"] = time.time()
         data["deviceid"] = generate_deviceid()
         
-        result = {}
+        # result = {}
         # result.update((k, v) for k, v in data.iteritems() if ((v is not None) or not (v == "")))
-        update(result, data)
+        # update(result, data)
 
-        # lib.send_data(data, token)
-        # xbmc.log(str(json.dumps(data)))
-        lib.send_data(result, token)
-        xbmc.log(str(json.dumps(result)))
+        lib.send_data(data, token)
+        xbmc.log(str(json.dumps(data)))
+        # lib.send_data(result, token)
+        # xbmc.log(str(json.dumps(result)))
 
     except (URLError, HTTPError):
         tmpstring = __addon__.getSetting("SEND_QUEUE")
@@ -522,11 +522,11 @@ class Searcher(threading.Thread):
                     for j in range(pack):
                         path = movie_dict["result"]['movies'][j]['file']
                         if not is_protected(path): 
-                            # if (
-                            #     (movie_dict["result"]['movies'][j]['imdbnumber'] == "") or 
-                            #     (movie_dict["result"]['movies'][j]['imdbnumber'] == None)
-                            #     ):
-                            if True:  
+                            if (
+                                (movie_dict["result"]['movies'][j]['imdbnumber'] == "") or 
+                                (movie_dict["result"]['movies'][j]['imdbnumber'] == None)
+                                ):
+                                # if True:  
                                 movie_dict["result"]["movies"][j] = get_movie_details(
                                     movie_dict["result"]['movies'][j]['movieid'], all_prop=True
                                     )["result"]["moviedetails"]
@@ -660,11 +660,11 @@ class ApiListener(threading.Thread):
                     """
                     if not is_protected(details["result"]["moviedetails"]["file"]):
 
-                        # if (
-                        #     (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
-                        #     (details["result"]["moviedetails"]["imdbnumber"] == None )
-                        #     ):
-                        if True:    
+                        if (
+                            (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
+                            (details["result"]["moviedetails"]["imdbnumber"] == None )
+                            ):
+                            # if True:    
                             details = get_movie_details(
                             data_json["params"]["data"]["item"]["id"], all_prop=True
                             )
@@ -680,34 +680,9 @@ class ApiListener(threading.Thread):
             except KeyError:
                 pass
 
-            #elif method == "Player.OnStop":
-
-            # details = get_movie_details(
-            #     data_json["params"]["data"]["item"]["id"]
-            # )
-            
-            # try_send_data({
-            #     "event": "Library.AddORupdate",
-            #     "id": data_json["params"]["data"]["item"]["id"],
-            #     "moviedetails": details["result"]["moviedetails"]
-            # }, 
-            # get_token()
-            # )
-
             if method == "System.OnQuit":
                 QUITING = True
                 break
-
-            # if method == "Player.OnStop" and (data_json["params"]["data"] is not None):
-            #     if data_json["params"]["data"]["item"]["type"] == "movie" and VIDEO == 0:
-            #         details = get_movie_details(data_json["params"]["data"]["item"]["id"])
-            #         xbmc.log(str(details))
-            #         ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime="",
-            #                              tottime="", token=get_token(),
-            #                              hashd=get_hash_array(
-            #                                 details["result"]["moviedetails"]["file"]))
-            #         ui.doModal()
-            #         del ui
 
             if method == "Player.OnStop":
                 if not IS_PROTECTED:
@@ -740,6 +715,20 @@ class ApiListener(threading.Thread):
                                              hashd=[])
                         ui.doModal()
                         del ui
+
+                    # TODO: Send global DATA_PACK
+
+                    __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
+
+            # if method == "Player.OnSeek":
+            #     if not IS_PROTECTED:
+            #         if data_json["params"]["data"] is not None:
+            #             LIBRARY_CACHE["events"].append({
+            #                 "timestamp": 1343132282.1719999,
+            #                 "event": "Seek",
+            #                 "currenttime": 4365.2912073401967
+            #             })
+
 
         sys.exit(4)
 
@@ -788,6 +777,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     """
     Dialog class that asks user about rating of movie.
     """
+    global DATA_PACK
     def __init__(self, *args, **kwargs):
         self.data = {'event': "Dialog.Rating"}
         self.data['currenttime'] = kwargs['ctime']
@@ -821,6 +811,11 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
             xbmc.log("SynopsiTV: Not Rated")
             self.data['rating'] = "Not Rated"
 
+        DATA_PACK["events"].append({
+            "timestamp": time.time(),
+            "event": "Rating",
+            "rating": self.data['rating']
+        })
         global queue
         queue.add_to_queue(self.data)
         self.close()
@@ -832,6 +827,14 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
         if (action.getId() in CANCEL_DIALOG):
             xbmc.log("SynopsiTV: Not Rated")
             self.data['rating'] = "Not Rated"
+
+            DATA_PACK["events"].append({
+                "timestamp": time.time(),
+                "event": "Rating",
+                "rating": self.data['rating']
+            })
+
+
             global queue
             queue.add_to_queue(self.data)
             self.close()
@@ -873,36 +876,26 @@ class SynopsiPlayer(xbmc.Player):
         Hook when playback ends.
         """
         pass
-        # if (VIDEO == 1):
-        #     xbmc.log('SynopsiTV: PLAYBACK ENDED')
-        #     #SendInfoStart(xbmc.Player(),'ended')
-        #     TODO: dorobit end
-        #     ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, 
-        #     tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
-        #     ui.doModal()
-        #     del ui
-        #     #PLAYING = False
+
+        DATA_PACK["events"].append({
+                'event': "Ended",
+                "timestamp" : time.time(),
+                "currenttime" : CURRENT_TIME
+            })
 
     def onPlayBackStopped(self):
         """
         Hook when playback stops.
         """
-        xbmc.log("STOPPP  " + str(VIDEO) + " Curtime: " + str(CURRENT_TIME))
+        # xbmc.log("STOPPP  " + str(VIDEO) + " Curtime: " + str(CURRENT_TIME))
 
-        __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
-        # if (VIDEO == 1):
-        #     xbmc.log('SynopsiTV: PLAYBACK STOPPED')
+        DATA_PACK["events"].append({
+                'event': "Stopped",
+                "timestamp" : time.time(),
+                "currenttime" : CURRENT_TIME
+            })
 
-        #     #ask about experience when > 70% of film
-        #     #if curtime > totaltime * 0.7:
-        #     if True:    
-        #         ui = XMLRatingDialog("SynopsiDialog.xml" , __cwd__, "Default", ctime=curtime, 
-        #         tottime=totaltime, token=__addon__.getSetting("ACCTOKEN"), hashd=self.Hashes)
-        #         ui.doModal()
-        #         del ui
-        #     else:
-        #         pass    
-        #     #PLAYING = False
+        # __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
 
     def onPlayBackPaused(self):
         """
