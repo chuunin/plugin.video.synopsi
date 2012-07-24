@@ -46,4 +46,7 @@ class Player(object):
 
     def getTotalTime(self):
         return "100"
+
+    def getPlayingFile(self):
+        return ""
         

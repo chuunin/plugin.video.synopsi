@@ -202,11 +202,47 @@ def get_tvshows(start,end):
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
 
-def get_movie_details(movie_id):
+def get_movie_details(movie_id, all_prop=False):
     """
     Get dict of movie_id details.
     """
-    properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+    if all_prop:
+        properties = [
+          "title", 
+          "genre", 
+          "year", 
+          "rating", 
+          "director", 
+          "trailer", 
+          "tagline", 
+          "plot", 
+          "plotoutline", 
+          "originaltitle", 
+          "lastplayed", 
+          "playcount", 
+          "writer", 
+          "studio", 
+          "mpaa", 
+          "cast", 
+          "country", 
+          "imdbnumber", 
+          "premiered", 
+          "productioncode", 
+          "runtime", 
+          # "set", 
+          "showlink", 
+          "streamdetails", 
+          # "top250", 
+          "votes", 
+          # "fanart", 
+          # "thumbnail", 
+          "file", 
+          "sorttitle", 
+          "resume", 
+          # "setid"
+        ]
+    else:
+        properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
     method = 'VideoLibrary.GetMovieDetails'
     dic = {
     'params': 
@@ -266,10 +302,35 @@ def try_send_data(data, token):
     """
     Try to send data.
     """
+    import collections
+    def update(d, u):
+        """
+        Update dictionary with skipping empty values.
+        """
+        for k, v in u.iteritems():
+            if isinstance(v, collections.Mapping):
+                r = update(d.get(k, {}), v)
+                d[k] = r
+            else:
+                if (
+                    (u[k] is not None) and not (u[k] == "") and
+                    not ("special://" in str(u[k]))
+                    ):
+                    d[k] = u[k]
+        return d
     try:
         data["timestamp"] = time.time()
         data["deviceid"] = generate_deviceid()
-        lib.send_data(data, token)
+        
+        result = {}
+        # result.update((k, v) for k, v in data.iteritems() if ((v is not None) or not (v == "")))
+        update(result, data)
+
+        # lib.send_data(data, token)
+        # xbmc.log(str(json.dumps(data)))
+        lib.send_data(result, token)
+        xbmc.log(str(json.dumps(result)))
+
     except (URLError, HTTPError):
         tmpstring = __addon__.getSetting("SEND_QUEUE")
         try:
@@ -331,6 +392,52 @@ def send_player_status(player, status):
         }
         #try_send_data(data, get_token())
         queue.add_to_queue(data)
+
+
+def fill_data_dict(player):
+    """
+    Fills global dictionary DATA_PACK with file ID.
+    """
+    global DATA_PACK
+    global LIBRARY_CACHE
+
+    info_tag = player.getVideoInfoTag()
+    path = player.getPlayingFile()
+    hash_array = get_hash_array(path)
+
+    if not IS_PROTECTED:
+        DATA_PACK = {
+            "events":[{
+                'event': "Started",
+                "timestamp" : time.time(),
+                "currenttime": player.getTime(),
+            }],
+            'videodetails': {
+                "label": info_tag.getTitle(),
+                "imdbnumber": info_tag.getIMDBNumber(),
+                "file": path,
+                "totaltime": player.getTotalTime(),
+                "hashes": hash_array
+            },
+        }
+
+        if LIBRARY_CACHE:
+            # if LIBRARY_CACHE.has_key
+            # {"jsonrpc":"2.0","method":"Player.OnPlay","params":
+            # {"data":{"item":{"id":7,"type":"movie"},
+            # "player":{"playerid":1,"speed":1}},"sender":"xbmc"}}
+
+
+            # {"jsonrpc":"2.0","method":"Player.OnPlay","params":
+            # {"data":{"item":{"type":"movie"},
+            # "player":{"playerid":1,"speed":1},"title":""},"sender":"xbmc"}}
+            
+            if LIBRARY_CACHE["method"] == "Player.OnPlay":
+                DATA_PACK["librarydetails"] = {
+                    "id": LIBRARY_CACHE["params"]["data"]["item"]["id"],
+                    "type": LIBRARY_CACHE["params"]["data"]["item"]["type"],
+                }
+
 
 
 def check_send_queue():
@@ -400,13 +507,13 @@ class Searcher(threading.Thread):
     def run(self):
         global queue
 
-        notification("SynopsiTV", "Started loading database")
 
         nomovies = get_movies(0, 1)["result"]["limits"]["total"]
 
         pack = 20  # how many movies in one JSON
 
         if nomovies > 0:
+            notification("SynopsiTV", "Started loading database")
             for i in range(nomovies // pack):
                 if not QUITING:
                     start = i * pack
@@ -414,7 +521,16 @@ class Searcher(threading.Thread):
                     movie_dict = get_movies(start, end)
                     for j in range(pack):
                         path = movie_dict["result"]['movies'][j]['file']
-                        if not is_protected(path):
+                        if not is_protected(path): 
+                            # if (
+                            #     (movie_dict["result"]['movies'][j]['imdbnumber'] == "") or 
+                            #     (movie_dict["result"]['movies'][j]['imdbnumber'] == None)
+                            #     ):
+                            if True:  
+                                movie_dict["result"]["movies"][j] = get_movie_details(
+                                    movie_dict["result"]['movies'][j]['movieid'], all_prop=True
+                                    )["result"]["moviedetails"]
+
                             if not "stack://" in path:
                                 hash_array = []
                                 hash_array.append({
@@ -467,10 +583,10 @@ class Searcher(threading.Thread):
                 }
                 queue.add_to_queue(data)
 
-        notification("SynopsiTV", "Finished loading database")
+            notification("SynopsiTV", "Finished loading database")
 
-        if not QUITING:
-            __addon__.setSetting(id='FIRSTRUN', value="false")
+            if not QUITING:
+                __addon__.setSetting(id='FIRSTRUN', value="false")
 
     def stop(self):
         """
@@ -500,6 +616,7 @@ class ApiListener(threading.Thread):
     def run(self):
         global QUITING
         global IS_PROTECTED
+        global LIBRARY_CACHE
         
         while True:
             data = self.sock.recv(1024)
@@ -507,45 +624,61 @@ class ApiListener(threading.Thread):
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
+
+                LIBRARY_CACHE = data_json
             except ValueError:
                 continue
 
-            if method == "VideoLibrary.OnRemove":
-                # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
-                # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
-                details = get_movie_details(
-                    data_json["params"]["data"]["item"]["id"]
-                )
+            try:
+                if method == "VideoLibrary.OnRemove":
+                    # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
+                    # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
+                    details = get_movie_details(
+                        data_json["params"]["data"]["item"]["id"]
+                    )
 
-                """
-                TODO: If not movie.
-                """
+                    """
+                    TODO: If not movie.
+                    """
 
-                if not is_protected(details["result"]["moviedetails"]["file"]):
-                    try_send_data({
-                            "event": "Library.Remove",
-                            "id": data_json["params"]["data"]["id"],
+                    if not is_protected(details["result"]["moviedetails"]["file"]):
+                        try_send_data({
+                                "event": "Library.Remove",
+                                "id": data_json["params"]["data"]["id"],
+                                "moviedetails": details["result"]["moviedetails"]
+                            }, 
+                            get_token()
+                        )
+
+                elif method == "VideoLibrary.OnUpdate":
+                    details = get_movie_details(
+                        data_json["params"]["data"]["item"]["id"]
+                    )
+                    
+                    """
+                    TODO: If not movie.
+                    """
+                    if not is_protected(details["result"]["moviedetails"]["file"]):
+
+                        # if (
+                        #     (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
+                        #     (details["result"]["moviedetails"]["imdbnumber"] == None )
+                        #     ):
+                        if True:    
+                            details = get_movie_details(
+                            data_json["params"]["data"]["item"]["id"], all_prop=True
+                            )
+
+                        # xbmc.log(str(json.dumps(details)))
+                        try_send_data({
+                            "event": "Library.AddORupdate",
+                            "id": data_json["params"]["data"]["item"]["id"],
                             "moviedetails": details["result"]["moviedetails"]
                         }, 
                         get_token()
-                    )
-
-            elif method == "VideoLibrary.OnUpdate":
-                details = get_movie_details(
-                    data_json["params"]["data"]["item"]["id"]
-                )
-                
-                """
-                TODO: If not movie.
-                """
-                if not is_protected(details["result"]["moviedetails"]["file"]):
-                    try_send_data({
-                        "event": "Library.AddORupdate",
-                        "id": data_json["params"]["data"]["item"]["id"],
-                        "moviedetails": details["result"]["moviedetails"]
-                    }, 
-                    get_token()
-                    )
+                        )
+            except KeyError:
+                pass
 
             #elif method == "Player.OnStop":
 
@@ -709,7 +842,7 @@ class SynopsiPlayer(xbmc.Player):
     Inherited main player class with events.
     """
     # xbmc.log('SynopsiTV: Class player is opened')
-
+    global DATA_PACK
     def __init__(self):
         xbmc.Player.__init__(self)
         # xbmc.log('SynopsiTV: Class player is initialized')
@@ -719,6 +852,7 @@ class SynopsiPlayer(xbmc.Player):
         """
         Hook when playback starts.
         """
+
         if xbmc.Player().isPlayingVideo():
             #PLAYING = True
             xbmc.log('SynopsiTV: PLAYBACK STARTED')
@@ -728,6 +862,9 @@ class SynopsiPlayer(xbmc.Player):
             path = xbmc.Player().getPlayingFile()
             self.hashes = get_hash_array(path)
 
+
+            fill_data_dict(xbmc.Player())
+            
             # if is_protected(path):
             #     IS_PROTECTED = True
 
@@ -751,6 +888,8 @@ class SynopsiPlayer(xbmc.Player):
         Hook when playback stops.
         """
         xbmc.log("STOPPP  " + str(VIDEO) + " Curtime: " + str(CURRENT_TIME))
+
+        __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
         # if (VIDEO == 1):
         #     xbmc.log('SynopsiTV: PLAYBACK STOPPED')
 
@@ -773,6 +912,12 @@ class SynopsiPlayer(xbmc.Player):
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
             send_player_status(xbmc.Player(), 'Player.Paused')
 
+            DATA_PACK["events"].append({
+                'event': "Paused",
+                "timestamp" : time.time(),
+                "currenttime" : CURRENT_TIME
+            })
+
     def onPlayBackResumed(self):
         """
         Hook when playback is resumed.
@@ -780,6 +925,12 @@ class SynopsiPlayer(xbmc.Player):
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')
             send_player_status(xbmc.Player(), 'Player.Resumed')
+
+            DATA_PACK["events"].append({
+                'event': "Resumed",
+                "timestamp" : time.time(),
+                "currenttime" : CURRENT_TIME
+            })
 
 
 PLAYER = SynopsiPlayer()
@@ -792,6 +943,9 @@ IS_PROTECTED = False
 queue = QueueWorker()
 queue.start()
 
+
+DATA_PACK = {}
+LIBRARY_CACHE = {}
 
 def main():
     global VIDEO
