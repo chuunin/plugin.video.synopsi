@@ -32,11 +32,9 @@ __version__   = __addon__.getAddonInfo('version')
 
 
 def notification(name, text):
-    """Sends notification to XBMC."""
-    # xbmc.executebuiltin('XBMC.Notification(' + str(name) + ',' +
-    #                     str(text) + ',1)'
-    # )
-
+    """
+    Sends notification to XBMC.
+    """
     xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name,text))
 
 
@@ -245,8 +243,7 @@ def get_movie_details(movie_id, all_prop=False):
         properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
     method = 'VideoLibrary.GetMovieDetails'
     dic = {
-    'params': 
-        {
+        'params': {
             'properties': properties,
             'movieid': movie_id  # s 1 e 2 writes 2
         },
@@ -283,19 +280,26 @@ def get_episode_details(movie_id):
     Get dict of movie_id details.
     """
     properties = ['file', "lastplayed", "playcount", "season", "episode"]
+    # properties = ["season", "episode"]
+    # properties = ['file']
     method = 'VideoLibrary.GetEpisodeDetails'
     dic = {
     'params': 
         {
             'properties': properties,
-            'episodeid': movie_id  # s 1 e 2 writes 2
+            'episodeid': movie_id
         },
         'jsonrpc': '2.0',
         'method': method,
         'id': 1
     }
+
+    xbmc.log(str(json.dumps(dic)))
+
     
-    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+    response = xbmc.executeJSONRPC(json.dumps(dic))
+    xbmc.log(str(response))
+    return json.loads(response)
     
 
 def try_send_data(data, token):
@@ -421,6 +425,7 @@ def fill_data_dict(player):
             },
         }
 
+        # xbmc.log(str("SynopsiTV: Library Cache: {0}".format((str(LIBRARY_CACHE)))))
         if LIBRARY_CACHE:
             # if LIBRARY_CACHE.has_key
             # {"jsonrpc":"2.0","method":"Player.OnPlay","params":
@@ -577,10 +582,6 @@ class ApiListener(threading.Thread):
     Thread that listens in the background for xbmc notifications.
     """
 
-    global QUITING
-    global IS_PROTECTED
-    global LIBRARY_CACHE
-    
     def __init__(self):
         super(ApiListener, self).__init__()
         self._stop = threading.Event()
@@ -591,62 +592,102 @@ class ApiListener(threading.Thread):
 
 
     def process(self, data_json):
+        global QUITING
+        global IS_PROTECTED
+        global LIBRARY_CACHE
+        
         """
         Process notification data from xbmc.
         """
         method = data_json.get("method")
 
-        try:
-            if method == "VideoLibrary.OnRemove":
-                # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
-                # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
+        def send_library_change(id, type, event):
+            if type == "movie":
                 details = get_movie_details(
                     data_json["params"]["data"]["item"]["id"]
                 )
 
-                """
-                TODO: If not movie.
-                """
-
                 if not is_protected(details["result"]["moviedetails"]["file"]):
                     try_send_data({
-                            "event": "Library.Remove",
+                            "event": event,
                             "id": data_json["params"]["data"]["id"],
                             "moviedetails": details["result"]["moviedetails"]
                         }, 
                         get_token()
                     )
-
-            elif method == "VideoLibrary.OnUpdate":
-                details = get_movie_details(
-                    data_json["params"]["data"]["item"]["id"]
-                )
-                
-                """
-                TODO: If not movie.
-                """
-                if not is_protected(details["result"]["moviedetails"]["file"]):
-
-                    if (
-                        (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
-                        (details["result"]["moviedetails"]["imdbnumber"] == None )
-                        ):
-                        # if True:    
-                        details = get_movie_details(
-                        data_json["params"]["data"]["item"]["id"], all_prop=True
+            elif type == "episode":
+                # If remove cannot get details
+                if event != "Remove":
+                    details = get_episode_details(id)
+                    xbmc.log(str(details))
+                    if not is_protected(details["result"]["moviedetails"]["file"]):
+                        try_send_data({
+                                "event": event,
+                                "id": id,
+                                "moviedetails": details["result"]["moviedetails"]
+                            }, 
+                            get_token()
                         )
-
-                    # xbmc.log(str(json.dumps(details)))
+                else:
                     try_send_data({
-                        "event": "Library.AddORupdate",
-                        "id": data_json["params"]["data"]["item"]["id"],
-                        "moviedetails": details["result"]["moviedetails"]
-                    }, 
-                    get_token()
+                            "event": event,
+                            "id": id
+                        }, 
+                        get_token()
                     )
-        except KeyError:
-            pass
+
         
+        if method == "VideoLibrary.OnRemove":
+            send_library_change(
+                data_json["params"]["data"]["id"], 
+                data_json["params"]["data"]["type"],
+                "Remove"
+            )
+            # send_library_change(
+            #     data_json["params"]["data"]["item"]["id"], 
+            #     data_json["params"]["data"]["item"]["type"],
+            #     "Library.Remove")
+            # # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
+            # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
+
+            # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
+            # "params":{"data":{"id":2,"type":"episode"},"sender":"xbmc"}}
+
+            # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
+            # "params":{"data":{"id":15,"type":"episode"},"sender":"xbmc"}}
+        elif method == "VideoLibrary.OnUpdate":
+            send_library_change(
+                data_json["params"]["data"]["id"], 
+                data_json["params"]["data"]["type"],
+                "AddOrUpdate"
+            )
+            # details = get_movie_details(
+            #     data_json["params"]["data"]["item"]["id"]
+            # )
+            
+            # """
+            # TODO: If not movie.
+            # """
+            # if not is_protected(details["result"]["moviedetails"]["file"]):
+
+            #     if (
+            #         (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
+            #         (details["result"]["moviedetails"]["imdbnumber"] == None )
+            #         ):
+            #         # if True:    
+            #         details = get_movie_details(
+            #         data_json["params"]["data"]["item"]["id"], all_prop=True
+            #         )
+
+            #     # xbmc.log(str(json.dumps(details)))
+            #     try_send_data({
+            #         "event": "Library.AddORupdate",
+            #         "id": data_json["params"]["data"]["item"]["id"],
+            #         "moviedetails": details["result"]["moviedetails"]
+            #     }, 
+            #     get_token()
+            #     )
+    
         if method == "Player.OnStop":
             if not IS_PROTECTED:
                 if data_json["params"]["data"] is not None:
@@ -681,6 +722,11 @@ class ApiListener(threading.Thread):
 
                 # TODO: Send global DATA_PACK
 
+                time.sleep(1)
+
+                if DATA_PACK.has_key("librarydetails"):
+                    del DATA_PACK["videodetails"]
+
                 __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
 
         # if method == "Player.OnSeek":
@@ -694,14 +740,18 @@ class ApiListener(threading.Thread):
         pass
 
     def run(self):
+        global QUITING
+        global IS_PROTECTED
+        global LIBRARY_CACHE
+        
         while True:
             data = self.sock.recv(1024)
-            xbmc.log(str(data))
+            xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
 
-                LIBRARY_CACHE = data_json
+                LIBRARY_CACHE = data_json.copy()
             except ValueError:
                 continue
 
@@ -826,7 +876,6 @@ class SynopsiPlayer(xbmc.Player):
     Inherited main player class with events.
     """
     # xbmc.log('SynopsiTV: Class player is opened')
-    global DATA_PACK
     def __init__(self):
         xbmc.Player.__init__(self)
         # xbmc.log('SynopsiTV: Class player is initialized')
@@ -839,8 +888,8 @@ class SynopsiPlayer(xbmc.Player):
 
         if xbmc.Player().isPlayingVideo():
             #PLAYING = True
-            xbmc.log('SynopsiTV: PLAYBACK STARTED')
-            send_player_status(xbmc.Player(), 'Player.Started')
+            xbmc.log('SynopsiTV: PLAYBACK STARTED at {0}'.format(time.time()))
+            # send_player_status(xbmc.Player(), 'Player.Started')
 
             #Storing hash
             path = xbmc.Player().getPlayingFile()
@@ -856,8 +905,7 @@ class SynopsiPlayer(xbmc.Player):
         """
         Hook when playback ends.
         """
-        pass
-
+        global DATA_PACK
         DATA_PACK["events"].append({
                 'event': "Ended",
                 "timestamp" : time.time(),
@@ -868,8 +916,7 @@ class SynopsiPlayer(xbmc.Player):
         """
         Hook when playback stops.
         """
-        # xbmc.log("STOPPP  " + str(VIDEO) + " Curtime: " + str(CURRENT_TIME))
-
+        global DATA_PACK
         DATA_PACK["events"].append({
                 'event': "Stopped",
                 "timestamp" : time.time(),
@@ -882,6 +929,7 @@ class SynopsiPlayer(xbmc.Player):
         """
         Hook when playback is paused.
         """
+        global DATA_PACK
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
             send_player_status(xbmc.Player(), 'Player.Paused')
@@ -896,6 +944,7 @@ class SynopsiPlayer(xbmc.Player):
         """
         Hook when playback is resumed.
         """
+        global DATA_PACK
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')
             send_player_status(xbmc.Player(), 'Player.Resumed')
@@ -956,7 +1005,7 @@ def main():
     # queue = QueueWorker()
     # queue.start()
 
-    notify_all()
+    # notify_all()
 
     # xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
     while (not xbmc.abortRequested):
