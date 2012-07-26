@@ -279,7 +279,7 @@ def get_episode_details(movie_id):
     """
     Get dict of movie_id details.
     """
-    properties = ['file', "lastplayed", "playcount", "season", "episode"]
+    properties = ['file', "lastplayed", "playcount", "season", "episode", "tvshowid"]
     # properties = ["season", "episode"]
     # properties = ['file']
     method = 'VideoLibrary.GetEpisodeDetails'
@@ -601,41 +601,52 @@ class ApiListener(threading.Thread):
         """
         method = data_json.get("method")
 
-        def send_library_change(id, type, event):
-            if type == "movie":
-                details = get_movie_details(
-                    data_json["params"]["data"]["item"]["id"]
-                )
-
-                if not is_protected(details["result"]["moviedetails"]["file"]):
+        def send_library_change(id, _type, event):
+            if event == "Remove":
+                if _type == "movie":
                     try_send_data({
                             "event": event,
-                            "id": data_json["params"]["data"]["id"],
-                            "moviedetails": details["result"]["moviedetails"]
+                            "id": id,
+                            "type": _type
                         }, 
                         get_token()
                     )
-            elif type == "episode":
-                # If remove cannot get details
-                if event != "Remove":
-                    details = get_episode_details(id)
-                    xbmc.log(str(details))
-                    if not is_protected(details["result"]["moviedetails"]["file"]):
+
+                elif _type == "episode":
+                    try_send_data({
+                            "event": event,
+                            "id": id,
+                            "type": _type
+                        }, 
+                        get_token()
+                    )
+
+            else:
+                if _type == "movie":
+                    details = get_movie_details(id)
+                    path = details["result"]["moviedetails"]["file"]
+                    if not is_protected(path):
+                        details["result"]["moviedetails"]["hashes"] = get_hash_array(path)
                         try_send_data({
                                 "event": event,
                                 "id": id,
-                                "moviedetails": details["result"]["moviedetails"]
-                            }, 
-                            get_token()
-                        )
-                else:
-                    try_send_data({
-                            "event": event,
-                            "id": id
-                        }, 
-                        get_token()
-                    )
+                                "moviedetails": details["result"]["moviedetails"],
+                                "type": _type
+                            },
+                            get_token())
 
+                elif _type == "episode":
+                    details = get_episode_details(id)
+                    path = details["result"]["episodedetails"]["file"]
+                    if not is_protected(path):
+                        details["result"]["episodedetails"]["hashes"] = get_hash_array(path)
+                        try_send_data({
+                                "event": event,
+                                "id": id,
+                                "episodedetails": details["result"]["episodedetails"],
+                                "type": _type
+                            },
+                            get_token())
         
         if method == "VideoLibrary.OnRemove":
             send_library_change(
@@ -643,27 +654,14 @@ class ApiListener(threading.Thread):
                 data_json["params"]["data"]["type"],
                 "Remove"
             )
-            # send_library_change(
-            #     data_json["params"]["data"]["item"]["id"], 
-            #     data_json["params"]["data"]["item"]["type"],
-            #     "Library.Remove")
-            # # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
-            # "params":{"data":{"id":3,"type":"movie"},"sender":"xbmc"}}
 
-            # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
-            # "params":{"data":{"id":2,"type":"episode"},"sender":"xbmc"}}
-
-            # {"jsonrpc":"2.0","method":"VideoLibrary.OnRemove",
-            # "params":{"data":{"id":15,"type":"episode"},"sender":"xbmc"}}
         elif method == "VideoLibrary.OnUpdate":
             send_library_change(
-                data_json["params"]["data"]["id"], 
-                data_json["params"]["data"]["type"],
+                data_json["params"]["data"]["item"]["id"], 
+                data_json["params"]["data"]["item"]["type"],
                 "AddOrUpdate"
             )
-            # details = get_movie_details(
-            #     data_json["params"]["data"]["item"]["id"]
-            # )
+
             
             # """
             # TODO: If not movie.
