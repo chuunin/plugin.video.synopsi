@@ -181,17 +181,44 @@ def get_movies(start, end):
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
 
-def get_tvshows(start,end):
+def get_tvshows(start, end):
     """
     Get movies from xbmc library. Start is the first in list and end is the last.
     """
-    properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+    properties = ['file', 'imdbnumber', "lastplayed", "playcount", "episode"]
     method = 'VideoLibrary.GetTVShows'
     dic = {
         'params': {
             'properties': properties,
             'limits': {'end': end, 'start': start}
         },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1
+    }
+
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
+
+def get_episodes(twshow_id, season=-1):
+    """
+    Get episodes from xbmc library.
+    """
+    properties = ['file', "lastplayed", "playcount", "season", "episode"]
+    method = 'VideoLibrary.GetEpisodes'
+    if season == -1:
+        prms = {
+            'properties': properties,
+            'tvshowid': twshow_id
+        }
+    else:
+        prms = {
+            'properties': properties,
+            'tvshowid': twshow_id,
+            'season': season
+        }
+    dic = {
+        'params': prms,
         'jsonrpc': '2.0',
         'method': method,
         'id': 1
@@ -444,7 +471,6 @@ def fill_data_dict(player):
                 }
 
 
-
 def check_send_queue():
     """
     Function that checks offline queue.
@@ -511,13 +537,16 @@ class Searcher(threading.Thread):
 
     def run(self):
         global queue
+        global QUITING
 
-        nomovies = get_movies(0, 1)["result"]["limits"]["total"]
-        pack = 20  # how many movies in one JSON
+        movies_count = get_movies(0, 1)["result"]["limits"]["total"]
+        tvshows_count = get_tvshows(0,1)["result"]["limits"]["total"]
+        
+        pack = 20  # chuck, how many movies in one JSON
 
-        if nomovies > 0:
+        if movies_count > 0:
             notification("SynopsiTV", "Started loading database")
-            for i in range(nomovies // pack):
+            for i in range(movies_count // pack):
                 if not QUITING:
                     start = i * pack
                     end = start + pack
@@ -525,11 +554,7 @@ class Searcher(threading.Thread):
                     for j in range(pack):
                         path = movie_dict["result"]['movies'][j]['file']
                         if not is_protected(path): 
-                            if (
-                                (movie_dict["result"]['movies'][j]['imdbnumber'] == "") or 
-                                (movie_dict["result"]['movies'][j]['imdbnumber'] == None)
-                                ):
-                                # if True:  
+                            if not (movie_dict["result"]['movies'][j]['imdbnumber']):
                                 movie_dict["result"]["movies"][j] = get_movie_details(
                                     movie_dict["result"]['movies'][j]['movieid'], all_prop=True
                                     )["result"]["moviedetails"]
@@ -544,12 +569,17 @@ class Searcher(threading.Thread):
                     queue.add_to_queue(data)
 
             if not QUITING:
-                end = nomovies
-                start = end - nomovies % pack
+                end = movies_count
+                start = end - movies_count % pack
                 movie_dict = get_movies(start, end)
                 for j in range(end - start):
                     path = movie_dict["result"]['movies'][j]['file']
                     if not is_protected(path):
+                        if not (movie_dict["result"]['movies'][j]['imdbnumber']):
+                            movie_dict["result"]["movies"][j] = get_movie_details(
+                                movie_dict["result"]['movies'][j]['movieid'], all_prop=True
+                            )["result"]["moviedetails"]
+                        
                         movie_dict["result"]['movies'][j]["hashes"] = get_hash_array(path)
 
                 xbmc.log(str(json.dumps(movie_dict["result"]["movies"])))
@@ -563,6 +593,9 @@ class Searcher(threading.Thread):
 
             if not QUITING:
                 __addon__.setSetting(id='FIRSTRUN', value="false")
+
+        # for i in range(tvshows_count):
+
 
     def stop(self):
         """
@@ -963,8 +996,6 @@ VIDEO = 0
 IS_PROTECTED = False
 queue = QueueWorker()
 queue.start()
-
-
 DATA_PACK = {}
 LIBRARY_CACHE = {}
 
@@ -982,6 +1013,39 @@ def main():
 
     xbmc.log('SynopsiTV: STARTUP')
     notification("SynopsiTV","STARTUP")
+
+
+    def split_list(alist, wanted_parts=1):
+        length = len(alist)
+        return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts] 
+                 for i in range(wanted_parts) ]
+
+    with Timer():
+        for q in range(1):
+            tvshows_count = get_tvshows(0,1)["result"]["limits"]["total"]
+            tvshows = get_tvshows(0, tvshows_count)["result"]["tvshows"]
+            xbmc.log(str(tvshows))
+            for i in tvshows:
+                episode_count = i["episode"]
+                episodes = get_episodes(i["tvshowid"])
+                for j in episodes["result"]["episodes"]:
+                    pass
+                    # j["hashes"]= get_hash_array(j["file"])
+                if episode_count >= 20:
+                    chunk_count = 20
+                else:
+                    chunk_count = episode_count
+
+                for chunk in split_list(episodes["result"]["episodes"], episode_count // chunk_count):
+                    # xbmc.log(str(chunk))
+                    data = {
+                        "event": "Library.Add",
+                        "episodes": chunk
+                    }
+                    xbmc.log(str(json.dumps(data)))
+                    # queue.add_to_queue(data)
+
+                # xbmc.log(str(json.dumps(episodes["result"]["episodes"])))
 
     if __addon__.getSetting("BOOLTOK") == "false":
         notification("SynopsiTV", "Opening Settings")
