@@ -1,20 +1,20 @@
 """
 This is default file of SynopsiTV service.
 """
-import xbmc
-import xbmcgui
-import xbmcaddon
-import json
-import re
-import uuid
-import os
-import sqlite3
-import socket
-import time
-import threading
-import sys
-import types
 import hashlib
+import json
+import os
+import re
+import socket
+import sqlite3
+import sys
+import threading
+import time
+import types
+import uuid
+import xbmc
+import xbmcaddon
+import xbmcgui
 
 from urllib2 import HTTPError, URLError
 
@@ -23,7 +23,7 @@ import lib
 
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
-# ADDON INFORMATION
+
 __addon__     = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
@@ -35,7 +35,7 @@ def notification(name, text):
     """
     Sends notification to XBMC.
     """
-    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name,text))
+    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))
 
 
 def get_token():
@@ -49,8 +49,9 @@ def notify_all():
     """
     Notifiy all listeners of API in order to test our listener.
     """
-    xbmc.executeJSONRPC("""
-        {
+    xbmc.executeJSONRPC(
+    """
+    {
         "jsonrpc": "2.0",
         "method": "JSONRPC.NotifyAll",
         "id": 1,
@@ -58,9 +59,9 @@ def notify_all():
             "sender": "xbmc",
             "message": "message",
             "data": 1
-            }
         }
-        """
+    }
+    """
     )
 
 
@@ -70,11 +71,11 @@ def get_protected_folders():
     """
     array = []
     if __addon__.getSetting("PROTFOL") == "true":
-        num_folders = int(__addon__.getSetting("NUMFOLD"))+1
+        num_folders = int(__addon__.getSetting("NUMFOLD")) + 1
         for i in range(num_folders):
-            path = __addon__.getSetting("FOLDER{0}".format(i+1))
+            path = __addon__.getSetting("FOLDER{0}".format(i + 1))
             array.append(path)
-    
+
     return array
 
 
@@ -83,11 +84,6 @@ def is_protected(path):
     If file is protected.
     """
     protected = get_protected_folders()
-
-    # xbmc.log(str("protected"))
-    # xbmc.log(str(protected))
-    # xbmc.log(str(path))
-
     for _file in protected:
         if _file in path:
             notification("Ignoring file", str(path))
@@ -126,7 +122,6 @@ def get_hash_array(path):
             hash_array.append(file_dic)
 
     else:
-        #hash_array['files'] = []
         for moviefile in path.strip("stack://").split(" , "):
             hash_array.append({"path": moviefile,
                             "synopsihash": str(lib.myhash(moviefile)),
@@ -233,38 +228,38 @@ def get_movie_details(movie_id, all_prop=False):
     """
     if all_prop:
         properties = [
-          "title", 
-          "genre", 
-          "year", 
-          "rating", 
-          "director", 
-          "trailer", 
-          "tagline", 
-          "plot", 
-          "plotoutline", 
-          "originaltitle", 
-          "lastplayed", 
-          "playcount", 
-          "writer", 
-          "studio", 
-          "mpaa", 
-          "cast", 
-          "country", 
-          "imdbnumber", 
-          "premiered", 
-          "productioncode", 
-          "runtime", 
-          # "set", 
-          "showlink", 
-          "streamdetails", 
-          # "top250", 
-          "votes", 
-          # "fanart", 
-          # "thumbnail", 
-          "file", 
-          "sorttitle", 
-          "resume", 
-          # "setid"
+            "title",
+            "genre",
+            "year",
+            "rating",
+            "director",
+            "trailer",
+            "tagline",
+            "plot",
+            "plotoutline",
+            "originaltitle",
+            "lastplayed",
+            "playcount",
+            "writer",
+            "studio",
+            "mpaa",
+            "cast",
+            "country",
+            "imdbnumber",
+            "premiered",
+            "productioncode",
+            "runtime",
+            # "set",
+            "showlink",
+            "streamdetails",
+            # "top250",
+            "votes",
+            # "fanart",
+            # "thumbnail",
+            "file",
+            "sorttitle",
+            "resume",
+            # "setid
         ]
     else:
         properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
@@ -278,7 +273,6 @@ def get_movie_details(movie_id, all_prop=False):
         'method': method,
         'id': 1
     }
-    
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
 
@@ -298,7 +292,7 @@ def get_tvshow_details(movie_id):
         'method': method,
         'id': 1
     }
-    
+
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
 
@@ -311,7 +305,7 @@ def get_episode_details(movie_id):
     # properties = ['file']
     method = 'VideoLibrary.GetEpisodeDetails'
     dic = {
-    'params': 
+    'params':
         {
             'properties': properties,
             'episodeid': movie_id
@@ -323,11 +317,10 @@ def get_episode_details(movie_id):
 
     xbmc.log(str(json.dumps(dic)))
 
-    
     response = xbmc.executeJSONRPC(json.dumps(dic))
     xbmc.log(str(response))
     return json.loads(response)
-    
+
 
 def try_send_data(data, token):
     """
@@ -338,6 +331,7 @@ def try_send_data(data, token):
         """
         Update dictionary with skipping empty values.
         """
+
         for k, v in u.iteritems():
             if isinstance(v, collections.Mapping):
                 r = update(d.get(k, {}), v)
@@ -352,7 +346,7 @@ def try_send_data(data, token):
     try:
         data["timestamp"] = time.time()
         data["deviceid"] = generate_deviceid()
-        
+
         # result = {}
         # result.update((k, v) for k, v in data.iteritems() if ((v is not None) or not (v == "")))
         # update(result, data)
@@ -408,7 +402,6 @@ def send_player_status(player, status):
     path = player.getPlayingFile()
     hash_array = get_hash_array(path)
 
-    # if not is_protected(path):
     if not IS_PROTECTED:
         data = {
             'event': status,
@@ -421,7 +414,6 @@ def send_player_status(player, status):
                 "hashes": hash_array
             },
         }
-        #try_send_data(data, get_token())
         queue.add_to_queue(data)
 
 
@@ -438,9 +430,9 @@ def fill_data_dict(player):
 
     if not IS_PROTECTED:
         DATA_PACK = {
-            "events":[{
+            "events": [{
                 'event': "Started",
-                "timestamp" : time.time(),
+                "timestamp": time.time(),
                 "currenttime": player.getTime(),
             }],
             'videodetails': {
@@ -452,18 +444,7 @@ def fill_data_dict(player):
             },
         }
 
-        # xbmc.log(str("SynopsiTV: Library Cache: {0}".format((str(LIBRARY_CACHE)))))
         if LIBRARY_CACHE:
-            # if LIBRARY_CACHE.has_key
-            # {"jsonrpc":"2.0","method":"Player.OnPlay","params":
-            # {"data":{"item":{"id":7,"type":"movie"},
-            # "player":{"playerid":1,"speed":1}},"sender":"xbmc"}}
-
-
-            # {"jsonrpc":"2.0","method":"Player.OnPlay","params":
-            # {"data":{"item":{"type":"movie"},
-            # "player":{"playerid":1,"speed":1},"title":""},"sender":"xbmc"}}
-            
             if LIBRARY_CACHE["method"] == "Player.OnPlay":
                 DATA_PACK["librarydetails"] = {
                     "id": LIBRARY_CACHE["params"]["data"]["item"]["id"],
@@ -500,7 +481,7 @@ class Timer():
 
     def __exit__(self, *args):
         xbmc.log(str(time.time() - self.start))
-        
+
 
 class Database(object):
     """
@@ -594,7 +575,6 @@ class Searcher(threading.Thread):
             if not QUITING:
                 __addon__.setSetting(id='FIRSTRUN', value="false")
 
-        # for i in range(tvshows_count):
 
 
     def stop(self):
@@ -718,7 +698,7 @@ class ApiListener(threading.Thread):
             #     }, 
             #     get_token()
             #     )
-    
+
         if method == "Player.OnStop":
             if not IS_PROTECTED:
                 if data_json["params"]["data"] is not None:
@@ -740,7 +720,7 @@ class ApiListener(threading.Thread):
                         # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
                                              tottime=TOTAL_TIME, token=get_token(),
                                              hashd=get_hash_array(
-                                                details["result"]["episodedetails"]["file"]))
+                                            details["result"]["episodedetails"]["file"]))
                         ui.doModal()
                         del ui
                 # else:
@@ -758,7 +738,7 @@ class ApiListener(threading.Thread):
                 if DATA_PACK.has_key("librarydetails"):
                     del DATA_PACK["videodetails"]
 
-                __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
+                __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
 
         # if method == "Player.OnSeek":
         #     if not IS_PROTECTED:
@@ -840,6 +820,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     Dialog class that asks user about rating of movie.
     """
     global DATA_PACK
+
     def __init__(self, *args, **kwargs):
         self.data = {'event': "Dialog.Rating"}
         self.data['currenttime'] = kwargs['ctime']
@@ -896,7 +877,6 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
                 "rating": self.data['rating']
             })
 
-
             global queue
             queue.add_to_queue(self.data)
             self.close()
@@ -925,12 +905,7 @@ class SynopsiPlayer(xbmc.Player):
             #Storing hash
             path = xbmc.Player().getPlayingFile()
             self.hashes = get_hash_array(path)
-
-
             fill_data_dict(xbmc.Player())
-            
-            # if is_protected(path):
-            #     IS_PROTECTED = True
 
     def onPlayBackEnded(self):
         """
@@ -939,8 +914,8 @@ class SynopsiPlayer(xbmc.Player):
         global DATA_PACK
         DATA_PACK["events"].append({
                 'event': "Ended",
-                "timestamp" : time.time(),
-                "currenttime" : CURRENT_TIME
+                "timestamp": time.time(),
+                "currenttime": CURRENT_TIME
             })
 
         if DATA_PACK.has_key("librarydetails"):
@@ -957,8 +932,8 @@ class SynopsiPlayer(xbmc.Player):
         global DATA_PACK
         DATA_PACK["events"].append({
                 'event': "Stopped",
-                "timestamp" : time.time(),
-                "currenttime" : CURRENT_TIME
+                "timestamp": time.time(),
+                "currenttime": CURRENT_TIME
             })
 
         # __addon__.setSetting(id="CACHE" ,value=json.dumps(DATA_PACK))
@@ -974,8 +949,8 @@ class SynopsiPlayer(xbmc.Player):
 
             DATA_PACK["events"].append({
                 'event': "Paused",
-                "timestamp" : time.time(),
-                "currenttime" : CURRENT_TIME
+                "timestamp": time.time(),
+                "currenttime": CURRENT_TIME
             })
 
     def onPlayBackResumed(self):
@@ -989,8 +964,8 @@ class SynopsiPlayer(xbmc.Player):
 
             DATA_PACK["events"].append({
                 'event': "Resumed",
-                "timestamp" : time.time(),
-                "currenttime" : CURRENT_TIME
+                "timestamp": time.time(),
+                "currenttime": CURRENT_TIME
             })
 
 
@@ -1006,6 +981,7 @@ queue.start()
 DATA_PACK = {}
 LIBRARY_CACHE = {}
 
+
 def main():
     global VIDEO
     global CURRENT_TIME
@@ -1019,17 +995,16 @@ def main():
     xbmc.log('SynopsiTV: ----> Addon version : ' + __version__)
 
     xbmc.log('SynopsiTV: STARTUP')
-    notification("SynopsiTV","STARTUP")
-
+    notification("SynopsiTV", "STARTUP")
 
     def split_list(alist, wanted_parts=1):
         length = len(alist)
-        return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts] 
-                 for i in range(wanted_parts) ]
+        return [alist[i * length // wanted_parts: (i + 1) * length // wanted_parts]
+                 for i in range(wanted_parts)]
 
     with Timer():
         for q in range(1):
-            tvshows_count = get_tvshows(0,1)["result"]["limits"]["total"]
+            tvshows_count = get_tvshows(0, 1)["result"]["limits"]["total"]
             tvshows = get_tvshows(0, tvshows_count)["result"]["tvshows"]
             xbmc.log(str(tvshows))
             for i in tvshows:
@@ -1043,7 +1018,8 @@ def main():
                 else:
                     chunk_count = episode_count
 
-                for chunk in split_list(episodes["result"]["episodes"], episode_count // chunk_count):
+                for chunk in split_list(episodes["result"]["episodes"],
+                                        episode_count // chunk_count):
                     # xbmc.log(str(chunk))
                     data = {
                         "event": "Library.Add",
@@ -1092,8 +1068,8 @@ def main():
             IS_PROTECTED = False
 
         if (
-            (__addon__.getSetting("BOOLTOK") == "false") and 
-            (__addon__.getSetting("USER") != "") and 
+            (__addon__.getSetting("BOOLTOK") == "false") and
+            (__addon__.getSetting("USER") != "") and
             (__addon__.getSetting("PASS") != "")
             ):
             if not LOGIN_FAILED:
