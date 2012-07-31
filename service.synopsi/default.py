@@ -943,6 +943,13 @@ class SynopsiPlayer(xbmc.Player):
                 "currenttime" : CURRENT_TIME
             })
 
+        if DATA_PACK.has_key("librarydetails"):
+            ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
+                                                 tottime=TOTAL_TIME, token=get_token(),
+                                                 hashd=[])
+            ui.doModal()
+            del ui
+
     def onPlayBackStopped(self):
         """
         Hook when playback stops.
