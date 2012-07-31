@@ -373,6 +373,13 @@ def try_send_data(data, token):
         __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
 
 
+def send_checkin():
+    """
+    Send checkin.
+    """
+    pass
+
+
 def login(username, password):
     """
     Login function.
@@ -704,14 +711,14 @@ class ApiListener(threading.Thread):
                         ui.doModal()
                         del ui
 
-                # TODO: Send global DATA_PACK
 
-                time.sleep(1)
+                    # TODO: Send global DATA_PACK
+                    # Only onStop
+                    time.sleep(1)
+                    if DATA_PACK.has_key("librarydetails"):
+                        del DATA_PACK["videodetails"]
 
-                if DATA_PACK.has_key("librarydetails"):
-                    del DATA_PACK["videodetails"]
-
-                __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
+                    __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
 
         # if method == "Player.OnSeek":
         #     if not IS_PROTECTED:
@@ -885,6 +892,7 @@ class SynopsiPlayer(xbmc.Player):
         Hook when playback ends.
         """
         global DATA_PACK
+        
         DATA_PACK["events"].append({
                 'event': "Ended",
                 "timestamp": time.time(),
@@ -897,12 +905,17 @@ class SynopsiPlayer(xbmc.Player):
                                                  hashd=[])
             ui.doModal()
             del ui
+            time.sleep(1)
+            if DATA_PACK.has_key("librarydetails"):
+                del DATA_PACK["videodetails"]
+                __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
 
     def onPlayBackStopped(self):
         """
         Hook when playback stops.
         """
         global DATA_PACK
+        
         DATA_PACK["events"].append({
                 'event': "Stopped",
                 "timestamp": time.time(),
@@ -916,6 +929,7 @@ class SynopsiPlayer(xbmc.Player):
         Hook when playback is paused.
         """
         global DATA_PACK
+
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
             send_player_status(xbmc.Player(), 'Player.Paused')
