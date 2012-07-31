@@ -638,7 +638,12 @@ class ApiListener(threading.Thread):
                 if _type == "movie":
                     details = get_movie_details(id)
                     path = details["result"]["moviedetails"]["file"]
+
                     if not is_protected(path):
+                        if not details["result"]["moviedetails"]["imdbnumber"]:
+                            details = get_movie_details(
+                            data_json["params"]["data"]["item"]["id"], all_prop=True)
+                        
                         details["result"]["moviedetails"]["hashes"] = get_hash_array(path)
                         try_send_data({
                                 "event": event,
@@ -675,34 +680,9 @@ class ApiListener(threading.Thread):
                 "AddOrUpdate"
             )
 
-            
-            # """
-            # TODO: If not movie.
-            # """
-            # if not is_protected(details["result"]["moviedetails"]["file"]):
-
-            #     if (
-            #         (details["result"]["moviedetails"]["imdbnumber"] == "" ) or
-            #         (details["result"]["moviedetails"]["imdbnumber"] == None )
-            #         ):
-            #         # if True:    
-            #         details = get_movie_details(
-            #         data_json["params"]["data"]["item"]["id"], all_prop=True
-            #         )
-
-            #     # xbmc.log(str(json.dumps(details)))
-            #     try_send_data({
-            #         "event": "Library.AddORupdate",
-            #         "id": data_json["params"]["data"]["item"]["id"],
-            #         "moviedetails": details["result"]["moviedetails"]
-            #     }, 
-            #     get_token()
-            #     )
-
         if method == "Player.OnStop":
             if not IS_PROTECTED:
                 if data_json["params"]["data"] is not None:
-                    # if data_json["params"]["data"]["item"]["type"] in ("movie", "episode") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
                     if (data_json["params"]["data"]["item"]["type"] == "movie") and (CURRENT_TIME > 0.7 * TOTAL_TIME):
                         details = get_movie_details(data_json["params"]["data"]["item"]["id"])
                         xbmc.log(str(details))
@@ -723,13 +703,6 @@ class ApiListener(threading.Thread):
                                             details["result"]["episodedetails"]["file"]))
                         ui.doModal()
                         del ui
-                # else:
-                #     # if ended
-                #     ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                #                          tottime=TOTAL_TIME, token=get_token(),
-                #                          hashd=[])
-                #     ui.doModal()
-                #     del ui
 
                 # TODO: Send global DATA_PACK
 
