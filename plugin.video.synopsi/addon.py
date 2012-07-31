@@ -128,6 +128,7 @@ def addDir(name,url,mode,iconimage):
     return ok
     
           
+# $INFO[Skin.String(Home_Custom_Back_Video_Folder)]
 # ADDON INFORMATION
 __addon__     = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -139,6 +140,13 @@ if __addon__.getSetting("firststart") == "true":
     xbmc.executebuiltin("RunAddon(service.synopsi)")
     __addon__.setSetting(id='firststart', value="false")
 
+WINDOW = xbmcgui.Window()
+# WINDOW.setProperty("Skin.String(Home_Custom_Back_Video_Folder)", __cwd__ + "/resources/skins/Default/media/videos.jpg")
+# special://skin/backgrounds/music.jpg
+WINDOW.setProperty("Skin.String(Home_Custom_Back_Video_Folder)", "special://skin/backgrounds/music.jpg")
+
+
+xbmc.log(str(__cwd__))
 
 params=get_params()
 url=None
@@ -166,7 +174,12 @@ if mode==None or url==None or len(url)<1:
     print ""
     SEASONS()
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
-    xbmc.executebuiltin("Container.SetViewMode(51)")
+    # xbmc.executebuiltin("Container.SetViewMode(51)")
+    # xbmc.executebuiltin("Container.SetViewMode(52)")
+
+    xbmc.executebuiltin("Container.SetViewMode(503)")
+    # standart xbmc.executebuiltin("Container.SetViewMode(50)") 
+    # xbmc.executebuiltin("Container.SetViewMode(51)")
 elif mode==1:
     print ""+url
     EPISODES(url)
