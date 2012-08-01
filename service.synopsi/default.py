@@ -29,6 +29,7 @@ __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
+__language__   = __addon__.getLocalizedString
 
 
 def notification(name, text):
