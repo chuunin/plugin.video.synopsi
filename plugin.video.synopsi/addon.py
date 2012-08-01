@@ -1,7 +1,7 @@
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 import urllib2, urllib
 import re, sys, os, time
-
+import xbmcvfs
 import test
 
 movies = test.jsfile
@@ -51,8 +51,9 @@ def addDir(name,url,mode,iconimage):
     ok=True
     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    liz.setProperty("Fanart_Image", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-    return oks
+    return ok
 
 #####
 # Need to rewrite completely
@@ -119,13 +120,13 @@ def get_params():
     return param
 
 
-def addDir(name,url,mode,iconimage):
-    u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
-    ok=True
-    liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    liz.setInfo( type="Video", infoLabels={ "Title": name } )
-    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-    return ok
+# def addDir(name,url,mode,iconimage):
+#     u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+#     ok=True
+#     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+#     liz.setInfo( type="Video", infoLabels={ "Title": name } )
+#     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
+#     return ok
     
           
 # $INFO[Skin.String(Home_Custom_Back_Video_Folder)]
@@ -140,13 +141,19 @@ if __addon__.getSetting("firststart") == "true":
     xbmc.executebuiltin("RunAddon(service.synopsi)")
     __addon__.setSetting(id='firststart', value="false")
 
-WINDOW = xbmcgui.Window()
-# WINDOW.setProperty("Skin.String(Home_Custom_Back_Video_Folder)", __cwd__ + "/resources/skins/Default/media/videos.jpg")
-# special://skin/backgrounds/music.jpg
-WINDOW.setProperty("Skin.String(Home_Custom_Back_Video_Folder)", "special://skin/backgrounds/music.jpg")
+# WINDOW = xbmcgui.Window()
+# # WINDOW.setProperty("Skin.String(Home_Custom_Back_Video_Folder)", __cwd__ + "/resources/skins/Default/media/videos.jpg")
+# # special://skin/backgrounds/music.jpg
+# WINDOW.setProperty("Skin.String(Home_Custom_Back_Video_Folder)", "special://skin/backgrounds/music.jpg")
 
 
 xbmc.log(str(__cwd__))
+
+
+for i in ["videos.jpg","fanart.jpg", "C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg"]:
+    xbmc.log( "{0} {1}".format(i, str(xbmcvfs.exists(i))))
+
+
 
 params=get_params()
 url=None

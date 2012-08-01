@@ -199,3 +199,10 @@ service.watchdog
 skin.transparency
 skin.synopsi
 skin.metropolis
+script.xbmc.subtitles
+script.artistslideshow
+script.playlists
+script.randomandlastitems
+skin.aeon.nox
+skin.aeonmq.3
+xbmc.repo.aeonmq.3
