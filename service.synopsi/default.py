@@ -908,7 +908,8 @@ class SynopsiPlayer(xbmc.Player):
             time.sleep(1)
             if DATA_PACK.has_key("librarydetails"):
                 del DATA_PACK["videodetails"]
-                __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
+
+        __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
 
     def onPlayBackStopped(self):
         """
@@ -993,13 +994,13 @@ def main():
         for q in range(1):
             tvshows_count = get_tvshows(0, 1)["result"]["limits"]["total"]
             tvshows = get_tvshows(0, tvshows_count)["result"]["tvshows"]
-            xbmc.log(str(tvshows))
+            xbmc.log(str(json.dumps(tvshows)))
             for i in tvshows:
                 episode_count = i["episode"]
                 episodes = get_episodes(i["tvshowid"])
                 for j in episodes["result"]["episodes"]:
                     pass
-                    # j["hashes"]= get_hash_array(j["file"])
+                    j["hashes"]= get_hash_array(j["file"])
                 if episode_count >= 20:
                     chunk_count = 20
                 else:

@@ -1,7 +1,7 @@
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 import sys
 
-CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
+CANCEL_DIALOG = (7, 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 class XMLRatingDialog(xbmcgui.WindowXML):
 # class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     """
@@ -29,6 +29,7 @@ class XMLRatingDialog(xbmcgui.WindowXML):
 
     def onClick(self, controlId):
         pass
+        xbmc.log(str(controlId))
         # if controlId == 11:
         #     xbmc.log("SynopsiTV: Rated Amazing")
         #     self.data['rating'] = "Amazing"

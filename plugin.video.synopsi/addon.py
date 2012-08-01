@@ -56,16 +56,15 @@ listitem = xbmcgui.ListItem('Ironman')
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 
-ui = XMLRatingDialog("Main.xml", __cwd__, "Default", ctime=0,
-                                             tottime=0, token="",
-                                             hashd=[])
-ui.doModal()
-del ui
+ui = XMLRatingDialog("Main.xml", __cwd__, "Default")
+# ui.doModal()
+ui.show()
+# del ui
 
 
 
-xbmc.executebuiltin("ActivateWindow(Home)")
-print "Plugin: Closing"
+# xbmc.executebuiltin("ActivateWindow(Home)")
+# print "Plugin: Closing"
 # xbmc.executebuiltin("ReplaceWindow(10000)")
 
 # ActivateWindow(Home)
