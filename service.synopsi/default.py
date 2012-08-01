@@ -803,12 +803,12 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     global DATA_PACK
 
     def __init__(self, *args, **kwargs):
+        xbmcgui.WindowXMLDialog.__init__( self )
         self.data = {'event': "Dialog.Rating"}
         self.data['currenttime'] = kwargs['ctime']
         self.data['totaltime'] = kwargs['tottime']
         self.token = kwargs['token']
         self.data['hashes'] = kwargs['hashd']
-        #xbmc.log(str(args))
 
     def message(self, message):
         """
@@ -819,7 +819,12 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
         self.close()
 
     def onInit(self):
-        pass
+        self.getString = __addon__.getLocalizedString
+        self.getControl(11).setLabel(self.getString(69601))
+        self.getControl(10).setLabel(self.getString(69602))
+        self.getControl(15).setLabel(self.getString(69603))
+        self.getControl(1 ).setLabel(self.getString(69604))
+        self.getControl(2 ).setLabel(self.getString(69600))
 
     def onClick(self, controlId):
         if controlId == 11:
