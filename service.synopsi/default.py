@@ -695,7 +695,6 @@ class ApiListener(threading.Thread):
                         details = get_movie_details(data_json["params"]["data"]["item"]["id"])
                         xbmc.log(str(details))
                         ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                        # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
                                              tottime=TOTAL_TIME, token=get_token(),
                                              hashd=get_hash_array(
                                                 details["result"]["moviedetails"]["file"]))
@@ -705,7 +704,6 @@ class ApiListener(threading.Thread):
                         details = get_episode_details(data_json["params"]["data"]["item"]["id"])
                         xbmc.log(str(details))
                         ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default", ctime=CURRENT_TIME,
-                        # ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Synopsi", ctime=CURRENT_TIME,
                                              tottime=TOTAL_TIME, token=get_token(),
                                              hashd=get_hash_array(
                                             details["result"]["episodedetails"]["file"]))
@@ -884,9 +882,7 @@ class SynopsiPlayer(xbmc.Player):
         """
 
         if xbmc.Player().isPlayingVideo():
-            #PLAYING = True
             xbmc.log('SynopsiTV: PLAYBACK STARTED at {0}'.format(time.time()))
-            # send_player_status(xbmc.Player(), 'Player.Started')
 
             #Storing hash
             path = xbmc.Player().getPlayingFile()
