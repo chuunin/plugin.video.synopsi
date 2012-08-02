@@ -3,7 +3,10 @@ import urllib2, urllib
 import re, sys, os, time
 import xbmcvfs
 import test
+import os.path
 
+
+from PIL import Image, ImageDraw, ImageOps
 movies = test.jsfile
 
 
@@ -44,15 +47,16 @@ movies = test.jsfile
 
 # xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
 # xbmcplugin.endOfDirectory(int(sys.argv[1]))
+xbmc.log(str(dir(xbmcvfs)))
 
-
-def addDir(name,url,mode,iconimage):
+def addDir(name,url,mode,iconimage, view_mode=500):
     u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
     ok=True
     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": name } )
     liz.setProperty("Fanart_Image", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
+    xbmc.executebuiltin("Container.SetViewMode({0})".format(view_mode))
     return ok
 
 #####
@@ -66,7 +70,37 @@ def SEASONS():
     #     addDir(film.get('name'),"stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
     #         2, film.get('cover_medium'))
 
-    addDir("Reccomendations","url",1,"icon.png")
+
+    
+    # im = Image.new("RGBA", (150, 75), "white")
+    # for i in range(6):
+    #     urllib.urlretrieve (movies[i].get('cover_thumbnail'), "special://temp/tmp.jpg")
+    #     _im = Image.open("special://temp/tmp.jpg")
+    #     y = ImageOps.expand(_im, border=2, fill='white')
+    #     # y.save("special://temp/tmp.jpg")
+    #     im.paste(y, (0 + 25 * i, 0))
+    # im.save("special://temp/list.png","PNG")
+
+
+    import tempfile
+
+    # tempfile.gettempdir()
+
+    im = Image.new("RGBA", (150, 75), "white")
+    for i in range(6):
+        urllib.urlretrieve (movies[i].get('cover_thumbnail'), tempfile.gettempdir() + "tmp.jpg")
+        _im = Image.open(tempfile.gettempdir() + "tmp.jpg")
+        y = ImageOps.expand(_im, border=2, fill='white')
+        # y.save("tmp.jpg")
+        im.paste(y, (0 + 25 * i, 0))
+    im.save(tempfile.gettempdir() + "list.png","PNG")
+
+
+    addDir("Recommendations","url",1,tempfile.gettempdir() + "list.png")
+    addDir("Unwatched TV episodes","url",1,"icon.png")
+    addDir("Lists","url",1,"icon.png")
+    addDir("Trending Movies","url",1,"icon.png", view_mode=500)
+    addDir("Trending TV Shows","url",1,"icon.png")
 
 
 def EPISODES(url):
@@ -137,6 +171,9 @@ __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 
+
+xbmc.log(xbmc.getSkinDir())
+
 if __addon__.getSetting("firststart") == "true":
     xbmc.executebuiltin("RunAddon(service.synopsi)")
     __addon__.setSetting(id='firststart', value="false")
@@ -149,8 +186,14 @@ if __addon__.getSetting("firststart") == "true":
 
 xbmc.log(str(__cwd__))
 
+xbmc.log(os.path.join(__cwd__, "resources", "skins"))
 
-for i in ["videos.jpg","fanart.jpg", "C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg"]:
+
+xbmc.log(os.path.normpath(os.path.join(__cwd__, "fanart.jpg")))
+
+
+
+for i in ["videos.jpg","fanart.jpg", "C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg", os.path.normpath(os.path.join(__cwd__, "fanart.jpg"))]:
     xbmc.log( "{0} {1}".format(i, str(xbmcvfs.exists(i))))
 
 
@@ -181,8 +224,12 @@ if mode==None or url==None or len(url)<1:
     print ""
     SEASONS()
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setFocusId()
     # xbmc.executebuiltin("Container.SetViewMode(51)")
     # xbmc.executebuiltin("Container.SetViewMode(52)")
+    xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
+    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
+    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
 
     xbmc.executebuiltin("Container.SetViewMode(503)")
     # standart xbmc.executebuiltin("Container.SetViewMode(50)") 
@@ -191,7 +238,7 @@ elif mode==1:
     print ""+url
     EPISODES(url)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
-    xbmc.executebuiltin("Container.SetViewMode(500)")
+    # xbmc.executebuiltin("Container.SetViewMode(500)")
 elif mode==2:
     print ""+url
     VIDEOLINKS(url,name)

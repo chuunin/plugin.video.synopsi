@@ -1,6 +1,8 @@
 import json
 import datetime
 
+from PIL import Image, ImageDraw, ImageOps
+
 jsfile = [ 
 
          {'cover_full': u'https://s3.amazonaws.com/titles.synopsi.tv/00136558-960.jpg',
@@ -127,3 +129,23 @@ for film in jsfile:
 	print film.get('cover_medium'), film.get('name')
 
 """
+
+
+# import urllib2
+# import urllib
+
+# im = Image.new("RGBA", (150, 75), "white")
+# # dw = ImageDraw.Draw(im)
+# for i in range(6):
+#     # response = urllib2.urlopen(jsfile[i].get('cover_thumbnail'))
+#     # html = response.read()
+#     # with open("tmp.jpg", "w+") as f:
+#     #     f.write(response.read())
+#     urllib.urlretrieve (jsfile[i].get('cover_thumbnail'), "tmp.jpg")
+#     _im = Image.open("tmp.jpg")
+#     y = ImageOps.expand(_im, border=2, fill='white')
+#     y.save("tmp.jpg")
+#     # dw.bitmap((0 + 25 * i, 0), _im, fill="white")
+#     im.paste(y, (0 + 25 * i, 0))
+# im.save("list.png","PNG")
+# im.save("special://temp/list.png","PNG")
