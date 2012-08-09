@@ -70,37 +70,107 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
     """
     def __init__(self, *args, **kwargs):
         self.data = kwargs['data']
+
     def onInit(self):
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-        win.setProperty("Movie.Title", "Title")
-        win.setProperty("Movie.Cover", "http://s3.amazonaws.com/titles.synopsi.tv/01982155-267.jpg")
-        lorem = """
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed feugiat, nunc in tempor bibendum, lectus lacus tristique nulla, non porta nulla augue placerat tellus. Nulla consequat pharetra leo, ac imperdiet orci auctor sed. Curabitur placerat mauris tellus, ut commodo justo. Cras dictum dictum luctus. Aenean pharetra faucibus libero in molestie. Donec accumsan bibendum faucibus. Vestibulum ut lectus orci, et rutrum magna. In nec massa mi. Curabitur ut felis sed lectus vulputate aliquam. Pellentesque malesuada porta rhoncus. Praesent sodales augue at tellus laoreet non congue eros varius. Maecenas dui augue, condimentum sed venenatis non, elementum sed orci.
 
-        Integer sed ipsum ac dolor lacinia scelerisque ut a erat. Proin non tellus quis elit bibendum luctus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc ut placerat lectus. Nunc imperdiet tellus vel enim fringilla ornare. Integer rhoncus tempor tellus, a eleifend lectus fringilla quis. Quisque vehicula tristique vehicula.
+        win.setProperty("Movie.Label.1.1", "Text one")
+        win.setProperty("Movie.Label.1.2", "Text two")
 
-        Nam lobortis interdum gravida. Pellentesque pellentesque pharetra dolor quis ullamcorper. Maecenas at diam mauris, eu ultrices eros. Ut ac elementum orci. Proin sagittis porta turpis, quis suscipit ligula viverra sit amet. Praesent eu nunc ut ante iaculis tempus pretium id nisl. Vestibulum dictum, magna porttitor tempus rhoncus, enim diam tempus purus, sit amet molestie orci nulla sit amet quam. Aliquam at tellus risus, a vulputate est. Maecenas nunc neque, porttitor et accumsan sit amet, auctor non augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam pharetra nisi nibh. Sed nec lacus vel tellus volutpat mollis vel quis augue. Suspendisse commodo mi risus. Nunc diam ante, iaculis ac ornare quis, sodales non ante. Integer mattis tempor ante, molestie mollis eros dictum eget.
+        # print dir(self)
+        # win.setProperty("Movie.Title", "Title")
+        # win.setProperty("Movie.Cover", "http://s3.amazonaws.com/titles.synopsi.tv/01982155-267.jpg")
+        # lorem = """
+        # Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed feugiat, nunc in tempor bibendum, lectus lacus tristique nulla, non porta nulla augue placerat tellus. Nulla consequat pharetra leo, ac imperdiet orci auctor sed. Curabitur placerat mauris tellus, ut commodo justo. Cras dictum dictum luctus. Aenean pharetra faucibus libero in molestie. Donec accumsan bibendum faucibus. Vestibulum ut lectus orci, et rutrum magna. In nec massa mi. Curabitur ut felis sed lectus vulputate aliquam. Pellentesque malesuada porta rhoncus. Praesent sodales augue at tellus laoreet non congue eros varius. Maecenas dui augue, condimentum sed venenatis non, elementum sed orci.
 
-        Quisque nulla diam, mattis non scelerisque quis, dignissim ut elit. Proin dolor eros, interdum id dictum vel, feugiat vel odio. Suspendisse convallis, massa nec porttitor tempor, diam augue vestibulum turpis, vel vulputate eros purus et lacus. Mauris volutpat fermentum turpis. Donec ullamcorper felis at elit viverra pulvinar. Cras condimentum est blandit ligula hendrerit a elementum augue tincidunt. In sit amet felis mauris. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis sed lacus est, et interdum lacus. Morbi non erat nibh. Nulla facilisi. Praesent bibendum ante non sapien posuere sit amet facilisis dui fermentum.
+        # Integer sed ipsum ac dolor lacinia scelerisque ut a erat. Proin non tellus quis elit bibendum luctus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc ut placerat lectus. Nunc imperdiet tellus vel enim fringilla ornare. Integer rhoncus tempor tellus, a eleifend lectus fringilla quis. Quisque vehicula tristique vehicula.
 
-        Quisque ac tortor nisi. Duis urna nisi, varius ac ultricies ut, aliquam eget elit. Phasellus auctor massa a mi faucibus eu viverra turpis accumsan. Suspendisse elementum vehicula sapien, a sodales eros euismod vel. Aenean rutrum tristique tristique. Pellentesque et mauris nisi. Donec pharetra erat mi, volutpat congue augue. Vivamus rhoncus porta semper. Vestibulum ut malesuada dolor. Donec vitae ligula urna.
-        """
+        # Nam lobortis interdum gravida. Pellentesque pellentesque pharetra dolor quis ullamcorper. Maecenas at diam mauris, eu ultrices eros. Ut ac elementum orci. Proin sagittis porta turpis, quis suscipit ligula viverra sit amet. Praesent eu nunc ut ante iaculis tempus pretium id nisl. Vestibulum dictum, magna porttitor tempus rhoncus, enim diam tempus purus, sit amet molestie orci nulla sit amet quam. Aliquam at tellus risus, a vulputate est. Maecenas nunc neque, porttitor et accumsan sit amet, auctor non augue. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam pharetra nisi nibh. Sed nec lacus vel tellus volutpat mollis vel quis augue. Suspendisse commodo mi risus. Nunc diam ante, iaculis ac ornare quis, sodales non ante. Integer mattis tempor ante, molestie mollis eros dictum eget.
 
-        win.setProperty("Movie.Plot", lorem)
-        self.getControl(5).setEnabled(False)
+        # Quisque nulla diam, mattis non scelerisque quis, dignissim ut elit. Proin dolor eros, interdum id dictum vel, feugiat vel odio. Suspendisse convallis, massa nec porttitor tempor, diam augue vestibulum turpis, vel vulputate eros purus et lacus. Mauris volutpat fermentum turpis. Donec ullamcorper felis at elit viverra pulvinar. Cras condimentum est blandit ligula hendrerit a elementum augue tincidunt. In sit amet felis mauris. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis sed lacus est, et interdum lacus. Morbi non erat nibh. Nulla facilisi. Praesent bibendum ante non sapien posuere sit amet facilisis dui fermentum.
+
+        # Quisque ac tortor nisi. Duis urna nisi, varius ac ultricies ut, aliquam eget elit. Phasellus auctor massa a mi faucibus eu viverra turpis accumsan. Suspendisse elementum vehicula sapien, a sodales eros euismod vel. Aenean rutrum tristique tristique. Pellentesque et mauris nisi. Donec pharetra erat mi, volutpat congue augue. Vivamus rhoncus porta semper. Vestibulum ut malesuada dolor. Donec vitae ligula urna.
+        # """
+
+        # win.setProperty("Movie.Plot", lorem)
+        # self.getControl(5).setEnabled(False)
 
         # win.setProperty("Movie.Trailer", "http://www.youtube.com/watch?v=-tnxzJ0SSOw")
-        win.setProperty("Movie.Trailer.Id", "LV5_xj_yuhs")
+        # win.setProperty("Movie.Trailer.Id", "LV5_xj_yuhs")
         # win.getControl()
         # win.getControl(49).setProperty("Title", "Title")
 
-        xbmc.sleep(1000)
+        # xbmc.sleep(1000)
         win.setProperty("Movie.Title", "Titsadfsdfasdfl")
+
+        # print self.getProperty("Movie.Title")
+
+
+        # print self
+        # print win
+
+        # print self == win
+
+
         # $INFO[ListItem.Writer]
         # win.setProperty("ListItem.Writer", "Title")
 
+        win.setProperty("Movie.Title", self.data["name"])
+        win.setProperty("Movie.Cover", self.data["cover_large"])
+        win.setProperty("Movie.Plot", self.data["plot"])
+
+        # for i in range(1,13):
+        #     win.setProperty("Movie.Label.{0}.1".format(i), "Text one")
+        #     win.setProperty("Movie.Label.{0}.2".format(i), "Text two")
+        #     win.setProperty("Movie.Label.{0}.3".format(i), "true")
+
+        
+        def set_labels(key, value):
+            win.setProperty("Movie.Label.{0}.1".format(i), key)
+            win.setProperty("Movie.Label.{0}.2".format(i), value)
+            i = i + 1
+
+        # set_labels("Director", "Adam Jurko")
+        # set_labels("Writer", "John Gatins, Dan Gilroy, Jeremy Leven, Richard Matheson")
+        # set_labels("Runtime", "23 min")
+        # set_labels("Release date", "September 06, 2011")
+
+        labels = {
+        "Director": "Adam Jurko",
+        "Writer": "John Gatins, Dan Gilroy, Jeremy Leven, Richard Matheson",
+        "Runtime": "23 min",
+        "Release date": "September 06, 2011"
+        }
+
+        i = 1
+        for key in labels.keys():
+            win.setProperty("Movie.Label.{0}.1".format(i), key)
+            win.setProperty("Movie.Label.{0}.2".format(i), labels[key])
+            i = i + 1
+
+        if self.data["trailer"]:
+            _youid = self.data["trailer"].split("/")
+            print _youid
+            _youid.reverse()
+            print _youid[0]
+            win.setProperty("Movie.Trailer.Id", str(_youid[0]))
+            # win.setProperty("Movie.Title", self.data["name"])
+        else:
+            self.getControl(10).setEnabled(False)
+
+        self.getControl(5).setEnabled(False)
+
+
+
     def onClick(self, controlId):
-        if controlId == 11:
+        if controlId == 5: # play
+            pass
+        if controlId == 6: # add to list
+            dialog = xbmcgui.Dialog()
+            ret = dialog.select('Choose list', ['Watch later', 'Action', 'Favorite'])
+        if controlId == 10: # trailer
+            pass
+        if controlId == 11: # already watched
             pass
         xbmc.log(str(controlId))
         self.close()
@@ -152,11 +222,13 @@ def show_categories():
 def show_movies(url, type):
     # for film in movies:
     for film in get_items(type):
-        add_movie(film.get('name'),"stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
+        add_movie(film.get('name'), "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
+         C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
             2, film.get('cover_medium'), film.get("id"))
 
 
 def show_video_dialog(url, name, data):
+    print data
     ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json.loads(data))
     # ui = VideoDialog("DialogVideoInfo.xml", __cwd__, "Default")
     ui.doModal()
@@ -178,7 +250,7 @@ def get_params():
             splitparams=pairsofparams[i].split('=')
             if (len(splitparams))==2:
                 param[splitparams[0]]=splitparams[1]
-                
+
     return param
 
 __addon__     = xbmcaddon.Addon()
@@ -217,7 +289,7 @@ except:
     pass
 
 try:
-    data=int(params["data"])
+    data = urllib.unquote_plus(params["data"])
 except:
     pass
 

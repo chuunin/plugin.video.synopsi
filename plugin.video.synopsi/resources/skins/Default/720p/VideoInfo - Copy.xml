@@ -1,9 +1,9 @@
 <window id="2003">
-	<defaultcontrol always="true">6</defaultcontrol>
-	<!-- <allowoverlay>no</allowoverlay> -->
+	<defaultcontrol always="true">5</defaultcontrol>
+	<allowoverlay>no</allowoverlay>
 	<controls>
 		<control type="group">
-			<!-- <visible>!Window.IsVisible(FileBrowser)</visible>-->
+			<!-- <visible>!Window.IsVisible(FileBrowser)</visible> -->
 			<animation easing="out" effect="slide" end="0,0" start="1100,0" time="400" tween="quadratic">WindowOpen</animation>
 			<animation easing="out" effect="slide" end="1100,0" start="0,0" time="400" tween="quadratic">WindowClose</animation>
 			<control type="image">
@@ -31,7 +31,7 @@
 				<visible>system.getbool(input.enablemouse)</visible>
 			</control>
 			<control type="group">
-				<!-- <animation delay="400" effect="fade" end="100" start="0" time="200">WindowOpen</animation>-->
+				<!-- <animation delay="400" effect="fade" end="100" start="0" time="200">WindowOpen</animation> -->
 				<animation effect="fade" end="100" start="0" time="1000">WindowOpen</animation>
 				<animation effect="fade" end="0" start="100" time="200">WindowClose</animation>
 				<control type="label">
@@ -108,7 +108,6 @@
 								<selectedcolor>white</selectedcolor>
 								<info>ListItem.Label2</info>
 							</control>
-							<visible>!Control.HasFocus(49)</visible>
 						</itemlayout>
 						<focusedlayout height="30">
 							<control type="image">
@@ -152,61 +151,73 @@
 								<label>$INFO[Window.Property(Movie.Label.1.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.1.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>$INFO[Window.Property(Movie.Label.1.3)]</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.2.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.2.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.2.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.3.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.3.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.3.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.4.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.4.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.4.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.5.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.5.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.5.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.6.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.6.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.6.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.7.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.7.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.7.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.8.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.8.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.8.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.9.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.9.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.9.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.10.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.10.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.10.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.11.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.11.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.11.2)])</visible> -->
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.12.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.12.2)]</label2>
 								<onclick>-</onclick>
+								<!-- <visible>!IsEmpty($INFO[Window.Property(Movie.Label.12.2)])</visible> -->
 							</item>
 						</content>
 					</control>
@@ -276,20 +287,28 @@
 					<onright>9000</onright>
 					<onup>61</onup>
 					<ondown>49</ondown>
-					<control id="6" type="button">
-						<include>ButtonInfoDialogsCommonValues</include>
-						<label>Add to list</label>
-					</control>
 					<control id="5" type="button">
+						<description>Cast/Review</description>
 						<include>ButtonInfoDialogsCommonValues</include>
 						<label>Play</label>
 					</control>
+					<control id="6" type="button">
+						<description>Refresh</description>
+						<include>ButtonInfoDialogsCommonValues</include>
+						<label>Add to list</label>
+					</control>
 					<control id="10" type="button">
+						<description>Get Thumb</description>
 						<include>ButtonInfoDialogsCommonValues</include>
 						<label>Trailer</label>
+						<!-- <onclick>ActivateWindow(10025,plugin://plugin.video.youtube/?action=play_video&videoid=$INFO[Window.Property(Movie.Trailer.Id)]&video_url=$INFO[Window.Property(Movie.Trailer)], return)</onclick>-->
+						<!-- <onclick>ActivateWindow(10025,plugin://plugin.video.youtube/?action=play_video&path=/root/video&videoid=$INFO[Window.Property(Movie.Trailer.Id)], return)</onclick>-->
+						<!-- <onclick>PlayMedia(plugin://plugin.video.youtube/?action=play_video&amp;videoid=LV5_xj_yuhs)</onclick>-->
 						<onclick>PlayMedia(plugin://plugin.video.youtube/?action=play_video&amp;videoid=$INFO[Window.Property(Movie.Trailer.Id)])</onclick>
+						<!-- <onclick>PlayMedia(plugin://plugin.video.youtube/?action=play_video&amp;video_url=LV5_xj_yuhs)</onclick>-->
 					</control>
 					<control id="11" type="button">
+						<description>Get Fanart</description>
 						<include>ButtonInfoDialogsCommonValues</include>
 						<label>Already watched</label>
 					</control>
