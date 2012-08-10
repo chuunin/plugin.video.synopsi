@@ -1,6 +1,6 @@
 <window id="2003">
 	<defaultcontrol always="true">6</defaultcontrol>
-	<!-- <allowoverlay>no</allowoverlay> -->
+	<!-- <allowoverlay>no</allowoverlay>-->
 	<controls>
 		<control type="group">
 			<!-- <visible>!Window.IsVisible(FileBrowser)</visible>-->
@@ -76,7 +76,7 @@
 						<posx>290</posx>
 						<posy>20</posy>
 						<width>740</width>
-						<height>330</height>
+						<height>130</height>
 						<onleft>49</onleft>
 						<onright>49</onright>
 						<onup>9000</onup>
@@ -210,6 +210,82 @@
 							</item>
 						</content>
 					</control>
+					<control id="59" type="list">
+						<posx>290</posx>
+						<posy>200</posy>
+						<width>740</width>
+						<height>180</height>
+						<onleft>59</onleft>
+						<onright>59</onright>
+						<onup>49</onup>
+						<ondown>61</ondown>
+						<pagecontrol>-</pagecontrol>
+						<scrolltime>200</scrolltime>
+						<orientation>horizontal</orientation>
+
+						<itemlayout height="180">
+							<control type="image">
+								<posx>0</posx>
+								<posy>0</posy>
+								<width>120</width>
+								<height>180</height>
+								<texture>MenuItemFO.png</texture>
+								<info>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</info>
+								<include>VisibleFadeEffect</include>
+							</control>
+							<control type="label">
+								<posx>180</posx>
+								<posy>0</posy>
+								<width>120</width>
+								<height>180</height>
+								<label>Textik</label>
+							</control>
+							<visible>!Control.HasFocus(59)</visible>
+						</itemlayout>
+						<focusedlayout height="180">
+							<control type="image">
+								<posx>0</posx>
+								<posy>0</posy>
+								<width>120</width>
+								<height>180</height>
+								<visible>Control.HasFocus(59)</visible>
+								<bordersize>5</bordersize>
+								<bordertexture border="5">folder-focus.png</bordertexture>
+							</control>
+						</focusedlayout>
+						<content>
+							<item>
+								<label>$INFO[Window.Property(Movie.Label.1.1)]</label>
+								<label2>$INFO[Window.Property(Movie.Label.1.2)]</label2>
+								<onclick>Action</onclick>
+							</item>
+							<item>
+								<label>$INFO[Window.Property(Movie.Label.2.1)]</label>
+								<label2>$INFO[Window.Property(Movie.Label.2.2)]</label2>
+								<onclick>-</onclick>
+							</item>
+							<item>
+								<label>$INFO[Window.Property(Movie.Label.3.1)]</label>
+								<label2>$INFO[Window.Property(Movie.Label.3.2)]</label2>
+								<onclick>-</onclick>
+							</item>
+							<item>
+								<label>$INFO[Window.Property(Movie.Label.1.1)]</label>
+								<label2>$INFO[Window.Property(Movie.Label.1.2)]</label2>
+								<onclick>Action</onclick>
+							</item>
+							<item>
+								<label>$INFO[Window.Property(Movie.Label.2.1)]</label>
+								<label2>$INFO[Window.Property(Movie.Label.2.2)]</label2>
+								<onclick>-</onclick>
+							</item>
+							<item>
+								<label>$INFO[Window.Property(Movie.Label.3.1)]</label>
+								<label2>$INFO[Window.Property(Movie.Label.3.2)]</label2>
+								<onclick>-</onclick>
+							</item>
+						</content>
+					</control>
 					<control type="image">
 						<posx>290</posx>
 						<posy>370</posy>
@@ -243,7 +319,8 @@
 					<onleft>61</onleft>
 					<onright>61</onright>
 					<ondown>9000</ondown>
-					<onup>49</onup>
+					<!-- <onup>49</onup>-->
+					<onup>59</onup>
 					<textcolor>-</textcolor>
 					<showonepage>true</showonepage>
 				</control>

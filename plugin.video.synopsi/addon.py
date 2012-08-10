@@ -150,9 +150,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
         if self.data["trailer"]:
             _youid = self.data["trailer"].split("/")
-            print _youid
             _youid.reverse()
-            print _youid[0]
             win.setProperty("Movie.Trailer.Id", str(_youid[0]))
             # win.setProperty("Movie.Title", self.data["name"])
         else:
@@ -179,8 +177,12 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         self.controlId = controlId
 
     def onAction(self, action):
+        print action.getId()
         if (action.getId() in CANCEL_DIALOG):
             self.close()
+        # elif action.getId() in (100, 4):
+        #     dialog = xbmcgui.Dialog()
+        #     ret = dialog.ok('Choose list', 'Watch later', 'Action', 'Favorite')
 
 
 def add_directory(name, url, mode, iconimage, type, view_mode=500):
@@ -228,7 +230,6 @@ def show_movies(url, type):
 
 
 def show_video_dialog(url, name, data):
-    print data
     ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json.loads(data))
     # ui = VideoDialog("DialogVideoInfo.xml", __cwd__, "Default")
     ui.doModal()
