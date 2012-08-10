@@ -230,10 +230,18 @@ def show_movies(url, type):
 
 
 def show_video_dialog(url, name, data):
-    ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json.loads(data))
-    # ui = VideoDialog("DialogVideoInfo.xml", __cwd__, "Default")
-    ui.doModal()
-    del ui
+    try:
+        xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+    except ValueError, e:
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json.loads(data))
+        ui.doModal()
+        del ui
+    else:
+        win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+        win.close()
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json.loads(data))
+        ui.doModal()
+        del ui
 
 
 def get_params():
@@ -265,12 +273,15 @@ if __addon__.getSetting("firststart") == "true":
     xbmc.executebuiltin("RunAddon(service.synopsi)")
     __addon__.setSetting(id='firststart', value="false")
 
+print sys.argv
+
 params = get_params()
 url = None
 name = None
 mode = None
 type = None
 data = None
+
 
 try:
     url=urllib.unquote_plus(params["url"])

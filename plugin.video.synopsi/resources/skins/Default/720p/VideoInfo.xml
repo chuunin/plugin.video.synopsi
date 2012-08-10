@@ -80,7 +80,8 @@
 						<onleft>49</onleft>
 						<onright>49</onright>
 						<onup>9000</onup>
-						<ondown>61</ondown>
+						<!-- <ondown>61</ondown>-->
+						<ondown>59</ondown>
 						<pagecontrol>-</pagecontrol>
 						<scrolltime>200</scrolltime>
 						<itemlayout height="30">
@@ -168,50 +169,11 @@
 								<label2>$INFO[Window.Property(Movie.Label.4.2)]</label2>
 								<onclick>-</onclick>
 							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.5.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.5.2)]</label2>
-								<onclick>-</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.6.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.6.2)]</label2>
-								<onclick>-</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.7.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.7.2)]</label2>
-								<onclick>-</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.8.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.8.2)]</label2>
-								<onclick>-</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.9.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.9.2)]</label2>
-								<onclick>-</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.10.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.10.2)]</label2>
-								<onclick>-</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.11.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.11.2)]</label2>
-								<onclick>-</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Label.12.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.12.2)]</label2>
-								<onclick>-</onclick>
-							</item>
+							<!-- <item><label>$INFO[Window.Property(Movie.Label.5.1)]</label><label2>$INFO[Window.Property(Movie.Label.5.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.6.1)]</label><label2>$INFO[Window.Property(Movie.Label.6.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.7.1)]</label><label2>$INFO[Window.Property(Movie.Label.7.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.8.1)]</label><label2>$INFO[Window.Property(Movie.Label.8.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.9.1)]</label><label2>$INFO[Window.Property(Movie.Label.9.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.10.1)]</label><label2>$INFO[Window.Property(Movie.Label.10.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.11.1)]</label><label2>$INFO[Window.Property(Movie.Label.11.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.12.1)]</label><label2>$INFO[Window.Property(Movie.Label.12.2)]</label2><onclick>-</onclick></item>-->
 						</content>
 					</control>
 					<control id="59" type="list">
-						<posx>290</posx>
+						<posx>320</posx>
 						<posy>200</posy>
 						<width>740</width>
 						<height>180</height>
@@ -226,7 +188,6 @@
 						<pagecontrol>-</pagecontrol>
 						<scrolltime>0</scrolltime>
 						<orientation>Horizontal</orientation>
-
 						<itemlayout height="200" width="140">
 							<control type="image">
 								<posx>0</posx>
@@ -252,7 +213,7 @@
 								<width>120</width>
 								<height>20</height>
 								<label>Textik</label>
-							<visible>!Control.HasFocus(59)</visible>
+								<visible>!Control.HasFocus(59)</visible>
 							</control>
 						</itemlayout>
 						<focusedlayout height="200" width="140">
@@ -273,7 +234,7 @@
 								<visible>Control.HasFocus(59)</visible>
 								<bordersize>5</bordersize>
 								<bordertexture border="5">folder-focus.png</bordertexture>
-								<info>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</info>
+								<!-- <info>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</info>-->
 								<texture>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</texture>
 							</control>
 							<control type="label">
@@ -289,12 +250,13 @@
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.1.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.1.2)]</label2>
-								<onclick>Action</onclick>
+								<label2>Icon</label2>
+								<onclick>Action(666)</onclick>
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.2.1)]</label>
 								<label2>$INFO[Window.Property(Movie.Label.2.2)]</label2>
-								<onclick>-</onclick>
+								<onclick>RunScript(plugin.video.synopsi, 0, ?url=stack%3A%2F%2FC%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD1%5Cpaddo-jedgar-a.avi+%2C++++++++++C%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD2%5Cpaddo-jedgar-b.avi&mode=2&name=The+Time+Machine&data=%7B%22cover_full%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-960.jpg%22%2C+%22genres%22%3A+%5B%22Sci-Fi%22%2C+%22Adventure%22%2C+%22Action%22%5D%2C+%22name%22%3A+%22The+Time+Machine%22%2C+%22cover_thumbnail%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22url%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22image%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22plot%22%3A+%22Based+on+the+classic+sci-fi+novel+by+H.G.+Wells%2C+scientist+and+inventor%2C+Alexander+Hartdegen%2C+is+determined+to+prove+that+time+travel+is+possible.+His+determination+is+turned+to+desperation+by+a+personal+tragedy+that+now+drives+him+to+want+to+change+the+past.+Testing+his+theories%26hellip%3B%22%2C+%22slug%22%3A+%22the-time-machine-2002%22%2C+%22id%22%3A+136558%2C+%22released%22%3A+false%2C+%22cover_large%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-267.jpg%22%2C+%22link%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22year%22%3A+2002%2C+%22cover_small%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-134.jpg%22%2C+%22type%22%3A+%22movie%22%2C+%22cover_medium%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-223.jpg%22%2C+%22trailer%22%3A+%22https%3A%2F%2Fwww.youtube.com%2Fembed%2FZJuHV3BXGm0%22%7D)</onclick>
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.3.1)]</label>
@@ -311,21 +273,10 @@
 								<label2>$INFO[Window.Property(Movie.Label.2.2)]</label2>
 								<onclick>-</onclick>
 							</item>
-							<!-- <item>
-								<label>$INFO[Window.Property(Movie.Label.3.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.3.2)]</label2>
-								<onclick>-</onclick>
-							</item> -->
+							<!-- <item><label>$INFO[Window.Property(Movie.Label.3.1)]</label><label2>$INFO[Window.Property(Movie.Label.3.2)]</label2><onclick>-</onclick></item>-->
 						</content>
 					</control>
-					<!-- <control type="image">
-						<posx>290</posx>
-						<posy>370</posy>
-						<width>740</width>
-						<height>4</height>
-						<aspectratio>stretch</aspectratio>
-						<texture>separator.png</texture>
-					</control> -->
+					<!-- <control type="image"><posx>290</posx><posy>380</posy><width>740</width><height>4</height><aspectratio>stretch</aspectratio><texture>separator.png</texture></control>-->
 				</control>
 				<control type="label">
 					<posx>130r</posx>
