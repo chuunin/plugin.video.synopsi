@@ -172,6 +172,18 @@
 							<!-- <item><label>$INFO[Window.Property(Movie.Label.5.1)]</label><label2>$INFO[Window.Property(Movie.Label.5.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.6.1)]</label><label2>$INFO[Window.Property(Movie.Label.6.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.7.1)]</label><label2>$INFO[Window.Property(Movie.Label.7.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.8.1)]</label><label2>$INFO[Window.Property(Movie.Label.8.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.9.1)]</label><label2>$INFO[Window.Property(Movie.Label.9.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.10.1)]</label><label2>$INFO[Window.Property(Movie.Label.10.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.11.1)]</label><label2>$INFO[Window.Property(Movie.Label.11.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.12.1)]</label><label2>$INFO[Window.Property(Movie.Label.12.2)]</label2><onclick>-</onclick></item>-->
 						</content>
 					</control>
+					<control type="label" id="559">
+								<posx>320</posx>
+								<posy>150</posy>
+								<width>200</width>
+								<height>30</height>
+								<label>Similar movies</label>
+								<font>font13</font>
+								<align>left</align>
+								<aligny>center</aligny>
+								<textcolor>blue</textcolor>
+								<selectedcolor>white</selectedcolor>
+							</control>
 					<control id="59" type="list">
 						<posx>320</posx>
 						<posy>180</posy>
@@ -286,7 +298,7 @@
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.1.1)]</label>
 								<!-- <label2>$INFO[Window.Property(Movie.Label.1.2)]</label2> -->
-								<label2>Icon</label2>
+								<Icon>Icon</label2>
 								<onclick>Action(666)</onclick>
 							</item>
 							<item>
