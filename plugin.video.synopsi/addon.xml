@@ -12,6 +12,10 @@
             library="addon.py">
         <provides>video</provides>
   </extension>
+  <extension point="xbmc.service"
+            library="service.py" start="login|startup">
+        <provides>service</provides>
+  </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary>SynopsiTV App</summary>

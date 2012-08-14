@@ -7,8 +7,12 @@
     <import addon="xbmc.python" version="1.0"/>
   </requires>
   <extension point="xbmc.service"
-            library="default.py" start="login|startup">
+            library="service.py" start="login|startup">
         <provides>service</provides>
+  </extension>
+  <extension point="xbmc.python.pluginsource"
+            library="addon.py">
+        <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary>SynopsiTV</summary>
