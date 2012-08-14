@@ -199,7 +199,6 @@ service.watchdog
 skin.transparency
 skin.synopsi
 skin.metropolis
-
 script.artistslideshow
 script.playalbum
 script.playlists
@@ -214,8 +213,13 @@ script.xbmc.subtitles
 script.artistslideshow
 script.playlists
 script.randomandlastitems
-/skin.aeon.nox/
 skin.aeonmq.3
 xbmc.repo.aeonmq.3
-
-!/service.synopsi/resources/skins/
+skin.aeon.nox
+skin.aeonmq.3
+xbmc.repo.aeonmq.3
+plugin.video.ted.talks
+script.playalbum
+skin.xperience1080
+script.tvtunes
+repository.blacks
