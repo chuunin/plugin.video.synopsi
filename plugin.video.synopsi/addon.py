@@ -74,8 +74,12 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
     def onInit(self):
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
         win.setProperty("Movie.Title", self.data["name"])
-        win.setProperty("Movie.Cover", self.data["cover_large"])
         win.setProperty("Movie.Plot", self.data["plot"])
+        win.setProperty("Movie.Cover", self.data["cover_large"])
+        # win.setProperty("Movie.Cover", "default.png")
+
+        for i in range(5):
+            win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
 
         labels = {
         "Director": "Adam Jurko",
@@ -88,6 +92,20 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         for key in labels.keys():
             win.setProperty("Movie.Label.{0}.1".format(i), key)
             win.setProperty("Movie.Label.{0}.2".format(i), labels[key])
+            i = i + 1
+
+        labels = {
+        "Love Actually": "https://s3.amazonaws.com/titles.synopsi.tv/01982155-267.jpg",
+        "The Dark Knight Rises": "https://s3.amazonaws.com/titles.synopsi.tv/ae401d45cb2e88bf6337248bbf0249d2-267.jpg",
+        "Real Steel": "https://s3.amazonaws.com/titles.synopsi.tv/02444806-267.jpg",
+        "Musime si pomahat": "https://s3.amazonaws.com/titles.synopsi.tv/00873171-267.jpg",
+        "State of Play": "https://s3.amazonaws.com/titles.synopsi.tv/00021267-267.jpg"
+        }
+
+        i = 1
+        for key in labels.keys():
+            win.setProperty("Movie.Similar.{0}.Label".format(i), key)
+            win.setProperty("Movie.Similar.{0}.Cover".format(i), labels[key])
             i = i + 1
 
         if self.data["trailer"]:
