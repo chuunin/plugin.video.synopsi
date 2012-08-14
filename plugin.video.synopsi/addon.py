@@ -157,7 +157,6 @@ def show_categories():
 
 
 def show_movies(url, type):
-    # for film in movies:
     for film in get_items(type):
         add_movie(film.get('name'), "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
          C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",

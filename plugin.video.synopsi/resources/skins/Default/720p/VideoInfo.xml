@@ -174,9 +174,9 @@
 					</control>
 					<control id="59" type="list">
 						<posx>320</posx>
-						<posy>200</posy>
+						<posy>180</posy>
 						<width>740</width>
-						<height>180</height>
+						<height>200</height>
 						<onleft>59</onleft>
 						<onright>59</onright>
 						<onup>49</onup>
@@ -208,12 +208,30 @@
 								<visible>!Control.HasFocus(59)</visible>
 							</control>
 							<control type="label">
-								<posx>0</posx>
+								<posx>60</posx>
 								<posy>180</posy>
 								<width>120</width>
 								<height>20</height>
-								<label>Textik</label>
+								<info>ListItem.Label</info>
 								<visible>!Control.HasFocus(59)</visible>
+								<font>font13</font>
+								<align>center</align>
+								<aligny>center</aligny>
+								<textcolor>white</textcolor>
+								<selectedcolor>white</selectedcolor>
+							</control>
+							<control type="label">
+								<posx>60</posx>
+								<posy>180</posy>
+								<width>120</width>
+								<height>20</height>
+								<info>ListItem.Label</info>
+								<visible>Control.HasFocus(59)</visible>
+								<font>font13</font>
+								<align>center</align>
+								<aligny>center</aligny>
+								<textcolor>white</textcolor>
+								<selectedcolor>white</selectedcolor>
 							</control>
 						</itemlayout>
 						<focusedlayout height="200" width="140">
@@ -238,18 +256,36 @@
 								<texture>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</texture>
 							</control>
 							<control type="label">
-								<posx>0</posx>
+								<posx>60</posx>
 								<posy>180</posy>
 								<width>120</width>
 								<height>20</height>
-								<label>Textik</label>
+								<info>ListItem.Label</info>
 								<visible>Control.HasFocus(59)</visible>
+								<font>font13</font>
+								<align>center</align>
+								<aligny>center</aligny>
+								<textcolor>white</textcolor>
+								<selectedcolor>white</selectedcolor>
+							</control>
+							<control type="label">
+								<posx>60</posx>
+								<posy>180</posy>
+								<width>120</width>
+								<height>20</height>
+								<info>ListItem.Label</info>
+								<visible>!Control.HasFocus(59)</visible>
+								<font>font13</font>
+								<align>center</align>
+								<aligny>center</aligny>
+								<textcolor>white</textcolor>
+								<selectedcolor>white</selectedcolor>
 							</control>
 						</focusedlayout>
 						<content>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.1.1)]</label>
-								<label2>$INFO[Window.Property(Movie.Label.1.2)]</label2>
+								<!-- <label2>$INFO[Window.Property(Movie.Label.1.2)]</label2> -->
 								<label2>Icon</label2>
 								<onclick>Action(666)</onclick>
 							</item>
