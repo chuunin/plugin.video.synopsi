@@ -580,8 +580,43 @@ class Searcher(threading.Thread):
 
             notification("SynopsiTV", "Finished loading database")
 
-            if not QUITING:
-                __addon__.setSetting(id='FIRSTRUN', value="false")
+
+        def split_list(alist, wanted_parts=1):
+            length = len(alist)
+            return [alist[i * length // wanted_parts: (i + 1) * length // wanted_parts]
+            for i in range(wanted_parts)]
+
+
+        if not QUITING:
+            tvshows_count = get_tvshows(0, 1)["result"]["limits"]["total"]
+            tvshows = get_tvshows(0, tvshows_count)["result"]["tvshows"]
+            xbmc.log(str(json.dumps(tvshows)))
+            for i in tvshows:
+                if not QUITING:
+                    episode_count = i["episode"]
+                    episodes = get_episodes(i["tvshowid"])
+                    for j in episodes["result"]["episodes"]:
+                        pass
+                        j["hashes"]= get_hash_array(j["file"])
+                    if episode_count >= 20:
+                        chunk_count = 20
+                    else:
+                        chunk_count = episode_count
+
+                    for chunk in split_list(episodes["result"]["episodes"],
+                                            episode_count // chunk_count):
+                        # xbmc.log(str(chunk))
+                        data = {
+                            "event": "Library.Add",
+                            "episodes": chunk
+                        }
+                        xbmc.log(str(json.dumps(data)))
+                        # queue.add_to_queue(data)
+
+                    # xbmc.log(str(json.dumps(episodes["result"]["episodes"])))
+
+        if not QUITING:
+            __addon__.setSetting(id='FIRSTRUN', value="false")
 
 
 
@@ -986,39 +1021,6 @@ def main():
 
     xbmc.log('SynopsiTV: STARTUP')
     notification("SynopsiTV", "STARTUP")
-
-    def split_list(alist, wanted_parts=1):
-        length = len(alist)
-        return [alist[i * length // wanted_parts: (i + 1) * length // wanted_parts]
-                 for i in range(wanted_parts)]
-
-    with Timer():
-        for q in range(1):
-            tvshows_count = get_tvshows(0, 1)["result"]["limits"]["total"]
-            tvshows = get_tvshows(0, tvshows_count)["result"]["tvshows"]
-            xbmc.log(str(json.dumps(tvshows)))
-            for i in tvshows:
-                episode_count = i["episode"]
-                episodes = get_episodes(i["tvshowid"])
-                for j in episodes["result"]["episodes"]:
-                    pass
-                    j["hashes"]= get_hash_array(j["file"])
-                if episode_count >= 20:
-                    chunk_count = 20
-                else:
-                    chunk_count = episode_count
-
-                for chunk in split_list(episodes["result"]["episodes"],
-                                        episode_count // chunk_count):
-                    # xbmc.log(str(chunk))
-                    data = {
-                        "event": "Library.Add",
-                        "episodes": chunk
-                    }
-                    xbmc.log(str(json.dumps(data)))
-                    # queue.add_to_queue(data)
-
-                # xbmc.log(str(json.dumps(episodes["result"]["episodes"])))
 
     if __addon__.getSetting("BOOLTOK") == "false":
         notification("SynopsiTV", "Opening Settings")

@@ -1,11 +1,21 @@
-import xbmc, xbmcgui, xbmcplugin, xbmcaddon
-import urllib2, urllib
-import re, sys, os, time
+import xbmc
+import xbmcgui
+import xbmcplugin
+import xbmcaddon
 import xbmcvfs
-import test, json
+import urllib
+import sys
+import os
+import time
+import json
+import urllib2
+import re
 import os.path
 
+import test
+
 from PIL import Image, ImageDraw, ImageOps
+
 movies = test.jsfile
 
 
