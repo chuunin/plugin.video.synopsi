@@ -32,11 +32,73 @@ __version__   = __addon__.getAddonInfo('version')
 __language__   = __addon__.getLocalizedString
 
 
+def get_library_cache():
+    """
+    Get library cache object.
+    """
+    return json.loads(__addon__.getSetting("LIBRARY"))
+
+
+def save_library_cache():
+    """
+    Save library from memory to file.
+    """
+    global LIBRARY_CACHE
+    __addon__.setSetting(id="LIBRARY", value=LIBRARY_CACHE)
+
+
+def add_to_library_cache(lib_id, stv_id, hash, lib_type):
+    global LIBRARY_CACHE
+    LIBRARY_CACHE[hash] = {
+        "id" : lib_id,
+        "stvid" : stv_id,
+        "type" : lib_type
+    }
+
+
+def lc_get_hash_by_id(_id, _type):
+    global LIBRARY_CACHE
+    return [k for k, v in LIBRARY_CACHE.iteritems() if v["id"] == _id and v["type"] == _type]
+
+
+def lc_get_id_by_hash(_hash):
+    global LIBRARY_CACHE
+    return (LIBRARY_CACHE[_hash]["id"], LIBRARY_CACHE[_hash]["type"])
+
+
+def lc_get_hash_by_stvid(stvid):
+    global LIBRARY_CACHE
+    return [k for k, v in LIBRARY_CACHE.iteritems() if v["stvid"] == stvid]
+
+
+def lc_get_stvid_by_hash(_hash):
+    global LIBRARY_CACHE
+    return LIBRARY_CACHE[_hash]["stvid"]
+
+
+def lc_get_id_by_stvid(stvid):
+    global LIBRARY_CACHE
+    return [(v["id"], v["type"]) for v in LIBRARY_CACHE.values() if v["stvid"] == stvid]
+
+
+def lc_get_stvid_by_id(_id, _type):
+    global LIBRARY_CACHE
+    return [v["stvid"] for v in LIBRARY_CACHE.values() if v["id"] == _id and v["type"] == _type]
+
+
 def notification(name, text):
     """
     Sends notification to XBMC.
     """
     xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))
+
+
+def notify_dev(name, text):
+    """
+    Sends notification only if development mode is active.
+    """
+    if __addon__.getSetting("DEBUG") == "true":
+        xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))
 
 
 def get_token():
@@ -374,13 +436,6 @@ def try_send_data(data, token):
         __addon__.setSetting(id='SEND_QUEUE', value=tmpstring)
 
 
-def send_checkin():
-    """
-    Send checkin.
-    """
-    pass
-
-
 def login(username, password):
     """
     Login function.
@@ -430,7 +485,7 @@ def fill_data_dict(player):
     Fills global dictionary DATA_PACK with file ID.
     """
     global DATA_PACK
-    global LIBRARY_CACHE
+    global API_LIBRARY_CACHE
 
     info_tag = player.getVideoInfoTag()
     path = player.getPlayingFile()
@@ -452,11 +507,11 @@ def fill_data_dict(player):
             },
         }
 
-        if LIBRARY_CACHE:
-            if LIBRARY_CACHE["method"] == "Player.OnPlay":
+        if API_LIBRARY_CACHE:
+            if API_LIBRARY_CACHE["method"] == "Player.OnPlay":
                 DATA_PACK["librarydetails"] = {
-                    "id": LIBRARY_CACHE["params"]["data"]["item"]["id"],
-                    "type": LIBRARY_CACHE["params"]["data"]["item"]["type"],
+                    "id": API_LIBRARY_CACHE["params"]["data"]["item"]["id"],
+                    "type": API_LIBRARY_CACHE["params"]["data"]["item"]["type"],
                 }
 
 
@@ -650,7 +705,7 @@ class ApiListener(threading.Thread):
     def process(self, data_json):
         global QUITING
         global IS_PROTECTED
-        global LIBRARY_CACHE
+        global API_LIBRARY_CACHE
         
         """
         Process notification data from xbmc.
@@ -767,7 +822,7 @@ class ApiListener(threading.Thread):
     def run(self):
         global QUITING
         global IS_PROTECTED
-        global LIBRARY_CACHE
+        global API_LIBRARY_CACHE
         
         while True:
             data = self.sock.recv(1024)
@@ -776,7 +831,7 @@ class ApiListener(threading.Thread):
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
 
-                LIBRARY_CACHE = data_json.copy()
+                API_LIBRARY_CACHE = data_json.copy()
             except ValueError:
                 continue
 
@@ -1004,8 +1059,8 @@ IS_PROTECTED = False
 queue = QueueWorker()
 queue.start()
 DATA_PACK = {}
-LIBRARY_CACHE = {}
-
+API_LIBRARY_CACHE = {}
+LIBRARY_CACHE = get_library_cache()
 
 def main():
     global VIDEO
@@ -1038,9 +1093,6 @@ def main():
 
     thr = ApiListener()
     thr.start()
-
-    # queue = QueueWorker()
-    # queue.start()
 
     # notify_all()
 

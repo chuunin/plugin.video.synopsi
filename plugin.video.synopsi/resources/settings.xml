@@ -19,6 +19,8 @@
     <setting id="nummov" option="hidden" type="text" visible="false" default="0"/>
     <setting id="CACHE" option="hidden" type="text" visible="false" default=""/>
 
+    <setting id="LIBRARY" option="hidden" type="text" visible="false" default=""/>
+
     <setting id="SEND_QUEUE" option="hidden" type="text" visible="false" default=""/>
     <setting id="PROCESS_QUEUE" option="hidden" type="text" visible="false" default=""/>
     </category>
