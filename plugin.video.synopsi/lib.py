@@ -46,7 +46,6 @@ def get_token(user, passwd):
         headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
     ))
     response_json = json.loads(response.readline())
-
     access_token = response_json['access_token']
     # refresh_token = response_json['refresh_token']
     # Permanent token
@@ -77,6 +76,44 @@ def send_data(json_data, access_token):
 def myhash(filepath):
     """
     TODO: Rename to stv_hash.   
+    """
+
+    sha1 = hashlib.sha1()
+
+    try:
+        with open(filepath, 'rb') as f:
+            sha1.update(f.read(256))
+            f.seek(-256, 2)
+            sha1.update(f.read(256))
+    except (IOError) as e:
+        return None
+    
+    return sha1.hexdigest()
+
+
+def stv_hash(filepath):
+    """
+    New synopsi hash. Inspired by sutitle hash using first 
+    and last 64 Kbytes and length in bytes.
+    """
+
+    sha1 = hashlib.sha1()
+
+    try:
+        with open(filepath, 'rb') as f:
+            sha1.update(f.read(65536))
+            f.seek(-65536, 2)
+            sha1.update(f.read(65536))
+        sha1.update(str(os.path.getsize(filepath)))
+    except (IOError) as e:
+        return None
+    
+    return sha1.hexdigest()
+
+
+def old_stv_hash(filepath):
+    """
+    Old synopsi hash. Using only first and last 256 bytes.   
     """
 
     sha1 = hashlib.sha1()
