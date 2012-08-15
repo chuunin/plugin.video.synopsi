@@ -31,69 +31,73 @@ __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __language__   = __addon__.getLocalizedString
 
-
-def rebuild_library_cache():
+class LibraryCache:
     """
-    If library cache is broken.
+    TODO: Rewrite as object.
     """
-    pass
+    @staticmethod
+    def rebuild():
+        """
+        If library cache is broken.
+        """
+        pass
 
+    @staticmethod
+    def get():
+        """
+        Get library cache object.
+        """
+        try:
+            return json.loads(__addon__.getSetting("LIBRARY"))
+        except ValueError, e:
+            return None
 
-def get_library_cache():
-    """
-    Get library cache object.
-    """
-    try:
-        return json.loads(__addon__.getSetting("LIBRARY"))
-    except ValueError, e:
-        return None
+    @staticmethod
+    def save():
+        """
+        Save library from memory to file.
+        """
+        global LIBRARY_CACHE
+        __addon__.setSetting(id="LIBRARY", value=LIBRARY_CACHE)
 
+    @staticmethod
+    def add(lib_id, stv_id, hash, lib_type):
+        global LIBRARY_CACHE
+        LIBRARY_CACHE[hash] = {
+            "id" : lib_id,
+            "stvid" : stv_id,
+            "type" : lib_type
+        }
 
-def save_library_cache():
-    """
-    Save library from memory to file.
-    """
-    global LIBRARY_CACHE
-    __addon__.setSetting(id="LIBRARY", value=LIBRARY_CACHE)
+    @staticmethod
+    def get_hash_by_id(_id, _type):
+        global LIBRARY_CACHE
+        return [k for k, v in LIBRARY_CACHE.iteritems() if v["id"] == _id and v["type"] == _type]
 
+    @staticmethod
+    def get_id_by_hash(_hash):
+        global LIBRARY_CACHE
+        return (LIBRARY_CACHE[_hash]["id"], LIBRARY_CACHE[_hash]["type"])
 
-def add_to_library_cache(lib_id, stv_id, hash, lib_type):
-    global LIBRARY_CACHE
-    LIBRARY_CACHE[hash] = {
-        "id" : lib_id,
-        "stvid" : stv_id,
-        "type" : lib_type
-    }
+    @staticmethod
+    def get_hash_by_stvid(stvid):
+        global LIBRARY_CACHE
+        return [k for k, v in LIBRARY_CACHE.iteritems() if v["stvid"] == stvid]
 
+    @staticmethod
+    def get_stvid_by_hash(_hash):
+        global LIBRARY_CACHE
+        return LIBRARY_CACHE[_hash]["stvid"]
 
-def lc_get_hash_by_id(_id, _type):
-    global LIBRARY_CACHE
-    return [k for k, v in LIBRARY_CACHE.iteritems() if v["id"] == _id and v["type"] == _type]
+    @staticmethod    
+    def get_id_by_stvid(stvid):
+        global LIBRARY_CACHE
+        return [(v["id"], v["type"]) for v in LIBRARY_CACHE.values() if v["stvid"] == stvid]
 
-
-def lc_get_id_by_hash(_hash):
-    global LIBRARY_CACHE
-    return (LIBRARY_CACHE[_hash]["id"], LIBRARY_CACHE[_hash]["type"])
-
-
-def lc_get_hash_by_stvid(stvid):
-    global LIBRARY_CACHE
-    return [k for k, v in LIBRARY_CACHE.iteritems() if v["stvid"] == stvid]
-
-
-def lc_get_stvid_by_hash(_hash):
-    global LIBRARY_CACHE
-    return LIBRARY_CACHE[_hash]["stvid"]
-
-
-def lc_get_id_by_stvid(stvid):
-    global LIBRARY_CACHE
-    return [(v["id"], v["type"]) for v in LIBRARY_CACHE.values() if v["stvid"] == stvid]
-
-
-def lc_get_stvid_by_id(_id, _type):
-    global LIBRARY_CACHE
-    return [v["stvid"] for v in LIBRARY_CACHE.values() if v["id"] == _id and v["type"] == _type]
+    @staticmethod
+    def get_stvid_by_id(_id, _type):
+        global LIBRARY_CACHE
+        return [v["stvid"] for v in LIBRARY_CACHE.values() if v["id"] == _id and v["type"] == _type]
 
 
 def notification(name, text):
@@ -495,7 +499,7 @@ def fill_data_dict(player):
     Fills global dictionary DATA_PACK with file ID.
     """
     global DATA_PACK
-    global API_LIBRARY_CACHE
+    global API_CACHE
 
     info_tag = player.getVideoInfoTag()
     path = player.getPlayingFile()
@@ -517,11 +521,11 @@ def fill_data_dict(player):
             },
         }
 
-        if API_LIBRARY_CACHE:
-            if API_LIBRARY_CACHE["method"] == "Player.OnPlay":
+        if API_CACHE:
+            if API_CACHE["method"] == "Player.OnPlay":
                 DATA_PACK["librarydetails"] = {
-                    "id": API_LIBRARY_CACHE["params"]["data"]["item"]["id"],
-                    "type": API_LIBRARY_CACHE["params"]["data"]["item"]["type"],
+                    "id": API_CACHE["params"]["data"]["item"]["id"],
+                    "type": API_CACHE["params"]["data"]["item"]["type"],
                 }
 
 
@@ -715,7 +719,7 @@ class ApiListener(threading.Thread):
     def process(self, data_json):
         global QUITING
         global IS_PROTECTED
-        global API_LIBRARY_CACHE
+        global API_CACHE
         
         """
         Process notification data from xbmc.
@@ -832,7 +836,7 @@ class ApiListener(threading.Thread):
     def run(self):
         global QUITING
         global IS_PROTECTED
-        global API_LIBRARY_CACHE
+        global API_CACHE
         
         while True:
             data = self.sock.recv(1024)
@@ -841,7 +845,7 @@ class ApiListener(threading.Thread):
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
 
-                API_LIBRARY_CACHE = data_json.copy()
+                API_CACHE = data_json.copy()
             except ValueError:
                 continue
 
@@ -1069,10 +1073,10 @@ IS_PROTECTED = False
 queue = QueueWorker()
 queue.start()
 DATA_PACK = {}
-API_LIBRARY_CACHE = {}
-LIBRARY_CACHE = get_library_cache()
+API_CACHE = {}
+LIBRARY_CACHE = LibraryCache.get()
 if not LIBRARY_CACHE:
-    rebuild_library_cache()
+    LibraryCache.rebuild()
 
 def main():
     global VIDEO
@@ -1093,8 +1097,6 @@ def main():
         notification("SynopsiTV", "Opening Settings")
         __addon__.openSettings()
 
-    # __addon__.openSettings()
-
     xbmc.log(__cwd__)
 
     check_send_queue()
@@ -1107,7 +1109,6 @@ def main():
     thr.start()
 
     notify_all()
-
     # xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
     while (not xbmc.abortRequested):
 
