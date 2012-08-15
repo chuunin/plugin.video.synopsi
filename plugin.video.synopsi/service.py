@@ -32,11 +32,21 @@ __version__   = __addon__.getAddonInfo('version')
 __language__   = __addon__.getLocalizedString
 
 
+def rebuild_library_cache():
+    """
+    If library cache is broken.
+    """
+    pass
+
+
 def get_library_cache():
     """
     Get library cache object.
     """
-    return json.loads(__addon__.getSetting("LIBRARY"))
+    try:
+        return json.loads(__addon__.getSetting("LIBRARY"))
+    except ValueError, e:
+        return None
 
 
 def save_library_cache():
@@ -1061,6 +1071,8 @@ queue.start()
 DATA_PACK = {}
 API_LIBRARY_CACHE = {}
 LIBRARY_CACHE = get_library_cache()
+if not LIBRARY_CACHE:
+    rebuild_library_cache()
 
 def main():
     global VIDEO
@@ -1094,7 +1106,7 @@ def main():
     thr = ApiListener()
     thr.start()
 
-    # notify_all()
+    notify_all()
 
     # xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
     while (not xbmc.abortRequested):
