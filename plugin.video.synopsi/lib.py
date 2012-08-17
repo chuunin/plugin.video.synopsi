@@ -67,7 +67,11 @@ def send_data(json_data, access_token):
     'data': json.dumps(json_data)
     }
     
-    response = urlopen(Request('http://dev.synopsi.tv/api/desktop/',
+    # response = urlopen(Request('http://dev.synopsi.tv/api/desktop/',
+    #     data=urlencode(data),
+    #     headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
+    # ))
+    response = urlopen(Request('http://localhost/',
         data=urlencode(data),
         headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
     ))

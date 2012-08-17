@@ -822,6 +822,7 @@ class ApiListener(threading.Thread):
                         del DATA_PACK["videodetails"]
 
                     __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
+                    queue.add_to_queue(DATA_PACK)
 
         # if method == "Player.OnSeek":
         #     if not IS_PROTECTED:
@@ -947,8 +948,8 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
             "event": "Rating",
             "rating": self.data['rating']
         })
-        global queue
-        queue.add_to_queue(self.data)
+        # global queue
+        # queue.add_to_queue(self.data)
         self.close()
 
     def onFocus(self, controlId):
@@ -1016,6 +1017,7 @@ class SynopsiPlayer(xbmc.Player):
                 del DATA_PACK["videodetails"]
 
         __addon__.setSetting(id="CACHE", value=json.dumps(DATA_PACK))
+        queue.add_to_queue(DATA_PACK)
 
     def onPlayBackStopped(self):
         """
@@ -1039,7 +1041,7 @@ class SynopsiPlayer(xbmc.Player):
 
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK PAUSED')
-            send_player_status(xbmc.Player(), 'Player.Paused')
+            # send_player_status(xbmc.Player(), 'Player.Paused')
 
             DATA_PACK["events"].append({
                 'event': "Paused",
@@ -1054,7 +1056,7 @@ class SynopsiPlayer(xbmc.Player):
         global DATA_PACK
         if xbmc.Player().isPlayingVideo():
             xbmc.log('SynopsiTV: PLAYBACK RESUMED')
-            send_player_status(xbmc.Player(), 'Player.Resumed')
+            # send_player_status(xbmc.Player(), 'Player.Resumed')
 
             DATA_PACK["events"].append({
                 'event': "Resumed",
@@ -1109,6 +1111,9 @@ def main():
     thr.start()
 
     notify_all()
+
+    # xbmc.log(str(json.dumps(get_movies(0, 20))))
+
     # xbmc.executebuiltin('Skin.SetString(SynopsiTV,31323)')
     while (not xbmc.abortRequested):
 
