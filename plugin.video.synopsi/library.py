@@ -1,4 +1,4 @@
-# import xbmc, xbmcgui, xbmcaddon
+import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
 
@@ -10,5 +10,5 @@ class Library(threading.Thread):
 		super(Library, self).__init__()
 
 	def run(self):
-		while True:
-			time.sleep(1)
+		while (not xbmc.abortRequested):
+			xbmc.sleep(1000)
