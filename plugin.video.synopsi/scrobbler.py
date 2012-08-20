@@ -22,7 +22,7 @@ class SynopsiPlayer(xbmc.Player):
         xbmc.Player.__init__(self)
 
     def onPlayBackStarted(self):
-    	if xbmc.isPlayingVideo():
+    	if xbmc.Player().isPlayingVideo():
     		self.started = True
     		self.playing = True
 
@@ -53,28 +53,32 @@ class Scrobbler(threading.Thread):
 		super(Scrobbler, self).__init__()
 
 	def started(self):
+		notification("started", "started")
 		pass
 
 	def ended(self):
+		notification("ended", "ended")
 		pass
 
 	def stopped(self):
+		notification("stopped", "stopped")
 		pass
 
 	def paused(self):
+		notification("paused", "paused")
 		pass
 
 	def resumed(self):
+		notification("resumed", "resumed")
 		pass
 
 
 	def run(self):
 		self.player = SynopsiPlayer()
-		while (not xbmc.abortRequested):
-			xbmc.sleep(100)
+		# while (not xbmc.abortRequested):
+		while True:
+			xbmc.sleep(200)
 			
-			if self.player.playing:
-				self.current_time = xbmc.Player().getTime()
 			
 			if self.player.started:
 				notification("started", "started")
@@ -98,3 +102,5 @@ class Scrobbler(threading.Thread):
 				self.resumed()
 				self.player.resumed = False
 
+			if self.player.playing:
+				self.current_time = xbmc.Player().getTime()
