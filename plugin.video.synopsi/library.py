@@ -56,9 +56,7 @@ class Library(threading.Thread):
 
 	def run(self):
 		global ABORT_REQUESTED
-		print threading.active_count()
-		# while (not xbmc.abortRequested):
+
 		ApiThread().start()
-		while (not ABORT_REQUESTED):
+		while (not ABORT_REQUESTED): # while (not xbmc.abortRequested): # XBMC bug
 			xbmc.sleep(1000)
-			print threading.active_count()
