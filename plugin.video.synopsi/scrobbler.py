@@ -12,13 +12,14 @@ __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
-__language__   = __addon__.getLocalizedString
+__language__  = __addon__.getLocalizedString
 
 def notification(name, text):
     """
     Sends notification to XBMC.
     """
     xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
+
 
 class SynopsiPlayer(xbmc.Player):
     started = False
@@ -115,24 +116,21 @@ class Scrobbler(threading.Thread):
 
     def started(self):
         notification("started", "started")
-        pass
-        get_rating()
 
     def ended(self):
         notification("ended", "ended")
-        pass
+        get_rating()
 
     def stopped(self):
         notification("stopped", "stopped")
-        pass
+        if self.current_time > 0.7 * self.total_time:
+            get_rating()
 
     def paused(self):
         notification("paused", "paused")
-        pass
 
     def resumed(self):
         notification("resumed", "resumed")
-        pass
 
     def run(self):
         self.player = SynopsiPlayer()
@@ -141,7 +139,6 @@ class Scrobbler(threading.Thread):
             xbmc.sleep(200)
 
             if self.player.started:
-                notification("started", "started")
                 self.total_time = xbmc.Player().getTotalTime()
                 self.started()
                 self.player.started = False
