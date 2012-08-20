@@ -2,12 +2,13 @@ import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
 
+import library
 
 def notification(name, text):
     """
     Sends notification to XBMC.
     """
-    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))
+    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))	
 
 class SynopsiPlayer(xbmc.Player):
     started = False
@@ -76,7 +77,8 @@ class Scrobbler(threading.Thread):
 	def run(self):
 		self.player = SynopsiPlayer()
 		# while (not xbmc.abortRequested):
-		while True:
+		# while True: ABORT_REQUESTED
+		while (not library.ABORT_REQUESTED):
 			xbmc.sleep(200)
 			
 			
@@ -103,4 +105,8 @@ class Scrobbler(threading.Thread):
 				self.player.resumed = False
 
 			if self.player.playing:
-				self.current_time = xbmc.Player().getTime()
+				try:
+					self.current_time = xbmc.Player().getTime()
+				except Exception, e:
+					if not "XBMC is not playing any media file" in e:
+						raise e
