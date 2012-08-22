@@ -13,6 +13,7 @@ import re
 import os.path
 
 import test
+import utilities
 
 from PIL import Image, ImageDraw, ImageOps
 
@@ -177,6 +178,7 @@ def show_categories():
     """
     Shows initial categories on home screen.
     """
+    print json.dumps(utilities.get_all_movies())
     add_directory("Recommendations", "url", 1, "list.png", 1)
     add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
     add_directory("Lists", "url", 1, "icon.png", 4)

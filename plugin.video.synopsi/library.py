@@ -71,49 +71,53 @@ class Cache(object):
         global LIBRARY_CACHE
         __addon__.setSetting(id="LIBRARY", value=LIBRARY_CACHE)
 
-    def add(lib_id, stv_id, hash, lib_type):
-        global LIBRARY_CACHE
-        LIBRARY_CACHE[hash] = {
+    def add(self, lib_id, lib_type, stv_id, hash, imdb = None):
+        self.hash_table[hash] = {
             "id" : lib_id,
             "stvid" : stv_id,
             "type" : lib_type
         }
+        if imdb:
+            self.hash_table[hash] = imdb
 
-    def get_hash_by_id(_id, _type):
+    def get_hash_by_id(self, _id, _type):
         return [k for k, v in self.hash_table.iteritems() if v["id"] == _id and v["type"] == _type]
 
-    def get_id_by_hash(_hash):
+    def get_id_by_hash(self, _hash):
         return (self.hash_table[_hash]["id"], self.hash_table[_hash]["type"])
 
-    def get_hash_by_stvid(stvid):
+    def get_hash_by_stvid(self, stvid):
         return [k for k, v in self.hash_table.iteritems() if v["stvid"] == stvid]
 
-    def get_stvid_by_hash(_hash):
+    def get_stvid_by_hash(self, _hash):
         return self.hash_table[_hash]["stvid"]
  
-    def get_id_by_stvid(stvid):
+    def get_id_by_stvid(self, stvid):
         return [(v["id"], v["type"]) for v in self.hash_table.values() if v["stvid"] == stvid]
 
-    def get_stvid_by_id(_id, _type):
+    def get_stvid_by_id(self, _id, _type):
         return [v["stvid"] for v in self.hash_table.values() if v["id"] == _id and v["type"] == _type]
 
-    def exists(_id = None, _type = None, stv_id = None, _hash = None):
+
+    def exists(self, _id = None, _type = None, stv_id = None, _hash = None):
         if _id and _type:
+            rtrn = False
             for v in self.hash_table.values():
                 if v["id"] == _id and v["type"] == _type:
-                    return True
-            return False
+                    rtrn = True
+            return rtrn
         elif stv_id:
+            rtrn = False
             for v in self.hash_table.values():
                 if v["stvid"] == stvid:
-                    return True
-            return False
+                    rtrn = True
+            return rtrn
         elif _hash:
             return self.hash_table.has_key(_hash)
         else:
             raise ValueError("Not enough parameters defined.")
 
-    def delete(_id = None, _type = None, stv_id = None, _hash = None):
+    def delete(self, _id = None, _type = None, stv_id = None, _hash = None):
         if _id and _type:
             del self.hash_table[get_hash_by_id(_id, _type)]
         elif stv_id:
@@ -122,6 +126,15 @@ class Cache(object):
             del self.hash_table[_hash]
         else:
             raise ValueError("Not enough parameters defined.")
+
+    def list_all_ids(self):
+        array = [(v["id"], v["type"]) for v in self.hash_table.values()]
+        for i in array:
+            count = array.count(i)
+            if count > 1:
+                for j in range(count-1):
+                    array.remove(i)
+        return array
 
 
 CACHE = Cache()
@@ -148,11 +161,17 @@ class Library(ApiThread):
 
     def addorupdate(self, _id, _type):
         print "{0}: {1}".format(_type, _id)
-        if CACHE.exists(_id=_id, _type=_type):
+        if CACHE.exists( _id = _id, _type = _type):
             if _type == "movie":
-                get_movie_details(_id)
+                print get_movie_details(_id)
             elif _type == "episode":
-                get_episode_details(_id)
+                print get_episode_details(_id)
+        else:
+            if _type == "movie":
+                movie = get_movie_details(_id)
+                CACHE.add()
+            elif _type == "episode":
+                print get_episode_details(_id)
 
     def remove(self, _id, _type):
         pass
