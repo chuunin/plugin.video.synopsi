@@ -4,6 +4,8 @@ import time
 import socket
 import json
 
+from utilities import *
+
 ABORT_REQUESTED = False
 
 class ApiThread(threading.Thread):
@@ -21,7 +23,7 @@ class ApiThread(threading.Thread):
         global ABORT_REQUESTED    
         while True:
             data = self.sock.recv(1024)
-            # xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
+            xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
@@ -95,6 +97,34 @@ class Cache(object):
     def get_stvid_by_id(_id, _type):
         return [v["stvid"] for v in self.hash_table.values() if v["id"] == _id and v["type"] == _type]
 
+    def exists(_id = None, _type = None, stv_id = None, _hash = None):
+        if _id and _type:
+            for v in self.hash_table.values():
+                if v["id"] == _id and v["type"] == _type:
+                    return True
+            return False
+        elif stv_id:
+            for v in self.hash_table.values():
+                if v["stvid"] == stvid:
+                    return True
+            return False
+        elif _hash:
+            return self.hash_table.has_key(_hash)
+        else:
+            raise ValueError("Not enough parameters defined.")
+
+    def delete(_id = None, _type = None, stv_id = None, _hash = None):
+        if _id and _type:
+            del self.hash_table[get_hash_by_id(_id, _type)]
+        elif stv_id:
+            del self.hash_table[get_hash_by_stvid(stv_id)]
+        elif _hash:
+            del self.hash_table[_hash]
+        else:
+            raise ValueError("Not enough parameters defined.")
+
+
+
 CACHE = Cache()
 
 class Library(ApiThread):
@@ -116,13 +146,24 @@ class Library(ApiThread):
     def delete(self, _id = None, _type = None, stv_id = None, hash = None):
         pass
 
+    def addorupdate(self, _id, _type):
+        print "{0}: {1}".format(_type, _id)
+        if CACHE.exists(_id=_id, _type=_type):
+            if _type == "movie":
+                get_movie_details(_id)
+            elif _type == "episode":
+                get_episode_details(_id)
+
+    def remove(self, _id, _type):
+        pass
+
     def process(self, data):
         if "VideoLibrary" in data['method']:
             print data
             if data['method'] == 'VideoLibrary.OnUpdate':
-                pass
+                self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
             elif data['method'] == 'VideoLibrary.OnRemove':
-                pass
+                self.addorupdate(data['params']['data']['id'], data['params']['data']['type'])
 
     # def run(self):
     #   global ABORT_REQUESTED
