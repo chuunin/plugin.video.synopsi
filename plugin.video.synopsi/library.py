@@ -124,8 +124,8 @@ class Cache(object):
             raise ValueError("Not enough parameters defined.")
 
 
-
 CACHE = Cache()
+
 
 class Library(ApiThread):
     """
@@ -143,7 +143,7 @@ class Library(ApiThread):
     def update(self):
         pass
 
-    def delete(self, _id = None, _type = None, stv_id = None, hash = None):
+    def delete(self):
         pass
 
     def addorupdate(self, _id, _type):
@@ -164,10 +164,3 @@ class Library(ApiThread):
                 self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
             elif data['method'] == 'VideoLibrary.OnRemove':
                 self.addorupdate(data['params']['data']['id'], data['params']['data']['type'])
-
-    # def run(self):
-    #   global ABORT_REQUESTED
-
-    #   ApiThread().start()
-    #   while (not ABORT_REQUESTED): # while (not xbmc.abortRequested): # XBMC bug
-    #       xbmc.sleep(1000)

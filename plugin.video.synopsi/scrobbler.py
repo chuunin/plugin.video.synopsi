@@ -104,7 +104,8 @@ def get_rating():
     ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default")
     ui.doModal()
     _response = ui.response
-    # del ui
+    del ui
+    return _response
 
 
 class Scrobbler(threading.Thread):
