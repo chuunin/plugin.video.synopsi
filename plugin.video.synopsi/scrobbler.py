@@ -27,26 +27,42 @@ class SynopsiPlayer(xbmc.Player):
     stopped = False
     paused = False
     resumed = False
+    ended_without_rating = False
 
     playing = False
+    media_file = None
 
     def __init__(self):
         xbmc.Player.__init__(self)
 
     def onPlayBackStarted(self):
-        if xbmc.Player().isPlayingVideo():
-            self.started = True
-            self.playing = True
+        if self.playing:
+            if self.media_file != xbmc.Player().getPlayingFile():
+                self.ended_without_rating = True
+                self.started = True
+                self.playing = True
+                self.media_file = xbmc.Player().getPlayingFile()
+        else:
+            if xbmc.Player().isPlayingVideo():
+                self.started = True
+                self.playing = True
+                self.media_file = xbmc.Player().getPlayingFile()
 
     def onPlayBackEnded(self):
         if self.playing:
-            self.ended = True
-            self.playing = False
+            try:
+                self.media_file = xbmc.Player().getPlayingFile()
+            except Exception, e:
+                if "XBMC is not playing any file" in e:
+                    self.ended = True
+                    self.playing = False
+                    self.media_file = None
 
     def onPlayBackStopped(self):
         if self.playing:
             self.stopped = True
             self.playing = False
+            self.media_file = None
 
     def onPlayBackPaused(self):
         if self.playing:
@@ -122,6 +138,9 @@ class Scrobbler(threading.Thread):
         notification("ended", "ended")
         get_rating()
 
+    def ended_without_rating(self):
+        notification("ended", "ended")
+
     def stopped(self):
         notification("stopped", "stopped")
         if self.current_time > 0.7 * self.total_time:
@@ -138,6 +157,10 @@ class Scrobbler(threading.Thread):
 
         while (not library.ABORT_REQUESTED): # while (not xbmc.abortRequested):
             xbmc.sleep(200)
+
+            if self.player.ended_without_rating:
+                self.ended_without_rating()
+                self.player.ended_without_rating = False
 
             if self.player.started:
                 self.total_time = xbmc.Player().getTotalTime()

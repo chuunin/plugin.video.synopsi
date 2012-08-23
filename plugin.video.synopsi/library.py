@@ -117,6 +117,15 @@ class Cache(object):
         else:
             raise ValueError("Not enough parameters defined.")
 
+    def list_all_ids(self):
+        array = [(v["id"], v["type"]) for v in self.hash_table.values()]
+        for i in array:
+            count = array.count(i)
+            if count > 1:
+                for j in range(count-1):
+                    array.remove(i)
+        return array
+
     def delete(self, _id = None, _type = None, stv_id = None, _hash = None):
         if _id and _type:
             del self.hash_table[get_hash_by_id(_id, _type)]
@@ -126,15 +135,6 @@ class Cache(object):
             del self.hash_table[_hash]
         else:
             raise ValueError("Not enough parameters defined.")
-
-    def list_all_ids(self):
-        array = [(v["id"], v["type"]) for v in self.hash_table.values()]
-        for i in array:
-            count = array.count(i)
-            if count > 1:
-                for j in range(count-1):
-                    array.remove(i)
-        return array
 
 
 CACHE = Cache()
@@ -169,7 +169,7 @@ class Library(ApiThread):
         else:
             if _type == "movie":
                 movie = get_movie_details(_id)
-                CACHE.add()
+                # CACHE.add()
             elif _type == "episode":
                 print get_episode_details(_id)
 
