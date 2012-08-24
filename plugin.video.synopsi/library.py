@@ -51,28 +51,37 @@ class Cache(object):
     def create(self, **kwargs):
         self.hash_table.append(kwargs)
     
-    def get(self, **kwargs):
-        def dict_in_dict(d,c):
-            try:    
-                for i in d.keys():
-                    if not (d[i] == c[i]):
-                        return False
-            except KeyError, e:
-                return False
-            return True
+    @staticmethod
+    def dict_in_dict(d,c):
+        try:    
+            for i in d.keys():
+                if not (d[i] == c[i]):
+                    return False
+        except KeyError, e:
+            return False
+        return True
+
+    def get_from_dict(self, args):
         rtrn = []
         for row in self.hash_table:
-            if dict_in_dict(kwargs, row):
+            if self.dict_in_dict(args, row):
                 rtrn.append(row)
         return rtrn
+    
+    def get(self, **kwargs):
+        self.get_from_dict(kwargs)
 
     def get_index(self, **kwargs):
         pass
 
+    def exists(self, **kwargs):
+        if len(self.get_from_dict(kwargs)) > 0:
+            return True
+        else:
+            return False
+
     def delete():
         pass
-
-
 
 
 CACHE = Cache()
@@ -107,7 +116,7 @@ class Library(ApiThread):
         else:
             if _type == "movie":
                 movie = get_movie_details(_id)
-                # CACHE.add()
+                print movie
             elif _type == "episode":
                 print get_episode_details(_id)
 
