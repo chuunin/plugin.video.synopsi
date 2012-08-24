@@ -45,96 +45,34 @@ class Cache(object):
     """
     def __init__(self):
         super(Cache, self).__init__()
-        self.hash_table = {}
-        self.unhashed = {}
-        self.parsed = True
+        self.table = []
+        self.hash_table = []
 
-    def rebuild():
-        """
-        If library cache is broken.
-        """
+    def create(self, **kwargs):
+        self.hash_table.append(kwargs)
+    
+    def get(self, **kwargs):
+        def dict_in_dict(d,c):
+            try:    
+                for i in d.keys():
+                    if not (d[i] == c[i]):
+                        return False
+            except KeyError, e:
+                return False
+            return True
+        rtrn = []
+        for row in self.hash_table:
+            if dict_in_dict(kwargs, row):
+                rtrn.append(row)
+        return rtrn
+
+    def get_index(self, **kwargs):
         pass
 
-    def get():
-        """
-        Get library cache object.
-        """
-        try:
-            return json.loads(__addon__.getSetting("LIBRARY"))
-        except ValueError, e:
-            return None
-
-    def save():
-        """
-        Save library from memory to file.
-        """
-        global LIBRARY_CACHE
-        __addon__.setSetting(id="LIBRARY", value=LIBRARY_CACHE)
-
-    def add(self, lib_id, lib_type, stv_id, hash, imdb = None):
-        self.hash_table[hash] = {
-            "id" : lib_id,
-            "stvid" : stv_id,
-            "type" : lib_type
-        }
-        if imdb:
-            self.hash_table[hash] = imdb
-
-    def get_hash_by_id(self, _id, _type):
-        return [k for k, v in self.hash_table.iteritems() if v["id"] == _id and v["type"] == _type]
-
-    def get_id_by_hash(self, _hash):
-        return (self.hash_table[_hash]["id"], self.hash_table[_hash]["type"])
-
-    def get_hash_by_stvid(self, stvid):
-        return [k for k, v in self.hash_table.iteritems() if v["stvid"] == stvid]
-
-    def get_stvid_by_hash(self, _hash):
-        return self.hash_table[_hash]["stvid"]
- 
-    def get_id_by_stvid(self, stvid):
-        return [(v["id"], v["type"]) for v in self.hash_table.values() if v["stvid"] == stvid]
-
-    def get_stvid_by_id(self, _id, _type):
-        return [v["stvid"] for v in self.hash_table.values() if v["id"] == _id and v["type"] == _type]
+    def delete():
+        pass
 
 
-    def exists(self, _id = None, _type = None, stv_id = None, _hash = None):
-        if _id and _type:
-            rtrn = False
-            for v in self.hash_table.values():
-                if v["id"] == _id and v["type"] == _type:
-                    rtrn = True
-            return rtrn
-        elif stv_id:
-            rtrn = False
-            for v in self.hash_table.values():
-                if v["stvid"] == stvid:
-                    rtrn = True
-            return rtrn
-        elif _hash:
-            return self.hash_table.has_key(_hash)
-        else:
-            raise ValueError("Not enough parameters defined.")
-
-    def list_all_ids(self):
-        array = [(v["id"], v["type"]) for v in self.hash_table.values()]
-        for i in array:
-            count = array.count(i)
-            if count > 1:
-                for j in range(count-1):
-                    array.remove(i)
-        return array
-
-    def delete(self, _id = None, _type = None, stv_id = None, _hash = None):
-        if _id and _type:
-            del self.hash_table[get_hash_by_id(_id, _type)]
-        elif stv_id:
-            del self.hash_table[get_hash_by_stvid(stv_id)]
-        elif _hash:
-            del self.hash_table[_hash]
-        else:
-            raise ValueError("Not enough parameters defined.")
 
 
 CACHE = Cache()
