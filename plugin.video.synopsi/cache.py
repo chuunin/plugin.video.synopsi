@@ -1,11 +1,14 @@
 import base64
 import pickle
 
+
 def serialize(cache):
     return base64.b64encode(pickle.dumps(cache))
 
+
 def deserialize(_string):
     return pickle.loads(base64.b64decode(_string))
+
 
 class Cache(object):
     """
@@ -48,5 +51,7 @@ class Cache(object):
         else:
             return False
 
-    def delete():
-        pass
+    def delete(self, **kwargs):
+        for item in self.get_from_dict(kwargs):
+            self.hash_table.remove(item)
+

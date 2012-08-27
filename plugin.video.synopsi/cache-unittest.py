@@ -32,7 +32,30 @@ class DeviceIDTest(unittest.TestCase):
         CACHE.create(_id = 1, _type="movie")
         s = serialize(CACHE)
         d = deserialize(s)
-        self.assertEqual(CACHE.get(_id = 1)[0].get("_type"), "movie")
+        self.assertEqual(d.get(_id = 1)[0].get("_type"), "movie")
+
+    def test_bencode(self):
+        for i in range(1000):
+            CACHE.create(_id = i, _type="movie")
+        s = serialize(CACHE)
+        d = deserialize(s)
+        self.assertEqual(d.get(_id = 1)[0].get("_type"), "movie")
+
+    def test_delete(self):
+        CACHE.create(_id = 90909, _type="movie")
+        before = len(CACHE.get(_type = "movie"))
+        CACHE.delete(_id = 90909)
+        after = len(CACHE.get(_type = "movie"))
+
+        self.assertEqual(before -1 ,after)
+
+        CACHE.delete()
+        self.assertEqual(len(CACHE.get(_type = "movie")), 0)
+
+        for i in range(1000):
+            CACHE.create(_id = i, _type="movie")
+        self.assertEqual(len(CACHE.get()), 1000)
+
 
 if __name__ == "__main__":
     unittest.main()

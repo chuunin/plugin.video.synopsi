@@ -8,9 +8,16 @@ from utilities import *
 from cache import *
 
 ABORT_REQUESTED = False
-CACHE = Cache()
+# CACHE = Cache()
+CACHE = None
 
 __addon__     = xbmcaddon.Addon()
+
+def rebuild(cache):
+    """
+    Rebuild whole cache in case it is broken.
+    """
+    pass
 
 class ApiThread(threading.Thread):
     def __init__(self):
@@ -24,7 +31,15 @@ class ApiThread(threading.Thread):
         pass
 
     def run(self):
-        global ABORT_REQUESTED    
+        global ABORT_REQUESTED
+        global CACHE
+
+        try:
+            CACHE = deserialize(__addon__.getSetting("CACHE"))
+        except Exception, e:
+            print e
+            CACHE = Cache()
+
         while True:
             data = self.sock.recv(1024)
             xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
@@ -41,6 +56,8 @@ class ApiThread(threading.Thread):
                 break
             else:
                 self.process(data_json)
+
+        __addon__.setSetting(id='CACHE', value=serialize(CACHE))
 
 
 class Library(ApiThread):

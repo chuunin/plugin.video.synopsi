@@ -19,7 +19,7 @@ HTTP_HEADERS = {
             'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (KEY, SECRET)),
             'user-agent': 'linux'
 }
-
+__addon__     = xbmcaddon.Addon()
 
 def get_token(user, passwd):
     """
@@ -68,22 +68,31 @@ def send_data(json_data, access_token):
     ))
 
 
-def myhash(filepath):
+def get_protected_folders():
     """
-    TODO: Rename to stv_hash.   
+    Returns array of protected folders.
     """
+    array = []
+    if __addon__.getSetting("PROTFOL") == "true":
+        num_folders = int(__addon__.getSetting("NUMFOLD")) + 1
+        for i in range(num_folders):
+            path = __addon__.getSetting("FOLDER{0}".format(i + 1))
+            array.append(path)
 
-    sha1 = hashlib.sha1()
+    return array
 
-    try:
-        with open(filepath, 'rb') as f:
-            sha1.update(f.read(256))
-            f.seek(-256, 2)
-            sha1.update(f.read(256))
-    except (IOError) as e:
-        return None
-    
-    return sha1.hexdigest()
+
+def is_protected(path):
+    """
+    If file is protected.
+    """
+    protected = get_protected_folders()
+    for _file in protected:
+        if _file in path:
+            notification("Ignoring file", str(path))
+            return True
+
+    return False
 
 
 def stv_hash(filepath):
