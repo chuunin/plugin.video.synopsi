@@ -1,49 +1,8 @@
+import base64
+import pickle
 import unittest
-# from library import Cache
 
-class Cache(object):
-    """
-    Library cache.
-    """
-    def __init__(self):
-        super(Cache, self).__init__()
-        self.table = []
-        self.hash_table = []
-
-    def create(self, **kwargs):
-        self.hash_table.append(kwargs)
-    
-    @staticmethod
-    def dict_in_dict(d,c):
-        try:    
-            for i in d.keys():
-                if not (d[i] == c[i]):
-                    return False
-        except KeyError, e:
-            return False
-        return True
-
-    def get_from_dict(self, args):
-        rtrn = []
-        for row in self.hash_table:
-            if self.dict_in_dict(args, row):
-                rtrn.append(row)
-        return rtrn
-    
-    def get(self, **kwargs):
-        self.get_from_dict(kwargs)
-
-    def get_index(self, **kwargs):
-        pass
-
-    def exists(self, **kwargs):
-        if len(self.get(kwargs)) > 0:
-            return True
-        else:
-            return False
-
-    def delete():
-        pass
+from cache import *
 
 CACHE = Cache()
 
@@ -62,22 +21,18 @@ class DeviceIDTest(unittest.TestCase):
 
         self.assertTrue(CACHE.dict_in_dict(a,b))
         self.assertFalse(CACHE.dict_in_dict(b,a))
+        self.assertTrue(CACHE.dict_in_dict(
+            {'_id': 1}, {'_type': 'movie', '_id': 1}))
 
     def test_set(self):
         CACHE.create(_id = 1, _type="movie")
         self.assertEqual(CACHE.get(_id = 1)[0].get("_type"), "movie")
 
-    def test_error(self):
-        # self.assertRaises(KeyError, CACHE.get)
-        print CACHE.get(_id=3)
-
-    def test_get(self):
-        pass
-
-        # print CACHE.get(_id=1)
-        # dev_id = default.generate_deviceid()
-        # for i in xrange(1,10):
-        #   self.assertEqual(dev_id, default.generate_deviceid())
+    def test_serialize(self):
+        CACHE.create(_id = 1, _type="movie")
+        s = serialize(CACHE)
+        d = deserialize(s)
+        self.assertEqual(CACHE.get(_id = 1)[0].get("_type"), "movie")
 
 if __name__ == "__main__":
     unittest.main()

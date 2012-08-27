@@ -5,8 +5,12 @@ import socket
 import json
 
 from utilities import *
+from cache import *
 
 ABORT_REQUESTED = False
+CACHE = Cache()
+
+__addon__     = xbmcaddon.Addon()
 
 class ApiThread(threading.Thread):
     def __init__(self):
@@ -37,54 +41,6 @@ class ApiThread(threading.Thread):
                 break
             else:
                 self.process(data_json)
-
-
-class Cache(object):
-    """
-    Library cache.
-    """
-    def __init__(self):
-        super(Cache, self).__init__()
-        self.table = []
-        self.hash_table = []
-
-    def create(self, **kwargs):
-        self.hash_table.append(kwargs)
-    
-    @staticmethod
-    def dict_in_dict(d,c):
-        try:    
-            for i in d.keys():
-                if not (d[i] == c[i]):
-                    return False
-        except KeyError, e:
-            return False
-        return True
-
-    def get_from_dict(self, args):
-        rtrn = []
-        for row in self.hash_table:
-            if self.dict_in_dict(args, row):
-                rtrn.append(row)
-        return rtrn
-    
-    def get(self, **kwargs):
-        self.get_from_dict(kwargs)
-
-    def get_index(self, **kwargs):
-        pass
-
-    def exists(self, **kwargs):
-        if len(self.get_from_dict(kwargs)) > 0:
-            return True
-        else:
-            return False
-
-    def delete():
-        pass
-
-
-CACHE = Cache()
 
 
 class Library(ApiThread):
