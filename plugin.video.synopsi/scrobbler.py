@@ -6,6 +6,7 @@ import library
 
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
+# Default XBMC constant for hidden cancel button
 
 __addon__     = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -156,7 +157,7 @@ class Scrobbler(threading.Thread):
         self.player = SynopsiPlayer()
 
         while (not library.ABORT_REQUESTED): # while (not xbmc.abortRequested):
-            xbmc.sleep(200)
+            xbmc.sleep(200)# wait 200 ms
 
             if self.player.ended_without_rating:
                 self.ended_without_rating()

@@ -11,7 +11,7 @@ ABORT_REQUESTED = False
 # CACHE = Cache()
 CACHE = None
 
-__addon__     = xbmcaddon.Addon()
+__addon__  = xbmcaddon.Addon()
 
 def rebuild(cache):
     """
@@ -46,9 +46,8 @@ class ApiThread(threading.Thread):
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
-
-                API_CACHE = data_json.copy()
-            except ValueError:
+            except ValueError, e:
+                xbmc.log(e)
                 continue
 
             if method == "System.OnQuit":
@@ -80,7 +79,6 @@ class Library(ApiThread):
         pass
 
     def addorupdate(self, _id, _type):
-        print "{0}: {1}".format(_type, _id)
         if CACHE.exists( _id = _id, _type = _type):
             if _type == "movie":
                 print get_movie_details(_id)
@@ -102,4 +100,5 @@ class Library(ApiThread):
             if data['method'] == 'VideoLibrary.OnUpdate':
                 self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
             elif data['method'] == 'VideoLibrary.OnRemove':
-                self.addorupdate(data['params']['data']['id'], data['params']['data']['type'])
+                self.remove(data['params']['data']['id'], data['params']['data']['type'])
+            # http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4

@@ -173,33 +173,6 @@ def hashFile(name):
         # return "IOError"
 
 
-def get_protected_folders():
-    """
-    Returns array of protected folders.
-    """
-    array = []
-    if __addon__.getSetting("PROTFOL") == "true":
-        num_folders = int(__addon__.getSetting("NUMFOLD")) + 1
-        for i in range(num_folders):
-            path = __addon__.getSetting("FOLDER{0}".format(i + 1))
-            array.append(path)
-
-    return array
-
-
-def is_protected(path):
-    """
-    If file is protected.
-    """
-    protected = get_protected_folders()
-    for _file in protected:
-        if _file in path:
-            notification("Ignoring file", str(path))
-            return True
-
-    return False
-
-
 def generate_deviceid():
     """
     Returns deviceid generated from MAC address.
@@ -244,6 +217,7 @@ def get_api_port():
     If nothing is changed return default 9090.
     """
     path = os.path.dirname(os.path.dirname(__cwd__))
+    #TODO
     if os.name == "nt":
         path = path + "\userdata\advancedsettings.xml"
     else:
@@ -390,6 +364,7 @@ def get_movie_details(movie_id, all_prop=False):
         ]
     else:
         properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+
     method = 'VideoLibrary.GetMovieDetails'
     dic = {
         'params': {

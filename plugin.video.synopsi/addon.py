@@ -15,7 +15,7 @@ import os.path
 import test
 import utilities
 
-from PIL import Image, ImageDraw, ImageOps
+# from PIL import Image, ImageDraw, ImageOps
 
 movies = test.jsfile
 
