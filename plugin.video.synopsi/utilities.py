@@ -277,6 +277,24 @@ def get_all_movies():
     return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
 
 
+def get_all_tvshows():
+    """
+    Get movies from xbmc library. Start is the first in list and end is the last.
+    """
+    properties = ['file', 'imdbnumber', "lastplayed", "playcount", "episode"]
+    method = 'VideoLibrary.GetTVShows'
+    dic = {
+        'params': {
+            'properties': properties
+        },
+        'jsonrpc': '2.0',
+        'method': method,
+        'id': 1
+    }
+
+    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+
+
 def get_tvshows(start, end):
     """
     Get movies from xbmc library. Start is the first in list and end is the last.

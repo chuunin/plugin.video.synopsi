@@ -18,6 +18,24 @@ def rebuild(cache):
     Rebuild whole cache in case it is broken.
     """
     pass
+    # print json.dumps(get_all_movies())
+    cache.delete()
+    movies = get_all_movies()["result"]["movies"]
+    for movie in movies:
+        cache.create(_id = movie["movieid"], _type = "movie", imdb = movie["imdbnumber"], filepath = movie["file"])
+        print movie["imdbnumber"]
+
+    tv_shows = get_all_tvshows()["result"]["tvshows"]
+    # print tv_shows
+    for show in tv_shows:
+        for episode in get_episodes(show["tvshowid"])["result"]["episodes"]:
+            cache.create(_id = episode["episodeid"], _type = "episode", filepath = episode["file"])
+
+
+    for u in cache.get():
+        print u
+        # print get_episode_details(u)
+
 
 class ApiThread(threading.Thread):
     def __init__(self):
@@ -34,11 +52,15 @@ class ApiThread(threading.Thread):
         global ABORT_REQUESTED
         global CACHE
 
-        try:
-            CACHE = deserialize(__addon__.getSetting("CACHE"))
-        except Exception, e:
-            print e
-            CACHE = Cache()
+        CACHE = Cache()     
+        rebuild(CACHE)
+
+        # print CACHE.get(_type = "movie")
+        # try:
+        #     CACHE = deserialize(__addon__.getSetting("CACHE"))
+        # except Exception, e:
+        #     print e
+        #     CACHE = Cache()
 
         while True:
             data = self.sock.recv(1024)
@@ -47,7 +69,7 @@ class ApiThread(threading.Thread):
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
             except ValueError, e:
-                xbmc.log(e)
+                xbmc.log(str(e))
                 continue
 
             if method == "System.OnQuit":
@@ -56,7 +78,7 @@ class ApiThread(threading.Thread):
             else:
                 self.process(data_json)
 
-        __addon__.setSetting(id='CACHE', value=serialize(CACHE))
+        # __addon__.setSetting(id='CACHE', value=serialize(CACHE))
 
 
 class Library(ApiThread):
