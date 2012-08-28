@@ -13,6 +13,17 @@ def deserialize(_string):
 class Cache(object):
     """
     Library cache.
+    Storing:
+    {
+    "_id" : xbmcid, # not unique
+    "_type": xbmctype, # "movie" or "episode"
+    "_hash": stvhash, # synopsi hash
+    "_file": file, # unique path to ONE file
+    "filepath": filepath # path recieved from xbmc
+    # could be stack:// or stream etc.
+    "imdb": imdb,
+    "stv_id": synopsi_id_library
+    }
     """
     def __init__(self):
         super(Cache, self).__init__()
