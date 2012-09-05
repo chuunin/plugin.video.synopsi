@@ -54,6 +54,7 @@ class SynopsiPlayer(xbmc.Player):
             try:
                 self.media_file = xbmc.Player().getPlayingFile()
             except Exception, e:
+                # TODO: Handle if API will change
                 if "XBMC is not playing any file" in e:
                     self.ended = True
                     self.playing = False
@@ -78,7 +79,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     """
     Dialog class that asks user about rating of movie.
     """
-    response = 4 
+    response = 4
     # 1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
     def __init__(self, *args, **kwargs):
         xbmcgui.WindowXMLDialog.__init__( self )
@@ -92,23 +93,21 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
         self.getControl(2 ).setLabel(self.getString(69600))
 
     def onClick(self, controlId):
+        """
+        For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
+        """
         if controlId == 11:
-            # xbmc.log("SynopsiTV: Rated Amazing")
             self.response = 1
         elif controlId == 10:
-            # xbmc.log("SynopsiTV: Rated OK")
             self.response = 2
         elif controlId == 15:
-            # xbmc.log("SynopsiTV: Rated Terrible")
             self.response = 3
         else:
-            # xbmc.log("SynopsiTV: Not Rated")
             self.response = 4
         self.close()
 
     def onAction(self, action):
         if (action.getId() in CANCEL_DIALOG):
-            # xbmc.log("SynopsiTV: Not Rated")
             self.response = 4
             self.close()
 
@@ -145,6 +144,7 @@ class Scrobbler(threading.Thread):
     def stopped(self):
         notification("stopped", "stopped")
         if self.current_time > 0.7 * self.total_time:
+            # ask for rating only if stopped and more than 70% of movie passed
             get_rating()
 
     def paused(self):
@@ -188,5 +188,6 @@ class Scrobbler(threading.Thread):
                 try:
                     self.current_time = xbmc.Player().getTime()
                 except Exception, e:
+                    # TODO: Handle if API will change
                     if not "XBMC is not playing any media file" in e:
                         raise e

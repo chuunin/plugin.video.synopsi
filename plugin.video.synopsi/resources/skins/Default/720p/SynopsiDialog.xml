@@ -66,8 +66,6 @@
 			<label>So, how did you like this movie?</label>
 			<font>font13</font>
 		</control>
-		<!--
-		<control type="label" id="3"><description>dialog line 2</description><posx>30</posx><posy>85</posy><width>550</width><height>30</height><align>left</align><aligny>center</aligny><label>-</label><font>font13</font></control><control type="label" id="4"><description>dialog line 3</description><posx>30</posx><posy>110</posy><width>550</width><height>30</height><align>left</align><aligny>center</aligny><label>-</label><font>font13</font></control>-->
 		<control id="11" type="button">
 			<description>Amazing button</description>
 			<posx>95</posx>
