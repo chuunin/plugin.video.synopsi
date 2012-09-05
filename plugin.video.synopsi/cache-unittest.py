@@ -116,9 +116,17 @@ class ScenarioTest(unittest.TestCase):
 
         self.assertEqual(len(Movies), len(self.c.get(_type = "movie")))
 
+        # print [x for x in self.c.get()]
+
         # for i in TVShows:
         #     self.c.create(_id = random.randint(1,1000), _type= "episode", _file = i[0],  )
 
+    def test_reparse(self):
+        def api_parse(somedata):
+            return random.randint(1000000,2891720)
+        for i in self.c.get_has_not("stv_id"):
+            self.c.update(i, stv_id=api_parse(i))
+        self.assertEqual(0, len(self.c.get_has_not("stv_id")))
 
 if __name__ == "__main__":
     unittest.main()

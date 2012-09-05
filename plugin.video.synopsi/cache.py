@@ -32,7 +32,7 @@ class Cache(object):
 
     def create(self, **kwargs):
         self.hash_table.append(kwargs)
-    
+
     @staticmethod
     def dict_in_dict(d,c):
         try:    
@@ -49,18 +49,44 @@ class Cache(object):
             if self.dict_in_dict(arg, row):
                 rtrn.append(row)
         return rtrn
-    
+
     def get(self, **kwargs):
         return self.get_from_dict(kwargs)
 
     def get_index(self, **kwargs):
-        pass
+        raise NotImplementedError
+
+    def get_has_not(self, *args):
+        rtrn = []
+        broken = False
+        for row in self.hash_table:
+            for arg in args:
+                if row.has_key(arg):
+                    if row[arg] is None:
+                        broken = True
+                        break
+                else:
+                    broken = True
+                    break
+            if broken:
+                rtrn.append(row)
+                broken = False
+        return rtrn
 
     def exists(self, **kwargs):
         if len(self.get_from_dict(kwargs)) > 0:
             return True
         else:
             return False
+
+    def update(self, item, **kwargs):
+        raise NotImplementedError
+        for _item in self.get_from_dict(item):
+            pass
+            # cache.update({"_id": 99, "_type": "movie"}, stv_id = 92384924)
+            # self.hash_table.
+            # for key in kwargs.keys():
+
 
     def delete(self, **kwargs):
         for item in self.get_from_dict(kwargs):
