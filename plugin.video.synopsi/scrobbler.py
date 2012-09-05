@@ -136,7 +136,8 @@ class Scrobbler(threading.Thread):
 
     def ended(self):
         notification("ended", "ended")
-        get_rating()
+        if is_in_library():
+            get_rating()
 
     def ended_without_rating(self):
         notification("ended", "ended")
@@ -145,7 +146,8 @@ class Scrobbler(threading.Thread):
         notification("stopped", "stopped")
         if self.current_time > 0.7 * self.total_time:
             # ask for rating only if stopped and more than 70% of movie passed
-            get_rating()
+            if is_in_library():
+                get_rating()
 
     def paused(self):
         notification("paused", "paused")
