@@ -1,3 +1,7 @@
+"""
+Default file for SynopsiTV addon. See addon.xml 
+<extension point="xbmc.python.pluginsource" library="addon.py">
+"""
 import xbmc
 import xbmcgui
 import xbmcplugin

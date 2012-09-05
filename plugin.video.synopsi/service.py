@@ -1,5 +1,6 @@
 """
-This is default file of SynopsiTV service.
+This is default file of SynopsiTV service. See addon.xml
+<extension point="xbmc.service" library="service.py" start="login|startup">
 """
 from library import Library
 from scrobbler import Scrobbler
