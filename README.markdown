@@ -3,12 +3,14 @@
 ## plugin.video.synopsi
 
 This is SynopsiTV App that provides reccomendations. IN ALPHA PHASE!!
+### Developers
+These files are requiered by XBMC:
+* addon.xml
+* changelog.txt
+* icon.png
+* fanart.jpg
+* resources/settings.xml
 
-## service.synopsi
-
-This is deamon that starts on startup or login and runs in the background.
-
-It sends whole movie library on startup and waits for user's interaction with movies. 
 
 ### Installation
 
@@ -20,5 +22,14 @@ It sends whole movie library on startup and waits for user's interaction with mo
 ##### Windows
 Download zipball. Extract content to C:\Users\Username\AppData\Roaming\XBMC\addons .
 
-##### UNIX
-TODO
+##### Linux
+```bash
+cd ~/.xbmc/
+mv addons addons2
+git clone https://github.com/Synopsi/XBMC.git addons
+mv addons2/* addons
+rmdir addons2
+```
+
+##### Mac OS X
+Same as linux, but directory is:  /Users/<your_user_name>/Library/Application Support/XBMC/

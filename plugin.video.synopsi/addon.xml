@@ -5,24 +5,23 @@
        provider-name="Synopsi s.r.o.">
   <requires>
     <import addon="xbmc.python" version="1.0"/>
-    <import addon="script.module.pil" version="1.1.7"/>
-    <import addon="plugin.video.youtube" version="2.9.1"/>
-    <import addon="xbmc.addon" version="11.0"/>
+    <import addon="plugin.video.youtube" version="2.9.1"/> <!-- We play trailers through this plugin -->
+    <!-- <import addon="script.module.pil" version="1.1.7"/> --> <!--In case, we will need PIL--> 
+    <import addon="xbmc.addon" version="11.0"/> <!--Repository only for XBMC 11--> 
   </requires>
-  <extension point="xbmc.python.pluginsource"
-            library="addon.py">
-        <provides>video</provides>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video</provides> <!-- addon.py is file for addon -->
   </extension>
-  <extension point="xbmc.service"
-            library="service.py" start="login|startup">
-        <provides>service</provides>
+  <extension point="xbmc.service" library="service.py" start="login|startup">
+        <provides>service</provides> <!-- service.py is file for service/daemon -->
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary>SynopsiTV App</summary>
-    <description>WARNING!  ULTRA ALPHA TEST. This app provides you everything.</description>
+    <summary>SynopsiTV</summary>
+    <description>SynopsiTV helps you discover movies and shows by generating personalized recommendations based on your unique and evolving viewing style.</description>
   </extension>
   <extension point="xbmc.addon.repository" name="Official SynopsiTV Add-on Repository">
+    <!-- TODO: Create repository -->
     <info compressed="true">http://mirrors.xbmc.org/addons/eden/addons.xml</info>
     <checksum>http://mirrors.xbmc.org/addons/eden/addons.xml.md5</checksum>
     <datadir zip="true">http://mirrors.xbmc.org/addons/eden</datadir>
