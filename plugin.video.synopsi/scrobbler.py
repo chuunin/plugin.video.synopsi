@@ -124,6 +124,10 @@ def get_rating():
     return _response
 
 
+def is_in_library():
+    return True
+
+
 class Scrobbler(threading.Thread):
     """
     Just a Scrobbler.
