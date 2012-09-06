@@ -134,6 +134,16 @@ class Scrobbler(threading.Thread):
     """
     def __init__(self):
         super(Scrobbler, self).__init__()
+        import json
+        print xbmc.executeJSONRPC(json.dumps(
+            {'params':
+                {
+                    # 'properties': properties
+                },
+                'jsonrpc': '2.0',
+                'method': "JSONRPC.Introspect",
+                'id': 1
+                }   ))
 
     def started(self):
         notification("started", "started")

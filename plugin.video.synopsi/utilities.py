@@ -440,3 +440,28 @@ def get_episode_details(movie_id):
     response = xbmc.executeJSONRPC(json.dumps(dic))
     xbmc.log(str(response))
     return json.loads(response)
+
+
+class Api:
+    def __getattr__(self, name, *args, **kwargs):
+        def method(args=None, kwargs=None):
+            name.replace("_", ".")
+            # print "LALALAL", name, args, kwargs
+            # properties = ['file', "lastplayed", "playcount", "season", "episode", "tvshowid"]
+            dic = {
+            'params': kwargs,
+                # {
+                #     'properties': properties,
+                #     'episodeid': movie_id
+                # },
+
+                'jsonrpc': '2.0',
+                'method': name,
+                'id': 1
+            }
+
+            xbmc.log(str(json.dumps(dic)))
+            response = xbmc.executeJSONRPC(json.dumps(dic))
+            xbmc.log(str(response))
+            return json.loads(response["result"])
+        return method

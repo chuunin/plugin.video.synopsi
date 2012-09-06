@@ -52,9 +52,10 @@ class ApiThread(threading.Thread):
         global ABORT_REQUESTED
         global CACHE
 
-        CACHE = Cache()     
+        CACHE = Cache()
         rebuild(CACHE)
 
+        # Api().Application_Quit()
         # print CACHE.get(_type = "movie")
         # try:
         #     CACHE = deserialize(__addon__.getSetting("CACHE"))
