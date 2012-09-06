@@ -53,7 +53,7 @@ class ApiThread(threading.Thread):
         global CACHE
 
         CACHE = Cache()
-        rebuild(CACHE)
+        # rebuild(CACHE)
 
         # Api().Application_Quit()
         # print CACHE.get(_type = "movie")
