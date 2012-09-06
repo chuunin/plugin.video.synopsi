@@ -32,4 +32,4 @@ rmdir addons2
 ```
 
 ##### Mac OS X
-Same as linux, but directory is:  /Users/<your_user_name>/Library/Application Support/XBMC/
+Same as linux, but directory is:  /Users/username/Library/Application Support/XBMC/
