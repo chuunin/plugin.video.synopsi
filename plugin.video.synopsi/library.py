@@ -3,6 +3,7 @@ import threading
 import time
 import socket
 import json
+import traceback
 
 from utilities import *
 from cache import *
@@ -130,7 +131,7 @@ class Library(ApiThread):
             method(data)
         except:
             xbmc.log('Error in method "' + methodName + '"')
-            xbmc.log(sys.exc_info()[0])
+            xbmc.log(traceback.format_exc())
 
         #   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
 
