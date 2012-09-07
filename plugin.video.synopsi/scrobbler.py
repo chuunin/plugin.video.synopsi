@@ -1,4 +1,7 @@
-import xbmc, xbmcgui, xbmcaddon
+try:
+    import xbmc, xbmcgui, xbmcaddon
+except ImportError:
+    from tests import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
 

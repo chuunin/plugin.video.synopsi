@@ -176,3 +176,5 @@ plugin.video.synopsi/*.pyo
 !plugin.video.synopsi/*/*/*/*
 !plugin.video.synopsi/*/*/*
 !plugin.video.synopsi/*/*
+plugin.video.synopsi/tests/*.pyc
+plugin.video.synopsi/tests/*.pyo
