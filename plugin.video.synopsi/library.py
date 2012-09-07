@@ -68,7 +68,8 @@ class ApiThread(threading.Thread):
 
         while True:
             data = self.sock.recv(1024)
-            xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
+            # xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
+            xbmc.log('SynopsiTV: {0}'.format(str(data)))
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
@@ -122,7 +123,7 @@ class Library(ApiThread):
 
     def process(self, data):
         if "VideoLibrary" in data['method']:
-            print data
+            # print data
             if data['method'] == 'VideoLibrary.OnUpdate':
                 self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
             elif data['method'] == 'VideoLibrary.OnRemove':

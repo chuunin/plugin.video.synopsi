@@ -437,10 +437,7 @@ def get_episode_details(movie_id):
         'id': 1
     }
 
-    xbmc.log(str(json.dumps(dic)))
-
     response = xbmc.executeJSONRPC(json.dumps(dic))
-    xbmc.log(str(response))
     return json.loads(response)
 
 

@@ -10,31 +10,32 @@ def PrepareTests():
     pass
 
 def NotificationTests(request):
+    def send(data):
+        request.send(data)
+        time.sleep(0.05)
     # {"jsonrpc":"2.0","method":"VideoLibrary.OnUpdate","params":{"data":{"item":{"id":48,"type":"episode"}},"sender":"xbmc"}}
-    request.send('{"jsonrpc":"2.0","method":"VideoLibrary.OnUpdate","params":{"data":{"item":{"id":48,"type":"episode"}},"sender":"xbmc"}}')
-    time.sleep(0.05)
-    request.send('{"jsonrpc":"2.0","method":"VideoLibrary.OnRemove","params":{"data":{"id":2,"type":"episode"},"sender":"xbmc"}}')
-    time.sleep(0.05)
-    request.send('{"jsonrpc":"2.0","method":"System.OnQuit","params":{"data":null,"sender":"xbmc"}}')
+    send('{"jsonrpc":"2.0","method":"VideoLibrary.OnUpdate","params":{"data":{"item":{"id":48,"type":"episode"}},"sender":"xbmc"}}')
+    send('{"jsonrpc":"2.0","method":"VideoLibrary.OnRemove","params":{"data":{"id":2,"type":"episode"},"sender":"xbmc"}}')
+    send('{"jsonrpc":"2.0","method":"System.OnQuit","params":{"data":null,"sender":"xbmc"}}')
 
 def MethodTests():
     pass
 
 class EchoRequestHandler(SocketServer.BaseRequestHandler):
     def setup(self):
-        print self.client_address, 'connected'
+        print "Client", self.client_address[0], "PID:",self.client_address[1], 'connected'
         NotificationTests(self.request)
 
-    def handle(self):
-        data = 'dummy'
-        while data:
-            data = self.request.recv(1024)
-            self.request.send(data)
-            if data.strip() == 'bye':
-                return
+    # def handle(self):
+    #     data = 'dummy'
+    #     while data:
+    #         data = self.request.recv(1024)
+    #         self.request.send(data)
+    #         if data.strip() == 'bye':
+    #             return
 
     def finish(self):
-        print self.client_address, 'disconnected'
+        print "Client", self.client_address[0], "PID:",self.client_address[1], 'disconnected'
 
 HOST, PORT = "localhost", 9090
 SERVER = SocketServer.TCPServer((HOST, PORT), EchoRequestHandler)
@@ -51,6 +52,7 @@ def main():
 
 if __name__ == '__main__':
     PrepareTests()
+    print "Starting XBMC emulator at", HOST, PORT
     t = TCPServer().start()
     try:
         main()
