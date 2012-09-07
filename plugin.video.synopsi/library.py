@@ -88,6 +88,9 @@ class Library(ApiThread):
     def __init__(self):
         super(Library, self).__init__()
 
+    def __call__(self, args):
+        print args
+
     def create(self):
         pass
 
