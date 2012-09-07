@@ -19,7 +19,7 @@ def log(string):
 
 def executeJSONRPC(js):
     print js
-    return ""
+    return "{}"
     # data = json.loads(js)
     # for key in data.keys():
     #     if "VideoLibrary" in key:
