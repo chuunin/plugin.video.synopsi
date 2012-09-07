@@ -88,9 +88,6 @@ class Library(ApiThread):
     def __init__(self):
         super(Library, self).__init__()
 
-    def __call__(self, args):
-        print args
-
     def create(self):
         pass
 
@@ -120,10 +117,27 @@ class Library(ApiThread):
         pass
 
     def process(self, data):
-        if "VideoLibrary" in data['method']:
-            print data
-            if data['method'] == 'VideoLibrary.OnUpdate':
-                self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
-            elif data['method'] == 'VideoLibrary.OnRemove':
-                self.remove(data['params']['data']['id'], data['params']['data']['type'])
-            # http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
+        methodName = data['method'].replace('.', '_')
+        method = getattr(self, methodName, None)
+        if method == None:
+            xbmc.log('Unknown method: ' + methodName)
+
+        xbmc.log('calling: ' + methodName)
+        xbmc.log(str(data))
+        
+        #   Try to call that method
+        try:
+            method(data)
+        except:
+            xbmc.log('Error in method "' + methodName + '"')
+            xbmc.log(sys.exc_info()[0])
+
+        #   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
+
+    def VideoLibrary_OnUpdate(self, data):
+        self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
+
+    def VideoLibrary_OnRemove(self, data):
+        self.remove(data['params']['data']['id'], data['params']['data']['type'])
+
+
