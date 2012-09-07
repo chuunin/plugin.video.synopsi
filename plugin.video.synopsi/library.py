@@ -108,15 +108,19 @@ class Library(ApiThread):
     def addorupdate(self, _id, _type):
         if CACHE.exists( _id = _id, _type = _type):
             if _type == "movie":
-                print get_movie_details(_id)
+                # print get_movie_details(_id)
+                get_movie_details(_id)
             elif _type == "episode":
-                print get_episode_details(_id)
+                # print get_episode_details(_id)
+                get_episode_details(_id)
         else:
             if _type == "movie":
                 movie = get_movie_details(_id)
-                print movie
+                # print movie
+                movie
             elif _type == "episode":
-                print get_episode_details(_id)
+                # print get_episode_details(_id)
+                get_episode_details(_id)
 
     def remove(self, _id, _type):
         pass

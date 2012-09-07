@@ -137,6 +137,7 @@ class Scrobbler(threading.Thread):
     """
     def __init__(self):
         super(Scrobbler, self).__init__()
+        self.current_time = 0
 
     def started(self):
         notification("started", "started")

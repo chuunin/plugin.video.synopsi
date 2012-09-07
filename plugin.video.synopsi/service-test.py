@@ -3,6 +3,7 @@ import service
 import SocketServer
 import time
 import threading
+import scrobbler
 
 from tests import xbmc, xbmcgui, xbmcaddon
 
@@ -10,6 +11,8 @@ def PrepareTests():
     pass
 
 def NotificationTests(request):
+    # scrobbler.
+    time.sleep(2) # wait for scrobbler tests
     def send(data):
         request.send(data)
         time.sleep(0.05)

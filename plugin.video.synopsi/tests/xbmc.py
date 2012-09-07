@@ -9,7 +9,7 @@ import json
 
 abortRequested = False
 
-def sleep(time):
+def sleep(tim):
     pass
 
 
@@ -20,23 +20,25 @@ def log(string):
 def executeJSONRPC(js):
     print "XBMC recieved: ", js.strip()
     return "{}"
-    # data = json.loads(js)
-    # for key in data.keys():
-    #     if "VideoLibrary" in key:
-    #         print js
 
 
 def executebuiltin(builtin):
-    pass
+    if "XBMC.Notification" in builtin:
+        pass
+        a = builtin.split(",")
+        print "XBMC message:", a[0].strip("XBMC.Notification("), a[1]
+    else:
+        print "Executed Builtin:", builtin
 
 
 class Player(object):
     def __init__(self):
         super(Player, self).__init__()
         self.onPlayBackStarted()
+        time.sleep(0.4)
         self.onPlayBackPaused()
         self.onPlayBackResumed()
-        self.onPlayBackEnded()
+        self.onPlayBackStopped()
 
     def onPlayBackStarted(self):
         pass
@@ -57,10 +59,10 @@ class Player(object):
         return True
 
     def getTime(self):
-        return "70"
+        return 71
 
     def getTotalTime(self):
-        return "100"
+        return 100
 
     def getPlayingFile(self):
         return ""
