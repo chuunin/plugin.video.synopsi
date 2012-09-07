@@ -4,10 +4,15 @@ import SocketServer
 import time
 import threading
 
+from tests import xbmc, xbmcgui, xbmcaddon
+
 def PrepareTests():
     pass
 
 def NotificationTests(request):
+    # {"jsonrpc":"2.0","method":"VideoLibrary.OnUpdate","params":{"data":{"item":{"id":48,"type":"episode"}},"sender":"xbmc"}}
+    request.send('{"jsonrpc":"2.0","method":"VideoLibrary.OnUpdate","params":{"data":{"item":{"id":48,"type":"episode"}},"sender":"xbmc"}}')
+    time.sleep(0.05)
     request.send('{"jsonrpc":"2.0","method":"VideoLibrary.OnRemove","params":{"data":{"id":2,"type":"episode"},"sender":"xbmc"}}')
     time.sleep(0.05)
     request.send('{"jsonrpc":"2.0","method":"System.OnQuit","params":{"data":null,"sender":"xbmc"}}')
@@ -15,7 +20,7 @@ def NotificationTests(request):
 def MethodTests():
     pass
 
-class EchoRequestHandler(SocketServer.BaseRequestHandler ):
+class EchoRequestHandler(SocketServer.BaseRequestHandler):
     def setup(self):
         print self.client_address, 'connected'
         NotificationTests(self.request)
@@ -30,7 +35,6 @@ class EchoRequestHandler(SocketServer.BaseRequestHandler ):
 
     def finish(self):
         print self.client_address, 'disconnected'
-        self.request.send('bye ' + str(self.client_address) + '\n')
 
 HOST, PORT = "localhost", 9090
 SERVER = SocketServer.TCPServer((HOST, PORT), EchoRequestHandler)
@@ -52,5 +56,6 @@ if __name__ == '__main__':
         main()
     except Exception,e:
         SERVER.shutdown()
-        raise e    
-    SERVER.shutdown()
+        raise e
+    else: 
+        SERVER.shutdown()
