@@ -123,6 +123,7 @@ class Library(ApiThread):
         method = getattr(self, methodName, None)
         if method == None:
             xbmc.log('Unknown method: ' + methodName)
+            return
 
         xbmc.log('calling: ' + methodName)
         xbmc.log(str(data))
