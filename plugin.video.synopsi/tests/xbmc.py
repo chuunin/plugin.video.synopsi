@@ -11,6 +11,7 @@ abortRequested = False
 
 def sleep(tim):
     pass
+    # time.sleep(tim / 1000)
 
 
 def log(string):
@@ -35,7 +36,6 @@ class Player(object):
     def __init__(self):
         super(Player, self).__init__()
         self.onPlayBackStarted()
-        time.sleep(0.4)
         self.onPlayBackPaused()
         self.onPlayBackResumed()
         self.onPlayBackStopped()

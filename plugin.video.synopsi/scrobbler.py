@@ -178,14 +178,6 @@ class Scrobbler(threading.Thread):
                 self.started()
                 self.player.started = False
 
-            if self.player.ended:
-                self.ended()
-                self.player.ended = False
-
-            if self.player.stopped:
-                self.stopped()
-                self.player.stopped = False
-
             if self.player.paused:
                 self.paused()
                 self.player.paused = False
@@ -193,6 +185,14 @@ class Scrobbler(threading.Thread):
             if self.player.resumed:
                 self.resumed()
                 self.player.resumed = False
+
+            if self.player.stopped:
+                self.stopped()
+                self.player.stopped = False
+
+            if self.player.ended:
+                self.ended()
+                self.player.ended = False
 
             if self.player.playing:
                 try:
