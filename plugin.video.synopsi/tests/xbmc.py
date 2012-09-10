@@ -5,13 +5,12 @@ import socket
 import threading
 import time
 import json
-
+import threading
 
 abortRequested = False
 
 def sleep(tim):
     pass
-    # time.sleep(tim / 1000)
 
 
 def log(string):
@@ -32,13 +31,10 @@ def executebuiltin(builtin):
         print "Executed Builtin:", builtin
 
 
-class Player(object):
+class Player(threading.Thread):
     def __init__(self):
         super(Player, self).__init__()
-        self.onPlayBackStarted()
-        self.onPlayBackPaused()
-        self.onPlayBackResumed()
-        self.onPlayBackStopped()
+        self.start()
 
     def onPlayBackStarted(self):
         pass
@@ -66,4 +62,12 @@ class Player(object):
 
     def getPlayingFile(self):
         return ""
-        
+
+    def run(self):
+        self.onPlayBackStarted()
+        time.sleep(0.21)
+        self.onPlayBackResumed()
+        time.sleep(0.21)
+        self.onPlayBackPaused()
+        time.sleep(0.21)
+        self.onPlayBackStopped()

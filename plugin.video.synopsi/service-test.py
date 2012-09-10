@@ -11,7 +11,7 @@ def PrepareTests():
     pass
 
 def NotificationTests(request):
-    time.sleep(0.1) # wait for scrobbler tests
+    time.sleep(0.85) # wait for scrobbler tests
     def send(data):
         request.send(data)
         time.sleep(0.05)
