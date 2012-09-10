@@ -385,17 +385,15 @@ def get_movie_details(movie_id, all_prop=False):
     else:
         properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
 
-    method = 'VideoLibrary.GetMovieDetails'
-    dic = {
-        'params': {
+    response = xbmcRPC.execute(
+        'VideoLibrary.GetMovieDetails',
+        {
             'properties': properties,
             'movieid': movie_id  # s 1 e 2 writes 2
-        },
-        'jsonrpc': '2.0',
-        'method': method,
-        'id': 1
-    }
-    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+        }
+    )
+
+    return response
 
 
 def get_tvshow_details(movie_id):
@@ -403,19 +401,16 @@ def get_tvshow_details(movie_id):
     Get dict of movie_id details.
     """
     properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
-    method = 'VideoLibrary.GetTVShowDetails'
-    dic = {
-    'params': 
+
+    response = xbmcRPC.execute(
+        'VideoLibrary.GetTVShowDetails',
         {
             'properties': properties,
             'movieid': movie_id  # s 1 e 2 writes 2
-        },
-        'jsonrpc': '2.0',
-        'method': method,
-        'id': 1
-    }
+        }
+    )
 
-    return json.loads(xbmc.executeJSONRPC(json.dumps(dic)))
+    return response
 
 
 def get_episode_details(movie_id):
