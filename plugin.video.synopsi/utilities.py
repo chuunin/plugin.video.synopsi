@@ -1,6 +1,8 @@
+try:
+    import xbmc, xbmcgui, xbmcaddon
+except ImportError:
+    from tests import xbmc, xbmcgui, xbmcaddon
 import json
-import xbmc
-import xbmcaddon
 import struct
 import os
 import urllib
@@ -454,3 +456,4 @@ class xbmcRPCclient(object):
         return json.loads(response)
 
 xbmcRPC = xbmcRPCclient(1)
+

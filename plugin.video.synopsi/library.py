@@ -1,4 +1,7 @@
-import xbmc, xbmcgui, xbmcaddon
+try:
+    import xbmc, xbmcgui, xbmcaddon
+except ImportError:
+    from tests import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
 import socket
@@ -54,7 +57,7 @@ class ApiThread(threading.Thread):
         global CACHE
 
         CACHE = Cache()
-        rebuild(CACHE)
+        # rebuild(CACHE)
 
         # Api().Application_Quit()
         # print CACHE.get(_type = "movie")
@@ -66,7 +69,8 @@ class ApiThread(threading.Thread):
 
         while True:
             data = self.sock.recv(1024)
-            xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
+            # xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
+            xbmc.log('SynopsiTV: {0}'.format(str(data)))
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
@@ -105,15 +109,19 @@ class Library(ApiThread):
     def addorupdate(self, _id, _type):
         if CACHE.exists( _id = _id, _type = _type):
             if _type == "movie":
-                print get_movie_details(_id)
+                # print get_movie_details(_id)
+                get_movie_details(_id)
             elif _type == "episode":
-                print get_episode_details(_id)
+                # print get_episode_details(_id)
+                get_episode_details(_id)
         else:
             if _type == "movie":
                 movie = get_movie_details(_id)
-                print movie
+                # print movie
+                movie
             elif _type == "episode":
-                print get_episode_details(_id)
+                # print get_episode_details(_id)
+                get_episode_details(_id)
 
     def remove(self, _id, _type):
         pass
@@ -142,5 +150,3 @@ class Library(ApiThread):
 
     def VideoLibrary_OnRemove(self, data):
         self.remove(data['params']['data']['id'], data['params']['data']['type'])
-
-
