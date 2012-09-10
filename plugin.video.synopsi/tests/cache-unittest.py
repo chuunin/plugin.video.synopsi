@@ -3,10 +3,12 @@ import base64
 import pickle
 import unittest
 import random
+import sys
 
-from cache import *
+sys.path.append('..')
+cache = __import__('cache')
 
-CACHE = Cache()
+CACHE = cache.Cache()
 
 class CacheTest(unittest.TestCase):
     def test_dict(self):
@@ -101,7 +103,7 @@ Movies = [
         ]
 
 class ScenarioTest(unittest.TestCase):
-    c = Cache()
+    c = cache.Cache()
     def test_initial_import(self):
         self.c.delete()
         if len(Movies) > len(self.c.get(_type = "movie")):
