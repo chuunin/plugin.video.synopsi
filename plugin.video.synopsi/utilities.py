@@ -21,6 +21,8 @@ HTTP_HEADERS = {
 }
 __addon__     = xbmcaddon.Addon()
 
+
+
 def get_token(user, passwd):
     """
     Get oauth token.
@@ -421,11 +423,9 @@ def get_episode_details(movie_id):
     Get dict of movie_id details.
     """
     properties = ['file', "lastplayed", "playcount", "season", "episode", "tvshowid"]
-    # properties = ["season", "episode"]
-    # properties = ['file']
     method = 'VideoLibrary.GetEpisodeDetails'
     dic = {
-    'params':
+        'params':
         {
             'properties': properties,
             'episodeid': movie_id
@@ -442,26 +442,27 @@ def get_episode_details(movie_id):
     return json.loads(response)
 
 
-class Api:
-    def __getattr__(self, name, *args, **kwargs):
-        def method(args=None, kwargs=None):
-            name.replace("_", ".")
-            # print "LALALAL", name, args, kwargs
-            # properties = ['file', "lastplayed", "playcount", "season", "episode", "tvshowid"]
-            dic = {
-            'params': kwargs,
-                # {
-                #     'properties': properties,
-                #     'episodeid': movie_id
-                # },
+class xbmcRPCclient(object):
 
-                'jsonrpc': '2.0',
-                'method': name,
-                'id': 1
-            }
+    def __init__(self, logLevel = 0):
+        self.__logLevel = logLevel
 
-            xbmc.log(str(json.dumps(dic)))
-            response = xbmc.executeJSONRPC(json.dumps(dic))
-            xbmc.log(str(response))
-            return json.loads(response["result"])
-        return method
+    def execute(self, methodName, params):
+        dic = {
+            'params': params,
+            'jsonrpc': '2.0',
+            'method': methodName,
+            'id': 1
+        }
+
+        if self.__logLevel:
+            xbmc.log('xmbc RPC request: ' + str(json.dumps(dic)))
+
+        response = xbmc.executeJSONRPC(json.dumps(dic))
+        
+        if self.__logLevel:
+            xbmc.log('xbmc RPC response: ' + str(response))
+
+        return json.loads(response)
+
+xbmcRPC = xbmcRPCclient(1)
