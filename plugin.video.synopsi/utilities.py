@@ -423,23 +423,16 @@ def get_episode_details(movie_id):
     Get dict of movie_id details.
     """
     properties = ['file', "lastplayed", "playcount", "season", "episode", "tvshowid"]
-    method = 'VideoLibrary.GetEpisodeDetails'
-    dic = {
-        'params':
+
+    response = xbmcRPC.execute(
+        'VideoLibrary.GetEpisodeDetails',
         {
             'properties': properties,
             'episodeid': movie_id
-        },
-        'jsonrpc': '2.0',
-        'method': method,
-        'id': 1
-    }
+        }
+    )
 
-    xbmc.log(str(json.dumps(dic)))
-
-    response = xbmc.executeJSONRPC(json.dumps(dic))
-    xbmc.log(str(response))
-    return json.loads(response)
+    return response
 
 
 class xbmcRPCclient(object):
