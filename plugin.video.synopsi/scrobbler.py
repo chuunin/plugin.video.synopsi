@@ -1,4 +1,7 @@
-import xbmc, xbmcgui, xbmcaddon
+try:
+    import xbmc, xbmcgui, xbmcaddon
+except ImportError:
+    from tests import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
 
@@ -134,16 +137,7 @@ class Scrobbler(threading.Thread):
     """
     def __init__(self):
         super(Scrobbler, self).__init__()
-        import json
-        print xbmc.executeJSONRPC(json.dumps(
-            {'params':
-                {
-                    # 'properties': properties
-                },
-                'jsonrpc': '2.0',
-                'method': "JSONRPC.Introspect",
-                'id': 1
-                }   ))
+        self.current_time = 0
 
     def started(self):
         notification("started", "started")
@@ -184,14 +178,6 @@ class Scrobbler(threading.Thread):
                 self.started()
                 self.player.started = False
 
-            if self.player.ended:
-                self.ended()
-                self.player.ended = False
-
-            if self.player.stopped:
-                self.stopped()
-                self.player.stopped = False
-
             if self.player.paused:
                 self.paused()
                 self.player.paused = False
@@ -199,6 +185,14 @@ class Scrobbler(threading.Thread):
             if self.player.resumed:
                 self.resumed()
                 self.player.resumed = False
+
+            if self.player.stopped:
+                self.stopped()
+                self.player.stopped = False
+
+            if self.player.ended:
+                self.ended()
+                self.player.ended = False
 
             if self.player.playing:
                 try:

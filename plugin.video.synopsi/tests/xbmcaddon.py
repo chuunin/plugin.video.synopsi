@@ -22,3 +22,6 @@ class Addon(object):
 
     def openSettings(self):
         pass
+
+    def getLocalizedString(self, *args, **kwargs):
+        return "String"
