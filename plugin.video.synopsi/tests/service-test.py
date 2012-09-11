@@ -1,11 +1,15 @@
 import unittest
-import service
 import SocketServer
 import time
 import threading
-import scrobbler
+import sys
 
-from tests import xbmc, xbmcgui, xbmcaddon
+sys.path.append('..')
+service = __import__('service')
+scrobbler = __import__('scrobbler')
+import xbmc, xbmcgui, xbmcaddon
+
+
 
 def PrepareTests():
     pass
