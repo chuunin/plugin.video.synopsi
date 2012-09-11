@@ -1,6 +1,3 @@
-class noneCall(object):
-	def __call__(self):
-		pass
 
 class Fake(object):
 
@@ -8,13 +5,16 @@ class Fake(object):
 		self.what = what
 		print what, 'x'
 
+	def noop(self):
+		pass
+
 	def __getattr__(self, methodName):
 		try:
 			method = getattr(m, methodName)
 			print method
 		except:
 			print 'Undefined method:' + methodName
-			return noneCall
+			return self.noop
 
 		return method
 
