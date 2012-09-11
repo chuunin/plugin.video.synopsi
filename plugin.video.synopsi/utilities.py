@@ -251,7 +251,7 @@ def get_movies(start, end):
     response = xbmcRPC.execute(
         'VideoLibrary.GetMovies',
         {
-            'properties': properties
+            'properties': properties,
             'limits': {'end': end, 'start': start}
         }
     )
