@@ -6,8 +6,11 @@ from scrobbler import Scrobbler
 from library import Library
 
 def main():
-    Scrobbler().start()
-    Library().start()
+    
+	s = Scrobbler()
+	s.start()
+
+	Library().start()
 
 if __name__ == "__main__":
-    main()
+	main()

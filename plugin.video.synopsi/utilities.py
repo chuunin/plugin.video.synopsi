@@ -431,7 +431,7 @@ class xbmcRPCclient(object):
         }
 
         if self.__logLevel:
-            xbmc.log('xmbc RPC request: ' + str(json.dumps(dic)))
+            xbmc.log('xbmc RPC request: ' + str(json.dumps(dic)))
 
         response = xbmc.executeJSONRPC(json.dumps(dic))
         
