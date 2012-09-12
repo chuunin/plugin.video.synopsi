@@ -4,7 +4,7 @@ except ImportError:
     from tests import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
-
+from random import randint
 import library
 
 
@@ -84,7 +84,6 @@ class SynopsiPlayer(xbmc.Player):
     ended = False
     stopped = False
     paused = False
-    resumed = False
     ended_without_rating = False
 
     playing = False
@@ -92,7 +91,8 @@ class SynopsiPlayer(xbmc.Player):
 
     def __init__(self):
         super(SynopsiPlayer, self).__init__()
-        #xbmc.Player.__init__(self)
+        self.log('INIT')
+        self.current_time = 0
 
     def log(self, msg):
         xbmc.log('SynopsiPlayer: ' + msg)
@@ -102,59 +102,55 @@ class SynopsiPlayer(xbmc.Player):
         if self.playing:
             if self.media_file != xbmc.Player().getPlayingFile():
                 self.ended_without_rating()
-                #self.playing = True
+                self.playing = True
                 self.media_file = xbmc.Player().getPlayingFile()
         else:
             if xbmc.Player().isPlayingVideo():
                 self.started()
-                #self.playing = True
+                self.playing = True
                 self.media_file = xbmc.Player().getPlayingFile()
 
     def onPlayBackEnded(self):
         notification("onPlayBackEnded", "Dev Notice")
         self.log('onPlayBackEnded')
-        get_rating()
         if self.playing:
             try:
                 self.media_file = xbmc.Player().getPlayingFile()
             except Exception, e:
                 # TODO: Handle if API will change
                 if "XBMC is not playing any file" in e:
-                    self.ended = True
                     self.playing = False
                     self.media_file = None
+                    self.ended()
 
     def onPlayBackStopped(self):
         self.log('onPlayBackStopped')
         if self.playing:
-            self.stopped = True
             self.playing = False
             self.media_file = None
+            self.stopped()
+
 
     def onPlayBackPaused(self):
         self.log('onPlayBackPaused')
         if self.playing:
-            self.paused = True
+            self.paused()
 
     def onPlayBackResumed(self):
         if self.playing:
-            self.resumed = True
+            self.resumed()
+    
+
+class SynopsiPlayerDecor(SynopsiPlayer):
+    """ This class defines methods that are called from the bugfix and processing parent class"""
+    def __init__(self):
+        super(SynopsiPlayerDecor, self).__init__()
 
     def __del__(self):
         self.log('Deleting Player Object')
 
-
-
-class Scrobbler(SynopsiPlayer, threading.Thread):
-    """
-    Layer that defines final methods.
-    """
-    def __init__(self):
-        super(Scrobbler, self).__init__()
-        self.log('Created Object')
-        self.current_time = 0
-
     def started(self):
+        self.total_time = xbmc.Player().getTotalTime()
         notification("started", "started")
 
     def ended(self):
@@ -177,38 +173,29 @@ class Scrobbler(SynopsiPlayer, threading.Thread):
     def resumed(self):
         notification("resumed", "resumed")
 
+class Scrobbler(threading.Thread):
+    """
+    Layer that defines final methods.
+    """
+    def __init__(self):
+        super(Scrobbler, self).__init__()
+        self.log('Created Scrobbler thread')
+
+    def log(self, msg):
+        xbmc.log('Scrobbler: ' + msg)
+
+
     def run(self):
         self.log('thread run start')
-        
+        p = SynopsiPlayerDecor()
         #   wait for abort flag
         while not library.ABORT_REQUESTED:
-            xbmc.sleep(1000)
-            self.log('..scrobb..')
+            xbmc.sleep(2000)
+            self.log('..scrobb..' + str(randint(0, 100)))
         
         self.log("thread run end")
-            
-    """
-            if self.player.started:
-                self.total_time = xbmc.Player().getTotalTime()
-                self.started()
-                self.player.started = False
-
-            if self.player.paused:
-                self.paused()
-                self.player.paused = False
-
-            if self.player.resumed:
-                self.resumed()
-                self.player.resumed = False
-
-            if self.player.stopped:
-                self.stopped()
-                self.player.stopped = False
-
-            if self.player.ended:
-                self.ended()
-                self.player.ended = False
-
+        
+        """
             if self.player.playing:
                 try:
                     self.current_time = xbmc.Player().getTime()
@@ -217,5 +204,7 @@ class Scrobbler(SynopsiPlayer, threading.Thread):
                     if not "XBMC is not playing any media file" in e:
                         raise e
 
-        self.log("Scrobbler thread end")
-    """     
+            self.log("Scrobbler thread end")
+        """         
+           
+ 
