@@ -27,8 +27,9 @@ refresh_token = response_json['refresh_token']
 print 'access token = ' + access_token
 
 # post and get params
-post = None
-get = None
+post = {}
+get = {}
+data = None
 
 # create profile
 # post = {
@@ -70,24 +71,23 @@ url = business_api_url + 'title/2848299/watched/'
 #url = base_url + 'bapi/example/ping'
 #url = business_api_url + 'example/ping'
 
-post = {}
+method = 'post'
 
 # append data
-data = None
-if True or post:
+
+if method == 'post':
     post['client_id'] = key
     post['client_secret'] = secret
     post['bearer_token'] = access_token
-
     data = urlencode(post)
+    print data
 
-if get:
+if method == 'get':
     get['client_id'] = key
     get['client_secret'] = secret
     get['bearer_token'] = access_token
     url += '?' + urlencode(get)
-
-print url
+    print url
 
 print 'call API'
 try:
