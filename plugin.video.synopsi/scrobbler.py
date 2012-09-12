@@ -40,6 +40,7 @@ class SynopsiPlayer(xbmc.Player):
         xbmc.Player.__init__(self)
 
     def onPlayBackStarted(self):
+        xbmc.log('XXX onPlayBackStarted')
         if self.playing:
             if self.media_file != xbmc.Player().getPlayingFile():
                 self.ended_without_rating = True
@@ -53,6 +54,9 @@ class SynopsiPlayer(xbmc.Player):
                 self.media_file = xbmc.Player().getPlayingFile()
 
     def onPlayBackEnded(self):
+        notification("onPlayBackEnded", "Dev Notice")
+        xbmc.log('XXX onPlayBackEnded')
+        get_rating()
         if self.playing:
             try:
                 self.media_file = xbmc.Player().getPlayingFile()
@@ -64,12 +68,14 @@ class SynopsiPlayer(xbmc.Player):
                     self.media_file = None
 
     def onPlayBackStopped(self):
+        xbmc.log('XXX onPlayBackStopped')
         if self.playing:
             self.stopped = True
             self.playing = False
             self.media_file = None
 
     def onPlayBackPaused(self):
+        xbmc.log('XXX onPlayBackPaused')
         if self.playing:
             self.paused = True
 
@@ -143,6 +149,7 @@ class Scrobbler(threading.Thread):
         notification("started", "started")
 
     def ended(self):
+        xbmc.log('ended')
         notification("ended", "ended")
         if is_in_library():
             get_rating()
@@ -151,7 +158,7 @@ class Scrobbler(threading.Thread):
         notification("ended", "ended")
 
     def stopped(self):
-        notification("stopped", "stopped")
+        #notification("stopped", "stopped")
         if self.current_time > 0.7 * self.total_time:
             # ask for rating only if stopped and more than 70% of movie passed
             if is_in_library():
@@ -201,3 +208,5 @@ class Scrobbler(threading.Thread):
                     # TODO: Handle if API will change
                     if not "XBMC is not playing any media file" in e:
                         raise e
+
+        xbmc.log("Scrobbler thread end")
