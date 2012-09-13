@@ -184,7 +184,6 @@ class Scrobbler(threading.Thread):
     def log(self, msg):
         xbmc.log('Scrobbler: ' + msg)
 
-
     def run(self):
         self.log('thread run start')
         p = SynopsiPlayerDecor()
@@ -194,7 +193,7 @@ class Scrobbler(threading.Thread):
             self.log('..scrobb..' + str(randint(0, 100)))
         
         self.log("thread run end")
-        
+
         """
             if self.player.playing:
                 try:
