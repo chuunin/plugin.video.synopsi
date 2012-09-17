@@ -15,7 +15,7 @@ class BapiClient:
 		self.password = password
 		self.accessToken = None
 		self.refreshToken = None
-		self.apiUrl = self.baseUrl + 'bapi/public/1.0/'
+		self.apiUrl = self.baseUrl + 'api/public/1.0/'
 		self.originReqHost = originReqHost or 'dev.bapi.synopsi.tv'
 		self.authHeaders = None
 		self._logger = logging.getLogger()
@@ -111,10 +111,11 @@ class BapiClient:
 
 		self.execute(req)
 
+
 if __name__ == '__main__':
 	base_url = 'http://neptune.local:8000/'
-	key = 'aafc5cb46d65c6e00fb8082592ce9d'
-	secret = 'fec1f03c3a36fd63978ce6656495ca'
+	key = 'd5f5447375e3934cfaefee7b588884'
+	secret = 'd0b998a45ed65477f34e9f8942ddac'
 	username = 'xbmc@synopsi'
 	password = 'aaa'
 
