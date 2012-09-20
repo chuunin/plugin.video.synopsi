@@ -1,12 +1,13 @@
-try:
-    import xbmc, xbmcgui, xbmcaddon
-except ImportError:
-    from tests import xbmc, xbmcgui, xbmcaddon
+import xbmc, xbmcgui, xbmcaddon
+# except ImportError:
+#     from tests import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
 from random import randint
 import library
-
+import xbmcplugin
+import bapiclient
+import logging
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # Default XBMC constant for hidden cancel button
@@ -85,14 +86,24 @@ class SynopsiPlayer(xbmc.Player):
     stopped = False
     paused = False
     ended_without_rating = False
+    bapiClient = None
 
     playing = False
     media_file = None
+    lastPlayedFile = None
 
     def __init__(self):
         super(SynopsiPlayer, self).__init__()
         self.log('INIT')
         self.current_time = 0
+
+        self.bapiClient = bapiclient.BapiClient(
+            __addon__.getSetting('BASE_URL'),
+            __addon__.getSetting('KEY'),
+            __addon__.getSetting('SECRET'),
+            __addon__.getSetting('USER'),
+            __addon__.getSetting('PASS'),
+            )
 
     def log(self, msg):
         xbmc.log('SynopsiPlayer: ' + msg)
@@ -104,11 +115,13 @@ class SynopsiPlayer(xbmc.Player):
                 self.ended_without_rating()
                 self.playing = True
                 self.media_file = xbmc.Player().getPlayingFile()
+                self.lastPlayedFile = self.media_file
         else:
             if xbmc.Player().isPlayingVideo():
                 self.started()
                 self.playing = True
                 self.media_file = xbmc.Player().getPlayingFile()
+                self.lastPlayedFile = self.media_file
 
     def onPlayBackEnded(self):
         notification("onPlayBackEnded", "Dev Notice")
@@ -156,16 +169,30 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def ended(self):
         self.log('ended')
         notification("ended", "ended")
+
+
         if is_in_library():
             get_rating()
+            
 
     def ended_without_rating(self):
         notification("ended", "ended")
 
     def stopped(self):  
-            # ask for rating only if stopped and more than 70% of movie passed
-            if is_in_library():
-                get_rating()
+        # ask for rating only if stopped and more than 70% of movie passed
+        if is_in_library():
+            r = get_rating()
+            
+            # if user rated the title
+            if r < 4:
+                # temporary:
+                # get the title id
+                self.log('last file: ' + str(self.lastPlayedFile))
+                detail = get_movie_details(self.lastPlayedFile)                
+                self.log('detail: ' + str(detail))
+
+                #self.bapiClient.titleWatched(stvId, r)
+
 
     def paused(self):
         notification("paused", "paused")
@@ -175,7 +202,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
 class Scrobbler(threading.Thread):
     """
-    Layer that defines final methods.
+    Thread creates SynopsiPlayer to receive events and waits for ABORT request.
     """
     def __init__(self):
         super(Scrobbler, self).__init__()
@@ -189,8 +216,7 @@ class Scrobbler(threading.Thread):
         p = SynopsiPlayerDecor()
         #   wait for abort flag
         while not library.ABORT_REQUESTED:
-            xbmc.sleep(2000)
-            self.log('..scrobb..' + str(randint(0, 100)))
+            xbmc.sleep(1000)
         
         self.log("thread run end")
 

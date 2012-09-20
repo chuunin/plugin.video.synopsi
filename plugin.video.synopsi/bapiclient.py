@@ -21,6 +21,7 @@ class BapiClient:
 		self._logger = logging.getLogger()
 		self._logger.addHandler(logging.StreamHandler(sys.stdout))
 		self._logger.setLevel(debugLvl)
+		self._logger.debug('BapiClient __init__')
 
 	def getAccessToken(self):
 		data = {

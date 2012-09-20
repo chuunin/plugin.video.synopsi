@@ -4,13 +4,13 @@ from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError
 
-base_url = 'http://10.90.135.232:8000/'
-key = 'a050ae580751249c462e7e4489d414'
-secret = '75dd95a845e8bcf5da23037b8ec014'
+base_url = 'http://neptune.local:8000/'
+key = 'd5f5447375e3934cfaefee7b588884'
+secret = 'd0b998a45ed65477f34e9f8942ddac'
 
 print 'get access token'
 
-data = {'grant_type': 'password', 'client_id': key, 'client_secret': secret, 'username': 'sevas@fiktus.com', 'password': 'aaa'}
+data = {'grant_type': 'password', 'client_id': key, 'client_secret': secret, 'username': 'xbmc@synopsi', 'password': 'aaa'}
 headers = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (key, secret))}
 
 # get token
@@ -66,7 +66,7 @@ data = None
 #     'bearer_token': access_token,
 # }
 
-business_api_url = base_url + 'bapi/public/1.0/'
+business_api_url = base_url + 'api/public/1.0/'
 url = business_api_url + 'title/2848299/watched/'
 #url = base_url + 'bapi/example/ping'
 #url = business_api_url + 'example/ping'
