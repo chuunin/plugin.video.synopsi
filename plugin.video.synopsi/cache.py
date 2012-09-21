@@ -38,7 +38,9 @@ class Cache(object):
     def put(self, item):
         self.byTypeId[str(item['type']) + '--' + str(item['id'])] = item
         self.byFilename[item['file']] = item
-        self.log('PUT:' + str(item['type']) + '--' + str(item['id']) + ' | ' + item['file'])
+        stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
+        logstr = 'PUT:' + str(item['type']) + '--' + str(item['id']) + stvIdStr + ' | ' + item['file']
+        self.log(logstr)
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(type + '--' + str(id))
