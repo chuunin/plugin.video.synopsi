@@ -7,9 +7,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 print sys.path
 
-#import apiclient
 from apiclient import apiclient
-#apiclient = __import__('apiclient')
 
 
 base_url = 'http://neptune.local:8000/'
@@ -20,6 +18,10 @@ password = 'aaa'
 
 client = apiclient(base_url, key, secret, username, password, debugLvl = 0)
 client.getAccessToken()
-client.titleWatched(2848299, 'like')
+#client.titleWatched(2848299, 'like')
+#client.titleIdentify('1268799')
+#client.titleIdentify('1770488')
+data = client.titleIdentify('1774587')
+print data
 
 
