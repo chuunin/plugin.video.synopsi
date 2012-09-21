@@ -5,6 +5,11 @@ from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError
 
+RATING_CODE = {
+	1: 'like',
+	2: 'neutral',
+	3: 'dislike'
+}
 
 class apiclient:
 	def __init__(self, base_url, key, secret, username, password, originReqHost = None, debugLvl = logging.INFO):
@@ -105,8 +110,8 @@ class apiclient:
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			self._logger.error(str(e))
-			self._logger.error(e.read())
+			self._logger.error('APICLIENT:' + str(e))
+			self._logger.error('APICLIENT:' + e.read())
 			return {}
 
 		return response_json
@@ -115,6 +120,8 @@ class apiclient:
 #	api methods
 
 	def titleWatched(self, titleId, rating = None):
+		if isinstance(rating, (int, long)):
+			rating = RATING_CODE[rating]
 		req = {
 			'methodPath': 'title/%d/watched/' % titleId,
 			'method': 'post',
