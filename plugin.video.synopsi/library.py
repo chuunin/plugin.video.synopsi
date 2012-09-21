@@ -7,6 +7,7 @@ import time
 import socket
 import json
 import traceback
+import apiclient
 
 from utilities import *
 from cache import *
@@ -49,6 +50,8 @@ class ApiThread(threading.Thread):
         self.sock.connect(("localhost", 9090))
         # self.sock.connect(("localhost", get_api_port()))
         self.cache = cache
+        self.apiclient = None
+
 
     def process(self, data):
         pass
@@ -56,6 +59,15 @@ class ApiThread(threading.Thread):
     def run(self):
         global ABORT_REQUESTED
 
+        self.apiclient = apiclient.apiclient(
+            __addon__.getSetting('BASE_URL'),
+            __addon__.getSetting('KEY'),
+            __addon__.getSetting('SECRET'),
+            __addon__.getSetting('USER'),
+            __addon__.getSetting('PASS'),
+        )
+
+        self.apiclient.getAccessToken()
         # rebuild(CACHE)
 
         # Api().Application_Quit()
@@ -108,29 +120,23 @@ class Library(ApiThread):
     def addorupdate(self, aid, atype):
         # if not in cache, it's been probably added
         if not self.cache.hasTypeId(atype, aid):
-            if atype == "movie":                
-                movie = get_movie_details(aid)
-                movie['type'] = atype
-                movie['id'] = aid
-                xbmc.log(str(movie))
-                self.cache.put(movie)
-            elif atype == "episode":
-                movie = get_episode_details(aid)
-                movie['type'] = atype
-                movie['id'] = aid
-                xbmc.log(str(movie))
-                self.cache.put(movie)
+            movie = get_details(atype, aid)
+            movie['type'] = atype
+            movie['id'] = aid
+            # try to get synopsi id
+            title = self.apiclient.titleIdentify(movie['imdbnumber'])
+            if title.has_key('title_id'):
+                movie['stvId'] = title['title_id']
+            xbmc.log(str(movie))
+            self.cache.put(movie)
+
         # it is already in cache, is it moved file or what ?
         else:
-            if atype == "movie":
-                movie = get_movie_details(aid)
-                xbmc.log(str(movie))
-            elif atype == "episode":
-                movie = get_episode_details(aid)
-                xbmc.log(str(movie))
+            movie = get_details(atype, aid)
+            xbmc.log(str(movie))
 
-    def remove(self, _id, _type):
-        pass
+    def remove(self, aid, atype):
+        self.cache.remove(aid, atype)
 
     def process(self, data):
         methodName = data['method'].replace('.', '_')
