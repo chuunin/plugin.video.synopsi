@@ -1,15 +1,15 @@
 import os, sys
 
 # if __name__ == "__main__" and __package__ is None:
-#     __package__ = "tests/bapiclient.test"
+#     __package__ = "tests/apiclient.test"
 
 sys.path.insert(0, os.path.abspath('..'))
 
 print sys.path
 
-#import bapiclient
-from bapiclient import BapiClient
-#bapiclient = __import__('bapiclient')
+#import apiclient
+from apiclient import apiclient
+#apiclient = __import__('apiclient')
 
 
 base_url = 'http://neptune.local:8000/'
@@ -18,7 +18,7 @@ secret = '261029dbbdd5dd481da6564fa1054e'
 username = 'martin.smid@gmail.com'
 password = 'aaa'
 
-client = BapiClient(base_url, key, secret, username, password, debugLvl = 0)
+client = apiclient(base_url, key, secret, username, password, debugLvl = 0)
 client.getAccessToken()
 client.titleWatched(2848299, 'like')
 
