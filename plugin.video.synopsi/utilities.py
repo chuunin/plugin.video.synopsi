@@ -380,7 +380,7 @@ def get_movie_details(movie_id, all_prop=False):
         }
     )
 
-    return response
+    return response['moviedetails']
 
 
 def get_tvshow_details(movie_id):
@@ -416,6 +416,12 @@ def get_episode_details(movie_id):
 
     return response
 
+def get_details(atype, aid):
+    if atype == "movie":                
+        movie = get_movie_details(aid)
+    elif atype == "episode":
+        movie = get_episode_details(aid)
+    return movie
 
 class xbmcRPCclient(object):
 
@@ -438,7 +444,7 @@ class xbmcRPCclient(object):
         if self.__logLevel:
             xbmc.log('xbmc RPC response: ' + str(response))
 
-        return json.loads(response)
+        return json.loads(response)['result']
 
 xbmcRPC = xbmcRPCclient(1)
 

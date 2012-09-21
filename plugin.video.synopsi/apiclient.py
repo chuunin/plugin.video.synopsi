@@ -6,7 +6,7 @@ from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError
 
 
-class BapiClient:
+class apiclient:
 	def __init__(self, base_url, key, secret, username, password, originReqHost = None, debugLvl = logging.INFO):
 		self.baseUrl = base_url
 		self.key = key
@@ -21,7 +21,7 @@ class BapiClient:
 		self._logger = logging.getLogger()
 		self._logger.addHandler(logging.StreamHandler(sys.stdout))
 		self._logger.setLevel(debugLvl)
-		self._logger.debug('BapiClient __init__')
+		self._logger.debug('apiclient __init__')
 
 	def getAccessToken(self):
 		data = {
@@ -93,24 +93,27 @@ class BapiClient:
 #		self._logger.debug(self.authHeaders)
 
 		try:
-			response = urlopen(Request(url,
-				data = data,
-				headers = self.authHeaders, 
-				origin_req_host = self.originReqHost
-			))
+			response = urlopen(
+				Request(
+					url,
+					data = data,
+					headers = self.authHeaders, 
+					origin_req_host = self.originReqHost
+				)
+			)
+
+			response_json = json.loads(response.readline())
+
 		except HTTPError as e:
 			self._logger.error(str(e))
 			self._logger.error(e.read())
-		else:
-			while True:
-				l = response.readline()
-				if not l:
-					break
-				print l
+			return {}
+
+		return response_json
 
 
+#	api methods
 
-#class BapiMethods(BapiClient):
 	def titleWatched(self, titleId, rating = None):
 		req = {
 			'methodPath': 'title/%d/watched/' % titleId,
@@ -121,6 +124,17 @@ class BapiClient:
 		}
 
 		self.execute(req)
+
+	def titleIdentify(self, imdbId):
+		req = {
+			'methodPath': 'title/identify/',
+			'method': 'post',
+			'data': {
+				'imdb_id': str(imdbId)
+			}
+		}
+
+		return self.execute(req)
 
 
 
