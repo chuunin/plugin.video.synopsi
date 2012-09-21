@@ -33,12 +33,12 @@ class Cache(object):
         self.hash_table = []
 
     def log(self, msg):
-        xbmc.log('CACHE: ' + msg)
+        xbmc.log('CACHE: ' + str(msg))
 
     def put(self, item):
         self.byTypeId[str(item['type']) + '--' + str(item['id'])] = item
         self.byFilename[item['file']] = item
-        self.log(str(item['type']) + '--' + str(item['id']) + ' | ' + item['file'])
+        self.log('PUT:' + str(item['type']) + '--' + str(item['id']) + ' | ' + item['file'])
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(type + '--' + str(id))
