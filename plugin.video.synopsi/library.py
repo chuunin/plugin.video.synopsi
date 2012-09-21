@@ -124,13 +124,12 @@ class Library(ApiThread):
             movie['type'] = atype
             movie['id'] = aid
             # try to get synopsi id
-            title = self.apiclient.titleIdentify(movie['imdbnumber'])
+            title = self.apiclient.titleIdentify(movie['imdbnumber'][2:])
             if title.has_key('title_id'):
                 movie['stvId'] = title['title_id']
-            xbmc.log(str(movie))
             self.cache.put(movie)
 
-        # it is already in cache, is it moved file or what ?
+        # it is already in cache, some property has changed (e.g. lastplayed time)
         else:
             movie = get_details(atype, aid)
             xbmc.log(str(movie))
