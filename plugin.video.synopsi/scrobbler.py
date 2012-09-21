@@ -159,6 +159,9 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def __init__(self):
         super(SynopsiPlayerDecor, self).__init__()
 
+    def setCache(self, cache):
+        self.cache = cache
+
     def __del__(self):
         self.log('Deleting Player Object')
 
@@ -188,7 +191,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                 # temporary:
                 # get the title id
                 self.log('last file: ' + str(self.lastPlayedFile))
-                detail = get_movie_details(self.lastPlayedFile)                
+                detail = self.cache.getByFilename(self.lastPlayedFile)                
                 self.log('detail: ' + str(detail))
 
                 #self.bapiClient.titleWatched(stvId, r)
@@ -204,16 +207,20 @@ class Scrobbler(threading.Thread):
     """
     Thread creates SynopsiPlayer to receive events and waits for ABORT request.
     """
-    def __init__(self):
+    def __init__(self, xcache):
         super(Scrobbler, self).__init__()
         self.log('Created Scrobbler thread')
+        self.cache = xcache
 
     def log(self, msg):
         xbmc.log('Scrobbler: ' + msg)
 
     def run(self):
         self.log('thread run start')
+
         p = SynopsiPlayerDecor()
+        p.setCache(self.cache)
+
         #   wait for abort flag
         while not library.ABORT_REQUESTED:
             xbmc.sleep(1000)
@@ -231,5 +238,4 @@ class Scrobbler(threading.Thread):
 
             self.log("Scrobbler thread end")
         """         
-           
- 
+

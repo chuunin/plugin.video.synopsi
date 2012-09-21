@@ -1,6 +1,6 @@
 import base64
 import pickle
-
+import xbmc
 
 def serialize(cache):
     return base64.b64encode(pickle.dumps(cache))
@@ -27,8 +27,27 @@ class Cache(object):
     """
     def __init__(self):
         super(Cache, self).__init__()
-        self.table = []
+        self.byTypeId = {}
+        self.byFilename = {}
+
         self.hash_table = []
+
+    def log(self, msg):
+        xbmc.log('CACHE: ' + msg)
+
+    def put(self, item):
+        self.byTypeId[str(item['type']) + '--' + str(item['id'])] = item
+        self.byFilename[item['file']] = item
+        self.log(str(item['type']) + '--' + str(item['id']) + ' | ' + item['file'])
+
+    def hasTypeId(self, type, id):
+        return self.byTypeId.has_key(type + '--' + str(id))
+
+    def getByTypeId(self, type, id):
+        return self.byTypeId[type + '--' + str(id)]
+
+    def getByFilename(self, name):
+        return self.byFilename[name]
 
     def create(self, **kwargs):
         self.hash_table.append(kwargs)

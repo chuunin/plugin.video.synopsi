@@ -13,7 +13,7 @@ from cache import *
 
 ABORT_REQUESTED = False
 # CACHE = Cache()
-CACHE = None
+# Cache = None
 
 __addon__  = xbmcaddon.Addon()
 
@@ -42,21 +42,20 @@ def rebuild(cache):
 
 
 class ApiThread(threading.Thread):
-    def __init__(self):
+    def __init__(self, cache):
         super(ApiThread, self).__init__()
         self.sock = socket.socket()
         self.sock.settimeout(None)
         self.sock.connect(("localhost", 9090))
         # self.sock.connect(("localhost", get_api_port()))
+        self.cache = cache
 
     def process(self, data):
         pass
 
     def run(self):
         global ABORT_REQUESTED
-        global CACHE
 
-        CACHE = Cache()
         # rebuild(CACHE)
 
         # Api().Application_Quit()
@@ -91,8 +90,8 @@ class Library(ApiThread):
     """
     Just a Library.
     """
-    def __init__(self):
-        super(Library, self).__init__()
+    def __init__(self, cache):
+        super(Library, self).__init__(cache)
 
     def create(self):
         pass
@@ -106,22 +105,29 @@ class Library(ApiThread):
     def delete(self):
         pass
 
-    def addorupdate(self, _id, _type):
-        if CACHE.exists( _id = _id, _type = _type):
-            if _type == "movie":
-                # print get_movie_details(_id)
-                get_movie_details(_id)
-            elif _type == "episode":
-                # print get_episode_details(_id)
-                get_episode_details(_id)
+    def addorupdate(self, aid, atype):
+        # if not in cache, it's been probably added
+        if not self.cache.hasTypeId(atype, aid):
+            if atype == "movie":                
+                movie = get_movie_details(aid)
+                movie['type'] = atype
+                movie['id'] = aid
+                xbmc.log(str(movie))
+                self.cache.put(movie)
+            elif atype == "episode":
+                movie = get_episode_details(aid)
+                movie['type'] = atype
+                movie['id'] = aid
+                xbmc.log(str(movie))
+                self.cache.put(movie)
+        # it is already in cache, is it moved file or what ?
         else:
-            if _type == "movie":
-                movie = get_movie_details(_id)
-                # print movie
-                movie
-            elif _type == "episode":
-                # print get_episode_details(_id)
-                get_episode_details(_id)
+            if atype == "movie":
+                movie = get_movie_details(aid)
+                xbmc.log(str(movie))
+            elif atype == "episode":
+                movie = get_episode_details(aid)
+                xbmc.log(str(movie))
 
     def remove(self, _id, _type):
         pass

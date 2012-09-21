@@ -4,10 +4,14 @@ This is default file of SynopsiTV service. See addon.xml
 """
 from scrobbler import Scrobbler
 from library import Library
+from cache import Cache
 
 def main():
-    Scrobbler().start()
-    Library().start()
+	cache = Cache()
+	s = Scrobbler(cache)
+	s.start()
+	l = Library(cache)
+	l.start()
 
 if __name__ == "__main__":
     main()
