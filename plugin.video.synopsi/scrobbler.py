@@ -6,7 +6,7 @@ import time
 from random import randint
 import library
 import xbmcplugin
-import bapiclient
+import apiclient
 import logging
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
@@ -86,7 +86,7 @@ class SynopsiPlayer(xbmc.Player):
     stopped = False
     paused = False
     ended_without_rating = False
-    bapiClient = None
+    apiclient = None
 
     playing = False
     media_file = None
@@ -97,7 +97,7 @@ class SynopsiPlayer(xbmc.Player):
         self.log('INIT')
         self.current_time = 0
 
-        self.bapiClient = bapiclient.BapiClient(
+        self.apiclient = apiclient.apiclient(
             __addon__.getSetting('BASE_URL'),
             __addon__.getSetting('KEY'),
             __addon__.getSetting('SECRET'),
@@ -192,9 +192,10 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                 # get the title id
                 self.log('last file: ' + str(self.lastPlayedFile))
                 detail = self.cache.getByFilename(self.lastPlayedFile)                
+                # get stv id
                 self.log('detail: ' + str(detail))
-
-                #self.bapiClient.titleWatched(stvId, r)
+                if detail.has_key('stvId'):
+                    self.apiclient.titleWatched(detail['stvId'], r)
 
 
     def paused(self):
