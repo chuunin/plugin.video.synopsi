@@ -103,7 +103,9 @@ class SynopsiPlayer(xbmc.Player):
             __addon__.getSetting('SECRET'),
             __addon__.getSetting('USER'),
             __addon__.getSetting('PASS'),
-            )
+        )
+
+        self.apiclient.getAccessToken()
 
     def log(self, msg):
         xbmc.log('SynopsiPlayer: ' + msg)
