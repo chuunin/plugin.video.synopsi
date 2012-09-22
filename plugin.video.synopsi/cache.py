@@ -36,80 +36,27 @@ class Cache(object):
         xbmc.log('CACHE: ' + str(msg))
 
     def put(self, item):
-        self.byTypeId[str(item['type']) + '--' + str(item['id'])] = item
+        type = item['type']
+        id = item['id']
+        self.byTypeId[self._getKey(type, id)] = item
         self.byFilename[item['file']] = item
         stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
-        logstr = 'PUT:' + str(item['type']) + '--' + str(item['id']) + stvIdStr + ' | ' + item['file']
+        logstr = 'PUT:' + self._getKey(type, id) + stvIdStr + ' | ' + item['file']
         self.log(logstr)
 
     def hasTypeId(self, type, id):
-        return self.byTypeId.has_key(type + '--' + str(id))
+        return self.byTypeId.has_key(self._getKey(type, id))
 
     def getByTypeId(self, type, id):
-        return self.byTypeId[type + '--' + str(id)]
+        return self.byTypeId[self._getKey(type, id)]
 
     def getByFilename(self, name):
         return self.byFilename[name]
 
-    def create(self, **kwargs):
-        self.hash_table.append(kwargs)
+    def remove(self, type, id):
+        item = self.getByTypeId(type, id)
+        del self.byFilename[item['file']]
+        del self.byTypeId[self._getKey(type, id)]
 
-    @staticmethod
-    def dict_in_dict(d,c):
-        try:    
-            for i in d.keys():
-                if not (d[i] == c[i]):
-                    return False
-        except KeyError, e:
-            return False
-        return True
-
-    def get_from_dict(self, arg):
-        rtrn = []
-        for row in self.hash_table:
-            if self.dict_in_dict(arg, row):
-                rtrn.append(row)
-        return rtrn
-
-    def get(self, **kwargs):
-        return self.get_from_dict(kwargs)
-
-    def get_index(self, **kwargs):
-        raise NotImplementedError
-
-    def get_has_not(self, *args):
-        rtrn = []
-        broken = False
-        for row in self.hash_table:
-            for arg in args:
-                if row.has_key(arg):
-                    if row[arg] is None:
-                        broken = True
-                        break
-                else:
-                    broken = True
-                    break
-            if broken:
-                rtrn.append(row)
-                broken = False
-        return rtrn
-
-    def exists(self, **kwargs):
-        if len(self.get_from_dict(kwargs)) > 0:
-            return True
-        else:
-            return False
-
-    def update(self, item, **kwargs):
-        raise NotImplementedError
-        for _item in self.get_from_dict(item):
-            pass
-            # cache.update({"_id": 99, "_type": "movie"}, stv_id = 92384924)
-            # self.hash_table.
-            # for key in kwargs.keys():
-
-
-    def delete(self, **kwargs):
-        for item in self.get_from_dict(kwargs):
-            self.hash_table.remove(item)
-
+    def _getKey(self, type, id):
+        return str('type') + '--' + str('id')
