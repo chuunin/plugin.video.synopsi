@@ -13,8 +13,6 @@ from utilities import *
 from cache import *
 
 ABORT_REQUESTED = False
-# CACHE = Cache()
-# Cache = None
 
 __addon__  = xbmcaddon.Addon()
 
@@ -68,15 +66,6 @@ class ApiThread(threading.Thread):
         )
 
         self.apiclient.getAccessToken()
-        # rebuild(CACHE)
-
-        # Api().Application_Quit()
-        # print CACHE.get(_type = "movie")
-        # try:
-        #     CACHE = deserialize(__addon__.getSetting("CACHE"))
-        # except Exception, e:
-        #     print e
-        #     CACHE = Cache()
 
         while True:
             data = self.sock.recv(1024)
