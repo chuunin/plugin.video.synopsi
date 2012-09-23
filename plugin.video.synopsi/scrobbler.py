@@ -193,11 +193,15 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                 # temporary:
                 # get the title id
                 self.log('last file: ' + str(self.lastPlayedFile))
-                detail = self.cache.getByFilename(self.lastPlayedFile)                
-                # get stv id
-                self.log('detail: ' + str(detail))
-                if detail.has_key('stvId'):
-                    self.apiclient.titleWatched(detail['stvId'], r)
+
+                # query cache to get stvId
+                if self.cache.hasFilename(self.lastPlayedFile):
+                    detail = self.cache.getByFilename(self.lastPlayedFile)
+
+                    # get stv id
+                    self.log('detail: ' + str(detail))
+                    if detail.has_key('stvId'):
+                        self.apiclient.titleWatched(detail['stvId'], r)
 
 
     def paused(self):
@@ -225,7 +229,7 @@ class Scrobbler(threading.Thread):
         p.setCache(self.cache)
 
         #   wait for abort flag
-        while not library.ABORT_REQUESTED:
+        while not library.ABORT_REQUESTED and not xbmc.abortRequested:
             xbmc.sleep(1000)
         
         self.log("thread run end")
