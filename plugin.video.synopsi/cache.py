@@ -1,6 +1,7 @@
 import base64
 import pickle
 import xbmc
+import json
 
 def serialize(cache):
     return base64.b64encode(pickle.dumps(cache))
@@ -31,9 +32,10 @@ class Cache(object):
         self.byFilename = {}
 
         self.hash_table = []
+        self.list()
 
     def log(self, msg):
-        xbmc.log('CACHE: ' + str(msg))
+        xbmc.log('CACHE / ' + str(msg))
 
     def put(self, item):
         type = item['type']
@@ -41,8 +43,8 @@ class Cache(object):
         self.byTypeId[self._getKey(type, id)] = item
         self.byFilename[item['file']] = item
         stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
-        logstr = 'PUT:' + self._getKey(type, id) + stvIdStr + ' | ' + item['file']
-        self.log(logstr)
+        logstr = 'PUT / ' + self._getKey(type, id) + stvIdStr + ' | ' + item['file']
+        self.list()
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(self._getKey(type, id))
@@ -50,6 +52,9 @@ class Cache(object):
     def getByTypeId(self, type, id):
         return self.byTypeId[self._getKey(type, id)]
 
+    def hasFilename(self, name):
+        return self.byFilename.has_key(name)
+        
     def getByFilename(self, name):
         return self.byFilename[name]
 
@@ -57,6 +62,17 @@ class Cache(object):
         item = self.getByTypeId(type, id)
         del self.byFilename[item['file']]
         del self.byTypeId[self._getKey(type, id)]
+        self.list()
+
+    def list(self):
+        if len(self.byTypeId) == 0:
+            self.log('EMPTY')
+            return
+
+        self.log('LIST /')
+        for rec in self.byTypeId.values():
+            self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + json.dumps(rec))
 
     def _getKey(self, type, id):
-        return str('type') + '--' + str('id')
+        return str(type) + '--' + str(id)
+
