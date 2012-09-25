@@ -16,30 +16,6 @@ ABORT_REQUESTED = False
 
 __addon__  = xbmcaddon.Addon()
 
-def rebuild(cache):
-    """
-    Rebuild whole cache in case it is broken.
-    """
-    pass
-    # print json.dumps(get_all_movies())
-    cache.delete()
-    movies = get_all_movies()["result"]["movies"]
-    for movie in movies:
-        cache.create(_id = movie["movieid"], _type = "movie", imdb = movie["imdbnumber"], filepath = movie["file"])
-        print movie["imdbnumber"]
-
-    tv_shows = get_all_tvshows()["result"]["tvshows"]
-    # print tv_shows
-    for show in tv_shows:
-        for episode in get_episodes(show["tvshowid"])["result"]["episodes"]:
-            cache.create(_id = episode["episodeid"], _type = "episode", filepath = episode["file"])
-
-
-    for u in cache.get():
-        print u
-        # print get_episode_details(u)
-
-
 class ApiThread(threading.Thread):
     def __init__(self, cache):
         super(ApiThread, self).__init__()
@@ -84,7 +60,7 @@ class ApiThread(threading.Thread):
             else:
                 self.process(data_json)
 
-        # __addon__.setSetting(id='CACHE', value=serialize(CACHE))
+        xbmc.log('Library thread end')
 
 
 class Library(ApiThread):
@@ -120,11 +96,10 @@ class Library(ApiThread):
 
         # it is already in cache, some property has changed (e.g. lastplayed time)
         else:
-            movie = get_details(atype, aid)
-            xbmc.log(str(movie))
+            self.cache.update(movie)
 
     def remove(self, aid, atype):
-        self.cache.remove(aid, atype)
+        self.cache.remove(atype, aid)
 
     def process(self, data):
         methodName = data['method'].replace('.', '_')
