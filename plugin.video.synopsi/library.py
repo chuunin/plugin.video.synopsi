@@ -88,10 +88,12 @@ class Library(ApiThread):
         movie['id'] = aid
         # if not in cache, it's been probably added
         if not self.cache.hasTypeId(atype, aid):
+            # for now, try only if there is 'imdbnumber'
             # try to get synopsi id
-            title = self.apiclient.titleIdentify(movie['imdbnumber'][2:])
-            if title.has_key('title_id'):
-                movie['stvId'] = title['title_id']
+            if movie.has_key('imdbnumber'):
+                title = self.apiclient.titleIdentify(movie['imdbnumber'][2:])
+                if title.has_key('title_id'):
+                    movie['stvId'] = title['title_id']
             self.cache.put(movie)
 
         # it is already in cache, some property has changed (e.g. lastplayed time)
