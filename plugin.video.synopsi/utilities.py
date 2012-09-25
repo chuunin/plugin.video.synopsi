@@ -414,7 +414,7 @@ def get_episode_details(movie_id):
         }
     )
 
-    return response
+    return response['episodedetails']
 
 def get_details(atype, aid):
     if atype == "movie":                
