@@ -107,11 +107,11 @@ class Library(ApiThread):
         pass
 
     def addorupdate(self, aid, atype):
+        movie = get_details(atype, aid)
+        movie['type'] = atype
+        movie['id'] = aid
         # if not in cache, it's been probably added
         if not self.cache.hasTypeId(atype, aid):
-            movie = get_details(atype, aid)
-            movie['type'] = atype
-            movie['id'] = aid
             # try to get synopsi id
             title = self.apiclient.titleIdentify(movie['imdbnumber'][2:])
             if title.has_key('title_id'):
