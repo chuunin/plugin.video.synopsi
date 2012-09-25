@@ -174,8 +174,6 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def ended(self):
         self.log('ended')
         notification("ended", "ended")
-
-
         if is_in_library():
             get_rating()
             
@@ -203,7 +201,6 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                     if detail.has_key('stvId'):
                         self.apiclient.titleWatched(detail['stvId'], r)
 
-
     def paused(self):
         notification("paused", "paused")
 
@@ -230,9 +227,13 @@ class Scrobbler(threading.Thread):
 
         #   wait for abort flag
         while not library.ABORT_REQUESTED and not xbmc.abortRequested:
-            xbmc.sleep(1000)
+            xbmc.sleep(500)
         
-        self.log("thread run end")
+        dbg = ''
+        if library.ABORT_REQUESTED: dbg += "library.ABORT_REQUESTED " 
+        if xbmc.abortRequested: dbg += "xbmc.abortRequested " 
+        
+        self.log("thread run end " + dbg)
 
         """
             if self.player.playing:
