@@ -144,4 +144,38 @@ class apiclient:
 		return self.execute(req)
 
 
+	def profileRecco(self):
+		req = {
+			'methodPath': 'profile/recco/',
+			'method': 'post'
+		}
+
+		return self.execute(req)
+
+	def libaryTitleAdd(self, titleId):
+		# url(r'^library/title/(?P<title_id>\d+)/add/$', LibraryTitleAdd.as_view(), name='papi-v1-0-library-title-add'),
+		req = {
+			'methodPath': 'library/title/%d/add/' % titleId,
+			'method': 'post'
+		}
+
+		return self.execute(req)
+
+	def libraryTitle(self, titleId):
+		# url(r'^library/title/(?P<title_id>\d+)/$', LibraryTitle.as_view(), name='papi-v1-0-library-title'),
+		req = {
+			'methodPath': 'library/title/%d/' % titleId,
+			'method': 'post'
+		}
+
+		return self.execute(req)
+
+	def titleSimilar(self, titleId):
+    	# url(r'^title/(?P<title_id>\d+)/similar/$', TitleSimilar.as_view(), name='papi-v1-0-title-similar'),
+		req = {
+			'methodPath': 'title/%d/similar/' % titleId,
+			'method': 'post'
+		}
+
+		return self.execute(req)
 
