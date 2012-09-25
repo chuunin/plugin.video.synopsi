@@ -2,6 +2,7 @@ import base64
 import pickle
 import xbmc
 import json
+from utilities import *
 
 def serialize(cache):
     return base64.b64encode(pickle.dumps(cache))
@@ -38,13 +39,28 @@ class Cache(object):
         xbmc.log('CACHE / ' + str(msg))
 
     def put(self, item):
-        type = item['type']
-        id = item['id']
-        self.byTypeId[self._getKey(type, id)] = item
+        typeIdStr = self._getKey(item['type'], item['id'])
+        self.byTypeId[typeIdStr] = item
         self.byFilename[item['file']] = item
         stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
-        logstr = 'PUT / ' + self._getKey(type, id) + stvIdStr + ' | ' + item['file']
+        logstr = 'PUT / ' + typeIdStr + stvIdStr + ' | ' + item['file']
+        self.log(logstr)
         self.list()
+
+    def update(self, item):
+        typeIdStr = self._getKey(item['type'], item['id'])
+        cacheItem = self.byTypeId[typeIdStr]
+
+        updateStr = ''
+
+        # update items
+        for key in item:
+            if not item[key] == cacheItem[key]:
+                updateStr += key + ': ' + str(cacheItem[key]) + ' -> ' + str(item[key]) + ' | '
+                cacheItem[key] = item[key]
+
+        self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
+
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(self._getKey(type, id))
@@ -72,6 +88,43 @@ class Cache(object):
         self.log('LIST /')
         for rec in self.byTypeId.values():
             self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + json.dumps(rec))
+
+    def listByFilename(self):
+        if len(self.byFilename) == 0:
+            self.log('EMPTY')
+            return
+
+        self.log('LIST /')
+        for rec in self.byFilename.items():
+            self.log(rec[0] + '\t| ' + json.dumps(rec[1]))
+
+    def clear(self):
+        self.byFilename = {}
+        self.byTypeId = {}
+
+    def rebuild(self):
+        """
+        Rebuild whole cache in case it is broken.
+        """
+        
+        self.clear()
+        movies = get_all_movies()["movies"]
+        for movie in movies:
+            movie['id'] = movie["movieid"]
+            movie['type'] = "movie"
+            self.put(movie)
+
+        resTvShows = get_all_tvshows()
+        if resTvShows.has_key("tvshows") > 0:
+            tv_shows = resTvShows
+            self.log(json.dumps(tv_shows))
+            # print tv_shows
+            for show in tv_shows:
+                for episode in get_episodes(show["tvshowid"])["result"]["episodes"]:
+                    self.create(_id = episode["episodeid"], _type = "episode", filepath = episode["file"])
+                    episode['id'] = episode["episodeid"]
+                    episode['type'] = "episode"
+                    self.put(episode)
 
     def _getKey(self, type, id):
         return str(type) + '--' + str(id)
