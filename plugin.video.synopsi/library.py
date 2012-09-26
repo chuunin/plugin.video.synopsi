@@ -20,8 +20,7 @@ class ApiThread(threading.Thread):
     def __init__(self, cache):
         super(ApiThread, self).__init__()
         self.sock = socket.socket()
-        self.sock.connect(("localhost", 9090))
-        # self.sock.connect(("localhost", get_api_port()))
+        self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
         self.cache = cache
         self.apiclient = None
 
@@ -127,3 +126,26 @@ class Library(ApiThread):
 
     def VideoLibrary_OnRemove(self, data):
         self.remove(data['params']['data']['id'], data['params']['data']['type'])
+
+    def Player_OnPlay(self, data):
+        aid = data['params']['data']['item']['id']
+        atype = data['params']['data']['item']['type']
+
+        xbmc.log(json.dumps(data, indent=4))
+        if self.cache.hasTypeId(atype, aid):
+            movie = self.cache.getByTypeId(atype, aid)
+            if movie.has_key('stvId'):
+                self.apiclient.playerPlay(movie['stvId'])
+
+    def Player_OnStop(self, data):
+        aid = data['params']['data']['item']['id']
+        atype = data['params']['data']['item']['type']
+
+        xbmc.log(json.dumps(data, indent=4))
+        if self.cache.hasTypeId(atype, aid):
+            movie = self.cache.getByTypeId(atype, aid)
+            if movie.has_key('stvId'):
+                self.apiclient.playerStop(movie['stvId'])
+
+
+

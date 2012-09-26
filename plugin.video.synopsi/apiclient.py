@@ -143,6 +143,27 @@ class apiclient:
 
 		return self.execute(req)
 
+	def playerPlay(self, stvId):
+		req = {
+			'methodPath': 'player/play/',
+			'method': 'post',
+			'data': {
+				'stvId': stvId
+			}
+		}
+
+		return self.execute(req)
+
+	def playerStop(self, stvId):
+		req = {
+			'methodPath': 'player/stop/',
+			'method': 'post',
+			'data': {
+				'stvId': stvId
+			}
+		}
+
+		return self.execute(req)
 
 	def profileRecco(self):
 		req = {
