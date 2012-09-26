@@ -20,7 +20,10 @@ class ApiThread(threading.Thread):
     def __init__(self, cache):
         super(ApiThread, self).__init__()
         self.sock = socket.socket()
+        self.sock.settimeout(5)
         self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
+        xbmc.log('timeout:' + str(self.sock.gettimeout()))
+        self.sock.setblocking(True)
         self.cache = cache
         self.apiclient = None
 
@@ -43,8 +46,7 @@ class ApiThread(threading.Thread):
 
         while True:
             data = self.sock.recv(1024)
-            # xbmc.log('At {0}: {1}'.format(time.time(), str(data)))
-            xbmc.log('SynopsiTV: {0}'.format(str(data)))
+            # xbmc.log('SynopsiTV: {0}'.format(str(data)))
             try:
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
@@ -146,6 +148,22 @@ class Library(ApiThread):
             movie = self.cache.getByTypeId(atype, aid)
             if movie.has_key('stvId'):
                 self.apiclient.playerStop(movie['stvId'])
+
+    def Player_OnSeek(self, data):
+        pass
+
+    def Player_OnPause(self, data):
+        pass
+
+    def Player_OnResume(self, data):
+        pass
+
+    def GUI_OnScreenSaverActivated(self, data):
+        pass
+
+    def GUI_OnScreenSaverDeactivated(self, data):
+        pass
+
 
 
 
