@@ -24,7 +24,6 @@ def notification(name, text):
     Sends notification to XBMC.
     """
     xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
-    xbmc.log('Notification:' + name + ' ' + text)
 
 class XMLRatingDialog(xbmcgui.WindowXMLDialog):
     """
@@ -91,6 +90,7 @@ class SynopsiPlayer(xbmc.Player):
     playing = False
     media_file = None
     lastPlayedFile = None
+    playerEvents = []
 
     def __init__(self):
         super(SynopsiPlayer, self).__init__()
@@ -110,12 +110,21 @@ class SynopsiPlayer(xbmc.Player):
     def log(self, msg):
         xbmc.log('SynopsiPlayer: ' + msg)
 
+    def playerEvent(self, eventName):
+        notification(eventName, 'notify')
+        self.log(eventName)
+        self.playerEvents.push(
+            {
+                'eventName': eventName,                
+                'totalTime': self.getTotalTime(),
+            }
+        )
+
     def onPlayBackStarted(self):
         self.log('onPlayBackStarted')
         if self.playing:
             if self.media_file != xbmc.Player().getPlayingFile():
                 self.ended_without_rating()
-                self.playing = True
                 self.media_file = xbmc.Player().getPlayingFile()
                 self.lastPlayedFile = self.media_file
         else:
@@ -125,9 +134,10 @@ class SynopsiPlayer(xbmc.Player):
                 self.media_file = xbmc.Player().getPlayingFile()
                 self.lastPlayedFile = self.media_file
 
+        self.log('playing:' + playing)
+
     def onPlayBackEnded(self):
-        notification("onPlayBackEnded", "Dev Notice")
-        self.log('onPlayBackEnded')
+        notification("onPlayBackEnded", "onPlayBackEnded")
         if self.playing:
             try:
                 self.media_file = xbmc.Player().getPlayingFile()
@@ -144,7 +154,7 @@ class SynopsiPlayer(xbmc.Player):
             self.playing = False
             self.media_file = None
             self.stopped()
-
+            self.log(json.dumps(self.playerEvents, indent=4))
 
     def onPlayBackPaused(self):
         self.log('onPlayBackPaused')
@@ -154,6 +164,8 @@ class SynopsiPlayer(xbmc.Player):
     def onPlayBackResumed(self):
         if self.playing:
             self.resumed()
+        else:
+            self.log('resumed not playing?')
     
 
 class SynopsiPlayerDecor(SynopsiPlayer):
@@ -169,19 +181,19 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
     def started(self):
         self.total_time = xbmc.Player().getTotalTime()
-        notification("started", "started")
+        playerEvent('start')
 
     def ended(self):
-        self.log('ended')
-        notification("ended", "ended")
+        playerEvent('end')
         if is_in_library():
             get_rating()
             
 
     def ended_without_rating(self):
-        notification("ended", "ended")
+        playerEvent('end')
 
     def stopped(self):  
+        playerEvent('stop')
         # ask for rating only if stopped and more than 70% of movie passed
         if is_in_library():
             r = get_rating()
@@ -202,10 +214,10 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                         self.apiclient.titleWatched(detail['stvId'], r)
 
     def paused(self):
-        notification("paused", "paused")
+        playerEvent('pause')
 
     def resumed(self):
-        notification("resumed", "resumed")
+        playerEvent('resume')
 
 class Scrobbler(threading.Thread):
     """
