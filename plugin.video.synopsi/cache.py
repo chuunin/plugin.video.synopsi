@@ -56,7 +56,7 @@ class Cache(object):
         # update items
         for key in item:
             if not cacheItem.has_key(key) or not item[key] == cacheItem[key]:
-                updateStr += key + ': ' + getattr(cacheItem, key, None) + ' -> ' + str(item[key]) + ' | '
+                updateStr += key + ': ' + str(getattr(cacheItem, key, None)) + ' -> ' + str(item[key]) + ' | '
                 cacheItem[key] = item[key]
 
         self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
