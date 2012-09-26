@@ -271,7 +271,7 @@ try:
     data = urllib.unquote_plus(params["data"])
 except:
     pass
-
+    
 if mode==None or url==None or len(url)<1:
     show_categories()
     xbmcplugin.endOfDirectory(int(sys.argv[1]))

@@ -20,7 +20,6 @@ class ApiThread(threading.Thread):
     def __init__(self, cache):
         super(ApiThread, self).__init__()
         self.sock = socket.socket()
-        self.sock.settimeout(None)
         self.sock.connect(("localhost", 9090))
         # self.sock.connect(("localhost", get_api_port()))
         self.cache = cache
@@ -83,13 +82,14 @@ class Library(ApiThread):
         pass
 
     def addorupdate(self, aid, atype):
+        # find out new data about movie
         movie = get_details(atype, aid)
         movie['type'] = atype
         movie['id'] = aid
         # if not in cache, it's been probably added
         if not self.cache.hasTypeId(atype, aid):
-            # for now, try only if there is 'imdbnumber'
             # try to get synopsi id
+            # for now, try only if there is 'imdbnumber'
             if movie.has_key('imdbnumber'):
                 title = self.apiclient.titleIdentify(movie['imdbnumber'][2:])
                 if title.has_key('title_id'):
