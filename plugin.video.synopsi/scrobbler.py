@@ -116,11 +116,12 @@ class SynopsiPlayer(xbmc.Player):
         self.log(eventName)
 
         event = {
-            'eventName': eventName                
+            'eventName': eventName,                
+            'eventTime': time.time()
         }
 
         if self.isPlaying():
-            event['time'] = self.getTime()
+            event['movieTime'] = self.getTime()
 
         self.playerEvents.append(event)
 
@@ -197,12 +198,13 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
     def stopped(self):  
         self.playerEvent('stop')
+        self.log(json.dumps(self.playerEvents, indent=4))
         # ask for rating only if stopped and more than 70% of movie passed
         if is_in_library():
-            r = get_rating()
+            rating = get_rating()
             
             # if user rated the title
-            if r < 4:
+            if rating < 4:
                 # temporary:
                 # get the title id
                 self.log('last file: ' + str(self.lastPlayedFile))
@@ -214,9 +216,9 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                     # get stv id
                     self.log('detail: ' + str(detail))
                     if detail.has_key('stvId'):
-                        self.apiclient.titleWatched(detail['stvId'], r)
+                        self.apiclient.titleWatched(detail['stvId'], rating, self.playerEvents)
 
-        self.log(json.dumps(self.playerEvents, indent=4))
+                    self.playerEvents = []
 
 
     def paused(self):
