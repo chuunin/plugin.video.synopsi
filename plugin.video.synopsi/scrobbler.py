@@ -120,7 +120,7 @@ class SynopsiPlayer(xbmc.Player):
         }
 
         if self.isPlaying():
-            event['totalTime'] = self.getTime()
+            event['time'] = self.getTime()
 
         self.playerEvents.append(event)
 

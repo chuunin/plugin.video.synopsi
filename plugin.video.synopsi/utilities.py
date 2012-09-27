@@ -446,5 +446,7 @@ class xbmcRPCclient(object):
 
         return json.loads(response)['result']
 
+
+# init local variables
 xbmcRPC = xbmcRPCclient(1)
 

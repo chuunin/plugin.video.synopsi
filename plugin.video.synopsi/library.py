@@ -79,6 +79,13 @@ class Library(ApiThread):
     """
     def __init__(self, cache):
         super(Library, self).__init__(cache)
+        self.playerEvents = []
+
+    def playerEvent(self, data):
+        self.log(json.dumps(data, indent=4))
+
+    def log(self, msg):
+        xbmc.log('Library: ' + msg)
 
     def create(self):
         pass
@@ -140,41 +147,33 @@ class Library(ApiThread):
         self.remove(data['params']['data']['id'], data['params']['data']['type'])
 
     def Player_OnPlay(self, data):
+        self.playerEvent(data)
         aid = data['params']['data']['item']['id']
         atype = data['params']['data']['item']['type']
 
-        xbmc.log(json.dumps(data, indent=4))
-        if self.cache.hasTypeId(atype, aid):
-            movie = self.cache.getByTypeId(atype, aid)
-            if movie.has_key('stvId'):
-                self.apiclient.playerPlay(movie['stvId'])
-
     def Player_OnStop(self, data):
+        self.playerEvent(data)
         if data == None:
             return
 
-        aid = data['params']['data']['item']['id']
-        atype = data['params']['data']['item']['type']
-
-        xbmc.log(json.dumps(data, indent=4))
-        if self.cache.hasTypeId(atype, aid):
-            movie = self.cache.getByTypeId(atype, aid)
-            if movie.has_key('stvId'):
-                self.apiclient.playerStop(movie['stvId'])
-
     def Player_OnSeek(self, data):
+        self.playerEvent(data)
         pass
 
     def Player_OnPause(self, data):
+        self.playerEvent(data)
         pass
 
     def Player_OnResume(self, data):
+        self.playerEvent(data)
         pass
 
     def GUI_OnScreenSaverActivated(self, data):
+        self.playerEvent(data)
         pass
 
     def GUI_OnScreenSaverDeactivated(self, data):
+        self.playerEvent(data)
         pass
 
 
