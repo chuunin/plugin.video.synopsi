@@ -17,7 +17,6 @@ username = 'martin.smid@gmail.com'
 password = 'aaa'
 
 client = apiclient(base_url, key, secret, username, password, debugLvl = 0)
-client.getAccessToken()
 #client.titleWatched(2848299, 'like')
 #client.titleIdentify('1268799')
 #client.titleIdentify('1770488')

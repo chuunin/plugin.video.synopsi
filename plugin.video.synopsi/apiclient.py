@@ -1,6 +1,7 @@
 import logging
 import json
 import sys
+import datetime
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError
@@ -12,7 +13,7 @@ RATING_CODE = {
 }
 
 class apiclient:
-	def __init__(self, base_url, key, secret, username, password, originReqHost = None, debugLvl = logging.INFO):
+	def __init__(self, base_url, key, secret, username, password, originReqHost = None, debugLvl = logging.INFO, accessTokenTimeout = 10):
 		self.baseUrl = base_url
 		self.key = key
 		self.secret = secret
@@ -27,6 +28,8 @@ class apiclient:
 		self._logger.addHandler(logging.StreamHandler(sys.stdout))
 		self._logger.setLevel(debugLvl)
 		self._logger.debug('apiclient __init__')
+		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
+		self.accessTokenSessionStart = None
 
 	def getAccessToken(self):
 		data = {
@@ -55,15 +58,17 @@ class apiclient:
 			return False
 
 		self.accessToken = response_json['access_token']
+		self.accessTokenSessionStart = datetime.datetime.now()
 		self.refreshToken = response_json['refresh_token']
 		self._logger.debug('access token = ' + self.accessToken)
 
 	def isAuthorized(self):
-		return self.accessToken != None
+		# if we have some acess token and if access token session didnt time-out
+		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 	def execute(self, requestData):
 		if not self.isAuthorized():
-			raise Exception('Not Authorized')
+			self.getAccessToken()
 
 		url = self.apiUrl + requestData['methodPath']
 

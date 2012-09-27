@@ -52,8 +52,6 @@ class ApiThread(threading.Thread):
             __addon__.getSetting('PASS'),
         )
 
-        self.apiclient.getAccessToken()
-
         while True:
             data = self.sock.recv(1024)
             # xbmc.log('SynopsiTV: {0}'.format(str(data)))

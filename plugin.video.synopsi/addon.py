@@ -262,8 +262,6 @@ apiClient = apiclient.apiclient(
         debugLvl = logging.DEBUG
     )
 
-apiClient.getAccessToken()
-
 try:
     url=urllib.unquote_plus(params["url"])
 except:
