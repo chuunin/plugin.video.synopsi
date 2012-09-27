@@ -11,39 +11,39 @@ __addon__  = xbmcaddon.Addon()
 
 def main():
 
-	# try to restore cache	
-	cacheSer = __addon__.getSetting(id='CACHE')
+    # try to restore cache  
+    cacheSer = __addon__.getSetting(id='CACHE')
 
-	try:
-		cache = deserialize(cacheSer)
-	except:
-		# first time init
-		xbmc.log('CACHE restore failed. If this is your first run, its ok')
-		cache = Cache()
+    try:
+        cache = deserialize(cacheSer)
+    except:
+        # first time init
+        xbmc.log('CACHE restore failed. If this is your first run, its ok')
+        cache = Cache()
 
-	cache.list()
+    cache.list()
 
-	s = Scrobbler(cache)
-	s.start()
-	l = Library(cache)
-	l.start()
+    s = Scrobbler(cache)
+    l = Library(cache)
+    s.start()
+    l.start()
 
-	xbmc.log('Entering service loop')
-	while True:
-		s.join(0.5)
-		l.join(0.5)
+    xbmc.log('Entering service loop')
+    while True:
+        s.join(0.5)
+        l.join(0.5)
 
-		if not l.isAlive() and not s.isAlive():
-			xbmc.log('Service loop end. Both threads are dead')
-			break
+        if not l.isAlive() and not s.isAlive():
+            xbmc.log('Service loop end. Both threads are dead')
+            break
 
-		if False and xbmc.abortRequested:
-			xbmc.log('service.py abortRequested')
-			break;
+        if False and xbmc.abortRequested:
+            xbmc.log('service.py abortRequested')
+            break;
 
-	xbmc.log('library and scrobbler quit')
+    xbmc.log('library and scrobbler quit')
 
-	__addon__.setSetting(id='CACHE', value=serialize(cache))
+    __addon__.setSetting(id='CACHE', value=serialize(cache))
 
 
 if __name__ == "__main__":
