@@ -8,6 +8,7 @@ import library
 import xbmcplugin
 import apiclient
 import logging
+import json
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # Default XBMC constant for hidden cancel button
@@ -113,12 +114,15 @@ class SynopsiPlayer(xbmc.Player):
     def playerEvent(self, eventName):
         notification(eventName, 'notify')
         self.log(eventName)
-        self.playerEvents.push(
-            {
-                'eventName': eventName,                
-                'totalTime': self.getTotalTime(),
-            }
-        )
+
+        event = {
+            'eventName': eventName                
+        }
+
+        if self.isPlaying():
+            event['totalTime'] = self.getTime()
+
+        self.playerEvents.append(event)
 
     def onPlayBackStarted(self):
         self.log('onPlayBackStarted')
@@ -134,7 +138,7 @@ class SynopsiPlayer(xbmc.Player):
                 self.media_file = xbmc.Player().getPlayingFile()
                 self.lastPlayedFile = self.media_file
 
-        self.log('playing:' + playing)
+        self.log('playing:' + str(self.playing))
 
     def onPlayBackEnded(self):
         notification("onPlayBackEnded", "onPlayBackEnded")
@@ -154,7 +158,6 @@ class SynopsiPlayer(xbmc.Player):
             self.playing = False
             self.media_file = None
             self.stopped()
-            self.log(json.dumps(self.playerEvents, indent=4))
 
     def onPlayBackPaused(self):
         self.log('onPlayBackPaused')
@@ -181,19 +184,19 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
     def started(self):
         self.total_time = xbmc.Player().getTotalTime()
-        playerEvent('start')
+        self.playerEvent('start')
 
     def ended(self):
-        playerEvent('end')
+        self.playerEvent('end')
         if is_in_library():
             get_rating()
             
 
     def ended_without_rating(self):
-        playerEvent('end')
+        self.playerEvent('end')
 
     def stopped(self):  
-        playerEvent('stop')
+        self.playerEvent('stop')
         # ask for rating only if stopped and more than 70% of movie passed
         if is_in_library():
             r = get_rating()
@@ -213,11 +216,14 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                     if detail.has_key('stvId'):
                         self.apiclient.titleWatched(detail['stvId'], r)
 
+        self.log(json.dumps(self.playerEvents, indent=4))
+
+
     def paused(self):
-        playerEvent('pause')
+        self.playerEvent('pause')
 
     def resumed(self):
-        playerEvent('resume')
+        self.playerEvent('resume')
 
 class Scrobbler(threading.Thread):
     """
