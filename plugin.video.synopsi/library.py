@@ -20,8 +20,18 @@ class ApiThread(threading.Thread):
     def __init__(self, cache):
         super(ApiThread, self).__init__()
         self.sock = socket.socket()
-        self.sock.settimeout(5)
-        self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
+        self.sock.settimeout(10)
+        conned = False
+        while not conned:
+            try:
+                self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
+            except Exception, exc:
+                xbmc.log(str(exc))
+                xbmc.sleep(1)
+            else:
+                xbmc.log('Connected to 9090')
+                conned = True
+
         xbmc.log('timeout:' + str(self.sock.gettimeout()))
         self.sock.setblocking(True)
         self.cache = cache
@@ -140,6 +150,9 @@ class Library(ApiThread):
                 self.apiclient.playerPlay(movie['stvId'])
 
     def Player_OnStop(self, data):
+        if data == None:
+            return
+
         aid = data['params']['data']['item']['id']
         atype = data['params']['data']['item']['type']
 
