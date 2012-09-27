@@ -2,48 +2,41 @@
 This is default file of SynopsiTV service. See addon.xml
 <extension point="xbmc.service" library="service.py" start="login|startup">
 """
-from scrobbler import Scrobbler
 from library import Library
 from cache import *
 import xbmc, xbmcgui, xbmcaddon
+from scrobbler import *
 
 __addon__  = xbmcaddon.Addon()
 
 def main():
 
-	# try to restore cache	
-	cacheSer = __addon__.getSetting(id='CACHE')
+    # try to restore cache  
+    cacheSer = __addon__.getSetting(id='CACHE')
 
-	try:
-		cache = deserialize(cacheSer)
-	except:
-		# first time init
-		xbmc.log('CACHE restore failed. If this is your first run, its ok')
-		cache = Cache()
+    try:
+        cache = deserialize(cacheSer)
+    except:
+        # first time init
+        xbmc.log('CACHE restore failed. If this is your first run, its ok')
+        cache = Cache()
 
-	cache.list()
+    cache.list()
 
-	s = Scrobbler(cache)
-	s.start()
-	l = Library(cache)
-	l.start()
+    p = SynopsiPlayerDecor()
+    p.setCache(cache)
 
-	xbmc.log('Entering service loop')
-	while True:
-		s.join(0.5)
-		l.join(0.5)
+    l = Library(cache)
+    l.start()
 
-		if not l.isAlive() and not s.isAlive():
-			xbmc.log('Service loop end. Both threads are dead')
-			break
+    xbmc.log('Entering service loop')
 
-		if False and xbmc.abortRequested:
-			xbmc.log('service.py abortRequested')
-			break;
+    while True:
+        l.join(0.5)
 
-	xbmc.log('library and scrobbler quit')
+    xbmc.log('library quit')
 
-	__addon__.setSetting(id='CACHE', value=serialize(cache))
+    __addon__.setSetting(id='CACHE', value=serialize(cache))
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import json
 import traceback
 import apiclient
 
+from scrobbler import *
 from utilities import *
 from cache import *
 
@@ -53,6 +54,7 @@ class ApiThread(threading.Thread):
         )
 
         self.apiclient.getAccessToken()
+
 
         while True:
             data = self.sock.recv(1024)
