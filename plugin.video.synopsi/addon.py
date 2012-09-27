@@ -15,9 +15,10 @@ import json
 import urllib2
 import re
 import os.path
-
+import logging
 import test
 import utilities
+import apiclient
 
 # from PIL import Image, ImageDraw, ImageOps
 
@@ -33,6 +34,10 @@ def get_local_recco():
 
 
 def get_global_recco():
+    global apiClient
+    resRecco =  apiClient.profileRecco('movie')
+    xbmc.log(json.dumps(resRecco, indent=4))
+
     return movies
 
 
@@ -77,7 +82,6 @@ def add_to_list(movieid, listid):
 
 def set_already_watched(movieid):
     pass
-
 
 class VideoDialog(xbmcgui.WindowXMLDialog):
     """
@@ -249,6 +253,16 @@ mode = None
 type = None
 data = None
 
+apiClient = apiclient.apiclient(
+        __addon__.getSetting('BASE_URL'),
+        __addon__.getSetting('KEY'),
+        __addon__.getSetting('SECRET'),
+        __addon__.getSetting('USER'),
+        __addon__.getSetting('PASS'),
+        debugLvl = logging.DEBUG
+    )
+
+apiClient.getAccessToken()
 
 try:
     url=urllib.unquote_plus(params["url"])
@@ -285,3 +299,5 @@ elif mode==1:
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==2:
     show_video_dialog(url, name, data)
+
+
