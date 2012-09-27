@@ -72,13 +72,9 @@ class apiclient:
 		if not requestData.has_key('data'):
 			requestData['data'] = {}
 
-		post = {}
-		get = {}
-
-		post = requestData['data']		
-
 		# append data to post
 		if method == 'post':
+			post = requestData['data']		
 			post['client_id'] = self.key
 			post['client_secret'] = self.secret
 			post['bearer_token'] = self.accessToken
@@ -86,16 +82,20 @@ class apiclient:
 
 		# append data to get
 		if method == 'get':
+			get = requestData['data']
 			get['client_id'] = self.key
 			get['client_secret'] = self.secret
 			get['bearer_token'] = self.accessToken
 			url += '?' + urlencode(get)
+			data = None
 			self._logger.debug(url)
 
-		self._logger.debug('post:' + str(post))
-		self._logger.debug('get:' + str(get))		
-		self._logger.debug('data:' + str(data))		
-#		self._logger.debug(self.authHeaders)
+		if 'post' in locals():
+			self._logger.debug('post:' + str(post))
+		if 'get' in globals():
+			self._logger.debug('get:' + str(get))		
+
+		self._logger.debug('data:' + str(data))	
 
 		try:
 			response = urlopen(
@@ -201,4 +201,16 @@ class apiclient:
 		}
 
 		return self.execute(req)
+
+	def profileRecco(self, atype):
+		req = {
+			'methodPath': 'profile/recco/',
+			'method': 'get',
+			'data': {
+				'type': atype
+			}
+		}
+
+		return self.execute(req)
+
 
