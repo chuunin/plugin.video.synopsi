@@ -119,14 +119,16 @@ class apiclient:
 
 #	api methods
 
-	def titleWatched(self, titleId, rating = None):
+	def titleWatched(self, titleId, rating = None, playerEvents = None):
 		if isinstance(rating, (int, long)):
 			rating = RATING_CODE[rating]
+
 		req = {
 			'methodPath': 'title/%d/watched/' % titleId,
 			'method': 'post',
 			'data': {
-				'rating': rating
+				'rating': rating,
+				'player_events': json.dumps(playerEvents)
 			}
 		}
 
