@@ -172,14 +172,6 @@ class apiclient:
 
 		return self.execute(req)
 
-	def profileRecco(self):
-		req = {
-			'methodPath': 'profile/recco/',
-			'method': 'post'
-		}
-
-		return self.execute(req)
-
 	def libraryTitleAdd(self, titleId):
 		# url(r'^library/title/(?P<title_id>\d+)/add/$', LibraryTitleAdd.as_view(), name='papi-v1-0-library-title-add'),
 		req = {
