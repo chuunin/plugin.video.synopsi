@@ -36,7 +36,6 @@ def get_local_recco():
 def get_global_recco():
     global apiClient
     resRecco =  apiClient.profileRecco('movie')
-    xbmc.log(json.dumps(resRecco, indent=4))
 
     return movies
 
@@ -168,10 +167,8 @@ def add_directory(name, url, mode, iconimage, type, view_mode=500):
     return ok
 
 
-def add_movie(name, url, mode, iconimage, movieid, view_mode=500):
-    for mov in get_items(1):# bug
-        if mov["id"] == movieid:
-            json_data = json.dumps(mov)
+def add_movie(movie, name, url, mode, iconimage, movieid, view_mode=500):
+    json_data = json.dumps(movie)
     u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&data="+urllib.quote_plus(json_data)
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
@@ -186,7 +183,6 @@ def show_categories():
     """
     Shows initial categories on home screen.
     """
-    print json.dumps(utilities.get_all_movies())
     add_directory("Recommendations", "url", 1, "list.png", 1)
     add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
     add_directory("Lists", "url", 1, "icon.png", 4)
@@ -195,10 +191,10 @@ def show_categories():
 
 
 def show_movies(url, type):
-    for film in get_items(type):
-        add_movie(film.get('name'), "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
+    for movie in get_items(type):
+        add_movie(movie, movie.get('name'), "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
          C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
-            2, film.get('cover_medium'), film.get("id"))
+            2, movie.get('cover_medium'), movie.get("id"))
 
 
 def show_video_dialog(url, name, data):
@@ -293,6 +289,7 @@ if mode==None or url==None or len(url)<1:
 
     xbmc.executebuiltin("Container.SetViewMode(503)")
 elif mode==1:
+    xbmc.log('show_movies')
     show_movies(url, type)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==2:
