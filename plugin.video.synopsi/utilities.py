@@ -8,6 +8,7 @@ import os
 import urllib
 import urlparse
 import hashlib
+import uuid
 
 from base64 import b64encode
 from urllib import urlencode
@@ -23,53 +24,6 @@ HTTP_HEADERS = {
 }
 __addon__     = xbmcaddon.Addon()
 
-
-
-def get_token(user, passwd):
-    """
-    Get oauth token.
-    """
-    data = {
-    'grant_type':'password',
-    'client_id': KEY,
-    'client_secret': SECRET,
-    'username': user,
-    'password': passwd
-    }
-    response = urlopen(Request('http://dev.synopsi.tv/oauth2/token/', 
-        data=urlencode(data), 
-        headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
-    ))
-    response_json = json.loads(response.readline())
-    access_token = response_json['access_token']
-    # refresh_token = response_json['refresh_token']
-    # Permanent token
-    # return (access_token, refresh_token)
-
-    return (access_token, "")
-
-
-def send_data(json_data, access_token):
-    """
-    Send data.
-    """
-    # example of sending data
-    # json_data = {'test': 'example'}
-    data = {
-    'client_id': KEY,
-    'client_secret': SECRET,
-    'bearer_token': access_token,
-    'data': json.dumps(json_data)
-    }
-    
-    # response = urlopen(Request('http://dev.synopsi.tv/api/desktop/',
-    #     data=urlencode(data),
-    #     headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
-    # ))
-    response = urlopen(Request('http://localhost/',
-        data=urlencode(data),
-        headers=HTTP_HEADERS, origin_req_host='dev.synopsi.tv'
-    ))
 
 
 def get_protected_folders():
@@ -182,8 +136,10 @@ def generate_deviceid():
     Returns deviceid generated from MAC address.
     """
     uid = str(uuid.getnode())
+    xbmcBuildVer = xbmc.getInfoLabel('System.BuildVersion')
     sha1 = hashlib.sha1()
     sha1.update(uid)
+    sha1.update(xbmcBuildVer)
     return sha1.hexdigest()
 
 
@@ -416,6 +372,20 @@ def get_episode_details(movie_id):
 
     return response['episodedetails']
 
+def XBMC_GetInfoLabels():
+    """
+    """
+
+    response = xbmcRPC.execute(
+        'XBMC.GetInfoLabels',
+        {
+            'properties' : [ 'System.CpuFrequency', 'System.KernelVersion','System.FriendlyName','System.BuildDate','System.BuildVersion' ]
+        }
+    )
+
+    return response
+
+
 def get_details(atype, aid):
     if atype == "movie":                
         movie = get_movie_details(aid)
@@ -449,4 +419,3 @@ class xbmcRPCclient(object):
 
 # init local variables
 xbmcRPC = xbmcRPCclient(1)
-
