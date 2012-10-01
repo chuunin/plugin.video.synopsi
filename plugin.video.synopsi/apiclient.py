@@ -61,6 +61,7 @@ class apiclient:
 		self.accessTokenSessionStart = datetime.datetime.now()
 		self.refreshToken = response_json['refresh_token']
 		self._logger.debug('access token = ' + self.accessToken)
+		return True
 
 	def isAuthorized(self):
 		# if we have some acess token and if access token session didnt time-out
@@ -117,7 +118,12 @@ class apiclient:
 		except HTTPError as e:
 			self._logger.error('APICLIENT:' + str(e))
 			self._logger.error('APICLIENT:' + e.read())
-			return {}
+			response_json = {}
+
+		except URLError as e:
+			self._logger.error('APICLIENT:' + str(e))
+			self._logger.error('APICLIENT:' + e.read())
+			response_json = {}
 
 		return response_json
 
@@ -146,28 +152,6 @@ class apiclient:
 			'data': {
 				'imdb_id': str(imdbId),
 				'stv_hash': str(stvHash)
-			}
-		}
-
-		return self.execute(req)
-
-	def playerPlay(self, stvId):
-		req = {
-			'methodPath': 'player/play/',
-			'method': 'post',
-			'data': {
-				'stvId': stvId
-			}
-		}
-
-		return self.execute(req)
-
-	def playerStop(self, stvId):
-		req = {
-			'methodPath': 'player/stop/',
-			'method': 'post',
-			'data': {
-				'stvId': stvId
 			}
 		}
 
