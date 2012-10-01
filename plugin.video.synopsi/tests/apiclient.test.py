@@ -12,7 +12,8 @@ def pprint(data):
 	print json.dumps(data, indent=4)
 
 
-base_url = 'http://neptune.local:8000/'
+#base_url = 'http://neptune.local:8000/'
+base_url = 'http://test.papi.synopsi.tv/'
 key = '76ccb5ec8ecddf15c29c5decac35f9'
 secret = '261029dbbdd5dd481da6564fa1054e'
 username = 'martin.smid@gmail.com'
