@@ -139,12 +139,13 @@ class apiclient:
 
 		self.execute(req)
 
-	def titleIdentify(self, imdbId):
+	def titleIdentify(self, imdbId, stvHash = None):
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'post',
 			'data': {
-				'imdb_id': str(imdbId)
+				'imdb_id': str(imdbId),
+				'stv_hash': str(stvHash)
 			}
 		}
 

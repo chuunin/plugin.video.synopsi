@@ -104,6 +104,9 @@ class Library(ApiThread):
         movie['id'] = aid
         # if not in cache, it's been probably added
         if not self.cache.hasTypeId(atype, aid):
+            # get stv hash
+            movie_hash = stv_hash(movie['file'])
+            movie['stv_hash'] = movie_hash
             # try to get synopsi id
             # for now, try only if there is 'imdbnumber'
             if movie.has_key('imdbnumber'):
