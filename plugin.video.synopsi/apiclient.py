@@ -148,14 +148,17 @@ class apiclient:
 
 		self.execute(req)
 
-	def titleIdentify(self, imdbId, stvHash = None):
+# stv_title_hash - hash of the movie file
+# stv_subtitle_hash - hash of the subtitle file
+# imdb_id - IMDb ID
+# total_time - total time of the movie
+# file_name - name fo the file
+# label - label of the movie
+	def titleIdentify(self, **data):
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'post',
-			'data': {
-				'imdb_id': str(imdbId),
-				'stv_hash': str(stvHash)
-			}
+			'data': data
 		}
 
 		return self.execute(req)
