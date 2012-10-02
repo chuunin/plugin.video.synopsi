@@ -28,9 +28,15 @@ print 'titleIdentify(imdb_id = 60569)'
 data = client.titleIdentify(imdb_id = 60569)
 pprint(data)
 
-# print 'libraryTitleAdd(imdb_id = 60569)'
-# data = client.libraryTitleAdd(imdb_id = 60569)
-# pprint(data)
+stv_title_id = data['title_id']
+print 'libraryTitleAdd(%s)' % stv_title_id
+data = client.libraryTitleAdd(stv_title_id)
+pprint(data)
+
+print 'libraryTitleRemove(%s)' % stv_title_id
+data = client.libraryTitleRemove(stv_title_id)
+pprint(data)
+
 
 # print 'profileRecco(movie)'
 # props = [ 'year','image' ]
