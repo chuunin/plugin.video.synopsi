@@ -194,6 +194,7 @@ def show_categories():
     Shows initial categories on home screen.
     """
     add_directory("Recommendations", "url", 1, "list.png", 1)
+    add_directory("Recommendations local", "url", 1, "list.png", 1)
     add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
     add_directory("Lists", "url", 1, "icon.png", 4)
     add_directory("Trending Movies", "url", 1, "icon.png", 5, view_mode=500)
