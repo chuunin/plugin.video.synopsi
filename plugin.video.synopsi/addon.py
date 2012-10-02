@@ -23,29 +23,34 @@ import apiclient
 # from PIL import Image, ImageDraw, ImageOps
 
 movies = test.jsfile
+movie_response = { 'titles': movies }
 
+__addon__  = xbmcaddon.Addon()
+addonPath = __addon__.getAddonInfo('path')
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # xbmc.log(str(dir(xbmcvfs)))
 
 def log(msg):
-    logging.debug('ADDON:' + str(msg))
+    #logging.debug('ADDON: ' + str(msg))
+    xbmc.log('ADDON: ' + str(msg))
 
-def get_local_recco():
-    return movies
+def get_local_recco(movie_type):
+
+    return movie_response
 
 
-def get_global_recco():
+def get_global_recco(movie_type):
     global apiClient
 
     props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date',
     'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
 
-    resRecco =  apiClient.profileRecco('movie', props)
+    resRecco =  apiClient.profileRecco(movie_type, props)
 
     # log(resRecco)
-    for title in resRecco['titles']:
-        log(title['name'])
+    # for title in resRecco['titles']:
+    #     log(title['name'])
 
     return resRecco
 
@@ -70,11 +75,11 @@ def get_trending_tvshows():
     return movies
 
 
-def get_items(_type):
+def get_items(_type, movie_type = None):
     if _type == 1:
-        return get_global_recco()['titles']
+        return get_global_recco(movie_type)['titles']
     elif _type == 2:
-        return get_local_recco()
+        return get_local_recco(movie_type)
     elif _type == 3:
         return get_unwatched_episodes()
     elif _type == 4:
@@ -155,7 +160,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             pass
         if controlId == 11: # already watched
             pass
-        xbmc.log(str(controlId))
+        log('controlId: ' + str(controlId))
         self.close()
 
     def onFocus(self, controlId):
@@ -171,7 +176,7 @@ def add_directory(name, url, mode, iconimage, type, view_mode=500):
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # liz.setInfo(type="Video", infoLabels={"Title": name} )
-    liz.setProperty("Fanart_Image", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
+    liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
     xbmc.executebuiltin("Container.SetViewMode({0})".format(view_mode))
     return ok
@@ -183,7 +188,7 @@ def add_movie(movie, name, url, mode, iconimage, movieid, view_mode=500):
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
-    liz.setProperty("Fanart_Image", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
+    liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
     xbmc.executebuiltin("Container.SetViewMode({0})".format(view_mode))
     return ok
@@ -193,16 +198,18 @@ def show_categories():
     """
     Shows initial categories on home screen.
     """
-    add_directory("Recommendations", "url", 1, "list.png", 1)
-    add_directory("Recommendations local", "url", 1, "list.png", 1)
+    add_directory("Movie recommendations", "url", 1, "list.png", 1)
+    add_directory("TV Show recommendations", "url", 11, "list.png", 1)
+    add_directory("Local Movie recommendations", "url", 12, "list.png", 1)
+    add_directory("Local TV Show recommendations", "url", 13, "list.png", 1)
     add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
     add_directory("Lists", "url", 1, "icon.png", 4)
-    add_directory("Trending Movies", "url", 1, "icon.png", 5, view_mode=500)
-    add_directory("Trending TV Shows", "url", 1, "icon.png", 6)
+    # add_directory("Trending Movies", "url", 1, "icon.png", 5, view_mode=500)
+    # add_directory("Trending TV Shows", "url", 1, "icon.png", 6)
 
 
-def show_movies(url, type):
-    for movie in get_items(type):
+def show_movies(url, type, movie_type):
+    for movie in get_items(type, movie_type):
         add_movie(movie, movie.get('name'), "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
          C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
             2, movie.get('cover_medium'), movie.get("id"))
@@ -269,6 +276,8 @@ apiClient = apiclient.apiclient(
         debugLvl = logging.DEBUG
     )
 
+xbmc.log(str(sys.argv))
+
 try:
     url=urllib.unquote_plus(params["url"])
 except:
@@ -295,13 +304,25 @@ if mode==None or url==None or len(url)<1:
     show_categories()
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
     xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", 'C://Users//Tommy//AppData//Roaming//XBMC//addons//plugin.video.synopsi//fanart.jpg')
+    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
 
     xbmc.executebuiltin("Container.SetViewMode(503)")
 elif mode==1:
-    xbmc.log('show_movies')
-    show_movies(url, type)
+    xbmc.log('movies')
+    show_movies(url, type, 'movie')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+elif mode==11:
+    xbmc.log('tv shows')
+    show_movies(url, type, 'episode')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+elif mode==12:
+    xbmc.log('movies local')
+    show_movies(url, type, 'movie')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+elif mode==13:
+    xbmc.log('tv shows')
+    show_movies(url, type, 'episode')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==2:
     show_video_dialog(url, name, data)
