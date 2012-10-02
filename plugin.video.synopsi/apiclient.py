@@ -64,8 +64,8 @@ class apiclient:
 		return True
 
 	def isAuthorized(self):
-		# if we have some acess token and if access token session didnt time-out
-		return self.accessToken != None and self.accessTokenSessionStart and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
+		# if we have some acess token and if access token session didn't timeout
+		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 	def execute(self, requestData):
 		if not self.isAuthorized():
@@ -77,7 +77,8 @@ class apiclient:
 		url = self.apiUrl + requestData['methodPath']
 
 		method = requestData['method']
-		
+		data = None
+
 		if not requestData.has_key('data'):
 			requestData['data'] = {}
 
@@ -101,7 +102,7 @@ class apiclient:
 
 		if 'post' in locals():
 			self._logger.debug('post:' + str(post))
-		if 'get' in globals():
+		if 'get' in locals():
 			self._logger.debug('get:' + str(get))		
 
 		self._logger.debug('data:' + str(data))	
@@ -148,13 +149,15 @@ class apiclient:
 
 		self.execute(req)
 
-# stv_title_hash - hash of the movie file
-# stv_subtitle_hash - hash of the subtitle file
-# imdb_id - IMDb ID
-# total_time - total time of the movie
-# file_name - name fo the file
-# label - label of the movie
 	def titleIdentify(self, **data):
+		"""
+			stv_title_hash - hash of the movie file
+			stv_subtitle_hash - hash of the subtitle file
+			imdb_id - IMDb ID
+			total_time - total time of the movie
+			file_name - name fo the file
+			label - label of the movie
+		"""
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'post',
@@ -164,7 +167,6 @@ class apiclient:
 		return self.execute(req)
 
 	def libraryTitleAdd(self, titleId):
-		# url(r'^library/title/(?P<title_id>\d+)/add/$', LibraryTitleAdd.as_view(), name='papi-v1-0-library-title-add'),
 		req = {
 			'methodPath': 'library/title/%d/add/' % titleId,
 			'method': 'post'
@@ -172,8 +174,15 @@ class apiclient:
 
 		return self.execute(req)
 
+	def libraryTitleRemove(self, titleId):
+		req = {
+			'methodPath': 'library/title/%d/' % titleId,
+			'method': 'delete'
+		}
+
+		return self.execute(req)
+
 	def libraryTitle(self, titleId):
-		# url(r'^library/title/(?P<title_id>\d+)/$', LibraryTitle.as_view(), name='papi-v1-0-library-title'),
 		req = {
 			'methodPath': 'library/title/%d/' % titleId,
 			'method': 'post'
@@ -182,7 +191,6 @@ class apiclient:
 		return self.execute(req)
 
 	def titleSimilar(self, titleId):
-    	# url(r'^title/(?P<title_id>\d+)/similar/$', TitleSimilar.as_view(), name='papi-v1-0-title-similar'),
 		req = {
 			'methodPath': 'title/%d/similar/' % titleId,
 			'method': 'post'
@@ -190,9 +198,7 @@ class apiclient:
 
 		return self.execute(req)
 
-	def profileRecco(self, atype, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date',
-    'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
-
+	def profileRecco(self, atype, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
 		req = {
 			'methodPath': 'profile/recco/',
 			'method': 'get',
@@ -200,6 +206,14 @@ class apiclient:
 				'type': atype,
 				'title_property[]': ','.join(props)
 			}
+		}
+
+		return self.execute(req)
+
+	def libraryListCreate(self, list_uid):
+		req = {
+			'methodPath': 'library/list/%s/create/' % list_uid,
+			'method': 'get',
 		}
 
 		return self.execute(req)
