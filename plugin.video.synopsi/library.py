@@ -32,7 +32,7 @@ class ApiThread(threading.Thread):
                 xbmc.log('Connected to 9090')
                 conned = True
 
-        xbmc.log('timeout:' + str(self.sock.gettimeout()))
+
         self.sock.setblocking(True)
         self.cache = cache
         self.apiclient = None
@@ -79,6 +79,25 @@ class Library(ApiThread):
         super(Library, self).__init__(cache)
         self.playerEvents = []
 
+    def process(self, data):
+        methodName = data['method'].replace('.', '_')
+        method = getattr(self, methodName, None)
+        if method == None:
+            xbmc.log('Unknown method: ' + methodName)
+            return
+
+        xbmc.log('calling: ' + methodName)
+        xbmc.log(str(data))
+        
+        #   Try to call that method
+        try:
+            method(data)
+        except:
+            xbmc.log('Error in method "' + methodName + '"')
+            xbmc.log(traceback.format_exc())
+
+        #   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
+
     def playerEvent(self, data):
         self.log(json.dumps(data, indent=4))
 
@@ -121,25 +140,6 @@ class Library(ApiThread):
 
     def remove(self, aid, atype):
         self.cache.remove(atype, aid)
-
-    def process(self, data):
-        methodName = data['method'].replace('.', '_')
-        method = getattr(self, methodName, None)
-        if method == None:
-            xbmc.log('Unknown method: ' + methodName)
-            return
-
-        xbmc.log('calling: ' + methodName)
-        xbmc.log(str(data))
-        
-        #   Try to call that method
-        try:
-            method(data)
-        except:
-            xbmc.log('Error in method "' + methodName + '"')
-            xbmc.log(traceback.format_exc())
-
-        #   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
 
     def VideoLibrary_OnUpdate(self, data):
         self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
