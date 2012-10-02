@@ -65,11 +65,14 @@ class apiclient:
 
 	def isAuthorized(self):
 		# if we have some acess token and if access token session didnt time-out
-		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
+		return self.accessToken != None and self.accessTokenSessionStart and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 	def execute(self, requestData):
 		if not self.isAuthorized():
-			self.getAccessToken()
+			access = self.getAccessToken()
+			if not access:
+				self._logger.debug('Could not get the auth token')
+				return False
 
 		url = self.apiUrl + requestData['methodPath']
 
@@ -184,12 +187,15 @@ class apiclient:
 
 		return self.execute(req)
 
-	def profileRecco(self, atype):
+	def profileRecco(self, atype, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date',
+    'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
+
 		req = {
 			'methodPath': 'profile/recco/',
 			'method': 'get',
 			'data': {
-				'type': atype
+				'type': atype,
+				'title_property[]': ','.join(props)
 			}
 		}
 

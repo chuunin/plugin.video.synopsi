@@ -28,6 +28,8 @@ movies = test.jsfile
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # xbmc.log(str(dir(xbmcvfs)))
 
+def log(msg):
+    logging.debug('ADDON:' + str(msg))
 
 def get_local_recco():
     return movies
@@ -35,9 +37,17 @@ def get_local_recco():
 
 def get_global_recco():
     global apiClient
-    resRecco =  apiClient.profileRecco('movie')
 
-    return movies
+    props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date',
+    'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
+
+    resRecco =  apiClient.profileRecco('movie', props)
+
+    # log(resRecco)
+    for title in resRecco['titles']:
+        log(title['name'])
+
+    return resRecco
 
 
 def get_unwatched_episodes():
@@ -62,7 +72,7 @@ def get_trending_tvshows():
 
 def get_items(_type):
     if _type == 1:
-        return get_global_recco()
+        return get_global_recco()['titles']
     elif _type == 2:
         return get_local_recco()
     elif _type == 3:
