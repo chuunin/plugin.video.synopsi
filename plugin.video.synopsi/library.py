@@ -110,7 +110,7 @@ class Library(ApiThread):
             # try to get synopsi id
             # for now, try only if there is 'imdbnumber'
             if movie.has_key('imdbnumber'):
-                title = self.apiclient.titleIdentify(movie['imdbnumber'][2:])
+                title = self.apiclient.titleIdentify(imdb_id = movie['imdbnumber'][2:])
                 if title.has_key('title_id'):
                     movie['stvId'] = title['title_id']
             self.cache.put(movie)

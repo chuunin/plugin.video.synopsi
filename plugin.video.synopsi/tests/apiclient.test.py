@@ -24,20 +24,17 @@ client = apiclient(base_url, key, secret, username, password, debugLvl = logging
 
 # 60569 "Malcolm X"
 
-# print 'titleIdentify(60569)'
-# data = client.titleIdentify(60569)
-# pprint(data)
-
-# print 'libraryTitleAdd(60569)'
-# data = client.libraryTitleAdd(60569)
-# pprint(data)
-
-print 'profileRecco(movie)'
-data = client.profileRecco('movie')
+print 'titleIdentify(imdb_id = 60569)'
+data = client.titleIdentify(imdb_id = 60569)
 pprint(data)
 
-props = [ 'year','image' ]
+# print 'libraryTitleAdd(imdb_id = 60569)'
+# data = client.libraryTitleAdd(imdb_id = 60569)
+# pprint(data)
 
-resRecco = client.profileRecco('movie', props)
+# print 'profileRecco(movie)'
+# props = [ 'year','image' ]
+# data = client.profileRecco('movie', props)
+# pprint(data)
 
-pprint(resRecco)
+
