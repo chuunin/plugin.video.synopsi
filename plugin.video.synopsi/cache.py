@@ -93,14 +93,17 @@ class StvList(object):
         self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
 
     def remove(self, type, id):
+        typeIdStr = self._getKey(item['type'], item['id'])
         item = self.getByTypeId(type, id)
         del self.byFilename[item['file']]
-        del self.byTypeId[self._getKey(type, id)]
+        del self.byTypeId[typeIdStr]
+
         if item.has_key('stvId'):
+            self.apiclient.libraryTitleRemove(item['stvId'])
             del self.byStvId[item['stvId']]
 
+        self.log('REMOVE / ' + typeIdStr)
         self.list()
-
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(self._getKey(type, id))

@@ -30,6 +30,41 @@ class apiclient:
 		self._logger.debug('apiclient __init__')
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
+		self.failedRequest = []
+
+	def tryEmptyQueue(self):
+		# assume connected
+		connected = True
+		while connected and len(self.failedRequest) > 0:
+			try:
+				self.doRequest(self.failedRequest[0])
+				self.pop(0)
+			except:
+				# if network failure
+				connected = False
+				return False
+
+
+	def doRequest(self, req):
+		# if there are requests waiting, queue up and possibly try to connect with first
+		if len(failedRequest) > 0:
+			self.queueRequest(req)
+			self.tryEmptyQueue()
+			return False
+
+		try:
+			response = urlopen(req)
+		except:
+			# define network n/a errors here and 
+
+			# ... and in case of failure, put the request into queue
+			self.queueRequest(req)
+			return False
+
+		return response
+
+	def queueRequest(self, req):
+		self.failedRequest.append(req)
 
 	def getAccessToken(self):
 		data = {

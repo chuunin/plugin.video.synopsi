@@ -29,8 +29,39 @@ data = client.titleIdentify(imdb_id = 60569)
 pprint(data)
 
 stv_title_id = data['title_id']
+
 print 'libraryTitleAdd(%s)' % stv_title_id
 data = client.libraryTitleAdd(stv_title_id)
+pprint(data)
+
+print 'titleWatched(%s)' % stv_title_id
+data = client.titleWatched(stv_title_id, 
+	rating = 1, 
+	playerEvents = [
+		{
+		    "event_name": "start", 
+		    "event_time": 1348749184, 
+		    "movie_time": 1222.502
+		}, 
+		{
+		    "event_name": "pause", 
+		    "event_time": 1348749320, 
+		    "movie_time": 1359.3679999999999
+		}, 
+		{
+		    "event_name": "resume", 
+		    "event_time": 1348749321.69554, 
+		    "movie_time": 1359.3679999999999
+		}, 
+		{
+		    "event_name": "stop", 
+		    "event_time": 1348751319.654, 
+		    "movie_time": 1460.3679999999999
+		}, 
+
+	]
+)
+
 pprint(data)
 
 print 'libraryTitleRemove(%s)' % stv_title_id
