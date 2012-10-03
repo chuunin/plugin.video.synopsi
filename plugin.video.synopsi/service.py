@@ -21,7 +21,7 @@ def main():
     except:
         # first time init
         xbmc.log('CACHE restore failed. If this is your first run, its ok')
-        cache = StvList(generate_deviceid())
+        cache = StvList()
 
     cache.list()
 

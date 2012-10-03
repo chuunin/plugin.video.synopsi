@@ -253,15 +253,3 @@ class Scrobbler(threading.Thread):
         
         self.log("thread run end " + dbg)
 
-        """
-            if self.player.playing:
-                try:
-                    self.current_time = xbmc.Player().getTime()
-                except Exception, e:
-                    # TODO: Handle if API will change
-                    if not "XBMC is not playing any media file" in e:
-                        raise e
-
-            self.log("Scrobbler thread end")
-        """         
-

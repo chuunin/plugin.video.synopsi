@@ -109,22 +109,9 @@ class RPCListenerHandler(RPCListener):
         movie = get_details(atype, aid)
         movie['type'] = atype
         movie['id'] = aid
-        # if not in cache, it's been probably added
-        if not self.cache.hasTypeId(atype, aid):
-            # get stv hash
-            movie_hash = stv_hash(movie['file'])
-            movie['stv_hash'] = movie_hash
-            # try to get synopsi id
-            # for now, try only if there is 'imdbnumber'
-            if movie.has_key('imdbnumber'):
-                title = self.apiclient.titleIdentify(imdb_id = movie['imdbnumber'][2:])
-                if title.has_key('title_id'):
-                    movie['stvId'] = title['title_id']
-            self.cache.put(movie)
 
-        # it is already in cache, some property has changed (e.g. lastplayed time)
-        else:
-            self.cache.update(movie)
+        self.cache.addorupdate(movie)
+
 
     def remove(self, aid, atype):
         self.cache.remove(atype, aid)

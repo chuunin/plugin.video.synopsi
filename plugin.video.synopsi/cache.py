@@ -27,8 +27,10 @@ class StvList(object):
         "stv_id": synopsi_id_library
     }
     """
-    def __init__(self, uuid):
+    def __init__(self, uuid, apiclient):
         super(StvList, self).__init__()
+        self.apiclient = apiclient
+
         self.byTypeId = {}
         self.byFilename = {}
         self.byStvId = {}
@@ -39,13 +41,40 @@ class StvList(object):
     def log(self, msg):
         xbmc.log('CACHE / ' + str(msg))
 
+    def addorupdate(self, movie):
+        # if not in cache, it's been probably added
+        if not self.hasTypeId(atype, aid):
+            # get stv hash
+            movie_hash = stv_hash(movie['file'])
+            movie['stv_hash'] = movie_hash
+            # try to get synopsi id
+            # for now, try only if there is 'imdbnumber'
+            if movie.has_key('imdbnumber'):
+                title = self.apiclient.titleIdentify(imdb_id = movie['imdbnumber'][2:])
+                if title.has_key('title_id'):
+                    movie['stvId'] = title['title_id']
+            self.put(movie)
+
+        # it is already in cache, some property has changed (e.g. lastplayed time)
+        else:
+            self.update(movie)
+
+
     def put(self, item):
         " Put a new record in the list "
         typeIdStr = self._getKey(item['type'], item['id'])
+        
         self.byTypeId[typeIdStr] = item
         self.byFilename[item['file']] = item
+        self.byStvId[item['stvId']] = item
+
         stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
         logstr = 'PUT / ' + typeIdStr + stvIdStr + ' | ' + item['file']
+        
+        # if known by synopsi, add to list
+        if item.has_key('stvId'):
+            self.apiclient.libraryTitleAdd(item['stvId'])
+
         self.log(logstr)
         self.list()
 
@@ -63,6 +92,15 @@ class StvList(object):
 
         self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
 
+    def remove(self, type, id):
+        item = self.getByTypeId(type, id)
+        del self.byFilename[item['file']]
+        del self.byTypeId[self._getKey(type, id)]
+        if item.has_key('stvId'):
+            del self.byStvId[item['stvId']]
+
+        self.list()
+
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(self._getKey(type, id))
@@ -75,12 +113,6 @@ class StvList(object):
         
     def getByFilename(self, name):
         return self.byFilename[name]
-
-    def remove(self, type, id):
-        item = self.getByTypeId(type, id)
-        del self.byFilename[item['file']]
-        del self.byTypeId[self._getKey(type, id)]
-        self.list()
 
     def list(self):
         self.log('ID / ' +  self.uuid)
