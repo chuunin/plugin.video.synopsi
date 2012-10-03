@@ -16,9 +16,9 @@ ABORT_REQUESTED = False
 
 __addon__  = xbmcaddon.Addon()
 
-class ApiThread(threading.Thread):
+class RPCListener(threading.Thread):
     def __init__(self, cache):
-        super(ApiThread, self).__init__()
+        super(RPCListener, self).__init__()
         self.sock = socket.socket()
         self.sock.settimeout(10)
         conned = False
@@ -31,7 +31,6 @@ class ApiThread(threading.Thread):
             else:
                 xbmc.log('Connected to 9090')
                 conned = True
-
 
         self.sock.setblocking(True)
         self.cache = cache
@@ -70,15 +69,6 @@ class ApiThread(threading.Thread):
 
         xbmc.log('Library thread end')
 
-
-class Library(ApiThread):
-    """
-    Just a Library.
-    """
-    def __init__(self, cache):
-        super(Library, self).__init__(cache)
-        self.playerEvents = []
-
     def process(self, data):
         methodName = data['method'].replace('.', '_')
         method = getattr(self, methodName, None)
@@ -98,23 +88,21 @@ class Library(ApiThread):
 
         #   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
 
+
+class RPCListenerHandler(RPCListener):
+    """
+    RPCListenerHandler defines event handler methods that are autotically called from parent class's RPCListener
+    """
+    def __init__(self, cache):
+        super(RPCListenerHandler, self).__init__(cache)
+        self.playerEvents = []
+
+    #   NOT USED NOW
     def playerEvent(self, data):
         self.log(json.dumps(data, indent=4))
 
     def log(self, msg):
         xbmc.log('Library: ' + msg)
-
-    def create(self):
-        pass
-
-    def read(self):
-        pass
-
-    def update(self):
-        pass
-
-    def delete(self):
-        pass
 
     def addorupdate(self, aid, atype):
         # find out new data about movie

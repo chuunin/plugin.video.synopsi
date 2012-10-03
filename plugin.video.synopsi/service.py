@@ -3,7 +3,7 @@ This is default file of SynopsiTV service. See addon.xml
 <extension point="xbmc.service" library="service.py" start="login|startup">
 """
 from scrobbler import Scrobbler
-from library import Library
+from library import RPCListenerHandler
 from cache import *
 import xbmc, xbmcgui, xbmcaddon
 
@@ -14,17 +14,19 @@ def main():
     # try to restore cache  
     cacheSer = __addon__.getSetting(id='CACHE')
 
+#   cacheSer = ''   # once per library change, to reinit the serialzed object
+
     try:
         cache = deserialize(cacheSer)
     except:
         # first time init
         xbmc.log('CACHE restore failed. If this is your first run, its ok')
-        cache = Cache()
+        cache = Cache(generate_deviceid())
 
     cache.list()
 
     s = Scrobbler(cache)
-    l = Library(cache)
+    l = RPCListenerHandler(cache)
     s.start()
     l.start()
 
