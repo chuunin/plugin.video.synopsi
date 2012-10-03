@@ -133,7 +133,7 @@ class apiclient:
 
 
 #	api methods
-
+#	list independent
 	def titleWatched(self, titleId, rating = None, playerEvents = None):
 		if isinstance(rating, (int, long)):
 			rating = RATING_CODE[rating]
@@ -166,6 +166,27 @@ class apiclient:
 
 		return self.execute(req)
 
+	def titleSimilar(self, titleId):
+		req = {
+			'methodPath': 'title/%d/similar/' % titleId,
+			'method': 'post'
+		}
+
+		return self.execute(req)
+
+	def profileRecco(self, atype, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
+		req = {
+			'methodPath': 'profile/recco/',
+			'method': 'get',
+			'data': {
+				'type': atype,
+				'title_property[]': ','.join(props)
+			}
+		}
+
+		return self.execute(req)
+
+# list dependent
 	def libraryTitleAdd(self, titleId):
 		req = {
 			'methodPath': 'library/title/%d/add/' % titleId,
@@ -186,26 +207,6 @@ class apiclient:
 		req = {
 			'methodPath': 'library/title/%d/' % titleId,
 			'method': 'post'
-		}
-
-		return self.execute(req)
-
-	def titleSimilar(self, titleId):
-		req = {
-			'methodPath': 'title/%d/similar/' % titleId,
-			'method': 'post'
-		}
-
-		return self.execute(req)
-
-	def profileRecco(self, atype, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
-		req = {
-			'methodPath': 'profile/recco/',
-			'method': 'get',
-			'data': {
-				'type': atype,
-				'title_property[]': ','.join(props)
-			}
 		}
 
 		return self.execute(req)
