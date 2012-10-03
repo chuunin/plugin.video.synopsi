@@ -175,7 +175,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def __init__(self):
         super(SynopsiPlayerDecor, self).__init__()
 
-    def setCache(self, cache):
+    def setStvList(self, cache):
         self.cache = cache
 
     def __del__(self):
@@ -241,7 +241,7 @@ class Scrobbler(threading.Thread):
         self.log('thread run start')
 
         p = SynopsiPlayerDecor()
-        p.setCache(self.cache)
+        p.setStvList(self.cache)
 
         #   wait for abort flag
         while not library.ABORT_REQUESTED and not xbmc.abortRequested:

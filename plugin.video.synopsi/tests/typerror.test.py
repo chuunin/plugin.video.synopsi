@@ -9,9 +9,9 @@ class SynopsiPlayerDecor(SynopsiPlayer):
         super(SynopsiPlayerDecor, self).__init__()
         self.cache = cache
 
-class Cache(object):
+class StvList(object):
 	pass
 
-cache = Cache()
+cache = StvList()
 p = SynopsiPlayerDecor(cache)
  

@@ -8,9 +8,9 @@ import sys
 sys.path.append('..')
 cache = __import__('cache')
 
-CACHE = cache.Cache()
+CACHE = cache.StvList()
 
-class CacheTest(unittest.TestCase):
+class StvListTest(unittest.TestCase):
     def test_dict(self):
         self.assertTrue(CACHE.dict_in_dict(
             {},{}
@@ -103,7 +103,7 @@ Movies = [
         ]
 
 class ScenarioTest(unittest.TestCase):
-    c = cache.Cache()
+    c = cache.StvList()
     def test_initial_import(self):
         self.c.delete()
         if len(Movies) > len(self.c.get(_type = "movie")):

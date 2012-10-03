@@ -12,7 +12,7 @@ def deserialize(_string):
     return pickle.loads(base64.b64decode(_string))
 
 
-class Cache(object):
+class StvList(object):
     """
     Library cache.
     Storing:
@@ -27,18 +27,20 @@ class Cache(object):
         "stv_id": synopsi_id_library
     }
     """
-    def __init__(self):
-        super(Cache, self).__init__()
+    def __init__(self, uuid):
+        super(StvList, self).__init__()
         self.byTypeId = {}
         self.byFilename = {}
+        self.byStvId = {}
 
-        self.hash_table = []
+        self.uuid = uuid
         self.list()
 
     def log(self, msg):
         xbmc.log('CACHE / ' + str(msg))
 
     def put(self, item):
+        " Put a new record in the list "
         typeIdStr = self._getKey(item['type'], item['id'])
         self.byTypeId[typeIdStr] = item
         self.byFilename[item['file']] = item
@@ -81,6 +83,7 @@ class Cache(object):
         self.list()
 
     def list(self):
+        self.log('ID / ' +  self.uuid)
         if len(self.byTypeId) == 0:
             self.log('EMPTY')
             return
