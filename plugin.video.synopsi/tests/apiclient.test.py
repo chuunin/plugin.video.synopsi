@@ -19,25 +19,7 @@ secret = '261029dbbdd5dd481da6564fa1054e'
 username = 'martin.smid@gmail.com'
 password = 'aaa'
 
-client = apiclient(base_url, key, secret, username, password, debugLvl = logging.DEBUG)
-#client.titleWatched(2848299, 'like')
-
-# 60569 "Malcolm X"
-
-print 'titleIdentify(imdb_id = 60569)'
-data = client.titleIdentify(imdb_id = 60569)
-pprint(data)
-
-stv_title_id = data['title_id']
-
-print 'libraryTitleAdd(%s)' % stv_title_id
-data = client.libraryTitleAdd(stv_title_id)
-pprint(data)
-
-print 'titleWatched(%s)' % stv_title_id
-data = client.titleWatched(stv_title_id, 
-	rating = 1, 
-	playerEvents = [
+exampleEvents = [
 		{
 		    "event_name": "start", 
 		    "event_time": 1348749184, 
@@ -60,6 +42,29 @@ data = client.titleWatched(stv_title_id,
 		}, 
 
 	]
+
+
+#	TEST START	
+
+client = apiclient(base_url, key, secret, username, password, debugLvl = logging.DEBUG)
+#client.titleWatched(2848299, 'like')
+
+# 60569 "Malcolm X"
+
+print 'titleIdentify(imdb_id = 60569)'
+data = client.titleIdentify(imdb_id = 60569)
+pprint(data)
+
+stv_title_id = data['title_id']
+
+print 'libraryTitleAdd(%s)' % stv_title_id
+data = client.libraryTitleAdd(stv_title_id)
+pprint(data)
+
+print 'titleWatched(%s)' % stv_title_id
+data = client.titleWatched(stv_title_id, 
+	rating = 1, 
+	playerEvents = None # exampleEvents
 )
 
 pprint(data)

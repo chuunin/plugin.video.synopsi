@@ -4,13 +4,17 @@ import sys
 import datetime
 from base64 import b64encode
 from urllib import urlencode
-from urllib2 import Request, urlopen, HTTPError
+from urllib2 import Request, urlopen, HTTPError, URLError
 
 RATING_CODE = {
 	1: 'like',
 	2: 'neutral',
 	3: 'dislike'
 }
+
+class NotConnectedException(Exception):
+	pass
+
 
 class apiclient:
 	def __init__(self, base_url, key, secret, username, password, originReqHost = None, debugLvl = logging.INFO, accessTokenTimeout = 10):
@@ -32,12 +36,16 @@ class apiclient:
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
 
+	def queueRequest(self, req):
+		self.failedRequest.append(req)
+
 	def tryEmptyQueue(self):
 		# assume connected
 		connected = True
 		while connected and len(self.failedRequest) > 0:
 			try:
-				self.doRequest(self.failedRequest[0], False)
+				response = self.doRequest(self.failedRequest[0], False)
+				# on success, pop the request out of queue
 				self.pop(0)
 			except:
 				# if network failure
@@ -46,30 +54,22 @@ class apiclient:
 		return connected
 
 	def doRequest(self, req, cacheable=True):
-		# if there are requests waiting, queue up and possibly try to connect with first
-		if len(failedRequest) > 0:
-			if cacheable:
-				self.queueRequest(req)
+		if not self.isAuthenticated():
+			access = self.getAccessToken()
+			if not access:
+				self._logger.debug('Could not get the auth token')
+				return False
+
+		# put the cacheable request into queue
+		if cacheable:
+			self.queueRequest(req)
 			# try to empty queue, if not success, return back
 			if not self.tryEmptyQueue():
-				return False
-
-		try:
+				raise NotConnectedException()
+		else:
 			response = urlopen(req)
-		# catch network n/a errors here 
-		except:
-			# if we dont want to cache this request
-			if not cacheable:
-				raise
-			else:
-				# ... and in case of failure, put the request into queue
-				self.queueRequest(req)
-				return False
-
-		return response
-
-	def queueRequest(self, req):
-		self.failedRequest.append(req)
+			response_json = json.loads(response.readline())
+			return response_json
 
 	def getAccessToken(self):
 		data = {
@@ -100,22 +100,21 @@ class apiclient:
 		self.accessToken = response_json['access_token']
 		self.accessTokenSessionStart = datetime.datetime.now()
 		self.refreshToken = response_json['refresh_token']
-		self._logger.debug('access token = ' + self.accessToken)
+		self._logger.debug('new access token: ' + self.accessToken)
 		return True
 
-	def isAuthorized(self):
+	def isAuthenticated(self):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 	def execute(self, requestData, cacheable=True):
-		if not self.isAuthorized():
+		if not self.isAuthenticated():
 			access = self.getAccessToken()
 			if not access:
 				self._logger.debug('Could not get the auth token')
 				return False
 
 		url = self.apiUrl + requestData['methodPath']
-
 		method = requestData['method']
 		data = None
 
@@ -148,16 +147,15 @@ class apiclient:
 		self._logger.debug('data:' + str(data))	
 
 		try:
-			response = urlopen(
+			response_json = self.doRequest(
 				Request(
 					url,
 					data = data,
 					headers = self.authHeaders, 
 					origin_req_host = self.originReqHost
-				)
+				),
+				False
 			)
-
-			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
 			self._logger.error('APICLIENT:' + str(e))
@@ -237,8 +235,11 @@ class apiclient:
 
 	def libraryTitleRemove(self, titleId):
 		req = {
-			'methodPath': 'library/title/%d/?_method=delete' % titleId,
-			'method': 'delete'
+			'methodPath': 'library/title/%d/' % titleId,
+			'method': 'get',
+			'data': {
+				'_method': 'delete'
+			}
 		}
 
 		return self.execute(req)
