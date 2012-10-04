@@ -37,29 +37,34 @@ class apiclient:
 		connected = True
 		while connected and len(self.failedRequest) > 0:
 			try:
-				self.doRequest(self.failedRequest[0])
+				self.doRequest(self.failedRequest[0], False)
 				self.pop(0)
 			except:
 				# if network failure
 				connected = False
-				return False
+				
+		return connected
 
-
-	def doRequest(self, req):
+	def doRequest(self, req, cacheable=True):
 		# if there are requests waiting, queue up and possibly try to connect with first
 		if len(failedRequest) > 0:
-			self.queueRequest(req)
-			self.tryEmptyQueue()
-			return False
+			if cacheable:
+				self.queueRequest(req)
+			# try to empty queue, if not success, return back
+			if not self.tryEmptyQueue():
+				return False
 
 		try:
 			response = urlopen(req)
+		# catch network n/a errors here 
 		except:
-			# define network n/a errors here and 
-
-			# ... and in case of failure, put the request into queue
-			self.queueRequest(req)
-			return False
+			# if we dont want to cache this request
+			if not cacheable:
+				raise
+			else:
+				# ... and in case of failure, put the request into queue
+				self.queueRequest(req)
+				return False
 
 		return response
 
@@ -102,7 +107,7 @@ class apiclient:
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
-	def execute(self, requestData):
+	def execute(self, requestData, cacheable=True):
 		if not self.isAuthorized():
 			access = self.getAccessToken()
 			if not access:
@@ -195,7 +200,7 @@ class apiclient:
 		"""
 		req = {
 			'methodPath': 'title/identify/',
-			'method': 'post',
+			'method': 'get',
 			'data': data
 		}
 
@@ -232,7 +237,7 @@ class apiclient:
 
 	def libraryTitleRemove(self, titleId):
 		req = {
-			'methodPath': 'library/title/%d/' % titleId,
+			'methodPath': 'library/title/%d/?_method=delete' % titleId,
 			'method': 'delete'
 		}
 
