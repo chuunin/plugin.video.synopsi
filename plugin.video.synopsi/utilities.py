@@ -136,11 +136,18 @@ def generate_deviceid():
     Returns deviceid generated from MAC address.
     """
     uid = str(uuid.getnode())
-    xbmcBuildVer = xbmc.getInfoLabel('System.BuildVersion')
     sha1 = hashlib.sha1()
     sha1.update(uid)
     sha1.update(xbmcBuildVer)
     return sha1.hexdigest()
+
+def generate_iuid():
+    """
+    Returns install-uniqe id. Has to be generated for every install.
+    """
+    
+    return str(uuid.uuid1())
+
 
 
 def get_hash_array(path):
