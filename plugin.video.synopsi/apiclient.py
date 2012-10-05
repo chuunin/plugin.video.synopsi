@@ -172,30 +172,21 @@ class apiclient:
 
 #	api methods
 #	list independent
-	def titleWatched(self, titleId, rating = None, playerEvents = None):
-		if isinstance(rating, (int, long)):
-			rating = RATING_CODE[rating]
+	def titleWatched(self, titleId, **data):
+		# normalize ratings
+		if data.has_key('rating') and isinstance(data['rating'], (int, long)):
+			data['rating'] = RATING_CODE[data['rating']]
 
 		req = {
 			'methodPath': 'title/%d/watched/' % titleId,
 			'method': 'post',
-			'data': {
-				'rating': rating,
-				'player_events': json.dumps(playerEvents)
-			}
+			'data': data
 		}
 
 		self.execute(req)
 
 	def titleIdentify(self, **data):
-		"""
-			stv_title_hash - hash of the movie file
-			stv_subtitle_hash - hash of the subtitle file
-			imdb_id - IMDb ID
-			total_time - total time of the movie
-			file_name - name fo the file
-			label - label of the movie
-		"""
+		""" Try to match synopsi title by various data """
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'get',

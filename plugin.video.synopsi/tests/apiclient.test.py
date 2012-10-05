@@ -47,7 +47,8 @@ exampleEvents = [
 #	TEST START	
 
 client = apiclient(base_url, key, secret, username, password, debugLvl = logging.DEBUG)
-#client.titleWatched(2848299, 'like')
+# data = { 'rating': 'like' }
+#client.titleWatched(2848299, data)
 
 # 60569 "Malcolm X"
 
@@ -61,11 +62,13 @@ print 'libraryTitleAdd(%s)' % stv_title_id
 data = client.libraryTitleAdd(stv_title_id)
 pprint(data)
 
+watched_data = {
+	'rating' = 1, 
+	'playerEvents' = None # exampleEvents 
+}
+
 print 'titleWatched(%s)' % stv_title_id
-data = client.titleWatched(stv_title_id, 
-	rating = 1, 
-	playerEvents = None # exampleEvents
-)
+data = client.titleWatched(stv_title_id, **watched_data)
 
 pprint(data)
 

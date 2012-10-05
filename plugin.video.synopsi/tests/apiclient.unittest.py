@@ -51,9 +51,10 @@ class ApiTest(unittest.TestCase):
 
 		data = client.libraryTitleAdd(stv_title_id)
 
-		data = client.titleWatched(stv_title_id, 
-			rating = 1, 
-			playerEvents = [
+		watched_data =
+		{
+			'rating': 1, 
+			'playerEvents': [
 				{
 				    "event_name": "start", 
 				    "event_time": 1348749184, 
@@ -73,10 +74,11 @@ class ApiTest(unittest.TestCase):
 				    "event_name": "stop", 
 				    "event_time": 1348751319.654, 
 				    "movie_time": 1460.3679999999999
-				}, 
-
+				}
 			]
-		)
+		}
+
+		data = client.titleWatched(stv_title_id, **watched_data)
 
 		data = client.libraryTitleRemove(stv_title_id)
 

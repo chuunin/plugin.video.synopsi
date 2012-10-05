@@ -214,7 +214,8 @@ class SynopsiPlayerDecor(SynopsiPlayer):
                     # get stv id
                     self.log('detail: ' + str(detail))
                     if detail.has_key('stvId'):
-                        self.apiclient.titleWatched(detail['stvId'], rating, self.playerEvents)
+                        data = { 'rating': rating, 'player_events': self.playerEvents }
+                        self.apiclient.titleWatched(detail['stvId'], **data)
 
                     self.playerEvents = []
 
