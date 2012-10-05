@@ -4,13 +4,6 @@ import xbmc
 import json
 from utilities import *
 
-def serialize(cache):
-    return base64.b64encode(pickle.dumps(cache))
-
-
-def deserialize(_string):
-    return pickle.loads(base64.b64decode(_string))
-
 
 class StvList(object):
     """
@@ -38,12 +31,26 @@ class StvList(object):
         self.uuid = uuid
         self.list()
 
+    def serialize(self):
+        self.log(json.dumps([self.byTypeId, self.byFilename, self.byStvId]))
+        pickled_base64_cache = base64.b64encode(pickle.dumps([self.byTypeId, self.byFilename, self.byStvId]))
+        self.log('PICKLED:' + pickled_base64_cache)
+        self.log('UNPICKLED:' + str(pickle.loads(base64.b64decode(pickled_base64_cache))))
+        return pickled_base64_cache
+
+    def deserialize(self, _string):
+        unpickled_list = pickle.loads(base64.b64decode(_string))
+        self.log('UNPICKLED:' + str(unpickled_list))
+        self.byTypeId = unpickled_list[0]
+        self.byFilename = unpickled_list[1]
+        self.byStvId = unpickled_list[2]
+
     def log(self, msg):
         xbmc.log('CACHE / ' + str(msg))
 
     def addorupdate(self, movie):
         # if not in cache, it's been probably added
-        if not self.hasTypeId(atype, aid):
+        if not self.hasTypeId(movie['type'], movie['id']):
             # get stv hash
             movie_hash = stv_hash(movie['file'])
             movie['stv_hash'] = movie_hash
@@ -66,7 +73,8 @@ class StvList(object):
         
         self.byTypeId[typeIdStr] = item
         self.byFilename[item['file']] = item
-        self.byStvId[item['stvId']] = item
+        if item.has_key('stvId'):
+            self.byStvId[item['stvId']] = item
 
         stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
         logstr = 'PUT / ' + typeIdStr + stvIdStr + ' | ' + item['file']
