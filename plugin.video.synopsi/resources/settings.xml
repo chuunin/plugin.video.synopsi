@@ -16,6 +16,7 @@
         <setting id="FIRSTRUN" option="hidden" type="bool" visible="false" default="true"/>
 
         <setting id="CACHE" option="hidden" type="text" visible="false" default=""/>
+        <setting id="INSTALL_UID" option="hidden" type="text" visible="false" default=""/>
     </category>
 
     <!-- Advanced settings -->
