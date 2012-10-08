@@ -17,7 +17,7 @@ class NotConnectedException(Exception):
 
 
 class apiclient:
-	def __init__(self, base_url, key, secret, username, password, originReqHost = None, debugLvl = logging.INFO, accessTokenTimeout = 10):
+	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost = None, debugLvl = logging.INFO, accessTokenTimeout = 10):
 		self.baseUrl = base_url
 		self.key = key
 		self.secret = secret
@@ -28,6 +28,7 @@ class apiclient:
 		self.apiUrl = self.baseUrl + 'api/public/1.0/'
 		self.originReqHost = originReqHost or 'dev.bapi.synopsi.tv'
 		self.authHeaders = None
+		self.device_id = device_id  
 		self._logger = logging.getLogger()
 		self._logger.addHandler(logging.StreamHandler(sys.stdout))
 		self._logger.setLevel(debugLvl)

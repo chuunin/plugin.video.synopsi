@@ -14,20 +14,16 @@ def main():
 
     # try to restore cache  
     cacheSer = __addon__.getSetting(id='CACHE')
-    
-    # get or generate install-unique ID
-    iuid = __addon__.getSetting(id='INSTALL_UID')
-    if not iuid:
-        iuid = generate_iuid()
-        xbmc.log('iuid:' + iuid)
-        __addon__.setSetting(id='INSTALL_UID', value=iuid)
+    iuid = get_install_id()
 
+    # get or generate install-unique ID
     apiclient1 = apiclient.apiclient(
         __addon__.getSetting('BASE_URL'),
         __addon__.getSetting('KEY'),
         __addon__.getSetting('SECRET'),
         __addon__.getSetting('USER'),
         __addon__.getSetting('PASS'),
+        iuid    
     )
 
 # once per library methods change, to reinit the serialzed object

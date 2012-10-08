@@ -267,16 +267,18 @@ mode = None
 type = None
 data = None
 
+
 apiClient = apiclient.apiclient(
         __addon__.getSetting('BASE_URL'),
         __addon__.getSetting('KEY'),
         __addon__.getSetting('SECRET'),
         __addon__.getSetting('USER'),
         __addon__.getSetting('PASS'),
+        get_install_id()
         debugLvl = logging.DEBUG
     )
 
-xbmc.log(str(sys.argv))
+# xbmc.log(str(sys.argv))
 
 try:
     url=urllib.unquote_plus(params["url"])

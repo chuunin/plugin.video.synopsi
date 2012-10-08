@@ -9,6 +9,7 @@ import xbmcplugin
 import apiclient
 import logging
 import json
+from utilities import *
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # Default XBMC constant for hidden cancel button
@@ -104,6 +105,7 @@ class SynopsiPlayer(xbmc.Player):
             __addon__.getSetting('SECRET'),
             __addon__.getSetting('USER'),
             __addon__.getSetting('PASS'),
+            get_install_id()
         )
 
     def log(self, msg):

@@ -45,7 +45,6 @@ exampleEvents = [
 
 
 #	TEST START	
-
 client = apiclient(base_url, key, secret, username, password, debugLvl = logging.DEBUG)
 # data = { 'rating': 'like' }
 #client.titleWatched(2848299, data)

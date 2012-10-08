@@ -49,6 +49,7 @@ class RPCListener(threading.Thread):
             __addon__.getSetting('SECRET'),
             __addon__.getSetting('USER'),
             __addon__.getSetting('PASS'),
+            get_install_id()
         )
 
         while True:

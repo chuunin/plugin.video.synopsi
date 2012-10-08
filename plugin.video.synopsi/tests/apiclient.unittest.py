@@ -97,6 +97,7 @@ if __name__ == '__main__':
 		'secret': '261029dbbdd5dd481da6564fa1054e',
 		'username': 'martin.smid@gmail.com',
 		'password': 'aaa'
+		'device_id': ''	
 	}
 
 	suite = unittest.TestLoader().loadTestsFromTestCase(ApiTest)

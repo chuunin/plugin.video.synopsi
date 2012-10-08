@@ -423,6 +423,17 @@ class xbmcRPCclient(object):
 
         return json.loads(response)['result']
 
+def get_install_id():
+    global __addon__
+    
+    iuid = __addon__.getSetting(id='INSTALL_UID')
+    if not iuid:
+        iuid = generate_iuid()
+        xbmc.log('iuid:' + iuid)
+        __addon__.setSetting(id='INSTALL_UID', value=iuid)
+
+    return iuid
+
 
 # init local variables
 xbmcRPC = xbmcRPCclient(1)
