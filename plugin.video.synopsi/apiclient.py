@@ -127,16 +127,12 @@ class apiclient:
 		# append data to post
 		if method == 'post':
 			post = requestData['data']		
-			# post['client_id'] = self.key
-			# post['client_secret'] = self.secret
 			post['bearer_token'] = self.accessToken
 			data = urlencode(post)
 
 		# append data to get
 		if method == 'get':
 			get = requestData['data']
-			# get['client_id'] = self.key
-			# get['client_secret'] = self.secret
 			get['bearer_token'] = self.accessToken
 			url += '?' + urlencode(get)
 			data = None
