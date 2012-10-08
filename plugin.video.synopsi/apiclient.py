@@ -16,6 +16,8 @@ class NotConnectedException(Exception):
 	pass
 
 
+defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
+
 class apiclient:
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost = None, debugLvl = logging.INFO, accessTokenTimeout = 10):
 		self.baseUrl = base_url
@@ -206,7 +208,8 @@ class apiclient:
 
 		return self.execute(req)
 
-	def profileRecco(self, atype, local = False, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
+# conditionally dependent
+	def profileRecco(self, atype, local=False, props=defaultTitleProps):
 		req = {
 			'methodPath': 'profile/recco/',
 			'method': 'get',
@@ -246,10 +249,15 @@ class apiclient:
 
 		return self.execute(req)
 
-	def libraryTitle(self, titleId):
+	def libraryTitle(self, titleId, props=defaultTitleProps):
+		" Get title from library "
 		req = {
 			'methodPath': 'library/title/%d/' % titleId,
-			'method': 'post'
+			'method': 'post',
+			'data': {
+				'device_id': self.device_id,
+				'title_property[]': ','.join(props)
+			}
 		}
 
 		return self.execute(req)
