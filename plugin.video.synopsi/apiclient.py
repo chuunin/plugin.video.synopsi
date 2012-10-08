@@ -204,7 +204,7 @@ class apiclient:
 
 		return self.execute(req)
 
-	def profileRecco(self, atype, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
+	def profileRecco(self, atype, local = False, props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]):
 		req = {
 			'methodPath': 'profile/recco/',
 			'method': 'get',
@@ -213,6 +213,9 @@ class apiclient:
 				'title_property[]': ','.join(props)
 			}
 		}
+
+		if local:
+			req['data']['device_id'] = self.device_id
 
 		return self.execute(req)
 
