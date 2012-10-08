@@ -54,26 +54,26 @@ class ApiTest(unittest.TestCase):
 		watched_data =
 		{
 			'rating': 1, 
-			'playerEvents': [
+			'player_events': [
 				{
-				    "event_name": "start", 
-				    "event_time": 1348749184, 
-				    "movie_time": 1222.502
+				    "event": "start", 
+				    "timestamp": 1348749184, 
+				    "position": 1222.502
 				}, 
 				{
-				    "event_name": "pause", 
-				    "event_time": 1348749320, 
-				    "movie_time": 1359.3679999999999
+				    "event": "pause", 
+				    "timestamp": 1348749320, 
+				    "position": 1359.3679999999999
 				}, 
 				{
-				    "event_name": "resume", 
-				    "event_time": 1348749321.69554, 
-				    "movie_time": 1359.3679999999999
+				    "event": "resume", 
+				    "timestamp": 1348749321.69554, 
+				    "position": 1359.3679999999999
 				}, 
 				{
-				    "event_name": "stop", 
-				    "event_time": 1348751319.654, 
-				    "movie_time": 1460.3679999999999
+				    "event": "stop", 
+				    "timestamp": 1348751319.654, 
+				    "position": 1460.3679999999999
 				}
 			]
 		}

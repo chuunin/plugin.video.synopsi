@@ -116,8 +116,8 @@ class SynopsiPlayer(xbmc.Player):
         self.log(eventName)
 
         event = {
-            'event_name': eventName,                
-            'event_time': time.time()
+            'event': eventName,                
+            'timestamp': time.time()
         }
 
         if self.isPlaying():
