@@ -10,7 +10,7 @@ from apiclient import apiclient
 def pprint(data):
 	global logger
 
-	if data and data.has_key('_db_queries'):
+	if data is dict and data.has_key('_db_queries'):
 		del data['_db_queries']
 	msg = json.dumps(data, indent=4)
 	# print msg
@@ -74,9 +74,11 @@ class ApiTest(unittest.TestCase):
 			},
 		]
 
+		#exampleEvents = []
+
 		watched_data = {
 			'rating': 1, 
-			'player_events': exampleEvents
+			'player_events': json.dumps(exampleEvents)
 		}
 
 		data = client.titleWatched(stv_title_id, **watched_data)
@@ -103,6 +105,8 @@ if __name__ == '__main__':
 		'password': 'aaa',
 		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd'	
 	}
+
+	logger = logging.getLogger()
 
 	suite = unittest.TestLoader().loadTestsFromTestCase(ApiTest)
 	unittest.TextTestRunner(verbosity=2).run(suite)
