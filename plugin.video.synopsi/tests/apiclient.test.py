@@ -23,23 +23,23 @@ iuid = '7caa970e-0e37-11e2-9462-7cc3a1719bfd'
 exampleEvents = [
 		{
 		    "event": "start", 
-		    "timestamp": 1348749184, 
-		    "position": 1222.502
+		    "timestamp": '2012-10-08 16:54:34', 
+		    "position": 1222
 		}, 
 		{
 		    "event": "pause", 
-		    "timestamp": 1348749320, 
-		    "position": 1359.3679999999999
+		    "timestamp": '2012-10-08 16:54:40', 
+		    "position": 1359
 		}, 
 		{
 		    "event": "resume", 
-		    "timestamp": 1348749321.69554, 
-		    "position": 1359.3679999999999
+		    "timestamp": '2012-10-08 16:55:10', 
+		    "position": 1359
 		}, 
 		{
 		    "event": "stop", 
-		    "timestamp": 1348751319.654, 
-		    "position": 1460.3679999999999
+		    "timestamp": '2012-10-08 16:55:15', 
+		    "position": 1460
 		}, 
 
 	]
@@ -47,7 +47,7 @@ exampleEvents = [
 exampleEvents = []
 
 #	TEST START	
-client = apiclient(base_url, key, secret, username, password, iuid, debugLvl = logging.DEBUG)
+client = apiclient(base_url, key, secret, username, password, iuid, debugLvl=logging.DEBUG)
 # data = { 'rating': 'like' }
 #client.titleWatched(2848299, data)
 

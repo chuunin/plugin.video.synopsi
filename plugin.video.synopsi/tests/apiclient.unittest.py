@@ -32,7 +32,7 @@ class ApiTest(unittest.TestCase):
 
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING)
 		succ = client.getAccessToken()
 		self.assertTrue(not succ)
 		self.assertTrue(not client.isAuthenticated())
@@ -41,7 +41,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING)
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"
@@ -51,31 +51,32 @@ class ApiTest(unittest.TestCase):
 
 		data = client.libraryTitleAdd(stv_title_id)
 
-		watched_data =
-		{
+		exampleEvents = [
+			{
+			    "event": "start", 
+			    "timestamp": '2012-10-08 16:54:34', 
+			    "position": 1222
+			}, 
+			{
+			    "event": "pause", 
+			    "timestamp": '2012-10-08 16:54:40', 
+			    "position": 1359
+			}, 
+			{
+			    "event": "resume", 
+			    "timestamp": '2012-10-08 16:55:10', 
+			    "position": 1359
+			}, 
+			{
+			    "event": "stop", 
+			    "timestamp": '2012-10-08 16:55:15', 
+			    "position": 1460
+			},
+		]
+
+		watched_data = {
 			'rating': 1, 
-			'player_events': [
-				{
-				    "event": "start", 
-				    "timestamp": 1348749184, 
-				    "position": 1222.502
-				}, 
-				{
-				    "event": "pause", 
-				    "timestamp": 1348749320, 
-				    "position": 1359.3679999999999
-				}, 
-				{
-				    "event": "resume", 
-				    "timestamp": 1348749321.69554, 
-				    "position": 1359.3679999999999
-				}, 
-				{
-				    "event": "stop", 
-				    "timestamp": 1348751319.654, 
-				    "position": 1460.3679999999999
-				}
-			]
+			'player_events': exampleEvents
 		}
 
 		data = client.titleWatched(stv_title_id, **watched_data)
@@ -89,6 +90,9 @@ class ApiTest(unittest.TestCase):
 
 
 
+
+
+
 if __name__ == '__main__': 
 	connection = {
 		'base_url': 'http://neptune.local:8000/',
@@ -96,7 +100,7 @@ if __name__ == '__main__':
 		'key': '76ccb5ec8ecddf15c29c5decac35f9',
 		'secret': '261029dbbdd5dd481da6564fa1054e',
 		'username': 'martin.smid@gmail.com',
-		'password': 'aaa'
+		'password': 'aaa',
 		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd'	
 	}
 
