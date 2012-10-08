@@ -239,7 +239,8 @@ class apiclient:
 			'methodPath': 'library/title/%d/' % titleId,
 			'method': 'get',
 			'data': {
-				'_method': 'delete'
+				'_method': 'delete',
+				'device_id': self.device_id
 			}
 		}
 
