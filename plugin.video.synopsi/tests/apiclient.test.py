@@ -53,7 +53,7 @@ client = apiclient(base_url, key, secret, username, password, iuid, debugLvl = l
 # 60569 "Malcolm X"
 
 print 'titleIdentify(imdb_id = 60569)'
-data = client.titleIdentify(imdb_id = 60569)
+data = client.titleIdentify(imdb_id=60569, title_hash='', subtitle_hash='')
 pprint(data)
 
 stv_title_id = data['title_id']

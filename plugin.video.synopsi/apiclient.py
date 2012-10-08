@@ -178,6 +178,7 @@ class apiclient:
 		if data.has_key('rating') and isinstance(data['rating'], (int, long)):
 			data['rating'] = RATING_CODE[data['rating']]
 
+		data['device_id'] = self.device_id
 		req = {
 			'methodPath': 'title/%d/watched/' % titleId,
 			'method': 'post',
@@ -188,6 +189,7 @@ class apiclient:
 
 	def titleIdentify(self, **data):
 		""" Try to match synopsi title by various data """
+		data['device_id'] = self.device_id
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'get',
@@ -225,6 +227,8 @@ class apiclient:
 			'methodPath': 'library/title/%d/add/' % titleId,
 			'method': 'post'
 		}
+
+		req['data']['device_id'] = self.device_id
 
 		return self.execute(req)
 

@@ -45,7 +45,7 @@ class ApiTest(unittest.TestCase):
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"
-		data = client.titleIdentify(imdb_id = 60569)
+		data = client.titleIdentify(imdb_id=60569, title_hash='', subtitle_hash='')
 
 		stv_title_id = data['title_id']
 
