@@ -18,6 +18,7 @@ key = '76ccb5ec8ecddf15c29c5decac35f9'
 secret = '261029dbbdd5dd481da6564fa1054e'
 username = 'martin.smid@gmail.com'
 password = 'aaa'
+iuid = '7caa970e-0e37-11e2-9462-7cc3a1719bfd'
 
 exampleEvents = [
 		{
@@ -45,7 +46,7 @@ exampleEvents = [
 
 
 #	TEST START	
-client = apiclient(base_url, key, secret, username, password, debugLvl = logging.DEBUG)
+client = apiclient(base_url, key, secret, username, password, iuid, debugLvl = logging.DEBUG)
 # data = { 'rating': 'like' }
 #client.titleWatched(2848299, data)
 
@@ -78,7 +79,12 @@ pprint(data)
 
 # print 'profileRecco(movie)'
 # props = [ 'year','image' ]
-# data = client.profileRecco('movie', props)
+# data = client.profileRecco('movie', True, props)
+# pprint(data)
+
+# print 'profileRecco(movie)'
+# props = [ 'year','image' ]
+# data = client.profileRecco('movie', False, props)
 # pprint(data)
 
 

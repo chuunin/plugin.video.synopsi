@@ -22,7 +22,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], debugLvl = logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING)
 		client.getAccessToken()
 		self.assertIsInstance(client, apiclient)
 		return client
@@ -32,7 +32,7 @@ class ApiTest(unittest.TestCase):
 
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], debugLvl = logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING)
 		succ = client.getAccessToken()
 		self.assertTrue(not succ)
 		self.assertTrue(not client.isAuthenticated())
@@ -41,7 +41,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], debugLvl = logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING)
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"
@@ -84,7 +84,7 @@ class ApiTest(unittest.TestCase):
 
 		# print 'profileRecco(movie)'
 		# props = [ 'year','image' ]
-		# data = client.profileRecco('movie', props)
+		# data = client.profileRecco('movie', False, props)
 		# pprint(data)
 
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
 		'secret': '261029dbbdd5dd481da6564fa1054e',
 		'username': 'martin.smid@gmail.com',
 		'password': 'aaa'
-		'device_id': ''	
+		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd'	
 	}
 
 	suite = unittest.TestLoader().loadTestsFromTestCase(ApiTest)
