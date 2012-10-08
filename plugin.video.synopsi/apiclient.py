@@ -225,10 +225,12 @@ class apiclient:
 	def libraryTitleAdd(self, titleId):
 		req = {
 			'methodPath': 'library/title/%d/add/' % titleId,
-			'method': 'post'
-		}
-
-		req['data']['device_id'] = self.device_id
+			'method': 'post',
+			'data':
+			{
+				'device_id': self.device_id
+			}
+		}	
 
 		return self.execute(req)
 

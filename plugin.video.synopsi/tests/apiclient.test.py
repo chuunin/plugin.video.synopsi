@@ -63,8 +63,8 @@ data = client.libraryTitleAdd(stv_title_id)
 pprint(data)
 
 watched_data = {
-	'rating' = 1, 
-	'playerEvents' = None # exampleEvents 
+	'rating': 1, 
+	'playerEvents': None # exampleEvents 
 }
 
 print 'titleWatched(%s)' % stv_title_id
