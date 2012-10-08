@@ -165,7 +165,7 @@ class apiclient:
 
 		except URLError as e:
 			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + e.read())
+			self._logger.error('APICLIENT:' + str(e.reason))
 			response_json = {}
 
 		return response_json

@@ -19,6 +19,7 @@ import logging
 import test
 import utilities
 import apiclient
+from utilities import *
 
 # from PIL import Image, ImageDraw, ImageOps
 
@@ -33,7 +34,7 @@ CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
-    xbmc.log('ADDON: ' + str(msg))
+    xbmc.log('ADDON / ' + str(msg))
 
 def get_local_recco(movie_type):
     global apiClient
@@ -42,6 +43,10 @@ def get_local_recco(movie_type):
     'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
 
     resRecco =  apiClient.profileRecco(movie_type, True, props)
+
+    log('local recco for ' + movie_type)
+    for title in resRecco['titles']:
+        log('resRecco:' + title['name'])
 
     return resRecco
 
@@ -54,47 +59,58 @@ def get_global_recco(movie_type):
 
     resRecco =  apiClient.profileRecco(movie_type, False, props)
 
-    # log(resRecco)
-    # for title in resRecco['titles']:
-    #     log(title['name'])
+    log('global recco for ' + movie_type)
+    for title in resRecco['titles']:
+        log(title['name'])
 
     return resRecco
 
 
 def get_unwatched_episodes():
+    log('get_unwatched_episodes')
     return movies
 
 
 def get_lists():
+    log('get_lists')
     return movies
 
 
 def get_movies_in_list(listid):
+    log('get_movies_in_list')
     return movies
 
 
 def get_trending_movies():
+    log('get_trending_movies')
     return movies
 
 
 def get_trending_tvshows():
+    log('get_trending_tvshows')
     return movies
 
 
 def get_items(_type, movie_type = None):
-    if _type == 1:
-        return get_global_recco(movie_type)['titles']
-    elif _type == 2:
-        return get_local_recco(movie_type)
-    elif _type == 3:
-        return get_unwatched_episodes()
-    elif _type == 4:
-        return get_lists()
-    elif _type == 5:
-        return get_trending_movies()
-    elif _type == 6:
-        return get_trending_tvshows()
-
+    log('get_items:' + str(_type))
+    try:
+        if _type == 1:
+            return get_global_recco(movie_type)['titles']
+        elif _type == 2:
+            return get_local_recco(movie_type)['titles']
+        elif _type == 3:
+            return get_unwatched_episodes()
+        elif _type == 4:
+            return get_lists()
+        elif _type == 5:
+            return get_trending_movies()
+        elif _type == 6:
+            return get_trending_tvshows()
+    except Exception as exc:
+        # error getting items
+        # display error dialog and log errors
+        log('ERROR /' + str(exc))
+        return []
 
 def add_to_list(movieid, listid):
     pass
@@ -206,8 +222,8 @@ def show_categories():
     """
     add_directory("Movie recommendations", "url", 1, "list.png", 1)
     add_directory("TV Show recommendations", "url", 11, "list.png", 1)
-    add_directory("Local Movie recommendations", "url", 12, "list.png", 1)
-    add_directory("Local TV Show recommendations", "url", 13, "list.png", 1)
+    add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
+    add_directory("Local TV Show recommendations", "url", 13, "list.png", 2)
     add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
     add_directory("Lists", "url", 1, "icon.png", 4)
     # add_directory("Trending Movies", "url", 1, "icon.png", 5, view_mode=500)
@@ -280,7 +296,7 @@ apiClient = apiclient.apiclient(
         __addon__.getSetting('SECRET'),
         __addon__.getSetting('USER'),
         __addon__.getSetting('PASS'),
-        get_install_id()
+        get_install_id(),
         debugLvl = logging.DEBUG
     )
 
@@ -307,7 +323,10 @@ try:
     data = urllib.unquote_plus(params["data"])
 except:
     pass
-    
+   
+
+log('mode: %s type: %s' % (mode, type))    
+
 if mode==None or url==None or len(url)<1:
     show_categories()
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
