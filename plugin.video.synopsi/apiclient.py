@@ -196,10 +196,13 @@ class apiclient:
 
 		return self.execute(req)
 
-	def titleSimilar(self, titleId):
+	def titleSimilar(self, titleId, props=defaultTitleProps):
 		req = {
 			'methodPath': 'title/%d/similar/' % titleId,
-			'method': 'post'
+			'method': 'get',
+			'data': {
+				'title_property[]': ','.join(props)
+			}
 		}
 
 		return self.execute(req)
