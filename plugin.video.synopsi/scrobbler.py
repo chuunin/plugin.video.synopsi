@@ -76,10 +76,6 @@ def get_rating():
     return _response
 
 
-def is_in_library():
-    return True
-
-
 class SynopsiPlayer(xbmc.Player):
     """ Bugfix and processing layer """
     started = False
@@ -91,7 +87,7 @@ class SynopsiPlayer(xbmc.Player):
 
     playing = False
     media_file = None
-    lastPlayedFile = None
+    last_played_file = None
     playerEvents = []
 
     def __init__(self):
@@ -120,24 +116,32 @@ class SynopsiPlayer(xbmc.Player):
             'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-        if self.isPlaying():
-            event['movieTime'] = self.getTime()
+        if self.playing:
+            event['movieTime'] = self.current_time
 
         self.playerEvents.append(event)
 
     def onPlayBackStarted(self):
         self.log('onPlayBackStarted')
+        # this is just next file of a movie
         if self.playing:
             if self.media_file != xbmc.Player().getPlayingFile():
                 self.ended_without_rating()
                 self.media_file = xbmc.Player().getPlayingFile()
-                self.lastPlayedFile = self.media_file
+                self.last_played_file = self.media_file
+                self.subtitle_file = self.getSubtitles()
+        
+        # started new video playback
         else:
             if xbmc.Player().isPlayingVideo():
-                self.started()
                 self.playing = True
+                self.total_time = xbmc.Player().getTotalTime()
+                self.current_time = self.get_time_or_none()
+                self.started()
                 self.media_file = xbmc.Player().getPlayingFile()
-                self.lastPlayedFile = self.media_file
+                self.last_played_file = self.media_file
+                self.subtitle_file = self.getSubtitles()
+                self.log('subtitle_file:' + str(self.subtitle_file))
 
         self.log('playing:' + str(self.playing))
 
@@ -156,9 +160,9 @@ class SynopsiPlayer(xbmc.Player):
     def onPlayBackStopped(self):
         self.log('onPlayBackStopped')
         if self.playing:
+            self.stopped()
             self.playing = False
             self.media_file = None
-            self.stopped()
 
     def onPlayBackPaused(self):
         self.log('onPlayBackPaused')
@@ -171,6 +175,15 @@ class SynopsiPlayer(xbmc.Player):
         else:
             self.log('resumed not playing?')
     
+    def get_time_or_none(self):
+        try:
+            t = 0
+            t = self.getTime()
+        except:
+            return None
+
+        return t
+
 
 class SynopsiPlayerDecor(SynopsiPlayer):
     """ This class defines methods that are called from the bugfix and processing parent class"""
@@ -184,12 +197,11 @@ class SynopsiPlayerDecor(SynopsiPlayer):
         self.log('Deleting Player Object')
 
     def started(self):
-        self.total_time = xbmc.Player().getTotalTime()
         self.playerEvent('start')
 
     def ended(self):
         self.playerEvent('end')
-        if is_in_library():
+        if self.cache.hasFilename(self.last_played_file):
             get_rating()
             
 
@@ -199,27 +211,25 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def stopped(self):  
         self.playerEvent('stop')
         self.log(json.dumps(self.playerEvents, indent=4))
-        # ask for rating only if stopped and more than 70% of movie passed
-        if is_in_library():
+        self.log('time:' + str(self.current_time))
+
+        # ask for 'rating only if stopped and more than 70% of movie passed
+        if self.cache.hasFilename(self.last_played_file):
             rating = get_rating()
-            
+
             # if user rated the title
             if rating < 4:
                 # temporary:
                 # get the title id
-                self.log('last file: ' + str(self.lastPlayedFile))
-
                 # query cache to get stvId
-                if self.cache.hasFilename(self.lastPlayedFile):
-                    detail = self.cache.getByFilename(self.lastPlayedFile)
+                detail = self.cache.getByFilename(self.last_played_file)
 
-                    # get stv id
-                    self.log('detail: ' + str(detail))
-                    if detail.has_key('stvId'):
-                        data = { 'rating': rating, 'player_events': self.playerEvents }
-                        self.apiclient.titleWatched(detail['stvId'], **data)
-
-                    self.playerEvents = []
+                # get stv id
+                self.log('detail: ' + str(detail))
+                if detail.has_key('stvId'):
+                    data = { 'rating': rating, 'player_events': self.playerEvents }
+                    self.apiclient.titleWatched(detail['stvId'], **data)
+                self.playerEvents = []
 
 
     def paused(self):
@@ -243,11 +253,14 @@ class Scrobbler(threading.Thread):
     def run(self):
         self.log('thread run start')
 
-        p = SynopsiPlayerDecor()
-        p.setStvList(self.cache)
+        player = SynopsiPlayerDecor()
+        player.setStvList(self.cache)
 
         #   wait for abort flag
         while not library.ABORT_REQUESTED and not xbmc.abortRequested:
+            player.current_time = player.get_time_or_none()
+            self.log('time:' + str(player.current_time))
+
             xbmc.sleep(500)
         
         dbg = ''
