@@ -52,8 +52,7 @@ class StvList(object):
         # if not in cache, it's been probably added
         if not self.hasTypeId(movie['type'], movie['id']):
             # get stv hash
-            movie_hash = stv_hash(movie['file'])
-            movie['stv_hash'] = movie_hash
+            movie['stv_hash'] = stv_hash(movie['file'])
             # try to get synopsi id
             # for now, try only if there is 'imdbnumber'
             if movie.has_key('imdbnumber'):

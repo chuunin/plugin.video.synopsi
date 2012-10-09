@@ -45,7 +45,7 @@ class ApiTest(unittest.TestCase):
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"
-		data = client.titleIdentify(imdb_id=60569, title_hash='', subtitle_hash='')
+		data = client.titleIdentify(imdb_id=60569, title_hash='')
 
 		stv_title_id = data['title_id']
 
@@ -85,11 +85,16 @@ class ApiTest(unittest.TestCase):
 
 		data = client.libraryTitleRemove(stv_title_id)
 
-		# print 'profileRecco(movie)'
-		# props = [ 'year','image' ]
-		# data = client.profileRecco('movie', False, props)
-		# pprint(data)
+		props = [ 'year','image' ]
+		data = client.profileRecco('movie', False, props)
 
+		self.assertTrue(data.has_key('recco_id'))
+		self.assertTrue(data.has_key('titles'))
+		self.assertTrue(len(data['titles']) > 0)
+
+		# 1947362 "Ben-Hur (1959)"
+		data_similar = client.titleSimilar(1947362)
+		print data_similar
 
 
 
@@ -111,5 +116,4 @@ if __name__ == '__main__':
 	suite = unittest.TestLoader().loadTestsFromTestCase(ApiTest)
 	unittest.TextTestRunner(verbosity=2).run(suite)
 
-	#unittest.main()
 
