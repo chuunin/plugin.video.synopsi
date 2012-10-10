@@ -22,12 +22,13 @@ class RPCListener(threading.Thread):
         self.sock = socket.socket()
         self.sock.settimeout(10)
         conned = False
+        t = time.time()
         while not conned:
             try:
                 self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
             except Exception, exc:
-                xbmc.log(str(exc))
-                xbmc.sleep(1)
+                xbmc.log('%0.2f %s' % (time.time() - t, str(exc)))
+                xbmc.sleep(500)
             else:
                 xbmc.log('Connected to 9090')
                 conned = True
@@ -106,13 +107,7 @@ class RPCListenerHandler(RPCListener):
         xbmc.log('Library: ' + msg)
 
     def addorupdate(self, aid, atype):
-        # find out new data about movie
-        movie = get_details(atype, aid)
-        movie['type'] = atype
-        movie['id'] = aid
-
-        self.cache.addorupdate(movie)
-
+        self.cache.addorupdate(aid, atype)
 
     def remove(self, aid, atype):
         self.cache.remove(atype, aid)

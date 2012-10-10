@@ -48,7 +48,12 @@ class StvList(object):
     def log(self, msg):
         xbmc.log('CACHE / ' + str(msg))
 
-    def addorupdate(self, movie):
+    def addorupdate(self, atype, aid):
+        # find out actual data about movie
+        movie = get_details(atype, aid)
+        movie['type'] = atype
+        movie['id'] = aid
+
         # if not in cache, it's been probably added
         if not self.hasTypeId(movie['type'], movie['id']):
             # get stv hash
