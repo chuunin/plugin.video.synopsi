@@ -392,10 +392,10 @@
 					<onright>9000</onright>
 					<onup>61</onup>
 					<ondown>49</ondown>
-					<control id="6" type="button">
+<!-- 					<control id="6" type="button">
 						<include>ButtonInfoDialogsCommonValues</include>
 						<label>Add to list</label>
-					</control>
+					</control> -->
 					<control id="5" type="button">
 						<include>ButtonInfoDialogsCommonValues</include>
 						<label>Play</label>
