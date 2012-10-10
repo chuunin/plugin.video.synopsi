@@ -269,4 +269,15 @@ class apiclient:
 
 		return self.execute(req)
 
+	def unwatchedEpisodes(self, props=defaultTitleProps):
+		req = {
+			'methodPath': 'profile/unwatched_episodes/',
+			'method': 'get',
+			'data': {
+				'title_property[]': ','.join(props)
+			}
+		}
+
+		return self.execute(req)
+
 

@@ -67,9 +67,25 @@ def get_global_recco(movie_type):
 
 
 def get_unwatched_episodes():
-    log('get_unwatched_episodes')
-    return movies
+    global apiClient
 
+    episodes =  apiClient.unwatchedEpisodes()
+
+    log('unwatched episodes')
+    for title in episodes['top']:
+        log(title['name'])
+
+    result = episodes['lineup']
+    if not result:
+        # let user know there is no lineup
+        # provide some alternative listing
+        result = episodes['upcoming']
+        if not result:
+            # let user know there is no upcoming
+            # provide some alternative listing
+            result = episodes['top']
+        
+    return result
 
 def get_lists():
     log('get_lists')

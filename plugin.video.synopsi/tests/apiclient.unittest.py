@@ -37,6 +37,18 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(not succ)
 		self.assertTrue(not client.isAuthenticated())
 
+	def test_unwatched_episodes(self):
+		global connection
+
+		c = copy(connection)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING)
+		data = client.unwatchedEpisodes()
+
+		self.assertTrue(data.has_key('lineup'))
+		self.assertTrue(data.has_key('new'))
+		self.assertTrue(data.has_key('top'))
+		self.assertTrue(data.has_key('upcoming'))
+
 	def test_library_add(self):
 		global connection
 
@@ -94,7 +106,8 @@ class ApiTest(unittest.TestCase):
 
 		# 1947362 "Ben-Hur (1959)"
 		data_similar = client.titleSimilar(1947362)
-		print data_similar
+		#print data_similar
+
 
 
 
@@ -102,8 +115,11 @@ class ApiTest(unittest.TestCase):
 
 if __name__ == '__main__': 
 	connection = {
+		# 'base_url': 'http://test.papi.synopsi.tv/',
+		# 'key': 'c420bfed031e32b395554da5dde07f',
+		# 'secret': 'd0626af9c94abb0e5cf7ead8c0e882',
+
 		'base_url': 'http://neptune.local:8000/',
-		#base_url: 'http://test.papi.synopsi.tv/',
 		'key': '76ccb5ec8ecddf15c29c5decac35f9',
 		'secret': '261029dbbdd5dd481da6564fa1054e',
 		'username': 'martin.smid@gmail.com',
