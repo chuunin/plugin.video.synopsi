@@ -393,11 +393,11 @@ def XBMC_GetInfoLabels():
     return response
 
 
-def get_details(atype, aid):
+def get_details(atype, aid, all_prop=False):
     if atype == "movie":                
-        movie = get_movie_details(aid)
+        movie = get_movie_details(aid, all_prop)
     elif atype == "episode":
-        movie = get_episode_details(aid)
+        movie = get_episode_details(aid, all_prop)
     return movie
 
 class xbmcRPCclient(object):
@@ -418,10 +418,15 @@ class xbmcRPCclient(object):
 
         response = xbmc.executeJSONRPC(json.dumps(dic))
         
-        if self.__logLevel:
-            xbmc.log('xbmc RPC response: ' + str(response))
+        json_response = json.loads(response)
 
-        return json.loads(response)['result']
+        if self.__logLevel:
+            xbmc.log('xbmc RPC response: ' + str(json.dumps(json_response, indent=4)))
+
+        if json_response.has_key('error') and json_response['error']:
+            raise Exception(json_response['error']['message'])
+
+        return json_response['result']
 
 def get_install_id():
     global __addon__

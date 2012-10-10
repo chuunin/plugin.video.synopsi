@@ -152,9 +152,11 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         for i in range(5):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
 
+        xbmc_movie_detail = get_details('movie', self.data['id'], True)
+
         labels = {
-        "Director": "Adam Jurko",
-        "Writer": "John Gatins, Dan Gilroy, Jeremy Leven, Richard Matheson",
+        "Director": xbmc_movie_detail['director'],
+        "Writer": xbmc_movie_detail['writer'],
         "Runtime": "23 min",
         "Release date": "September 06, 2011"
         }
@@ -164,6 +166,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             win.setProperty("Movie.Label.{0}.1".format(i), key)
             win.setProperty("Movie.Label.{0}.2".format(i), labels[key])
             i = i + 1
+
+
+
 
         labels = {
         "Love Actually": "https://s3.amazonaws.com/titles.synopsi.tv/01982155-267.jpg",
@@ -220,11 +225,11 @@ def add_directory(name, url, mode, iconimage, type, view_mode=500):
     return ok
 
 
-def add_movie(movie, name, url, mode, iconimage, movieid, view_mode=500):
+def add_movie(movie, url, mode, iconimage, movieid, view_mode=500):
     json_data = json.dumps(movie)
-    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&data="+urllib.quote_plus(json_data)
+    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&type="+str(type)+"&name="+urllib.quote_plus(movie.get('name'))+"&data="+urllib.quote_plus(json_data)
     ok = True
-    liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
     liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
@@ -248,22 +253,28 @@ def show_categories():
 
 def show_movies(url, type, movie_type):
     for movie in get_items(type, movie_type):
-        add_movie(movie, movie.get('name'), "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
+        movie['type'] = movie_type
+        add_movie(movie, "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
          C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
             2, movie.get('cover_medium'), movie.get("id"))
 
 
-def show_video_dialog(url, name, data):
+def show_video_dialog(url, name, json_data):
+    log('show video:' + json.dumps(json_data, indent=4))
+
+    # get similar movies
+    # get video info
+
     try:
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
     except ValueError, e:
-        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json.loads(data))
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
         ui.doModal()
         del ui
     else:
         win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
         win.close()
-        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json.loads(data))
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
         ui.doModal()
         del ui
 
@@ -337,11 +348,14 @@ except:
 
 try:
     data = urllib.unquote_plus(params["data"])
+    json_data = json.loads(data)
 except:
     pass
    
 
 log('mode: %s type: %s' % (mode, type))    
+log('url: %s' % (url))    
+log('data: %s' % (data))    
 
 if mode==None or url==None or len(url)<1:
     show_categories()
@@ -368,6 +382,7 @@ elif mode==13:
     show_movies(url, type, 'episode')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==2:
-    show_video_dialog(url, name, data)
+    json_data['type'] = type
+    show_video_dialog(url, name, json_data)
 
 
