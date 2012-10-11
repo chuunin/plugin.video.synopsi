@@ -148,6 +148,9 @@ class StvList(object):
     def getByFilename(self, name):
         return self.byFilename[name]
 
+    def hasStvId(self, stv_id):
+        return self.byStvId.has_key(stv_id)
+
     def getByStvId(self, stv_id):
         if self.byStvId.has_key(stv_id):
             return self.byStvId[stv_id]

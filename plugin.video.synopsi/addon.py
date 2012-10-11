@@ -152,21 +152,18 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         for i in range(5):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
 
+        labels = dict()
+
         if self.data.has_key('xbmc_id'):
             log('xbmc id:' + str(self.data['xbmc_id']))
-        # xbmc_movie_detail = get_details('movie', self.data['xbmc_id'], True)
+            xbmc_movie_detail = get_details('movie', self.data['xbmc_id'], True)
 
-        xbmc_movie_detail = {}
-        xbmc_movie_detail['director'] = ''
-        xbmc_movie_detail['writer'] = ''
+            labels["Director"] = xbmc_movie_detail['director']
+            labels["Writer"] = xbmc_movie_detail['writer']
+            labels["Runtime"] = xbmc_movie_detail['runtime']
+            labels["Release date"] = xbmc_movie_detail['premiered']
 
-        labels = {
-        "Director": xbmc_movie_detail['director'],
-        "Writer": xbmc_movie_detail['writer'],
-        "Runtime": "23 min",
-        "Release date": "September 06, 2011"
-        }
-
+        # set available labels
         i = 1
         for key in labels.keys():
             win.setProperty("Movie.Label.{0}.1".format(i), key)
@@ -260,16 +257,16 @@ def show_movies(url, type, movie_type):
 def show_video_dialog(url, name, json_data):
     global stvList, apiClient
 
-    cacheItem = stvList.getByStvId(json_data['id'])
-    json_data['xbmc_id'] = cacheItem['id']
-    # log('xbmc id:' + str(xbmc_id))
+    # add xbmc id if available
+    if stvList.hasStvId(json_data['id']):
+        cacheItem = stvList.getByStvId(json_data['id'])
+        json_data['xbmc_id'] = cacheItem['id']
+
     log('show video:' + json.dumps(json_data, indent=4))
 
+    # get similar movies
     similars = apiClient.titleSimilar(json_data['id'])
     json_data['similars'] = similars['titles']
-
-    # get similar movies
-    # get video info
 
     try:
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
