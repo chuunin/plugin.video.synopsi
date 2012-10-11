@@ -1,3 +1,4 @@
+import xbmc, xbmcgui, xbmcaddon
 import logging
 import json
 import sys
@@ -5,6 +6,7 @@ import datetime
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError, URLError
+from utilities import get_install_id
 
 RATING_CODE = {
 	1: 'like',
@@ -38,6 +40,24 @@ class apiclient:
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
+
+	@classmethod
+	def getDefaultClient(cls):
+		__addon__  = xbmcaddon.Addon()
+
+		iuid = get_install_id()
+
+		# get or generate install-unique ID
+		tmpClient = cls(
+			__addon__.getSetting('BASE_URL'),
+			__addon__.getSetting('KEY'),
+			__addon__.getSetting('SECRET'),
+			__addon__.getSetting('USER'),
+			__addon__.getSetting('PASS'),
+			iuid    
+		)
+
+		return tmpClient
 
 	def queueRequest(self, req):
 		self.failedRequest.append(req)

@@ -17,9 +17,9 @@ import re
 import os.path
 import logging
 import test
-import utilities
 import apiclient
 from utilities import *
+from cache import StvList
 
 # from PIL import Image, ImageDraw, ImageOps
 
@@ -152,7 +152,13 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         for i in range(5):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
 
-        xbmc_movie_detail = get_details('movie', self.data['id'], True)
+        if self.data.has_key('xbmc_id'):
+            log('xbmc id:' + str(self.data['xbmc_id']))
+        # xbmc_movie_detail = get_details('movie', self.data['xbmc_id'], True)
+
+        xbmc_movie_detail = {}
+        xbmc_movie_detail['director'] = ''
+        xbmc_movie_detail['writer'] = ''
 
         labels = {
         "Director": xbmc_movie_detail['director'],
@@ -168,6 +174,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             i = i + 1
 
 
+        # similars
 
 
         labels = {
@@ -179,9 +186,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         }
 
         i = 1
-        for key in labels.keys():
-            win.setProperty("Movie.Similar.{0}.Label".format(i), key)
-            win.setProperty("Movie.Similar.{0}.Cover".format(i), labels[key])
+        for item in self.data['similars']:
+            win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
+            win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_large'])
             i = i + 1
 
         if self.data["trailer"]:
@@ -261,7 +268,15 @@ def show_movies(url, type, movie_type):
 
 
 def show_video_dialog(url, name, json_data):
+    global stvList, apiClient
+
+    cacheItem = stvList.getByStvId(json_data['id'])
+    json_data['xbmc_id'] = cacheItem['id']
+    # log('xbmc id:' + str(xbmc_id))
     log('show video:' + json.dumps(json_data, indent=4))
+
+    similars = apiClient.titleSimilar(json_data['id'])
+    json_data['similars'] = similars['titles']
 
     # get similar movies
     # get video info
@@ -318,15 +333,8 @@ type = None
 data = None
 
 
-apiClient = apiclient.apiclient(
-        __addon__.getSetting('BASE_URL'),
-        __addon__.getSetting('KEY'),
-        __addon__.getSetting('SECRET'),
-        __addon__.getSetting('USER'),
-        __addon__.getSetting('PASS'),
-        get_install_id(),
-        debugLvl = logging.DEBUG
-    )
+apiClient = apiclient.apiclient.getDefaultClient()
+stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))
 

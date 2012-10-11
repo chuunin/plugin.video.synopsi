@@ -3,7 +3,7 @@ import pickle
 import xbmc
 import json
 from utilities import *
-
+import apiclient
 
 class StvList(object):
     """
@@ -30,6 +30,25 @@ class StvList(object):
 
         self.uuid = uuid
         self.list()
+
+
+    @classmethod
+    def getDefaultList(cls, apiClient=None):
+        __addon__  = xbmcaddon.Addon()
+        if not apiClient:
+            apiClient = apiclient.apiclient.getDefaultClient()
+
+        iuid = get_install_id()    
+        cache = StvList(iuid, apiClient) 
+        try:
+            cacheSer = __addon__.getSetting(id='CACHE')            
+            cache.deserialize(cacheSer)
+        except:
+            # first time
+            xbmc.log('CACHE restore failed. If this is your first run, its ok')
+
+        return cache
+
 
     def serialize(self):
         self.log(json.dumps([self.byTypeId, self.byFilename, self.byStvId]))
@@ -128,6 +147,10 @@ class StvList(object):
         
     def getByFilename(self, name):
         return self.byFilename[name]
+
+    def getByStvId(self, stv_id):
+        if self.byStvId.has_key(stv_id):
+            return self.byStvId[stv_id]
 
     def list(self):
         self.log('ID / ' +  self.uuid)
