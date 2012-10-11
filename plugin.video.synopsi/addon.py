@@ -175,16 +175,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 
         # similars
-
-
-        labels = {
-        "Love Actually": "https://s3.amazonaws.com/titles.synopsi.tv/01982155-267.jpg",
-        "The Dark Knight Rises": "https://s3.amazonaws.com/titles.synopsi.tv/ae401d45cb2e88bf6337248bbf0249d2-267.jpg",
-        "Real Steel": "https://s3.amazonaws.com/titles.synopsi.tv/02444806-267.jpg",
-        "Musime si pomahat": "https://s3.amazonaws.com/titles.synopsi.tv/00873171-267.jpg",
-        "State of Play": "https://s3.amazonaws.com/titles.synopsi.tv/00021267-267.jpg"
-        }
-
         i = 1
         for item in self.data['similars']:
             win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])

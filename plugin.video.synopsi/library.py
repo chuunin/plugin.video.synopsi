@@ -122,13 +122,9 @@ class RPCListenerHandler(RPCListener):
 
     def Player_OnPlay(self, data):
         self.playerEvent(data)
-        aid = data['params']['data']['item']['id']
-        atype = data['params']['data']['item']['type']
 
     def Player_OnStop(self, data):
         self.playerEvent(data)
-        if data == None:
-            return
 
     def Player_OnSeek(self, data):
         self.playerEvent(data)
