@@ -14,17 +14,7 @@ from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
 
-# definitions of properties
-KEY = 'd0198f911ef0292c83850f9dd77a5a'
-SECRET = '69884a55080284e41937e7a007e522'
-
-HTTP_HEADERS = {
-            'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (KEY, SECRET)),
-            'user-agent': 'linux'
-}
 __addon__     = xbmcaddon.Addon()
-
-
 
 def get_protected_folders():
     """
