@@ -259,7 +259,7 @@ class Scrobbler(threading.Thread):
         #   wait for abort flag
         while not library.ABORT_REQUESTED and not xbmc.abortRequested:
             player.current_time = player.get_time_or_none()
-            self.log('time:' + str(player.current_time))
+            # self.log('time:' + str(player.current_time))
 
             xbmc.sleep(500)
         

@@ -8,6 +8,7 @@
     <import addon="plugin.video.youtube" version="2.9.1"/> <!-- We play trailers through this plugin -->
     <!-- <import addon="script.module.pil" version="1.1.7"/> --> <!--In case, we will need PIL--> 
     <import addon="xbmc.addon" version="11.0"/> <!--Repository only for XBMC 11--> 
+    <import addon="script.common.plugin.cache" version="0.9.1"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
         <provides>video</provides> <!-- addon.py is file for addon -->

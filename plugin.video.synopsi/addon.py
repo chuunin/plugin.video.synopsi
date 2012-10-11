@@ -253,6 +253,7 @@ def show_categories():
 
 def show_movies(url, type, movie_type):
     for movie in get_items(type, movie_type):
+        log(json.dumps(movie, indent=4))
         movie['type'] = movie_type
         add_movie(movie, "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
          C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",

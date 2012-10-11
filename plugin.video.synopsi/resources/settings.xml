@@ -7,6 +7,7 @@
     	<setting id="PASS" label="69502" option="hidden" type="text" enable="!eq(-1,)" default=""/>
     	<!--TOKENS-->
         <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://neptune.local:8000/" />
+        <!-- <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://dev.papi.synopsi.tv/" /> -->
         <setting id="KEY" option="hidden" type="text" visible="false" default="76ccb5ec8ecddf15c29c5decac35f9"/>
         <setting id="SECRET" option="hidden" type="text" visible="false" default="261029dbbdd5dd481da6564fa1054e"/>
 
