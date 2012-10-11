@@ -8,9 +8,9 @@ import socket
 import json
 import traceback
 import apiclient
-
 from utilities import *
 from cache import *
+
 
 ABORT_REQUESTED = False
 
@@ -22,13 +22,15 @@ class RPCListener(threading.Thread):
         self.sock = socket.socket()
         self.sock.settimeout(10)
         conned = False
+        sleepTime = 100
         t = time.time()
-        while not conned:
+        while not conned or ABORT_REQUESTED:
             try:
                 self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
             except Exception, exc:
                 xbmc.log('%0.2f %s' % (time.time() - t, str(exc)))
-                xbmc.sleep(500)
+                xbmc.sleep(int(sleepTime))
+                sleepTime *= 1.5
             else:
                 xbmc.log('Connected to 9090')
                 conned = True
@@ -147,7 +149,4 @@ class RPCListenerHandler(RPCListener):
     def GUI_OnScreenSaverDeactivated(self, data):
         self.playerEvent(data)
         pass
-
-
-
 
