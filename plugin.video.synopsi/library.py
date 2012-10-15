@@ -45,7 +45,7 @@ class RPCListener(threading.Thread):
 
     def run(self):
         global ABORT_REQUESTED
-
+        # raise Exception(__addon__.getSetting('BASE_URL'))
         self.apiclient = apiclient.apiclient(
             __addon__.getSetting('BASE_URL'),
             __addon__.getSetting('KEY'),

@@ -437,14 +437,16 @@ def home_screen_fill(apiClient):
 	from test import jsfile
 	
 	# get recco movies and episodes
-	#~ movie_recco = apiClient.profileRecco('movie')	
-	#~ episode_recco = apiClient.profileRecco('episode')
+	movie_recco = apiClient.profileRecco('movie')	
+	episode_recco = apiClient.profileRecco('episode')
 
-	movie_recco = jsfile
-	episode_recco = jsfile
+	# movie_recco = jsfile
+	# episode_recco = jsfile
 
-	#~ xbmc.log(json.dumps(movie_recco, indent=4))
-	#~ xbmc.log(json.dumps(episode_recco, indent=4))
+	xbmc.log(json.dumps(movie_recco, indent=4))
+	xbmc.log(json.dumps(episode_recco, indent=4))
+	xbmc.log('episode_recco:' + str(len(episode_recco)))
+	xbmc.log('movie_recco:' + str(len(movie_recco)))
 
 	WINDOW = xbmcgui.Window( 10000 )
 	MOVIES_COUNT = 5

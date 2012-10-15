@@ -42,12 +42,14 @@ class apiclient:
 		self.failedRequest = []
 		self._logger.error('APIURL:' + self.apiUrl)
 		self._logger.error('BASEURL:' + self.baseUrl)		
+		
 
 	@classmethod
 	def getDefaultClient(cls):
 		__addon__  = xbmcaddon.Addon()
 
 		iuid = get_install_id()
+		xbmc.log('REL_API_URL:' + __addon__.getSetting('REL_API_URL'))
 
 		# get or generate install-unique ID
 		tmpClient = cls(
@@ -56,7 +58,8 @@ class apiclient:
 			__addon__.getSetting('SECRET'),
 			__addon__.getSetting('USER'),
 			__addon__.getSetting('PASS'),
-			iuid    
+			iuid,
+			__addon__.getSetting('REL_API_URL')    
 		)
 
 		return tmpClient
@@ -181,7 +184,7 @@ class apiclient:
 
 		except HTTPError as e:
 			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + e.read())
+			# self._logger.error('APICLIENT:' + e.read())
 			response_json = {}
 
 		except URLError as e:
