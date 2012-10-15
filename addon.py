@@ -310,6 +310,10 @@ __version__   = __addon__.getAddonInfo('version')
 #     xbmc.executebuiltin("RunAddon(service.synopsi)")
 #     __addon__.setSetting(id='firststart', value="false")
 
+
+xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
+
+
 # print sys.argv
 
 params = get_params()
