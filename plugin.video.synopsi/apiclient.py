@@ -30,7 +30,7 @@ class apiclient:
 		self.accessToken = None
 		self.refreshToken = None
 		self.apiUrl = self.baseUrl + 'api/public/1.0/'
-		self.originReqHost = originReqHost or 'dev.bapi.synopsi.tv'
+		self.originReqHost = originReqHost or 'dev.bapi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
 		self.device_id = device_id  
 		self._logger = logging.getLogger()
@@ -113,6 +113,7 @@ class apiclient:
 					headers=self.authHeaders, 
 					origin_req_host=self.originReqHost))
 
+			self._logger.debug(response)
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:

@@ -5,6 +5,7 @@ This is default file of SynopsiTV service. See addon.xml
 from scrobbler import Scrobbler
 from library import RPCListenerHandler
 from cache import *
+from utilities import home_screen_fill
 import xbmc, xbmcgui, xbmcaddon
 import apiclient
 
@@ -25,6 +26,9 @@ def main():
         __addon__.getSetting('PASS'),
         iuid    
     )
+
+    home_screen_fill(apiclient1)
+
 
 # once per library methods change, to reinit the serialzed object
 #   cacheSer = ''   
