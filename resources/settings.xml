@@ -6,12 +6,16 @@
         <setting id="USER" label="69501" type="text" default=""/>
     	<setting id="PASS" label="69502" option="hidden" type="text" enable="!eq(-1,)" default=""/>
     	<!--TOKENS-->
-<!--         <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://neptunex.local:8000/" />
-        <setting id="REL_API_URL" option="hidden" type="text" visible="false" default="api/public/1.0/" /> -->
-        <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://dev.papi.synopsi.tv/" />
-        <setting id="REL_API_URL" option="hidden" type="text" visible="false" default="1.0/" />
+<!--
+        <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://neptunex.local:8000/" />
+        <setting id="REL_API_URL" option="hidden" type="text" visible="false" default="api/public/1.0/" /> 
         <setting id="KEY" option="hidden" type="text" visible="false" default="76ccb5ec8ecddf15c29c5decac35f9"/>
         <setting id="SECRET" option="hidden" type="text" visible="false" default="261029dbbdd5dd481da6564fa1054e"/>
+-->
+        <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://test.papi.synopsi.tv/" />
+        <setting id="REL_API_URL" option="hidden" type="text" visible="false" default="1.0/" />
+        <setting id="KEY" option="hidden" type="text" visible="false" default="c420bfed031e32b395554da5dde07f"/>
+        <setting id="SECRET" option="hidden" type="text" visible="false" default="d0626af9c94abb0e5cf7ead8c0e882"/>
 
     	<setting id="ACCTOKEN" option="hidden" type="text" visible="false" default=""/>
     	<setting id="REFTOKEN" option="hidden" type="text" visible="false" default=""/>

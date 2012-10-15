@@ -17,13 +17,9 @@ def main():
     cacheSer = __addon__.getSetting(id='CACHE')
     iuid = get_install_id()
 
-    # STUPID HACK, CAHCED XBMC
-    baseUrl = __addon__.getSetting('BASE_URL')
-    baseUrl = 'http://dev.papi.synopsi.tv/'
-
     # get or generate install-unique ID
     apiclient1 = apiclient.apiclient(
-        baseUrl,
+        __addon__.getSetting('BASE_URL'),
         __addon__.getSetting('KEY'),
         __addon__.getSetting('SECRET'),
         __addon__.getSetting('USER'),

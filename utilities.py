@@ -434,31 +434,33 @@ def home_screen_fill(apiClient):
 	"""
 	This method updates movies on HomePage.
 	"""
-	from test import jsfile
-	
-	# get recco movies and episodes
-	movie_recco = apiClient.profileRecco('movie')	
-	episode_recco = apiClient.profileRecco('episode')
 
+	# get recco movies and episodes
+	movie_recco = apiClient.profileRecco('movie')['titles']
+	episode_recco = apiClient.profileRecco('episode')['titles']
+
+	# from test import jsfile
 	# movie_recco = jsfile
 	# episode_recco = jsfile
 
-	xbmc.log(json.dumps(movie_recco, indent=4))
-	xbmc.log(json.dumps(episode_recco, indent=4))
-	xbmc.log('episode_recco:' + str(len(episode_recco)))
-	xbmc.log('movie_recco:' + str(len(movie_recco)))
+	# xbmc.log('movie_recco:' + json.dumps(movie_recco, indent=4))
+	# xbmc.log('episode_recco:' + json.dumps(episode_recco, indent=4))
+	xbmc.log('movie_recco count:' + str(len(movie_recco)))
+	xbmc.log('episode_recco count:' + str(len(episode_recco)))
 
 	WINDOW = xbmcgui.Window( 10000 )
 	MOVIES_COUNT = 5
 	
 	for i in range(1, MOVIES_COUNT+1):
 		m = movie_recco[i]
+		xbmc.log('movie %d %s' % (i, m['name']))
 		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
 		WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
 		WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
 		WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i), m['cover_large'])
 
 		e = episode_recco[i]
+		xbmc.log('episode %d %s' % (i, e['name']))
 		WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
 		WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
 		WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))

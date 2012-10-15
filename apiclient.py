@@ -40,8 +40,8 @@ class apiclient:
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
-		self._logger.error('APIURL:' + self.apiUrl)
-		self._logger.error('BASEURL:' + self.baseUrl)		
+		# self._logger.error('APIURL:' + self.apiUrl)
+		# self._logger.error('BASEURL:' + self.baseUrl)		
 		
 
 	@classmethod
@@ -184,7 +184,7 @@ class apiclient:
 
 		except HTTPError as e:
 			self._logger.error('APICLIENT:' + str(e))
-			# self._logger.error('APICLIENT:' + e.read())
+			self._logger.error('APICLIENT:' + e.read())
 			response_json = {}
 
 		except URLError as e:
