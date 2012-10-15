@@ -52,7 +52,8 @@ class RPCListener(threading.Thread):
             __addon__.getSetting('SECRET'),
             __addon__.getSetting('USER'),
             __addon__.getSetting('PASS'),
-            get_install_id()
+            get_install_id(),
+            rel_api_url=__addon__.getSetting('REL_API_URL'),
         )
 
         while True:

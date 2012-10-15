@@ -22,7 +22,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
 		client.getAccessToken()
 		self.assertIsInstance(client, apiclient)
 		return client
@@ -32,7 +32,7 @@ class ApiTest(unittest.TestCase):
 
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		succ = client.getAccessToken()
 		self.assertTrue(not succ)
 		self.assertTrue(not client.isAuthenticated())
@@ -41,7 +41,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = copy(connection)
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		data = client.unwatchedEpisodes()
 
 		self.assertTrue(data.has_key('lineup'))
@@ -53,7 +53,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING)
+		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"
@@ -115,16 +115,16 @@ class ApiTest(unittest.TestCase):
 
 if __name__ == '__main__': 
 	connection = {
-		# 'base_url': 'http://test.papi.synopsi.tv/',
-		# 'key': 'c420bfed031e32b395554da5dde07f',
-		# 'secret': 'd0626af9c94abb0e5cf7ead8c0e882',
-
-		'base_url': 'http://neptune.local:8000/',
-		'key': '76ccb5ec8ecddf15c29c5decac35f9',
-		'secret': '261029dbbdd5dd481da6564fa1054e',
+		'base_url': 'http://test.papi.synopsi.tv/',
+		'key': 'c420bfed031e32b395554da5dde07f',
+		'secret': 'd0626af9c94abb0e5cf7ead8c0e882',
+		# 'base_url': 'http://neptune.local:8000/',
+		# 'key': '76ccb5ec8ecddf15c29c5decac35f9',
+		# 'secret': '261029dbbdd5dd481da6564fa1054e',
 		'username': 'martin.smid@gmail.com',
 		'password': 'aaa',
-		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd'	
+		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd',
+		'rel_api_url': '1.0/'		
 	}
 
 	logger = logging.getLogger()

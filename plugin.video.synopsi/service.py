@@ -24,7 +24,8 @@ def main():
         __addon__.getSetting('SECRET'),
         __addon__.getSetting('USER'),
         __addon__.getSetting('PASS'),
-        iuid    
+        iuid,
+        rel_api_url=__addon__.getSetting('REL_API_URL'),
     )
 
     home_screen_fill(apiclient1)

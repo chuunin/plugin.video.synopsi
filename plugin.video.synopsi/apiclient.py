@@ -21,7 +21,7 @@ class NotConnectedException(Exception):
 defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
 
 class apiclient:
-	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost = None, debugLvl = logging.INFO, accessTokenTimeout = 10):
+	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		self.baseUrl = base_url
 		self.key = key
 		self.secret = secret
@@ -29,7 +29,7 @@ class apiclient:
 		self.password = password
 		self.accessToken = None
 		self.refreshToken = None
-		self.apiUrl = self.baseUrl + 'api/public/1.0/'
+		self.apiUrl = self.baseUrl + rel_api_url
 		self.originReqHost = originReqHost or 'dev.bapi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
 		self.device_id = device_id  
@@ -40,6 +40,8 @@ class apiclient:
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
+		self._logger.error('APIURL:' + self.apiUrl)
+		self._logger.error('BASEURL:' + self.baseUrl)		
 
 	@classmethod
 	def getDefaultClient(cls):
