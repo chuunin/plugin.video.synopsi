@@ -13,8 +13,13 @@ __addon__  = xbmcaddon.Addon()
 
 def main():
 
-    # try to restore cache  
-    cacheSer = __addon__.getSetting(id='CACHE')
+    # on first run
+    if __addon__.getSetting('FIRSTRUN') == 'true':
+        # enable home screen recco
+        xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
+        __addon__.openSettings()        
+        __addon__.setSetting(id='FIRSTRUN', value="false")
+
     iuid = get_install_id()
 
     # get or generate install-unique ID
@@ -30,11 +35,13 @@ def main():
 
     home_screen_fill(apiclient1)
 
+    # try to restore cache  
+    cacheSer = __addon__.getSetting(id='CACHE')
 
-# once per library methods change, to reinit the serialzed object
-#   cacheSer = ''   
-# test string
-#   cacheSer = 'KGxwMAooZHAxClMnbW92aWUtLTgnCnAyCihkcDMKVm1vdmllaWQKcDQKSTgKc1ZsYXN0cGxheWVkCnA1ClYyMDEyLTEwLTA1IDExOjEyOjU0CnA2CnNWbGFiZWwKcDcKVkEgVmVyeSBIYXJvbGQgJiBLdW1hciBDaHJpc3RtYXMKcDgKc1ZpbWRibnVtYmVyCnA5ClZ0dDEyNjg3OTkKcDEwCnNTJ3N0dl9oYXNoJwpwMTEKUycxNTk3OWNmYWRjOWFkMjY0ZmE5YjI5YmU3ZmQwNTgzZDI5MDBjYjUwJwpwMTIKc1ZmaWxlCnAxMwpWL1VzZXJzL3NtaWQvTW92aWVzL01vdmllcy9BIFZlcnkgSGFyb2xkIEFuZCBLdW1hciBDaHJpc3RtYXMgRFZEUmlwIFh2aUQtRGlBTU9ORC9kbWQtdmhha2MuYXZpCnAxNApzVnBsYXljb3VudApwMTUKSTIKc1MndHlwZScKcDE2ClZtb3ZpZQpwMTcKc1MnaWQnCnAxOApJOApzc2EoZHAxOQpnMTQKZzMKc2EoZHAyMAphLg=='
+    # once per library methods change, to reinit the serialzed object
+    # cacheSer = ''   
+    # test string
+    # cacheSer = 'KGxwMAooZHAxClMnbW92aWUtLTgnCnAyCihkcDMKVm1vdmllaWQKcDQKSTgKc1ZsYXN0cGxheWVkCnA1ClYyMDEyLTEwLTA1IDExOjEyOjU0CnA2CnNWbGFiZWwKcDcKVkEgVmVyeSBIYXJvbGQgJiBLdW1hciBDaHJpc3RtYXMKcDgKc1ZpbWRibnVtYmVyCnA5ClZ0dDEyNjg3OTkKcDEwCnNTJ3N0dl9oYXNoJwpwMTEKUycxNTk3OWNmYWRjOWFkMjY0ZmE5YjI5YmU3ZmQwNTgzZDI5MDBjYjUwJwpwMTIKc1ZmaWxlCnAxMwpWL1VzZXJzL3NtaWQvTW92aWVzL01vdmllcy9BIFZlcnkgSGFyb2xkIEFuZCBLdW1hciBDaHJpc3RtYXMgRFZEUmlwIFh2aUQtRGlBTU9ORC9kbWQtdmhha2MuYXZpCnAxNApzVnBsYXljb3VudApwMTUKSTIKc1MndHlwZScKcDE2ClZtb3ZpZQpwMTcKc1MnaWQnCnAxOApJOApzc2EoZHAxOQpnMTQKZzMKc2EoZHAyMAphLg=='
     cache = StvList(iuid, apiclient1)
  
     try:

@@ -306,14 +306,6 @@ __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 
-# if __addon__.getSetting("firststart") == "true":
-#     xbmc.executebuiltin("RunAddon(service.synopsi)")
-#     __addon__.setSetting(id='firststart', value="false")
-
-
-xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
-
-
 # print sys.argv
 
 params = get_params()
