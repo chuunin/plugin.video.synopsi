@@ -5,7 +5,7 @@ import json
 from copy import copy
 
 sys.path.insert(0, os.path.abspath('..'))
-from apiclient import apiclient
+from apiclient import *
 
 def pprint(data):
 	global logger
@@ -33,9 +33,9 @@ class ApiTest(unittest.TestCase):
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
 		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-		succ = client.getAccessToken()
-		self.assertTrue(not succ)
-		self.assertTrue(not client.isAuthenticated())
+		
+		self.assertRaises(AuthenticationError, client.getAccessToken)
+		self.assertTrue(client.isAuthenticated()==False)
 
 	def test_unwatched_episodes(self):
 		global connection
@@ -57,7 +57,7 @@ class ApiTest(unittest.TestCase):
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"
-		data = client.titleIdentify(imdb_id=60569, title_hash='')
+		data = client.titleIdentify(imdb_id=60569, stv_title_hash='')
 
 		stv_title_id = data['title_id']
 

@@ -162,7 +162,7 @@ class apiclient:
 			get['bearer_token'] = self.accessToken
 			url += '?' + urlencode(get)
 			data = None
-			self._logger.debug(url)
+			self._logger.debug('URL:' + url)
 
 		if 'post' in locals():
 			self._logger.debug('post:' + str(post))
