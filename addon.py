@@ -29,7 +29,6 @@ movie_response = { 'titles': movies }
 __addon__  = xbmcaddon.Addon()
 addonPath = __addon__.getAddonInfo('path')
 
-CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # xbmc.log(str(dir(xbmcvfs)))
 
 def log(msg):
