@@ -20,7 +20,10 @@ class NotConnectedException(Exception):
 
 defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
 
-class apiclient:
+class AuthenticationError(Exception):
+	pass
+
+class apiclient(object):
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		self.baseUrl = base_url
 		self.key = key
@@ -34,7 +37,12 @@ class apiclient:
 		self.authHeaders = None
 		self.device_id = device_id  
 		self._logger = logging.getLogger()
-		self._logger.addHandler(logging.StreamHandler(sys.stdout))
+		
+		# xbmc.log('Log handler count %d ' % len(self._logger.handlers))
+
+		if len(self._logger.handlers)==0:
+			self._logger.addHandler(logging.StreamHandler(sys.stdout))
+
 		self._logger.setLevel(debugLvl)
 		self._logger.debug('apiclient __init__')
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
@@ -124,25 +132,30 @@ class apiclient:
 		except HTTPError as e:
 			self._logger.error(str(e))
 			self._logger.error(e.read())
-			return False
+			raise AuthenticationError()
+
+		except URLError as e:
+			self._logger.error(str(e))
+			self._logger.error('URL:%s' % self.baseUrl + 'oauth2/token/')
+			self._logger.error(e.reason)
+			raise AuthenticationError()
+
 
 		self.accessToken = response_json['access_token']
 		self.accessTokenSessionStart = datetime.datetime.now()
 		self.refreshToken = response_json['refresh_token']
 		self._logger.debug('new access token: ' + self.accessToken)
-		return True
 
 	def isAuthenticated(self):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 	def execute(self, requestData, cacheable=True):
+		self._logger.debug('execute')
 		if not self.isAuthenticated():
-			access = self.getAccessToken()
-			if not access:
-				self._logger.debug('Could not get the auth token')
-				return False
+			self.getAccessToken()
 
+		self._logger.debug('isAuthenticated')
 		url = self.apiUrl + requestData['methodPath']
 		method = requestData['method']
 		data = None
