@@ -7,7 +7,7 @@ import time
 import socket
 import json
 import traceback
-import apiclient
+from app_apiclient import ApiClient
 from utilities import *
 from cache import *
 
@@ -46,15 +46,7 @@ class RPCListener(threading.Thread):
     def run(self):
         global ABORT_REQUESTED
         # raise Exception(__addon__.getSetting('BASE_URL'))
-        self.apiclient = apiclient.apiclient(
-            __addon__.getSetting('BASE_URL'),
-            __addon__.getSetting('KEY'),
-            __addon__.getSetting('SECRET'),
-            __addon__.getSetting('USER'),
-            __addon__.getSetting('PASS'),
-            get_install_id(),
-            rel_api_url=__addon__.getSetting('REL_API_URL'),
-        )
+        self.apiclient = AppApiClient.getDefaultClient()
 
         while True:
             data = self.sock.recv(1024)

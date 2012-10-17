@@ -23,7 +23,7 @@ defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_
 class AuthenticationError(Exception):
 	pass
 
-class apiclient(object):
+class ApiClient(object):
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		self.baseUrl = base_url
 		self.key = key

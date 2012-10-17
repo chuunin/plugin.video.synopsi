@@ -3,7 +3,7 @@ import pickle
 import xbmc
 import json
 from utilities import *
-import apiclient
+from app_apiclient import ApiClient
 
 class StvList(object):
     """
@@ -36,7 +36,7 @@ class StvList(object):
     def getDefaultList(cls, apiClient=None):
         __addon__  = xbmcaddon.Addon()
         if not apiClient:
-            apiClient = apiclient.apiclient.getDefaultClient()
+            apiClient = AppApiClient.getDefaultClient()
 
         iuid = get_install_id()    
         cache = StvList(iuid, apiClient) 

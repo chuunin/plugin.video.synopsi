@@ -17,7 +17,7 @@ import re
 import os.path
 import logging
 import test
-import apiclient
+import ApiClient
 from utilities import *
 from cache import StvList
 
@@ -315,7 +315,7 @@ type = None
 data = None
 
 
-apiClient = apiclient.apiclient.getDefaultClient()
+apiClient = AppApiClient.getDefaultClient()
 stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))

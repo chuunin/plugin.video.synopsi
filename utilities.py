@@ -64,7 +64,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 	Dialog class that asks user about rating of movie.
 	"""
 	response = 4
-	# 1 = Cancel, 2 = OK, 4 = Not rated
+	# 1 = Cancel, 2 = OK
 	def __init__(self, *args, **kwargs):
 		xbmcgui.WindowXMLDialog.__init__( self )
 		self.username = kwargs['username']
@@ -98,8 +98,11 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 	def onAction(self, action):
 		xbmc.log('action id:' + str(action.getId()))
 		if (action.getId() in CANCEL_DIALOG2):
-			self.response = 4
+			self.response = 1
 			self.close()
+
+	def getData(self):
+		return { 'username': self.getControl(10).getText(), 'password': self.getControl(11).getText() }
 
 
 
@@ -560,9 +563,23 @@ def login_screen():
 
 	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
 	ui.doModal()
-	_response = ui.response
+	
+	# dialog result is 'OK'
+	if ui.response==2:
+		# check if data changed
+		d = ui.getData()
+		if username!=d['username'] or password!=d['password']:
+			# store in settings
+			__addon__.setSetting('USER', value=d['username'])
+			__addon__.setSetting('PASS', value=d['password'])
+			result=True
+		else:
+			result=False
+	else:
+		result=False
+	
 	del ui
-	return _response
+	return result
 
 def get_rating():
 	"""

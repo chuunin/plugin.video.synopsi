@@ -22,9 +22,9 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
 		client.getAccessToken()
-		self.assertIsInstance(client, apiclient)
+		self.assertIsInstance(client, ApiClient)
 		return client
 
 	def test_auth_fail(self):
@@ -32,7 +32,7 @@ class ApiTest(unittest.TestCase):
 
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		
 		self.assertRaises(AuthenticationError, client.getAccessToken)
 		self.assertTrue(client.isAuthenticated()==False)
@@ -41,7 +41,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = copy(connection)
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		data = client.unwatchedEpisodes()
 
 		self.assertTrue(data.has_key('lineup'))
@@ -53,7 +53,7 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = apiclient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"

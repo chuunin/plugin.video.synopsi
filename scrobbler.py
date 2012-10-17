@@ -6,7 +6,7 @@ import time
 from random import randint
 import library
 import xbmcplugin
-import apiclient
+from app_apiclient import ApiClient
 import logging
 import json
 from utilities import *
@@ -46,15 +46,7 @@ class SynopsiPlayer(xbmc.Player):
         self.log('INIT')
         self.current_time = 0
 
-        self.apiclient = apiclient.apiclient(
-            __addon__.getSetting('BASE_URL'),
-            __addon__.getSetting('KEY'),
-            __addon__.getSetting('SECRET'),
-            __addon__.getSetting('USER'),
-            __addon__.getSetting('PASS'),
-            get_install_id(),
-            rel_api_url=__addon__.getSetting('REL_API_URL'),
-        )
+        self.apiclient = AppApiClient.getDefaultClient()
 
     def log(self, msg):
         xbmc.log('SynopsiPlayer: ' + msg)
