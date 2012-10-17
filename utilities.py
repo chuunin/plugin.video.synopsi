@@ -12,7 +12,7 @@ import uuid
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
-
+from utilities import *
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 CANCEL_DIALOG2 = (61467, )
@@ -22,6 +22,11 @@ __addon__    = xbmcaddon.Addon()
 __cwd__      = __addon__.getAddonInfo('path')
 
 
+def notification(text, name='SynopsiTV Plugin'):
+    """
+    Sends notification to XBMC.
+    """
+    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
 
 class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 	"""
@@ -74,9 +79,6 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		self.getString = __addon__.getLocalizedString
 		c = self.getControl(10)
 		
-		for i in dir(c):
-			xbmc.log('control item:' + str(i))
-
 		self.getControl(10).setText(self.username)
 		self.getControl(11).setText(self.password)
 
@@ -84,7 +86,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		"""
 		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
 		"""
-		xbmc.log(str('onClick:'+str(controlId)))
+		# xbmc.log(str('onClick:'+str(controlId)))
 
 		# Cancel
 		if controlId==16:
@@ -96,7 +98,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 			self.close()
 
 	def onAction(self, action):
-		xbmc.log('action id:' + str(action.getId()))
+		# xbmc.log('action id:' + str(action.getId()))
 		if (action.getId() in CANCEL_DIALOG2):
 			self.response = 1
 			self.close()
@@ -525,8 +527,12 @@ def home_screen_fill(apiClient):
 	"""
 
 	# get recco movies and episodes
-	movie_recco = apiClient.profileRecco('movie')['titles']
-	episode_recco = apiClient.profileRecco('episode')['titles']
+	try:
+		movie_recco = apiClient.profileRecco('movie')['titles']
+		episode_recco = apiClient.profileRecco('episode')['titles']
+	except:
+		notification('Movie reccomendation service failed')
+		return
 
 	# from test import jsfile
 	# movie_recco = jsfile
@@ -563,22 +569,26 @@ def login_screen():
 
 	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
 	ui.doModal()
-	
+
 	# dialog result is 'OK'
 	if ui.response==2:
+		xbmc.log('dialog OK')
 		# check if data changed
 		d = ui.getData()
 		if username!=d['username'] or password!=d['password']:
+			xbmc.log('data changed')
 			# store in settings
 			__addon__.setSetting('USER', value=d['username'])
 			__addon__.setSetting('PASS', value=d['password'])
-			result=True
-		else:
-			result=False
+		
+		result=True
 	else:
+		xbmc.log('dialog canceled')
 		result=False
 	
 	del ui
+
+	xbmc.log('login_screen result: %d' % result)
 	return result
 
 def get_rating():

@@ -6,7 +6,7 @@ import time
 from random import randint
 import library
 import xbmcplugin
-from app_apiclient import ApiClient
+from app_apiclient import AppApiClient
 import logging
 import json
 from utilities import *
@@ -20,12 +20,6 @@ __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __language__  = __addon__.getLocalizedString
-
-def notification(name, text):
-    """
-    Sends notification to XBMC.
-    """
-    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
 
 class SynopsiPlayer(xbmc.Player):
     """ Bugfix and processing layer """

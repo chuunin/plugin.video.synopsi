@@ -7,7 +7,7 @@ import time
 import socket
 import json
 import traceback
-from app_apiclient import ApiClient
+from app_apiclient import AppApiClient
 from utilities import *
 from cache import *
 
