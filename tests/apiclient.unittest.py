@@ -118,13 +118,14 @@ if __name__ == '__main__':
 		'base_url': 'http://test.papi.synopsi.tv/',
 		'key': 'c420bfed031e32b395554da5dde07f',
 		'secret': 'd0626af9c94abb0e5cf7ead8c0e882',
+		'rel_api_url': '1.0/',
 		# 'base_url': 'http://neptune.local:8000/',
 		# 'key': '76ccb5ec8ecddf15c29c5decac35f9',
 		# 'secret': '261029dbbdd5dd481da6564fa1054e',
+		# 'rel_api_url': 'api/public/1.0/',
 		'username': 'martin.smid@gmail.com',
 		'password': 'aaa',
 		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd',
-		'rel_api_url': '1.0/'		
 	}
 
 	logger = logging.getLogger()
