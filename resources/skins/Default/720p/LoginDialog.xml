@@ -1,5 +1,5 @@
 <window id="100">
-	<defaultcontrol always="true">11</defaultcontrol>
+	<defaultcontrol always="true">10</defaultcontrol>
 	<coordinates>
 		<system>1</system>
 		<posx>335</posx>
@@ -71,7 +71,7 @@
 			<posx>35</posx>
 			<posy>135</posy>
 			<width>165</width>
-			<!-- <height>60</height> -->
+			<height>40</height>
 			<align>center</align>
 			<aligny>center</aligny>
 			<label>Login</label>
@@ -81,7 +81,7 @@
 			<description>Login</description>
 			<posx>205</posx>
 			<posy>135</posy>
-			<width>200</width>
+			<width>350</width>
 			<height>40</height>
 			<font>font12_title</font>
 			<textcolor>white</textcolor>
@@ -97,7 +97,7 @@
 			<posx>35</posx>
 			<posy>185</posy>
 			<width>165</width>
-			<!-- <height>60</height> -->
+			<height>40</height>
 			<align>center</align>
 			<aligny>center</aligny>
 			<label>Passphrase</label>
@@ -108,7 +108,7 @@
 			<password>true</password>
 			<posx>205</posx>
 			<posy>185</posy>
-			<width>200</width>
+			<width>350</width>
 			<height>40</height>
 			<font>font12_title</font>
 			<textcolor>white</textcolor>

@@ -17,7 +17,6 @@ RATING_CODE = {
 class NotConnectedException(Exception):
 	pass
 
-
 defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
 
 class AuthenticationError(Exception):
@@ -44,7 +43,7 @@ class ApiClient(object):
 			self._logger.addHandler(logging.StreamHandler(sys.stdout))
 
 		self._logger.setLevel(debugLvl)
-		self._logger.debug('apiclient __init__')
+		self._logger.debug('apiclient __init__ %s %s' % (self.username, self.password))
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
@@ -57,7 +56,8 @@ class ApiClient(object):
 		__addon__  = xbmcaddon.Addon()
 
 		iuid = get_install_id()
-		xbmc.log('REL_API_URL:' + __addon__.getSetting('REL_API_URL'))
+		
+		xbmc.log('cls:' + str(cls))
 
 		# get or generate install-unique ID
 		tmpClient = cls(
@@ -67,7 +67,8 @@ class ApiClient(object):
 			__addon__.getSetting('USER'),
 			__addon__.getSetting('PASS'),
 			iuid,
-			__addon__.getSetting('REL_API_URL')    
+			__addon__.getSetting('REL_API_URL'),
+			debugLvl=logging.DEBUG
 		)
 
 		return tmpClient
@@ -118,6 +119,8 @@ class ApiClient(object):
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
+		self._logger.debug('apiclient getaccesstoken %s %s' % (self.username, self.password))
+		self._logger.debug('apiclient getaccesstoken %s' % str(data))
 		# get token
 		try:
 			response = urlopen(Request(
@@ -130,7 +133,7 @@ class ApiClient(object):
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			self._logger.error(str(e))
+			self._logger.error('%d %s' % (e.code, e))
 			self._logger.error(e.read())
 			raise AuthenticationError()
 

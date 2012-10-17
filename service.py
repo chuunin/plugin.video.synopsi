@@ -16,7 +16,7 @@ def main():
     if __addon__.getSetting('FIRSTRUN') == 'true':
         # enable home screen recco
         xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
-        __addon__.openSettings()        
+        login_screen()
         __addon__.setSetting(id='FIRSTRUN', value="false")
 
     iuid = get_install_id()
