@@ -5,14 +5,13 @@ This is default file of SynopsiTV service. See addon.xml
 from scrobbler import Scrobbler
 from library import RPCListenerHandler
 from cache import *
-from utilities import home_screen_fill
+from utilities import home_screen_fill, login_screen
 import xbmc, xbmcgui, xbmcaddon
 import apiclient
 
 __addon__  = xbmcaddon.Addon()
 
 def main():
-
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
         # enable home screen recco

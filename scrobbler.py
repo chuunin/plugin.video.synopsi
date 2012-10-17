@@ -27,55 +27,6 @@ def notification(name, text):
     """
     xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
 
-class XMLRatingDialog(xbmcgui.WindowXMLDialog):
-    """
-    Dialog class that asks user about rating of movie.
-    """
-    response = 4
-    # 1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
-    def __init__(self, *args, **kwargs):
-        xbmcgui.WindowXMLDialog.__init__( self )
- 
-    def onInit(self):
-        self.getString = __addon__.getLocalizedString
-        self.getControl(11).setLabel(self.getString(69601))
-        self.getControl(10).setLabel(self.getString(69602))
-        self.getControl(15).setLabel(self.getString(69603))
-        self.getControl(1 ).setLabel(self.getString(69604))
-        self.getControl(2 ).setLabel(self.getString(69600))
-
-    def onClick(self, controlId):
-        """
-        For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
-        """
-        if controlId == 11:
-            self.response = 1
-        elif controlId == 10:
-            self.response = 2
-        elif controlId == 15:
-            self.response = 3
-        else:
-            self.response = 4
-        self.close()
-
-    def onAction(self, action):
-        if (action.getId() in CANCEL_DIALOG):
-            self.response = 4
-            self.close()
-
-
-def get_rating():
-    """
-    Get rating from user:
-    1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
-    """
-    ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default")
-    ui.doModal()
-    _response = ui.response
-    del ui
-    return _response
-
-
 class SynopsiPlayer(xbmc.Player):
     """ Bugfix and processing layer """
     started = False

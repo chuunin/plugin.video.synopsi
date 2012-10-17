@@ -63,7 +63,7 @@ class RPCListener(threading.Thread):
                 data_json = json.loads(str(data))
                 method = data_json.get("method")
             except ValueError, e:
-                xbmc.log(str(e))
+                xbmc.log('RPC ERROR:' + str(e))
                 continue
 
             if method == "System.OnQuit":

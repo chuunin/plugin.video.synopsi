@@ -9,13 +9,99 @@ import urllib
 import urlparse
 import hashlib
 import uuid
-
-
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
 
-__addon__	 = xbmcaddon.Addon()
+
+CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
+CANCEL_DIALOG2 = (61467, )
+
+
+__addon__    = xbmcaddon.Addon()
+__cwd__      = __addon__.getAddonInfo('path')
+
+
+
+class XMLRatingDialog(xbmcgui.WindowXMLDialog):
+	"""
+	Dialog class that asks user about rating of movie.
+	"""
+	response = 4
+	# 1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
+	def __init__(self, *args, **kwargs):
+		xbmcgui.WindowXMLDialog.__init__( self )
+ 
+	def onInit(self):
+		self.getString = __addon__.getLocalizedString
+		self.getControl(11).setLabel(self.getString(69601))
+		self.getControl(10).setLabel(self.getString(69602))
+		self.getControl(15).setLabel(self.getString(69603))
+		self.getControl(1 ).setLabel(self.getString(69604))
+		self.getControl(2 ).setLabel(self.getString(69600))
+
+	def onClick(self, controlId):
+		"""
+		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
+		"""
+		if controlId == 11:
+			self.response = 1
+		elif controlId == 10:
+			self.response = 2
+		elif controlId == 15:
+			self.response = 3
+		else:
+			self.response = 4
+		self.close()
+
+	def onAction(self, action):
+		if (action.getId() in CANCEL_DIALOG):
+			self.response = 4
+			self.close()
+
+class XMLLoginDialog(xbmcgui.WindowXMLDialog):
+	"""
+	Dialog class that asks user about rating of movie.
+	"""
+	response = 4
+	# 1 = Cancel, 2 = OK, 4 = Not rated
+	def __init__(self, *args, **kwargs):
+		xbmcgui.WindowXMLDialog.__init__( self )
+		self.username = kwargs['username']
+		self.password = kwargs['password']
+ 
+	def onInit(self):
+		self.getString = __addon__.getLocalizedString
+		c = self.getControl(10)
+		
+		for i in dir(c):
+			xbmc.log('control item:' + str(i))
+
+		self.getControl(10).setText(self.username)
+		self.getControl(11).setText(self.password)
+
+	def onClick(self, controlId):
+		"""
+		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
+		"""
+		xbmc.log(str('onClick:'+str(controlId)))
+
+		# Cancel
+		if controlId==16:
+			self.response = 1
+			self.close()
+		# Ok
+		elif controlId==15:
+			self.response = 2
+			self.close()
+
+	def onAction(self, action):
+		xbmc.log('action id:' + str(action.getId()))
+		if (action.getId() in CANCEL_DIALOG2):
+			self.response = 4
+			self.close()
+
+
 
 def get_protected_folders():
 	"""
@@ -385,7 +471,7 @@ def XBMC_GetInfoLabels():
 
 
 def get_details(atype, aid, all_prop=False):
-	if atype == "movie":				
+	if atype == "movie":                
 		movie = get_movie_details(aid, all_prop)
 	elif atype == "episode":
 		movie = get_episode_details(aid, all_prop)
@@ -467,6 +553,27 @@ def home_screen_fill(apiClient):
 		WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
 		WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
 		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
+
+def login_screen():
+	username = __addon__.getSetting('USER')
+	password = __addon__.getSetting('PASS')
+
+	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
+	ui.doModal()
+	_response = ui.response
+	del ui
+	return _response
+
+def get_rating():
+	"""
+	Get rating from user:
+	1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
+	"""
+	ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default")
+	ui.doModal()
+	_response = ui.response
+	del ui
+	return _response
 
 
 # init local variables
