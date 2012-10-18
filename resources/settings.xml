@@ -10,8 +10,8 @@
 <!--         <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://neptune.local:8000/" />
         <setting id="REL_API_URL" option="hidden" type="text" visible="false" default="api/public/1.0/" /> 
         <setting id="KEY" option="hidden" type="text" visible="false" default="76ccb5ec8ecddf15c29c5decac35f9"/>
-        <setting id="SECRET" option="hidden" type="text" visible="false" default="261029dbbdd5dd481da6564fa1054e"/>
- -->
+        <setting id="SECRET" option="hidden" type="text" visible="false" default="261029dbbdd5dd481da6564fa1054e"/> -->
+
         <setting id="BASE_URL" option="hidden" type="text" visible="false" default="http://test.papi.synopsi.tv/" />
         <setting id="REL_API_URL" option="hidden" type="text" visible="false" default="1.0/" />
         <setting id="KEY" option="hidden" type="text" visible="false" default="c420bfed031e32b395554da5dde07f"/>
