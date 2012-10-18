@@ -7,6 +7,7 @@ from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError, URLError
 from utilities import get_install_id
+import httplib
 
 RATING_CODE = {
 	1: 'like',
@@ -32,7 +33,7 @@ class ApiClient(object):
 		self.accessToken = None
 		self.refreshToken = None
 		self.apiUrl = self.baseUrl + rel_api_url
-		self.originReqHost = originReqHost or 'dev.bapi.synopsi.tv'		# TODO: what is this
+		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
 		self.device_id = device_id  
 		self._logger = logging.getLogger()
@@ -67,8 +68,8 @@ class ApiClient(object):
 			__addon__.getSetting('USER'),
 			__addon__.getSetting('PASS'),
 			iuid,
-			__addon__.getSetting('REL_API_URL'),
-			debugLvl=logging.DEBUG
+			debugLvl=logging.DEBUG,
+			rel_api_url=__addon__.getSetting('REL_API_URL'),
 		)
 
 		return tmpClient
@@ -119,17 +120,26 @@ class ApiClient(object):
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
-		self._logger.debug('apiclient getaccesstoken %s %s' % (self.username, self.password))
-		self._logger.debug('apiclient getaccesstoken %s' % str(data))
+		# self._logger.debug('apiclient getaccesstoken %s %s' % (self.username, self.password))
+		# self._logger.debug('apiclient getaccesstoken %s' % str(data))
+
 		# get token
 		try:
-			response = urlopen(Request(
+
+			req = Request(
 					self.baseUrl + 'oauth2/token/', 
 					data=urlencode(data), 
 					headers=self.authHeaders, 
-					origin_req_host=self.originReqHost))
+					origin_req_host=self.originReqHost)
+						
+			# self._logger.debug('request REQ HOST:' + str(req.get_origin_req_host()))
+			# self._logger.debug('request URL:' + str(req.get_full_url()))
+			# self._logger.debug('request HEADERS:' + str(req.headers.items()))
+			# self._logger.debug('request DATA:' + str(req.get_data()))
 
-			self._logger.debug(response)
+			response = urlopen(req)
+
+			# self._logger.debug('request RESPONSE:' + str(response))
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
@@ -139,9 +149,12 @@ class ApiClient(object):
 
 		except URLError as e:
 			self._logger.error(str(e))
-			self._logger.error('URL:%s' % self.baseUrl + 'oauth2/token/')
 			self._logger.error(e.reason)
 			raise AuthenticationError()
+
+		except Exception as e:
+		 	self._logger.error('ANOTHER EXCEPTION:' + str(e))
+
 
 
 		self.accessToken = response_json['access_token']

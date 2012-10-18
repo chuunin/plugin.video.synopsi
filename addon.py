@@ -17,7 +17,7 @@ import re
 import os.path
 import logging
 import test
-import ApiClient
+from app_apiclient import AppApiClient
 from utilities import *
 from cache import StvList
 
