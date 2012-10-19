@@ -19,12 +19,15 @@ __addon__  = xbmcaddon.Addon()
 class RPCListener(threading.Thread):
     def __init__(self, cache):
         super(RPCListener, self).__init__()
+        self.cache = cache
+        self.apiclient = None
+
         self.sock = socket.socket()
         self.sock.settimeout(10)
-        conned = False
+        self.connected = False
         sleepTime = 100
         t = time.time()
-        while not conned or ABORT_REQUESTED:
+        while sleepTime<2000 and (not self.connected or ABORT_REQUESTED or xbmc.abortRequested):
             try:
                 self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
             except Exception, exc:
@@ -33,11 +36,9 @@ class RPCListener(threading.Thread):
                 sleepTime *= 1.5
             else:
                 xbmc.log('Connected to 9090')
-                conned = True
+                self.connected = True
 
         self.sock.setblocking(True)
-        self.cache = cache
-        self.apiclient = None
 
 
     def process(self, data):
@@ -45,7 +46,10 @@ class RPCListener(threading.Thread):
 
     def run(self):
         global ABORT_REQUESTED
-        # raise Exception(__addon__.getSetting('BASE_URL'))
+
+        if not self.connected:
+            return False
+
         self.apiclient = AppApiClient.getDefaultClient()
 
         while True:
