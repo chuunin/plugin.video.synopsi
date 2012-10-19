@@ -105,17 +105,17 @@ class RPCListenerHandler(RPCListener):
     def log(self, msg):
         xbmc.log('Library: ' + msg)
 
-    def addorupdate(self, aid, atype):
-        self.cache.addorupdate(aid, atype)
+    def addorupdate(self, atype, aid):
+        self.cache.addorupdate(atype, aid)
 
-    def remove(self, aid, atype):
+    def remove(self, atype, aid):
         self.cache.remove(atype, aid)
 
     def VideoLibrary_OnUpdate(self, data):
-        self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
+        self.addorupdate(data['params']['data']['item']['type'], data['params']['data']['item']['id'])
 
     def VideoLibrary_OnRemove(self, data):
-        self.remove(data['params']['data']['id'], data['params']['data']['type'])
+        self.remove(data['params']['data']['type'], data['params']['data']['id'])
 
     def Player_OnPlay(self, data):
         self.playerEvent(data)
