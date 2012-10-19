@@ -479,7 +479,10 @@ def get_details(atype, aid, all_prop=False):
 	if atype == "movie":                
 		movie = get_movie_details(aid, all_prop)
 	elif atype == "episode":
-		movie = get_episode_details(aid, all_prop)
+		movie = get_episode_details(aid)
+	else:
+		raise Exception('Unknow video type: %s' % atype)
+
 	return movie
 
 class xbmcRPCclient(object):
