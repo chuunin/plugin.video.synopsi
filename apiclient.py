@@ -24,6 +24,7 @@ class AuthenticationError(Exception):
 	pass
 
 class ApiClient(object):
+	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		self.baseUrl = base_url
 		self.key = key
@@ -54,14 +55,15 @@ class ApiClient(object):
 
 	@classmethod
 	def getDefaultClient(cls):
+		if ApiClient._instance:
+			return ApiClient._instance
+
 		__addon__  = xbmcaddon.Addon()
 
 		iuid = get_install_id()
 		
-		xbmc.log('cls:' + str(cls))
-
 		# get or generate install-unique ID
-		tmpClient = cls(
+		ApiClient._instance = cls(
 			__addon__.getSetting('BASE_URL'),
 			__addon__.getSetting('KEY'),
 			__addon__.getSetting('SECRET'),
@@ -72,7 +74,11 @@ class ApiClient(object):
 			rel_api_url=__addon__.getSetting('REL_API_URL'),
 		)
 
-		return tmpClient
+		return ApiClient._instance
+
+	def setUserPass(self, username, password):
+		self.username = username
+		self.password = password
 
 	def queueRequest(self, req):
 		self.failedRequest.append(req)
@@ -120,7 +126,7 @@ class ApiClient(object):
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
-		# self._logger.debug('apiclient getaccesstoken %s %s' % (self.username, self.password))
+		# self._logger.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
 		# self._logger.debug('apiclient getaccesstoken %s' % str(data))
 
 		# get token
