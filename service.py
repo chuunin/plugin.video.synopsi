@@ -12,17 +12,17 @@ from app_apiclient import AppApiClient
 __addon__  = xbmcaddon.Addon()
 
 def main():
+
+    apiclient1 = AppApiClient.getDefaultClient()
+
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
         # enable home screen recco
-        xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
-        login_screen()
+        xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
         __addon__.setSetting(id='FIRSTRUN', value="false")
 
-    iuid = get_install_id()
-
     # get or generate install-unique ID
-    apiclient1 = AppApiClient.getDefaultClient()
+    iuid = get_install_id()
 
     home_screen_fill(apiclient1)
 

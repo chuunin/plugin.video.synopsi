@@ -10,10 +10,10 @@ class AppApiClient(ApiClient):
 		while not finished:
 			# try to log in
 			try:
-				super(AppApiClient, self).getAccessToken()
+				ApiClient.getAccessToken(self)
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
-				finished = not login_screen()
+				finished = not login_screen(self)
 				xbmc.log('Trying new credentials ? %d' % int(not finished))
 			except Exception as e:
 				finished = True

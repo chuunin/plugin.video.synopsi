@@ -563,7 +563,7 @@ def home_screen_fill(apiClient):
 		WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
 		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
-def login_screen():
+def login_screen(apiClient):
 	username = __addon__.getSetting('USER')
 	password = __addon__.getSetting('PASS')
 
@@ -576,11 +576,11 @@ def login_screen():
 		# check if data changed
 		d = ui.getData()
 		if username!=d['username'] or password!=d['password']:
-			xbmc.log('data changed')
 			# store in settings
 			__addon__.setSetting('USER', value=d['username'])
-			__addon__.setSetting('PASS', value=d['password'])
-		
+			__addon__.setSetting('PASS', value=d['password'])	
+			apiClient.setUserPass(d['username'], d['password'])
+
 		result=True
 	else:
 		xbmc.log('dialog canceled')
