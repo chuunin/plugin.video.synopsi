@@ -27,7 +27,7 @@ class RPCListener(threading.Thread):
         self.connected = False
         sleepTime = 100
         t = time.time()
-        while sleepTime<2000 and (not self.connected or ABORT_REQUESTED or xbmc.abortRequested):
+        while sleepTime<500 and (not self.connected or ABORT_REQUESTED or xbmc.abortRequested):
             try:
                 self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
             except Exception, exc:

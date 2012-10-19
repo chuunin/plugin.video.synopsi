@@ -160,7 +160,7 @@ class ApiClient(object):
 
 		except Exception as e:
 		 	self._logger.error('ANOTHER EXCEPTION:' + str(e))
-
+			raise AuthenticationError()
 
 
 		self.accessToken = response_json['access_token']
