@@ -125,13 +125,16 @@ class StvList(object):
 
     def remove(self, type, id):
         typeIdStr = self._getKey(type, id)
-        item = self.getByTypeId(type, id)
-        del self.byFilename[item['file']]
-        del self.byTypeId[typeIdStr]
+        try:
+            item = self.getByTypeId(type, id)
+            del self.byFilename[item['file']]
+            del self.byTypeId[typeIdStr]
 
-        if item.has_key('stvId'):
-            self.apiclient.libraryTitleRemove(item['stvId'])
-            del self.byStvId[item['stvId']]
+            if item.has_key('stvId'):
+                self.apiclient.libraryTitleRemove(item['stvId'])
+                del self.byStvId[item['stvId']]
+        except:
+            self.log('REMOVE FAILED / ' + typeIdStr)    
 
         self.log('REMOVE / ' + typeIdStr)
         self.list()
