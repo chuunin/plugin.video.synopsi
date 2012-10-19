@@ -44,8 +44,9 @@ def get_local_recco(movie_type):
     resRecco =  apiClient.profileRecco(movie_type, True, props)
 
     log('local recco for ' + movie_type)
-    for title in resRecco['titles']:
-        log('resRecco:' + title['name'])
+
+    # for title in resRecco['titles']:
+    #     log('resRecco:' + title['name'])
 
     return resRecco
 
@@ -59,8 +60,9 @@ def get_global_recco(movie_type):
     resRecco =  apiClient.profileRecco(movie_type, False, props)
 
     log('global recco for ' + movie_type)
-    for title in resRecco['titles']:
-        log(title['name'])
+
+    # for title in resRecco['titles']:
+    #     log(title['name'])
 
     return resRecco
 
