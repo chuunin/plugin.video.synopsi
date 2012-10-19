@@ -522,8 +522,12 @@ def home_screen_fill(apiClient):
 	"""
 
 	# get recco movies and episodes
-	movie_recco = apiClient.profileRecco('movie')['titles']
-	episode_recco = apiClient.profileRecco('episode')['titles']
+	try:
+		movie_recco = apiClient.profileRecco('movie')['titles']
+		episode_recco = apiClient.profileRecco('episode')['titles']
+	except:
+		xbmc.log('home screen update failed')
+		return
 
 	# from test import jsfile
 	# movie_recco = jsfile
