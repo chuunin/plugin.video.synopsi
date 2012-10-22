@@ -36,10 +36,7 @@ def log(msg):
     xbmc.log('ADDON / ' + str(msg))
 
 def uniquote(s):
-    quoted = urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
-    xbmc.log('unquoted: ' + s)
-    xbmc.log('quoted: ' + quoted)
-    return quoted
+    return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
 
 def uniunquote(uni):
     return urllib.unquote_plus(uni.decode('utf-8'))
@@ -251,7 +248,9 @@ def show_categories():
     add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
     add_directory("Local TV Show recommendations", "url", 13, "list.png", 2)
     add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
-    add_directory("Lists", "url", 1, "icon.png", 4)
+    add_directory("Settings", "url", 90, "icon.png", 1)
+
+    # add_directory("Lists", "url", 1, "icon.png", 4)
     # add_directory("Trending Movies", "url", 1, "icon.png", 5, view_mode=500)
     # add_directory("Trending TV Shows", "url", 1, "icon.png", 6)
 
@@ -390,5 +389,7 @@ elif mode==13:
 elif mode==2:
     json_data['type'] = atype
     show_video_dialog(url, name, json_data)
+elif mode==90:
+    __addon__.openSettings()
 
 
