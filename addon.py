@@ -49,7 +49,7 @@ def get_local_recco(movie_type):
 
     resRecco =  apiClient.profileRecco(movie_type, True, props)
 
-    log('local recco for ' + movie_type)
+    # log('local recco for ' + movie_type)
 
     # for title in resRecco['titles']:
     #     log('resRecco:' + title['name'])
@@ -65,7 +65,7 @@ def get_global_recco(movie_type):
 
     resRecco =  apiClient.profileRecco(movie_type, False, props)
 
-    log('global recco for ' + movie_type)
+    # log('global recco for ' + movie_type)
 
     # for title in resRecco['titles']:
     #     log(title['name'])
@@ -216,8 +216,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.close()
 
 
-def add_directory(name, url, mode, iconimage, type, view_mode=500):
-    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+uniquote(str(type))
+def add_directory(name, url, mode, iconimage, atype, view_mode=500):
+    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # liz.setInfo(type="Video", infoLabels={"Title": name} )
@@ -229,7 +229,7 @@ def add_directory(name, url, mode, iconimage, type, view_mode=500):
 
 def add_movie(movie, url, mode, iconimage, movieid, view_mode=500):
     json_data = json.dumps(movie)
-    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&type="+str(type)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
+    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
     liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
@@ -247,7 +247,7 @@ def show_categories():
     add_directory("TV Show recommendations", "url", 11, "list.png", 1)
     add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
     add_directory("Local TV Show recommendations", "url", 13, "list.png", 2)
-    add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
+    add_directory("Unwatched TV episodes", "url", 20, "icon.png", 3)
     add_directory("Settings", "url", 90, "icon.png", 1)
 
     # add_directory("Lists", "url", 1, "icon.png", 4)
@@ -385,6 +385,10 @@ elif mode==12:
 elif mode==13:
     xbmc.log('tv shows')
     show_movies(url, atype, 'episode')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+elif mode==20:
+    xbmc.log('tv shows')
+    show_movies(url, atype, 'none')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==2:
     json_data['type'] = atype
