@@ -35,6 +35,15 @@ def log(msg):
     #logging.debug('ADDON: ' + str(msg))
     xbmc.log('ADDON / ' + str(msg))
 
+def uniquote(s):
+    quoted = urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
+    xbmc.log('unquoted: ' + s)
+    xbmc.log('quoted: ' + quoted)
+    return quoted
+
+def uniunquote(uni):
+    return urllib.unquote_plus(uni.decode('utf-8'))
+
 def get_local_recco(movie_type):
     global apiClient
 
@@ -127,7 +136,8 @@ def get_items(_type, movie_type = None):
         # error getting items
         # display error dialog and log errors
         log('ERROR /' + str(exc))
-        return []
+        return [{'name': 'ERROR ' + str(exc)}]
+        # return []
 
 def add_to_list(movieid, listid):
     pass
@@ -210,7 +220,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 
 def add_directory(name, url, mode, iconimage, type, view_mode=500):
-    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&type="+urllib.quote_plus(str(type))
+    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+uniquote(str(type))
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # liz.setInfo(type="Video", infoLabels={"Title": name} )
@@ -222,7 +232,7 @@ def add_directory(name, url, mode, iconimage, type, view_mode=500):
 
 def add_movie(movie, url, mode, iconimage, movieid, view_mode=500):
     json_data = json.dumps(movie)
-    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&type="+str(type)+"&name="+urllib.quote_plus(movie.get('name'))+"&data="+urllib.quote_plus(json_data)
+    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&type="+str(type)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
     liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
@@ -307,13 +317,15 @@ __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 
-# print sys.argv
+xbmc.log('SYS ARGV:' + str(sys.argv)) 
 
 params = get_params()
+xbmc.log(str(params))
+
 url = None
 name = None
 mode = None
-type = None
+atype = None
 data = None
 
 
@@ -323,11 +335,11 @@ stvList = StvList.getDefaultList(apiClient)
 # xbmc.log(str(sys.argv))
 
 try:
-    url=urllib.unquote_plus(params["url"])
+    url=uniunquote(params["url"])
 except:
     pass
 try:
-    name=urllib.unquote_plus(params["name"])
+    name=uniunquote(params["name"])
 except:
     pass
 try:
@@ -335,18 +347,19 @@ try:
 except:
     pass
 try:
-    type=int(params["type"])
+    atype=int(params["type"])
 except:
     pass
 
 try:
-    data = urllib.unquote_plus(params["data"])
+    data = uniunquote(params["data"])
     json_data = json.loads(data)
 except:
     pass
    
 
-log('mode: %s type: %s' % (mode, type))    
+log('mode: %s type: %s' % (mode, atype))    
+log('mode type: %s' % type(mode))    
 log('url: %s' % (url))    
 log('data: %s' % (data))    
 
@@ -360,22 +373,22 @@ if mode==None or url==None or len(url)<1:
     xbmc.executebuiltin("Container.SetViewMode(503)")
 elif mode==1:
     xbmc.log('movies')
-    show_movies(url, type, 'movie')
+    show_movies(url, atype, 'movie')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==11:
     xbmc.log('tv shows')
-    show_movies(url, type, 'episode')
+    show_movies(url, atype, 'episode')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==12:
     xbmc.log('movies local')
-    show_movies(url, type, 'movie')
+    show_movies(url, atype, 'movie')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==13:
     xbmc.log('tv shows')
-    show_movies(url, type, 'episode')
+    show_movies(url, atype, 'episode')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==2:
-    json_data['type'] = type
+    json_data['type'] = atype
     show_video_dialog(url, name, json_data)
 
 
