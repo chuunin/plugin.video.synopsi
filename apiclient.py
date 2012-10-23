@@ -70,7 +70,7 @@ class ApiClient(object):
 			__addon__.getSetting('USER'),
 			__addon__.getSetting('PASS'),
 			iuid,
-			debugLvl=logging.DEBUG,
+			debugLvl=logging.ERROR,
 			rel_api_url=__addon__.getSetting('REL_API_URL'),
 		)
 
@@ -101,7 +101,7 @@ class ApiClient(object):
 		if not self.isAuthenticated():
 			access = self.getAccessToken()
 			if not access:
-				self._logger.debug('Could not get the auth token')
+				self._logger.error('Could not get the auth token')
 				return False
 
 		# put the cacheable request into queue
@@ -173,11 +173,9 @@ class ApiClient(object):
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 	def execute(self, requestData, cacheable=True):
-		self._logger.debug('execute')
 		if not self.isAuthenticated():
 			self.getAccessToken()
 
-		self._logger.debug('isAuthenticated')
 		url = self.apiUrl + requestData['methodPath']
 		method = requestData['method']
 		data = None
