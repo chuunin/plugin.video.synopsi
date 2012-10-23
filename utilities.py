@@ -9,6 +9,7 @@ import urllib
 import urlparse
 import hashlib
 import uuid
+import threading
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
@@ -20,6 +21,7 @@ CANCEL_DIALOG2 = (61467, )
 
 __addon__    = xbmcaddon.Addon()
 __cwd__      = __addon__.getAddonInfo('path')
+__lockLoginScreen__ = threading.Lock()
 
 
 def notification(text, name='SynopsiTV Plugin'):
@@ -71,7 +73,8 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 	response = 4
 	# 1 = Cancel, 2 = OK
 	def __init__(self, *args, **kwargs):
-		xbmcgui.WindowXMLDialog.__init__( self )
+		# xbmcgui.WindowXMLDialog.__init__( self )
+		super(XMLLoginDialog, self).__init__()
 		self.username = kwargs['username']
 		self.password = kwargs['password']
  
@@ -567,11 +570,16 @@ def home_screen_fill(apiClient):
 		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
 def login_screen(apiClient):
+	if not __lockLoginScreen__.acquire(False):
+		xbmc.log('login_screen not starting duplicate')
+		return False
+
 	username = __addon__.getSetting('USER')
 	password = __addon__.getSetting('PASS')
 
 	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
 	ui.doModal()
+	# ui.show()
 
 	# dialog result is 'OK'
 	if ui.response==2:
@@ -591,6 +599,7 @@ def login_screen(apiClient):
 	
 	del ui
 
+	__lockLoginScreen__.release()
 	xbmc.log('login_screen result: %d' % result)
 	return result
 
