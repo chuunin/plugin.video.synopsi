@@ -131,9 +131,6 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def setStvList(self, cache):
         self.cache = cache
 
-    def __del__(self):
-        self.log('Deleting Player Object')
-
     def started(self):
         self.playerEvent('start')
 

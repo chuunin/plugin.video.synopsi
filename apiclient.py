@@ -45,7 +45,7 @@ class ApiClient(object):
 			self._logger.addHandler(logging.StreamHandler(sys.stdout))
 
 		self._logger.setLevel(debugLvl)
-		self._logger.debug('apiclient __init__ %s %s' % (self.username, self.password))
+		self._logger.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []

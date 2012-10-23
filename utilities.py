@@ -607,4 +607,4 @@ def get_rating():
 
 
 # init local variables
-xbmcRPC = xbmcRPCclient(1)
+xbmcRPC = xbmcRPCclient()
