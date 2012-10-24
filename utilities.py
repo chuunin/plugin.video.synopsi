@@ -66,6 +66,19 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 			self.response = 4
 			self.close()
 
+class MainWindow(xbmcgui.Window):
+	"""
+	Dialog class that asks user about rating of movie.
+	"""
+	def __init__(self, *args, **kwargs):
+		xbmcgui.Window.__init__( self , 10000 )
+ 		
+	def onClick(self, controlId):
+		xbmc.log('MAIN click :' + str(controlId))
+
+	def onAction(self, action):
+		xbmc.log('MAIN action: ' + str(action))
+
 class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 	"""
 	Dialog class that asks user about rating of movie.
@@ -527,6 +540,24 @@ def get_install_id():
 
 	return iuid
 
+# TODO: insert into existing advancedsettings
+def create_advanced_setttings():
+	""" Proof of concept """
+	# f = open('special://masterprofile/advancedsettings.xml', 'w')
+
+	path = os.path.dirname(os.path.dirname(__cwd__))
+	f = open(os.path.join(path, 'userdata', 'advancedsettings.xml'), 'w')
+	f.write("""
+<advancedsettings>
+	<lookandfeel>
+		<loglevel>101</loglevel>
+		<compactoutput>false</compactoutput>
+		<skin>skin.test.synopsi</skin>
+	</lookandfeel>
+</advancedsettings>
+		""")
+	f.close()
+
 def home_screen_fill(apiClient):
 	"""
 	This method updates movies on HomePage.
@@ -550,24 +581,54 @@ def home_screen_fill(apiClient):
 	xbmc.log('episode_recco count:' + str(len(episode_recco)))
 
 	WINDOW = xbmcgui.Window( 10000 )
+	listControl = WINDOW.getControl( 8000 )
+
 	MOVIES_COUNT = 5
-	
+	# listControl.reset()
+	# listControl2.reset()
+
+	items = []
+
+	items.append(
+		xbmcgui.ListItem(
+			'zzz', 
+			'xxx', 
+			'https://s3.amazonaws.com/titles.synopsi.tv/02728842-267.jpg', 
+			'https://s3.amazonaws.com/titles.synopsi.tv/02728842-267.jpg', 
+			path='https://s3.amazonaws.com/titles.synopsi.tv/02728842-267.jpg'
+		)
+	)
+
 	for i in range(1, MOVIES_COUNT+1):
 		m = movie_recco[i]
-		xbmc.log('movie %d %s' % (i, m['name']))
-		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
+		xbmc.log('movie %d %s' % (i, m['cover_large']))
+
+		# items.append(
+		# 	xbmcgui.ListItem(
+		# 		'zzz ' + m['name'], 
+		# 		'', 
+		# 		'', 
+		# 		'', 
+		# 		path=m['cover_large']
+		# 	)
+		# )
+
+ 		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
 		WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
 		WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
 		WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i), m['cover_large'])
 
 		e = episode_recco[i]
 		xbmc.log('episode %d %s' % (i, e['name']))
-		WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
-		WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
-		WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
-		WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
-		WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
-		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
+		# WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
+		# WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
+		# WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
+		# WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
+		# WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
+		# WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
+
+	#	crashes
+	# listControl.setStaticContent(items)
 
 def login_screen(apiClient):
 	if not __lockLoginScreen__.acquire(False):
