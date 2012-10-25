@@ -23,7 +23,7 @@ class RPCListener(threading.Thread):
         self.apiclient = None
 
         self.sock = socket.socket()
-        self.sock.settimeout(10)
+        self.sock.settimeout(5)
         self.connected = False
         sleepTime = 100
         t = time.time()
@@ -39,7 +39,6 @@ class RPCListener(threading.Thread):
                 self.connected = True
 
         self.sock.setblocking(True)
-
 
     def process(self, data):
         pass
@@ -68,6 +67,7 @@ class RPCListener(threading.Thread):
             else:
                 self.process(data_json)
 
+        self.sock.close()
         xbmc.log('Library thread end')
 
     def process(self, data):

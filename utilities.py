@@ -574,61 +574,34 @@ def home_screen_fill(apiClient):
 	# from test import jsfile
 	# movie_recco = jsfile
 	# episode_recco = jsfile
+	
 
 	# xbmc.log('movie_recco:' + json.dumps(movie_recco, indent=4))
 	# xbmc.log('episode_recco:' + json.dumps(episode_recco, indent=4))
 	xbmc.log('movie_recco count:' + str(len(movie_recco)))
 	xbmc.log('episode_recco count:' + str(len(episode_recco)))
 
-	WINDOW = xbmcgui.Window( 10000 )
-	listControl = WINDOW.getControl( 8000 )
-
 	MOVIES_COUNT = 5
-	# listControl.reset()
-	# listControl2.reset()
-
-	items = []
-
-	items.append(
-		xbmcgui.ListItem(
-			'zzz', 
-			'xxx', 
-			'https://s3.amazonaws.com/titles.synopsi.tv/02728842-267.jpg', 
-			'https://s3.amazonaws.com/titles.synopsi.tv/02728842-267.jpg', 
-			path='https://s3.amazonaws.com/titles.synopsi.tv/02728842-267.jpg'
-		)
-	)
+	WINDOW = xbmcgui.Window( 10000 )
 
 	for i in range(1, MOVIES_COUNT+1):
 		m = movie_recco[i]
 		xbmc.log('movie %d %s' % (i, m['cover_large']))
 
-		# items.append(
-		# 	xbmcgui.ListItem(
-		# 		'zzz ' + m['name'], 
-		# 		'', 
-		# 		'', 
-		# 		'', 
-		# 		path=m['cover_large']
-		# 	)
-		# )
-
- 		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
+		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
 		WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
 		WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
 		WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i), m['cover_large'])
 
 		e = episode_recco[i]
 		xbmc.log('episode %d %s' % (i, e['name']))
-		# WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
-		# WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
-		# WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
-		# WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
-		# WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
-		# WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
+		WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
+		WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
+		WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
+		WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
+		WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
+		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
-	#	crashes
-	# listControl.setStaticContent(items)
 
 def login_screen(apiClient):
 	if not __lockLoginScreen__.acquire(False):
@@ -637,6 +610,9 @@ def login_screen(apiClient):
 
 	username = __addon__.getSetting('USER')
 	password = __addon__.getSetting('PASS')
+
+	xbmc.log('string type: ' + str(type(username)))
+	xbmc.log('string type: ' + str(type(password)))
 
 	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
 	ui.doModal()

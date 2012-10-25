@@ -14,11 +14,10 @@ __addon__  = xbmcaddon.Addon()
 def main():
     apiclient1 = AppApiClient.getDefaultClient()
     
-    login_screen(apiclient1)
-
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
         # enable home screen recco
+        __addon__.openSettings()
         xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
         __addon__.setSetting(id='FIRSTRUN', value="false")
 
