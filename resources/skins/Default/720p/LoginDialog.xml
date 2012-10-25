@@ -54,20 +54,6 @@
 			<ondown>10</ondown>
 			<visible>system.getbool(input.enablemouse)</visible>
 		</control>
-		<control type="button">
-			<description>Restart App</description>
-			<posx>120</posx>
-			<posy>35</posy>
-			<width>100</width>
-			<height>30</height>
-			<label>Restart App</label>
-			<font>-</font>
-			<onclick>RestartApp</onclick>
-			<onleft>10</onleft>
-			<onright>10</onright>
-			<onup>10</onup>
-			<ondown>10</ondown>
-		</control>
 		<control id="2" type="label">
 			<description>dialog line 1</description>
 			<posx>30</posx>
