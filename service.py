@@ -14,13 +14,13 @@ __addon__  = xbmcaddon.Addon()
 def main():
     # create_advanced_setttings()
     # xbmc.executebuiltin('ReloadSkin')
-    # xbmc.executebuiltin('RestartApp')                     # doesnt work
+    # xbmc.executebuiltin('RestartApp()')                     # doesnt work
     # xbmc.executebuiltin('ActivateWindow(LoginDialog)')
     # xbmc.executebuiltin('ActivateWindow(5000)')
     # xbmc.executehttpapi('RestartApp')                     # doesnt work
-    x = xbmc.executehttpapi('GetGUISetting(2;lookandfeel.skin)')                     # doesnt work
-    xbmc.log('GetGUISetting: %s' % x)
-    xbmc.executehttpapi('SetGUISetting(2;lookandfeel.skin;2)')                     # doesnt work
+    # x = xbmc.executehttpapi('GetGUISetting(2;lookandfeel.skin)')                     # doesnt work
+    # xbmc.log('GetGUISetting: %s' % x)
+    # xbmc.executehttpapi('SetGUISetting(2;lookandfeel.skin;2)')                     # doesnt work
     # xbmc.executebuiltin('Skin.ResetSettings')
     # xbmc.executebuiltin('Skin.Reset')
     # xbmc.executebuiltin('UpdateLocalAddons')
