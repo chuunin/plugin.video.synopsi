@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 """
 Default file for SynopsiTV addon. See addon.xml 
 <extension point="xbmc.python.pluginsource" library="addon.py">
@@ -327,6 +328,22 @@ mode = None
 atype = None
 data = None
 
+# while not xbmc.abortRequested:
+
+jdata = {
+    'name': 'XBMC Skinning Tutorial',
+    'plot': 'Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum.',
+    'cover_large': 'https://s3.amazonaws.com/titles.synopsi.tv/01498059-267.jpg',
+    'xbmc_movie_detail': {
+        'director': 'Ratan Hatan',
+        'writer': 'Eugo Aianora',
+        'runtime': '102 min',
+        'premiered': '1. aug. 2012',
+    }
+}
+show_video_dialog(0, 0, jdata)
+
+sys.exit(0)
 
 apiClient = AppApiClient.getDefaultClient()
 stvList = StvList.getDefaultList(apiClient)
