@@ -116,8 +116,8 @@ class ApiTest(unittest.TestCase):
 if __name__ == '__main__': 
 	connection = {
 		'base_url': 'http://test.papi.synopsi.tv/',
-		'key': 'c420bfed031e32b395554da5dde07f',
-		'secret': 'd0626af9c94abb0e5cf7ead8c0e882',
+		'key': 'e20e8f465f42e96d8340e81bfc48c757',
+		'secret': '72ab379c50650f7aec044b14db306430a55f09a2da1eb8e40b297a54b30e4b4f',
 		'rel_api_url': '1.0/',
 		# 'base_url': 'http://neptune.local:8000/',
 		# 'key': '76ccb5ec8ecddf15c29c5decac35f9',
