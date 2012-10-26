@@ -15,10 +15,10 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
+defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
+
 class NotConnectedException(Exception):
 	pass
-
-defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
 
 class AuthenticationError(Exception):
 	pass

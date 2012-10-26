@@ -161,15 +161,11 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
 
         labels = dict()
-
-        if self.data.has_key('xbmc_id'):
-            log('xbmc id:' + str(self.data['xbmc_id']))
-            xbmc_movie_detail = get_details('movie', self.data['xbmc_id'], True)
-
-            labels["Director"] = xbmc_movie_detail['director']
-            labels["Writer"] = xbmc_movie_detail['writer']
-            labels["Runtime"] = xbmc_movie_detail['runtime']
-            labels["Release date"] = xbmc_movie_detail['premiered']
+        if self.data.has_key('xbmc_movie_detail'):
+            labels["Director"] = self.data['xbmc_movie_detail']['director']
+            labels["Writer"] = self.data['xbmc_movie_detail']['writer']
+            labels["Runtime"] = self.data['xbmc_movie_detail']['runtime']
+            labels["Release date"] = self.data['xbmc_movie_detail']['premiered']
 
         # set available labels
         i = 1
@@ -181,10 +177,11 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
         # similars
         i = 1
-        for item in self.data['similars']:
-            win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
-            win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_large'])
-            i = i + 1
+        if self.data.has_key('similars'):
+            for item in self.data['similars']:
+                win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
+                win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_large'])
+                i = i + 1
 
         if self.data["trailer"]:
             _youid = self.data["trailer"].split("/")
@@ -271,12 +268,15 @@ def show_video_dialog(url, name, json_data):
     if stvList.hasStvId(json_data['id']):
         cacheItem = stvList.getByStvId(json_data['id'])
         json_data['xbmc_id'] = cacheItem['id']
+        log('xbmc id:' + str(json_data['xbmc_id']))
+        json_data['xbmc_movie_detail'] = get_details('movie', json_data['xbmc_id'], True)
 
     log('show video:' + json.dumps(json_data, indent=4))
 
     # get similar movies
     similars = apiClient.titleSimilar(json_data['id'])
-    json_data['similars'] = similars['titles']
+    if similars.has_key('titles'):
+        json_data['similars'] = similars['titles']
 
     try:
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())

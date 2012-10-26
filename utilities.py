@@ -66,19 +66,6 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 			self.response = 4
 			self.close()
 
-class MainWindow(xbmcgui.Window):
-	"""
-	Dialog class that asks user about rating of movie.
-	"""
-	def __init__(self, *args, **kwargs):
-		xbmcgui.Window.__init__( self , 10000 )
- 		
-	def onClick(self, controlId):
-		xbmc.log('MAIN click :' + str(controlId))
-
-	def onAction(self, action):
-		xbmc.log('MAIN action: ' + str(action))
-
 class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 	"""
 	Dialog class that asks user about rating of movie.
@@ -540,24 +527,6 @@ def get_install_id():
 
 	return iuid
 
-# TODO: insert into existing advancedsettings
-def create_advanced_setttings():
-	""" Proof of concept """
-	# f = open('special://masterprofile/advancedsettings.xml', 'w')
-
-	path = os.path.dirname(os.path.dirname(__cwd__))
-	f = open(os.path.join(path, 'userdata', 'advancedsettings.xml'), 'w')
-	f.write("""
-<advancedsettings>
-	<lookandfeel>
-		<loglevel>101</loglevel>
-		<compactoutput>false</compactoutput>
-		<skin>skin.test.synopsi</skin>
-	</lookandfeel>
-</advancedsettings>
-		""")
-	f.close()
-
 def home_screen_fill(apiClient):
 	"""
 	This method updates movies on HomePage.
@@ -586,7 +555,7 @@ def home_screen_fill(apiClient):
 
 	for i in range(1, MOVIES_COUNT+1):
 		m = movie_recco[i]
-		xbmc.log('movie %d %s' % (i, m['cover_large']))
+		xbmc.log('movie %d %s' % (i, m['name']))
 
 		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
 		WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
