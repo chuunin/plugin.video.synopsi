@@ -18,6 +18,7 @@ import os.path
 import logging
 import test
 from app_apiclient import AppApiClient
+from apiclient import *
 from utilities import *
 from cache import StvList
 
@@ -28,8 +29,6 @@ movie_response = { 'titles': movies }
 
 __addon__  = xbmcaddon.Addon()
 addonPath = __addon__.getAddonInfo('path')
-
-# xbmc.log(str(dir(xbmcvfs)))
 
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
@@ -129,6 +128,8 @@ def get_items(_type, movie_type = None):
             return get_trending_movies()
         elif _type == 6:
             return get_trending_tvshows()
+    except AuthenticationError:
+        raise
     except Exception as exc:
         # error getting items
         # display error dialog and log errors
@@ -310,6 +311,16 @@ def get_params():
 
     return param
 
+
+xbmc.log('in plugin') 
+apiClient = ApiClient.getDefaultClient()
+xbmc.log('apiclient created') 
+xbmcplugin.endOfDirectory(int(sys.argv[1]))
+xbmc.log('after login screen') 
+login_screen(apiClient, True)
+xbmc.log('before exit') 
+sys.exit(0)
+
 __addon__     = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
@@ -328,7 +339,7 @@ atype = None
 data = None
 
 
-apiClient = AppApiClient.getDefaultClient()
+apiClient = ApiClient.getDefaultClient()
 stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))
@@ -362,38 +373,45 @@ log('mode type: %s' % type(mode))
 log('url: %s' % (url))    
 log('data: %s' % (data))    
 
-if mode==None or url==None or len(url)<1:
-    show_categories()
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
+try:
+    if mode==None or url==None or len(url)<1:
+        show_categories()
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+        xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
+        xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+        xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
 
-    xbmc.executebuiltin("Container.SetViewMode(503)")
-elif mode==1:
-    xbmc.log('movies')
-    show_movies(url, atype, 'movie')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-elif mode==11:
-    xbmc.log('tv shows')
-    show_movies(url, atype, 'episode')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-elif mode==12:
-    xbmc.log('movies local')
-    show_movies(url, atype, 'movie')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-elif mode==13:
-    xbmc.log('tv shows')
-    show_movies(url, atype, 'episode')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-elif mode==20:
-    xbmc.log('tv shows')
-    show_movies(url, atype, 'none')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-elif mode==2:
-    json_data['type'] = atype
-    show_video_dialog(url, name, json_data)
-elif mode==90:
-    __addon__.openSettings()
+        xbmc.executebuiltin("Container.SetViewMode(503)")
+    elif mode==1:
+        xbmc.log('movies')
+        show_movies(url, atype, 'movie')
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    elif mode==11:
+        xbmc.log('tv shows')
+        show_movies(url, atype, 'episode')
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    elif mode==12:
+        xbmc.log('movies local')
+        show_movies(url, atype, 'movie')
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    elif mode==13:
+        xbmc.log('tv shows')
+        show_movies(url, atype, 'episode')
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    elif mode==20:
+        xbmc.log('tv shows')
+        show_movies(url, atype, 'none')
+        xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    elif mode==2:
+        json_data['type'] = atype
+        show_video_dialog(url, name, json_data)
+    elif mode==90:
+        __addon__.openSettings()
+except AuthenticationError:
+    notification("Authentication failed")
+
+except Exception as e:
+    xbmc.log(e)
+
 
 

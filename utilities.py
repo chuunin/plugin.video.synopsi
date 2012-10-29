@@ -75,15 +75,18 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 	def __init__(self, *args, **kwargs):
 		# xbmcgui.WindowXMLDialog.__init__( self )
 		super(XMLLoginDialog, self).__init__()
-		self.username = kwargs['username']
-		self.password = kwargs['password']
+		# self.username = kwargs['username']
+		# self.password = kwargs['password']
+		self.username = u"aaa"
+		self.password = u"ccc"
+		self.running = True
  
 	def onInit(self):
 		self.getString = __addon__.getLocalizedString
 		c = self.getControl(10)
 		
-		self.getControl(10).setText(self.username)
-		self.getControl(11).setText(self.password)
+		# self.getControl(10).setText(self.username)
+		# self.getControl(11).setText(self.password)
 
 	def onClick(self, controlId):
 		"""
@@ -94,17 +97,18 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		# Cancel
 		if controlId==16:
 			self.response = 1
+			self.running = False
 			self.close()
 		# Ok
 		elif controlId==15:
 			self.response = 2
 			self.close()
 
-	def onAction(self, action):
-		xbmc.log('action id:' + str(action.getId()))
-		if (action.getId() in CANCEL_DIALOG2):
-			self.response = 1
-			self.close()
+	# def onAction(self, action):
+		# xbmc.log('action id:' + str(action.getId()))
+		# if (action.getId() in CANCEL_DIALOG2):
+		# 	self.response = 1
+		# 	self.close()
 
 	def getData(self):
 		return { 'username': self.getControl(10).getText(), 'password': self.getControl(11).getText() }
@@ -572,7 +576,7 @@ def home_screen_fill(apiClient):
 		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
 
-def login_screen(apiClient):
+def login_screen(apiClient, modal=True):
 	if not __lockLoginScreen__.acquire(False):
 		xbmc.log('login_screen not starting duplicate')
 		return False
@@ -585,8 +589,13 @@ def login_screen(apiClient):
 	xbmc.log('string type __cwd__: ' + str(type(__cwd__)))
 
 	ui = XMLLoginDialog("customLoginDialog.xml", __cwd__, "Default", username=username, password=password)
-	ui.doModal()
-	# ui.show()
+	if modal:
+		ui.doModal()
+	else:
+		ui.show()
+		while ui.running:
+			xbmc.sleep(1)
+		
 
 	# dialog result is 'OK'
 	if ui.response==2:
