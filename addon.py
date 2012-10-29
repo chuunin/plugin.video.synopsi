@@ -19,7 +19,7 @@ import logging
 import test
 from app_apiclient import AppApiClient
 from apiclient import *
-from utilities import *
+# from utilities import *
 from cache import StvList
 
 # from PIL import Image, ImageDraw, ImageOps
@@ -313,11 +313,11 @@ def get_params():
 
 
 xbmc.log('in plugin') 
-apiClient = ApiClient.getDefaultClient()
+# apiClient = ApiClient.getDefaultClient()
 xbmc.log('apiclient created') 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
 xbmc.log('after login screen') 
-login_screen(apiClient, True)
+# login_screen(apiClient, True)
 xbmc.log('before exit') 
 sys.exit(0)
 

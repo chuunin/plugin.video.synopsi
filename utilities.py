@@ -22,6 +22,7 @@ CANCEL_DIALOG2 = (61467, )
 __addon__    = xbmcaddon.Addon()
 __cwd__      = __addon__.getAddonInfo('path')
 __lockLoginScreen__ = threading.Lock()
+__lock_rpc_request__ = threading.Lock()
 
 
 def notification(text, name='SynopsiTV Plugin'):
@@ -498,6 +499,9 @@ class xbmcRPCclient(object):
 		self.__logLevel = logLevel
 
 	def execute(self, methodName, params):
+		xbmc.log('RPC Execute')		
+		__lock_rpc_request__.acquire()
+
 		dic = {
 			'params': params,
 			'jsonrpc': '2.0',
@@ -516,8 +520,10 @@ class xbmcRPCclient(object):
 			xbmc.log('xbmc RPC response: ' + str(json.dumps(json_response, indent=4)))
 
 		if json_response.has_key('error') and json_response['error']:
+			__lock_rpc_request__.release()
 			raise Exception(json_response['error']['message'])
 
+		__lock_rpc_request__.release()
 		return json_response['result']
 
 def get_install_id():
