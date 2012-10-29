@@ -173,15 +173,16 @@
 						</content>
 					</control>
 					<control id="400" type="textbox">
-						<posx>0</posx>
+						<posx>100</posx>
 						<posy>150</posy>
 						<width>200</width>
-						<height>30</height>
+						<height>100</height>
 						<description>Description Value for Movies</description>
 						<font>font12</font>
 						<align>justify</align>
 						<textcolor>white</textcolor>
 						<pagecontrol>61</pagecontrol>
+						<backgroundcolor>0xff00ff00</backgroundcolor>
 						<!-- <label>$INFO[ListItem.Plot]</label>-->
 						<label>$INFO[Window.Property(Movie.Plot)]</label>
 						<!-- <autoscroll delay="4000" repeat="5000" time="3000">!Control.HasFocus(61) + Skin.HasSetting(AutoScroll)</autoscroll>-->
