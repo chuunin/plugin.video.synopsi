@@ -101,7 +101,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 			self.close()
 
 	def onAction(self, action):
-		# xbmc.log('action id:' + str(action.getId()))
+		xbmc.log('action id:' + str(action.getId()))
 		if (action.getId() in CANCEL_DIALOG2):
 			self.response = 1
 			self.close()
@@ -580,10 +580,11 @@ def login_screen(apiClient):
 	username = __addon__.getSetting('USER')
 	password = __addon__.getSetting('PASS')
 
-	xbmc.log('string type: ' + str(type(username)))
-	xbmc.log('string type: ' + str(type(password)))
+	xbmc.log('string type username: ' + str(type(username)))
+	xbmc.log('string type password: ' + str(type(password)))
+	xbmc.log('string type __cwd__: ' + str(type(__cwd__)))
 
-	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
+	ui = XMLLoginDialog("customLoginDialog.xml", __cwd__, "Default", username=username, password=password)
 	ui.doModal()
 	# ui.show()
 
@@ -591,12 +592,12 @@ def login_screen(apiClient):
 	if ui.response==2:
 		xbmc.log('dialog OK')
 		# check if data changed
-		d = ui.getData()
-		if username!=d['username'] or password!=d['password']:
+		# d = ui.getData()
+		# if username!=d['username'] or password!=d['password']:
 			# store in settings
-			__addon__.setSetting('USER', value=d['username'])
-			__addon__.setSetting('PASS', value=d['password'])	
-			apiClient.setUserPass(d['username'], d['password'])
+			# __addon__.setSetting('USER', value=d['username'])
+			# __addon__.setSetting('PASS', value=d['password'])	
+			# apiClient.setUserPass(d['username'], d['password'])
 
 		result=True
 	else:
