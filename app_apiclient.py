@@ -20,7 +20,9 @@ class AppApiClient(ApiClient):
 				ApiClient.getAccessToken(self)
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
-				finished = not login_screen(self)
+				# crashes
+				# finished = not login_screen(self)
+				finished = True
 				xbmc.log('Trying new credentials ? %d' % int(not finished))
 			except Exception as e:
 				finished = True
