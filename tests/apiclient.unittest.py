@@ -97,12 +97,24 @@ class ApiTest(unittest.TestCase):
 
 		data = client.libraryTitleRemove(stv_title_id)
 
+	def test_profile_recco(self):
+		global connection
+
+		c = connection		
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+
 		props = [ 'year','image' ]
 		data = client.profileRecco('movie', False, props)
 
 		self.assertTrue(data.has_key('recco_id'))
 		self.assertTrue(data.has_key('titles'))
 		self.assertTrue(len(data['titles']) > 0)
+
+	def test_title_similar(self):
+		global connection
+
+		c = connection		
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
 		# 1947362 "Ben-Hur (1959)"
 		data_similar = client.titleSimilar(1947362)
