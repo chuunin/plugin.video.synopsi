@@ -216,11 +216,13 @@ class ApiClient(object):
 			)
 
 		except HTTPError as e:
+			self._logger.error('APICLIENT:' + url)
 			self._logger.error('APICLIENT:' + str(e))
 			self._logger.error('APICLIENT:' + e.read())
 			response_json = {}
 
 		except URLError as e:
+			self._logger.error('APICLIENT:' + url)
 			self._logger.error('APICLIENT:' + str(e))
 			self._logger.error('APICLIENT:' + str(e.reason))
 			response_json = {}
