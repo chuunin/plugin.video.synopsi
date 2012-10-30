@@ -337,7 +337,7 @@
 						<posx>0</posx>
 						<posy>400</posy>
 						<width>1030</width>
-						<height>140</height>
+						<height>138</height>
 						<description>Description Value for Movies</description>
 						<font>font12</font>
 						<align>justify</align>
