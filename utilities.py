@@ -32,7 +32,6 @@ def notification(text, name='SynopsiTV Plugin'):
 
 def get_current_addon():
 	global __addon__
-	xbmc.log('ADDON %s' % __addon__)
 	return __addon__
 
 
