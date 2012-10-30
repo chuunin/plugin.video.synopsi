@@ -155,7 +155,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
         win.setProperty("Movie.Title", self.data["name"])
         win.setProperty("Movie.Plot", self.data["plot"])
-        win.setProperty("Movie.Cover", self.data["cover_large"])
+        win.setProperty("Movie.Cover", self.data["cover_full"])
         # win.setProperty("Movie.Cover", "default.png")
 
         for i in range(5):
@@ -181,7 +181,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         if self.data.has_key('similars'):
             for item in self.data['similars']:
                 win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
-                win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_large'])
+                win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_medium'])
                 i = i + 1
 
         if self.data.has_key('trailer') and self.data["trailer"]:
