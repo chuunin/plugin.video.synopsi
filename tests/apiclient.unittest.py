@@ -110,6 +110,20 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(data.has_key('titles'))
 		self.assertTrue(len(data['titles']) > 0)
 
+	def test_profile_recco_local(self):
+		global connection
+
+		c = connection		
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+
+		props = [ 'year','image' ]
+		data = client.profileRecco('movie', True, props)
+
+		self.assertTrue(data.has_key('recco_id'))
+		self.assertTrue(data.has_key('titles'))
+		self.assertTrue(len(data['titles']) > 0)
+
+
 	def test_title_similar(self):
 		global connection
 
