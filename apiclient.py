@@ -6,7 +6,7 @@ import datetime
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError, URLError
-from utilities import get_install_id
+from utilities import *
 import httplib
 
 RATING_CODE = {
@@ -58,7 +58,7 @@ class ApiClient(object):
 		if ApiClient._instance:
 			return ApiClient._instance
 
-		__addon__  = xbmcaddon.Addon()
+		__addon__  = get_current_addon()
 
 		iuid = get_install_id()
 		
@@ -79,6 +79,12 @@ class ApiClient(object):
 	def setUserPass(self, username, password):
 		self.username = username
 		self.password = password
+
+	def reloadUserPass(self):
+		__addon__ = get_current_addon()
+		self.username = __addon__.getSetting('USER')
+		self.password = __addon__.getSetting('PASS')
+
 
 	def queueRequest(self, req):
 		self.failedRequest.append(req)
@@ -116,6 +122,8 @@ class ApiClient(object):
 			return response_json
 
 	def getAccessToken(self):
+		self.reloadUserPass()
+
 		data = {
 			'grant_type': 'password',
 			'client_id': self.key,

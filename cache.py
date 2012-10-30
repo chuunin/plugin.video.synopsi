@@ -34,7 +34,7 @@ class StvList(object):
 
     @classmethod
     def getDefaultList(cls, apiClient=None):
-        __addon__  = xbmcaddon.Addon()
+        __addon__  = get_current_addon()
         if not apiClient:
             apiClient = AppApiClient.getDefaultClient()
 

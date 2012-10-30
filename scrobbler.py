@@ -14,7 +14,7 @@ from utilities import *
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # Default XBMC constant for hidden cancel button
 
-__addon__     = xbmcaddon.Addon()
+__addon__  = get_current_addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')

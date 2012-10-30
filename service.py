@@ -9,7 +9,7 @@ from utilities import home_screen_fill, login_screen
 import xbmc, xbmcgui, xbmcaddon
 from app_apiclient import AppApiClient
 
-__addon__  = xbmcaddon.Addon()
+__addon__  = get_current_addon()
 
 def main():
     apiclient1 = AppApiClient.getDefaultClient()

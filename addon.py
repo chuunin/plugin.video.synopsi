@@ -27,11 +27,6 @@ from cache import StvList
 movies = test.jsfile
 movie_response = { 'titles': movies }
 
-__addon__  = xbmcaddon.Addon()
-addonPath = __addon__.getAddonInfo('path')
-
-# xbmc.log(str(dir(xbmcvfs)))
-
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
     xbmc.log('ADDON / ' + str(msg))
@@ -311,7 +306,9 @@ def get_params():
 
     return param
 
-__addon__     = xbmcaddon.Addon()
+__addon__  = get_current_addon()
+addonPath = __addon__.getAddonInfo('path')
+
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')

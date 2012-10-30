@@ -29,7 +29,7 @@ class AppApiClient(ApiClient):
 					notification('Authentication failed. Correct your login/password in plugin settings')
 				else:
 					if xbmcgui.Dialog().yesno("SynopsiTV", "Authentication failed", "Would you like to open settings and correct your login info?"):
-						addon = xbmcaddon.Addon()
+						addon = get_current_addon()
 						addon.openSettings()
 						self.setUserPass(addon.getSetting('USER'), addon.getSetting('PASS'))
 					else:

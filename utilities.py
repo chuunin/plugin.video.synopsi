@@ -30,6 +30,12 @@ def notification(text, name='SynopsiTV Plugin'):
     """
     xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
 
+def get_current_addon():
+	global __addon__
+	xbmc.log('ADDON %s' % __addon__)
+	return __addon__
+
+
 class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 	"""
 	Dialog class that asks user about rating of movie.

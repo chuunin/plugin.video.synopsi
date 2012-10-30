@@ -14,7 +14,6 @@ from cache import *
 
 ABORT_REQUESTED = False
 
-__addon__  = xbmcaddon.Addon()
 
 class RPCListener(threading.Thread):
     def __init__(self, cache):
