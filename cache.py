@@ -80,7 +80,7 @@ class StvList(object):
             # try to get synopsi id
             # for now, try only if there is 'imdbnumber'
             if movie.has_key('imdbnumber'):
-                title = self.apiclient.titleIdentify(imdb_id=movie['imdbnumber'][2:], title_hash=movie['stv_hash'], subtitle_hash='TODO')
+                title = self.apiclient.titleIdentify(imdb_id=movie['imdbnumber'][2:], stv_title_hash=movie['stv_hash'])
                 if title.has_key('title_id'):
                     movie['stvId'] = title['title_id']
             self.put(movie)
@@ -133,7 +133,8 @@ class StvList(object):
             if item.has_key('stvId'):
                 self.apiclient.libraryTitleRemove(item['stvId'])
                 del self.byStvId[item['stvId']]
-        except:
+        except Exception as e:
+            self.log(e)
             self.log('REMOVE FAILED / ' + typeIdStr)    
 
         self.log('REMOVE / ' + typeIdStr)
