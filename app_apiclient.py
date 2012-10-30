@@ -9,6 +9,11 @@ class AppApiClient(ApiClient):
 		self._lock_access_token = threading.Lock()
 		self._rejected_to_correct = False
 
+	def reloadUserPass(self):
+		__addon__ = get_current_addon()
+		self.username = __addon__.getSetting('USER')
+		self.password = __addon__.getSetting('PASS')
+
 	def getAccessToken(self):
 		if not self._lock_access_token.acquire(False):
 			xbmc.log('getAccessToken lock NOT acquired')
@@ -19,6 +24,7 @@ class AppApiClient(ApiClient):
 		while not finished:
 			# try to log in
 			try:
+				self.reloadUserPass()
 				ApiClient.getAccessToken(self)
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 				# raise AuthenticationError

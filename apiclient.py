@@ -80,12 +80,6 @@ class ApiClient(object):
 		self.username = username
 		self.password = password
 
-	def reloadUserPass(self):
-		__addon__ = get_current_addon()
-		self.username = __addon__.getSetting('USER')
-		self.password = __addon__.getSetting('PASS')
-
-
 	def queueRequest(self, req):
 		self.failedRequest.append(req)
 
@@ -122,8 +116,6 @@ class ApiClient(object):
 			return response_json
 
 	def getAccessToken(self):
-		self.reloadUserPass()
-
 		data = {
 			'grant_type': 'password',
 			'client_id': self.key,
