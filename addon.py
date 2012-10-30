@@ -160,8 +160,13 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         if self.data.has_key('xbmc_movie_detail'):
             labels["Director"] = self.data['xbmc_movie_detail']['director']
             labels["Writer"] = self.data['xbmc_movie_detail']['writer']
-            labels["Runtime"] = self.data['xbmc_movie_detail']['runtime']
+            labels["Runtime"] = self.data['xbmc_movie_detail']['runtime'] + ' min'
             labels["Release date"] = self.data['xbmc_movie_detail']['premiered']
+            tFile = self.data['xbmc_movie_detail'].get('file')
+            if tFile:
+                win.setProperty("Movie.File", tFile)
+            else:
+                self.getControl(5).setEnabled(False)
 
         # set available labels
         i = 1
@@ -186,7 +191,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         else:
             self.getControl(10).setEnabled(False)
 
-        self.getControl(5).setEnabled(False)
 
     def onClick(self, controlId):
         if controlId == 5: # play
@@ -401,7 +405,7 @@ elif mode==999:
         'xbmc_movie_detail': {
             'director': 'Ratan Hatan',
             'writer': 'Eugo Aianora',
-            'runtime': '102 min',
+            'runtime': '102',
             'premiered': '1. aug. 2012',
         }
     }

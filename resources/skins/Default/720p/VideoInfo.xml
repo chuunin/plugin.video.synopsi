@@ -402,6 +402,7 @@
 					<control id="5" type="button">
 						<include>ButtonInfoDialogsCommonValues</include>
 						<label>Play</label>
+						<onclick>PlayMedia($INFO[Window.Property(Movie.File)])</onclick>
 					</control>
 					<control id="10" type="button">
 						<include>ButtonInfoDialogsCommonValues</include>
