@@ -24,11 +24,11 @@ __cwd__      = __addon__.getAddonInfo('path')
 __lockLoginScreen__ = threading.Lock()
 
 
-def notification(text, name='SynopsiTV Plugin'):
+def notification(text, name='SynopsiTV Plugin', time=5000):
     """
     Sends notification to XBMC.
     """
-    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
+    xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))  
 
 def get_current_addon():
 	global __addon__
