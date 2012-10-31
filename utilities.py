@@ -181,7 +181,7 @@ def old_stv_hash(filepath):
 	return sha1.hexdigest()
 
 
-def hashFile(name):
+def hash_opensubtitle(name):
 	"""
 	OpenSubtitles hash.
 	"""
@@ -248,8 +248,8 @@ def get_hash_array(path):
 	if not "stack://" in path:
 		file_dic = {}
 
-		stv_hash = lib.myhash(path)
-		sub_hash = lib.hashFile(path)
+		stv_hash = stv_hash(path)
+		sub_hash = hash_opensubtitle(path)
 
 		if stv_hash:
 			file_dic['synopsihash'] = stv_hash
@@ -262,8 +262,8 @@ def get_hash_array(path):
 	else:
 		for moviefile in path.strip("stack://").split(" , "):
 			hash_array.append({"path": moviefile,
-							"synopsihash": str(lib.myhash(moviefile)),
-							"subtitlehash": str(lib.hashFile(moviefile))
+							"synopsihash": str(stv_hash(moviefile)),
+							"subtitlehash": str(hash_opensubtitle(moviefile))
 							})
 	return hash_array
 
@@ -539,8 +539,8 @@ def home_screen_fill(apiClient):
 
 	# get recco movies and episodes
 	try:
-		movie_recco = apiClient.profileRecco('movie')['titles']
-		episode_recco = apiClient.profileRecco('episode')['titles']
+		movie_recco = apiClient.profileRecco('movie', True)['titles']
+		episode_recco = apiClient.profileRecco('episode', True)['titles']
 	except:
 		notification('Movie reccomendation service failed')
 		return
