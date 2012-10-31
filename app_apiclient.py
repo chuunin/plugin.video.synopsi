@@ -26,8 +26,9 @@ class AppApiClient(ApiClient):
 			try:
 				self.reloadUserPass()
 				ApiClient.getAccessToken(self)
-			# in failure, ask for new login/pass and repeat if dialog was not canceled
 				# raise AuthenticationError
+				notification('Logged in as %s' % self.username)
+			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
 				# crashes
 				# finished = not login_screen(self)
