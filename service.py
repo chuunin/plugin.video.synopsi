@@ -7,30 +7,22 @@ from library import RPCListenerHandler
 from cache import *
 from utilities import home_screen_fill, login_screen
 import xbmc, xbmcgui, xbmcaddon
-import apiclient
+from app_apiclient import AppApiClient
 
-__addon__  = xbmcaddon.Addon()
+__addon__  = get_current_addon()
 
 def main():
+    apiclient1 = AppApiClient.getDefaultClient()
+    
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
         # enable home screen recco
-        xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
-        __addon__.openSettings()        
+        __addon__.openSettings()
+        xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
         __addon__.setSetting(id='FIRSTRUN', value="false")
 
-    iuid = get_install_id()
-
     # get or generate install-unique ID
-    apiclient1 = apiclient.apiclient(
-        __addon__.getSetting('BASE_URL'),
-        __addon__.getSetting('KEY'),
-        __addon__.getSetting('SECRET'),
-        __addon__.getSetting('USER'),
-        __addon__.getSetting('PASS'),
-        iuid,
-        rel_api_url=__addon__.getSetting('REL_API_URL'),
-    )
+    iuid = get_install_id()
 
     home_screen_fill(apiclient1)
 

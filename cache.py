@@ -3,7 +3,7 @@ import pickle
 import xbmc
 import json
 from utilities import *
-import apiclient
+from app_apiclient import ApiClient
 
 class StvList(object):
     """
@@ -34,9 +34,9 @@ class StvList(object):
 
     @classmethod
     def getDefaultList(cls, apiClient=None):
-        __addon__  = xbmcaddon.Addon()
+        __addon__  = get_current_addon()
         if not apiClient:
-            apiClient = apiclient.apiclient.getDefaultClient()
+            apiClient = AppApiClient.getDefaultClient()
 
         iuid = get_install_id()    
         cache = StvList(iuid, apiClient) 
@@ -80,7 +80,7 @@ class StvList(object):
             # try to get synopsi id
             # for now, try only if there is 'imdbnumber'
             if movie.has_key('imdbnumber'):
-                title = self.apiclient.titleIdentify(imdb_id=movie['imdbnumber'][2:], title_hash=movie['stv_hash'], subtitle_hash='TODO')
+                title = self.apiclient.titleIdentify(imdb_id=movie['imdbnumber'][2:], stv_title_hash=movie['stv_hash'])
                 if title.has_key('title_id'):
                     movie['stvId'] = title['title_id']
             self.put(movie)
@@ -125,13 +125,17 @@ class StvList(object):
 
     def remove(self, type, id):
         typeIdStr = self._getKey(type, id)
-        item = self.getByTypeId(type, id)
-        del self.byFilename[item['file']]
-        del self.byTypeId[typeIdStr]
+        try:
+            item = self.getByTypeId(type, id)
+            del self.byFilename[item['file']]
+            del self.byTypeId[typeIdStr]
 
-        if item.has_key('stvId'):
-            self.apiclient.libraryTitleRemove(item['stvId'])
-            del self.byStvId[item['stvId']]
+            if item.has_key('stvId'):
+                self.apiclient.libraryTitleRemove(item['stvId'])
+                del self.byStvId[item['stvId']]
+        except Exception as e:
+            self.log(e)
+            self.log('REMOVE FAILED / ' + typeIdStr)    
 
         self.log('REMOVE / ' + typeIdStr)
         self.list()

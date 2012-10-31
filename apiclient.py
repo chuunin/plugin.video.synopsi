@@ -6,7 +6,8 @@ import datetime
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError, URLError
-from utilities import get_install_id
+from utilities import *
+import httplib
 
 RATING_CODE = {
 	1: 'like',
@@ -14,16 +15,16 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
+defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
+
 class NotConnectedException(Exception):
 	pass
-
-
-defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
 
 class AuthenticationError(Exception):
 	pass
 
-class apiclient(object):
+class ApiClient(object):
+	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		self.baseUrl = base_url
 		self.key = key
@@ -33,7 +34,7 @@ class apiclient(object):
 		self.accessToken = None
 		self.refreshToken = None
 		self.apiUrl = self.baseUrl + rel_api_url
-		self.originReqHost = originReqHost or 'dev.bapi.synopsi.tv'		# TODO: what is this
+		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
 		self.device_id = device_id  
 		self._logger = logging.getLogger()
@@ -44,7 +45,7 @@ class apiclient(object):
 			self._logger.addHandler(logging.StreamHandler(sys.stdout))
 
 		self._logger.setLevel(debugLvl)
-		self._logger.debug('apiclient __init__')
+		self._logger.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
@@ -54,23 +55,30 @@ class apiclient(object):
 
 	@classmethod
 	def getDefaultClient(cls):
-		__addon__  = xbmcaddon.Addon()
+		if ApiClient._instance:
+			return ApiClient._instance
+
+		__addon__  = get_current_addon()
 
 		iuid = get_install_id()
-		xbmc.log('REL_API_URL:' + __addon__.getSetting('REL_API_URL'))
-
+		
 		# get or generate install-unique ID
-		tmpClient = cls(
+		ApiClient._instance = cls(
 			__addon__.getSetting('BASE_URL'),
 			__addon__.getSetting('KEY'),
 			__addon__.getSetting('SECRET'),
 			__addon__.getSetting('USER'),
 			__addon__.getSetting('PASS'),
 			iuid,
-			__addon__.getSetting('REL_API_URL')    
+			debugLvl=logging.ERROR,
+			rel_api_url=__addon__.getSetting('REL_API_URL'),
 		)
 
-		return tmpClient
+		return ApiClient._instance
+
+	def setUserPass(self, username, password):
+		self.username = username
+		self.password = password
 
 	def queueRequest(self, req):
 		self.failedRequest.append(req)
@@ -93,7 +101,7 @@ class apiclient(object):
 		if not self.isAuthenticated():
 			access = self.getAccessToken()
 			if not access:
-				self._logger.debug('Could not get the auth token')
+				self._logger.error('Could not get the auth token')
 				return False
 
 		# put the cacheable request into queue
@@ -118,26 +126,40 @@ class apiclient(object):
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
+		# self._logger.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
+		# self._logger.debug('apiclient getaccesstoken %s' % str(data))
+
 		# get token
 		try:
-			response = urlopen(Request(
+
+			req = Request(
 					self.baseUrl + 'oauth2/token/', 
 					data=urlencode(data), 
 					headers=self.authHeaders, 
-					origin_req_host=self.originReqHost))
+					origin_req_host=self.originReqHost)
+						
+			# self._logger.debug('request REQ HOST:' + str(req.get_origin_req_host()))
+			# self._logger.debug('request URL:' + str(req.get_full_url()))
+			# self._logger.debug('request HEADERS:' + str(req.headers.items()))
+			# self._logger.debug('request DATA:' + str(req.get_data()))
 
-			self._logger.debug(response)
+			response = urlopen(req)
+
+			# self._logger.debug('request RESPONSE:' + str(response))
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			self._logger.error(str(e))
+			self._logger.error('%d %s' % (e.code, e))
 			self._logger.error(e.read())
 			raise AuthenticationError()
 
 		except URLError as e:
 			self._logger.error(str(e))
-			self._logger.error('URL:%s' % self.baseUrl + 'oauth2/token/')
 			self._logger.error(e.reason)
+			raise AuthenticationError()
+
+		except Exception as e:
+		 	self._logger.error('ANOTHER EXCEPTION:' + str(e))
 			raise AuthenticationError()
 
 
@@ -151,11 +173,9 @@ class apiclient(object):
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 	def execute(self, requestData, cacheable=True):
-		self._logger.debug('execute')
 		if not self.isAuthenticated():
 			self.getAccessToken()
 
-		self._logger.debug('isAuthenticated')
 		url = self.apiUrl + requestData['methodPath']
 		method = requestData['method']
 		data = None
@@ -196,11 +216,13 @@ class apiclient(object):
 			)
 
 		except HTTPError as e:
+			self._logger.error('APICLIENT:' + url)
 			self._logger.error('APICLIENT:' + str(e))
 			self._logger.error('APICLIENT:' + e.read())
 			response_json = {}
 
 		except URLError as e:
+			self._logger.error('APICLIENT:' + url)
 			self._logger.error('APICLIENT:' + str(e))
 			self._logger.error('APICLIENT:' + str(e.reason))
 			response_json = {}

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 """
 Default file for SynopsiTV addon. See addon.xml 
 <extension point="xbmc.python.pluginsource" library="addon.py">
@@ -17,7 +18,7 @@ import re
 import os.path
 import logging
 import test
-import apiclient
+from app_apiclient import AppApiClient
 from utilities import *
 from cache import StvList
 
@@ -26,14 +27,15 @@ from cache import StvList
 movies = test.jsfile
 movie_response = { 'titles': movies }
 
-__addon__  = xbmcaddon.Addon()
-addonPath = __addon__.getAddonInfo('path')
-
-# xbmc.log(str(dir(xbmcvfs)))
-
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
     xbmc.log('ADDON / ' + str(msg))
+
+def uniquote(s):
+    return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
+
+def uniunquote(uni):
+    return urllib.unquote_plus(uni.decode('utf-8'))
 
 def get_local_recco(movie_type):
     global apiClient
@@ -43,9 +45,10 @@ def get_local_recco(movie_type):
 
     resRecco =  apiClient.profileRecco(movie_type, True, props)
 
-    log('local recco for ' + movie_type)
-    for title in resRecco['titles']:
-        log('resRecco:' + title['name'])
+    # log('local recco for ' + movie_type)
+
+    # for title in resRecco['titles']:
+    #     log('resRecco:' + title['name'])
 
     return resRecco
 
@@ -58,9 +61,10 @@ def get_global_recco(movie_type):
 
     resRecco =  apiClient.profileRecco(movie_type, False, props)
 
-    log('global recco for ' + movie_type)
-    for title in resRecco['titles']:
-        log(title['name'])
+    # log('global recco for ' + movie_type)
+
+    # for title in resRecco['titles']:
+    #     log(title['name'])
 
     return resRecco
 
@@ -125,7 +129,8 @@ def get_items(_type, movie_type = None):
         # error getting items
         # display error dialog and log errors
         log('ERROR /' + str(exc))
-        return []
+        return [{'name': 'ERROR ' + str(exc)}]
+        # return []
 
 def add_to_list(movieid, listid):
     pass
@@ -145,22 +150,23 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
         win.setProperty("Movie.Title", self.data["name"])
         win.setProperty("Movie.Plot", self.data["plot"])
-        win.setProperty("Movie.Cover", self.data["cover_large"])
+        win.setProperty("Movie.Cover", self.data["cover_full"])
         # win.setProperty("Movie.Cover", "default.png")
 
         for i in range(5):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
 
         labels = dict()
-
-        if self.data.has_key('xbmc_id'):
-            log('xbmc id:' + str(self.data['xbmc_id']))
-            xbmc_movie_detail = get_details('movie', self.data['xbmc_id'], True)
-
-            labels["Director"] = xbmc_movie_detail['director']
-            labels["Writer"] = xbmc_movie_detail['writer']
-            labels["Runtime"] = xbmc_movie_detail['runtime']
-            labels["Release date"] = xbmc_movie_detail['premiered']
+        if self.data.has_key('xbmc_movie_detail'):
+            labels["Director"] = self.data['xbmc_movie_detail']['director']
+            labels["Writer"] = self.data['xbmc_movie_detail']['writer']
+            labels["Runtime"] = self.data['xbmc_movie_detail']['runtime'] + ' min'
+            labels["Release date"] = self.data['xbmc_movie_detail']['premiered']
+            tFile = self.data['xbmc_movie_detail'].get('file')
+            if tFile:
+                win.setProperty("Movie.File", tFile)
+            else:
+                self.getControl(5).setEnabled(False)
 
         # set available labels
         i = 1
@@ -172,19 +178,19 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
         # similars
         i = 1
-        for item in self.data['similars']:
-            win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
-            win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_large'])
-            i = i + 1
+        if self.data.has_key('similars'):
+            for item in self.data['similars']:
+                win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
+                win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_medium'])
+                i = i + 1
 
-        if self.data["trailer"]:
+        if self.data.has_key('trailer') and self.data["trailer"]:
             _youid = self.data["trailer"].split("/")
             _youid.reverse()
             win.setProperty("Movie.Trailer.Id", str(_youid[0]))
         else:
             self.getControl(10).setEnabled(False)
 
-        self.getControl(5).setEnabled(False)
 
     def onClick(self, controlId):
         if controlId == 5: # play
@@ -207,8 +213,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.close()
 
 
-def add_directory(name, url, mode, iconimage, type, view_mode=500):
-    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&type="+urllib.quote_plus(str(type))
+def add_directory(name, url, mode, iconimage, atype, view_mode=500):
+    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # liz.setInfo(type="Video", infoLabels={"Title": name} )
@@ -220,7 +226,7 @@ def add_directory(name, url, mode, iconimage, type, view_mode=500):
 
 def add_movie(movie, url, mode, iconimage, movieid, view_mode=500):
     json_data = json.dumps(movie)
-    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&type="+str(type)+"&name="+urllib.quote_plus(movie.get('name'))+"&data="+urllib.quote_plus(json_data)
+    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
     liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
@@ -238,8 +244,10 @@ def show_categories():
     add_directory("TV Show recommendations", "url", 11, "list.png", 1)
     add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
     add_directory("Local TV Show recommendations", "url", 13, "list.png", 2)
-    add_directory("Unwatched TV episodes", "url", 1, "icon.png", 3)
-    add_directory("Lists", "url", 1, "icon.png", 4)
+    add_directory("Unwatched TV episodes", "url", 20, "icon.png", 3)
+    add_directory("Settings", "url", 90, "icon.png", 1)
+
+    # add_directory("Lists", "url", 1, "icon.png", 4)
     # add_directory("Trending Movies", "url", 1, "icon.png", 5, view_mode=500)
     # add_directory("Trending TV Shows", "url", 1, "icon.png", 6)
 
@@ -260,12 +268,15 @@ def show_video_dialog(url, name, json_data):
     if stvList.hasStvId(json_data['id']):
         cacheItem = stvList.getByStvId(json_data['id'])
         json_data['xbmc_id'] = cacheItem['id']
+        log('xbmc id:' + str(json_data['xbmc_id']))
+        json_data['xbmc_movie_detail'] = get_details('movie', json_data['xbmc_id'], True)
 
     log('show video:' + json.dumps(json_data, indent=4))
 
     # get similar movies
     similars = apiClient.titleSimilar(json_data['id'])
-    json_data['similars'] = similars['titles']
+    if similars.has_key('titles'):
+        json_data['similars'] = similars['titles']
 
     try:
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -299,33 +310,36 @@ def get_params():
 
     return param
 
-__addon__     = xbmcaddon.Addon()
+__addon__  = get_current_addon()
+addonPath = __addon__.getAddonInfo('path')
+
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 
-# print sys.argv
+xbmc.log('SYS ARGV:' + str(sys.argv)) 
 
 params = get_params()
+xbmc.log(str(params))
+
 url = None
 name = None
 mode = None
-type = None
+atype = None
 data = None
 
-
-apiClient = apiclient.apiclient.getDefaultClient()
+apiClient = AppApiClient.getDefaultClient()
 stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))
 
 try:
-    url=urllib.unquote_plus(params["url"])
+    url=uniunquote(params["url"])
 except:
     pass
 try:
-    name=urllib.unquote_plus(params["name"])
+    name=uniunquote(params["name"])
 except:
     pass
 try:
@@ -333,18 +347,19 @@ try:
 except:
     pass
 try:
-    type=int(params["type"])
+    atype=int(params["type"])
 except:
     pass
 
 try:
-    data = urllib.unquote_plus(params["data"])
+    data = uniunquote(params["data"])
     json_data = json.loads(data)
 except:
     pass
    
 
-log('mode: %s type: %s' % (mode, type))    
+log('mode: %s type: %s' % (mode, atype))    
+log('mode type: %s' % type(mode))    
 log('url: %s' % (url))    
 log('data: %s' % (data))    
 
@@ -358,22 +373,43 @@ if mode==None or url==None or len(url)<1:
     xbmc.executebuiltin("Container.SetViewMode(503)")
 elif mode==1:
     xbmc.log('movies')
-    show_movies(url, type, 'movie')
+    show_movies(url, atype, 'movie')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==11:
     xbmc.log('tv shows')
-    show_movies(url, type, 'episode')
+    show_movies(url, atype, 'episode')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==12:
     xbmc.log('movies local')
-    show_movies(url, type, 'movie')
+    show_movies(url, atype, 'movie')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==13:
     xbmc.log('tv shows')
-    show_movies(url, type, 'episode')
+    show_movies(url, atype, 'episode')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+elif mode==20:
+    xbmc.log('tv shows')
+    show_movies(url, atype, 'none')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 elif mode==2:
-    json_data['type'] = type
+    json_data['type'] = atype
     show_video_dialog(url, name, json_data)
+elif mode==90:
+    __addon__.openSettings()
+elif mode==999:
+    jdata = {
+        'id': 1232,
+        'name': 'XBMC Skinning Tutorial',
+        'plot': 'Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum. Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum.',
+        'cover_large': 'https://s3.amazonaws.com/titles.synopsi.tv/01498059-267.jpg',
+        'xbmc_movie_detail': {
+            'director': 'Ratan Hatan',
+            'writer': 'Eugo Aianora',
+            'runtime': '102',
+            'premiered': '1. aug. 2012',
+        }
+    }
+    show_video_dialog(0, 0, jdata)
+
 
 

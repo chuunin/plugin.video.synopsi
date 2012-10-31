@@ -6,7 +6,7 @@ import time
 from random import randint
 import library
 import xbmcplugin
-import apiclient
+from app_apiclient import AppApiClient
 import logging
 import json
 from utilities import *
@@ -14,18 +14,12 @@ from utilities import *
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # Default XBMC constant for hidden cancel button
 
-__addon__     = xbmcaddon.Addon()
+__addon__  = get_current_addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__       = __addon__.getAddonInfo('path')
 __author__    = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __language__  = __addon__.getLocalizedString
-
-def notification(name, text):
-    """
-    Sends notification to XBMC.
-    """
-    xbmc.executebuiltin("XBMC.Notification({0},{1},1)".format(name, text))  
 
 class SynopsiPlayer(xbmc.Player):
     """ Bugfix and processing layer """
@@ -46,15 +40,7 @@ class SynopsiPlayer(xbmc.Player):
         self.log('INIT')
         self.current_time = 0
 
-        self.apiclient = apiclient.apiclient(
-            __addon__.getSetting('BASE_URL'),
-            __addon__.getSetting('KEY'),
-            __addon__.getSetting('SECRET'),
-            __addon__.getSetting('USER'),
-            __addon__.getSetting('PASS'),
-            get_install_id(),
-            rel_api_url=__addon__.getSetting('REL_API_URL'),
-        )
+        self.apiclient = AppApiClient.getDefaultClient()
 
     def log(self, msg):
         xbmc.log('SynopsiPlayer: ' + msg)
@@ -144,9 +130,6 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
     def setStvList(self, cache):
         self.cache = cache
-
-    def __del__(self):
-        self.log('Deleting Player Object')
 
     def started(self):
         self.playerEvent('start')

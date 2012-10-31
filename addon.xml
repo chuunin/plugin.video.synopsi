@@ -9,6 +9,7 @@
     <!-- <import addon="script.module.pil" version="1.1.7"/> --> <!--In case, we will need PIL--> 
     <import addon="xbmc.addon" version="11.0"/> <!--Repository only for XBMC 11--> 
     <import addon="script.common.plugin.cache" version="0.9.1"/>
+    <!-- <import addon="xbmc.gui" version="3.0"/> -->
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
         <provides>video</provides> <!-- addon.py is file for addon -->
@@ -16,6 +17,13 @@
   <extension point="xbmc.service" library="service.py" start="login|startup">
         <provides>service</provides> <!-- service.py is file for service/daemon -->
   </extension>
+<!--    <extension
+    point="xbmc.gui.skin"
+    defaultthemename="textures.xbt"
+    debugging="true"
+    defaultresolution="720p">
+    <res width="1280" height="720" aspect="16:9" default="true" folder="720p" />
+  </extension> -->
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <summary>SynopsiTV</summary>

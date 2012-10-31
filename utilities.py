@@ -9,10 +9,11 @@ import urllib
 import urlparse
 import hashlib
 import uuid
+import threading
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
-
+from utilities import *
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 CANCEL_DIALOG2 = (61467, )
@@ -20,7 +21,18 @@ CANCEL_DIALOG2 = (61467, )
 
 __addon__    = xbmcaddon.Addon()
 __cwd__      = __addon__.getAddonInfo('path')
+__lockLoginScreen__ = threading.Lock()
 
+
+def notification(text, name='SynopsiTV Plugin', time=5000):
+    """
+    Sends notification to XBMC.
+    """
+    xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))  
+
+def get_current_addon():
+	global __addon__
+	return __addon__
 
 
 class XMLRatingDialog(xbmcgui.WindowXMLDialog):
@@ -64,9 +76,10 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 	Dialog class that asks user about rating of movie.
 	"""
 	response = 4
-	# 1 = Cancel, 2 = OK, 4 = Not rated
+	# 1 = Cancel, 2 = OK
 	def __init__(self, *args, **kwargs):
-		xbmcgui.WindowXMLDialog.__init__( self )
+		# xbmcgui.WindowXMLDialog.__init__( self )
+		super(XMLLoginDialog, self).__init__()
 		self.username = kwargs['username']
 		self.password = kwargs['password']
  
@@ -74,9 +87,6 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		self.getString = __addon__.getLocalizedString
 		c = self.getControl(10)
 		
-		for i in dir(c):
-			xbmc.log('control item:' + str(i))
-
 		self.getControl(10).setText(self.username)
 		self.getControl(11).setText(self.password)
 
@@ -84,7 +94,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		"""
 		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
 		"""
-		xbmc.log(str('onClick:'+str(controlId)))
+		# xbmc.log(str('onClick:'+str(controlId)))
 
 		# Cancel
 		if controlId==16:
@@ -96,10 +106,13 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 			self.close()
 
 	def onAction(self, action):
-		xbmc.log('action id:' + str(action.getId()))
+		# xbmc.log('action id:' + str(action.getId()))
 		if (action.getId() in CANCEL_DIALOG2):
-			self.response = 4
+			self.response = 1
 			self.close()
+
+	def getData(self):
+		return { 'username': self.getControl(10).getText(), 'password': self.getControl(11).getText() }
 
 
 
@@ -474,7 +487,10 @@ def get_details(atype, aid, all_prop=False):
 	if atype == "movie":                
 		movie = get_movie_details(aid, all_prop)
 	elif atype == "episode":
-		movie = get_episode_details(aid, all_prop)
+		movie = get_episode_details(aid)
+	else:
+		raise Exception('Unknow video type: %s' % atype)
+
 	return movie
 
 class xbmcRPCclient(object):
@@ -526,24 +542,26 @@ def home_screen_fill(apiClient):
 		movie_recco = apiClient.profileRecco('movie')['titles']
 		episode_recco = apiClient.profileRecco('episode')['titles']
 	except:
-		xbmc.log('home screen update failed')
+		notification('Movie reccomendation service failed')
 		return
 
 	# from test import jsfile
 	# movie_recco = jsfile
 	# episode_recco = jsfile
+	
 
 	# xbmc.log('movie_recco:' + json.dumps(movie_recco, indent=4))
 	# xbmc.log('episode_recco:' + json.dumps(episode_recco, indent=4))
 	xbmc.log('movie_recco count:' + str(len(movie_recco)))
 	xbmc.log('episode_recco count:' + str(len(episode_recco)))
 
-	WINDOW = xbmcgui.Window( 10000 )
 	MOVIES_COUNT = 5
-	
+	WINDOW = xbmcgui.Window( 10000 )
+
 	for i in range(1, MOVIES_COUNT+1):
 		m = movie_recco[i]
 		xbmc.log('movie %d %s' % (i, m['name']))
+
 		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
 		WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
 		WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
@@ -558,15 +576,43 @@ def home_screen_fill(apiClient):
 		WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
 		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
-def login_screen():
+
+def login_screen(apiClient):
+	if not __lockLoginScreen__.acquire(False):
+		xbmc.log('login_screen not starting duplicate')
+		return False
+
 	username = __addon__.getSetting('USER')
 	password = __addon__.getSetting('PASS')
 
+	xbmc.log('string type: ' + str(type(username)))
+	xbmc.log('string type: ' + str(type(password)))
+
 	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
 	ui.doModal()
-	_response = ui.response
+	# ui.show()
+
+	# dialog result is 'OK'
+	if ui.response==2:
+		xbmc.log('dialog OK')
+		# check if data changed
+		d = ui.getData()
+		if username!=d['username'] or password!=d['password']:
+			# store in settings
+			__addon__.setSetting('USER', value=d['username'])
+			__addon__.setSetting('PASS', value=d['password'])	
+			apiClient.setUserPass(d['username'], d['password'])
+
+		result=True
+	else:
+		xbmc.log('dialog canceled')
+		result=False
+	
 	del ui
-	return _response
+
+	__lockLoginScreen__.release()
+	xbmc.log('login_screen result: %d' % result)
+	return result
 
 def get_rating():
 	"""
@@ -581,4 +627,4 @@ def get_rating():
 
 
 # init local variables
-xbmcRPC = xbmcRPCclient(1)
+xbmcRPC = xbmcRPCclient()

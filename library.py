@@ -7,24 +7,26 @@ import time
 import socket
 import json
 import traceback
-import apiclient
+from app_apiclient import AppApiClient
 from utilities import *
 from cache import *
 
 
 ABORT_REQUESTED = False
 
-__addon__  = xbmcaddon.Addon()
 
 class RPCListener(threading.Thread):
     def __init__(self, cache):
         super(RPCListener, self).__init__()
+        self.cache = cache
+        self.apiclient = None
+
         self.sock = socket.socket()
-        self.sock.settimeout(10)
-        conned = False
+        self.sock.settimeout(5)
+        self.connected = False
         sleepTime = 100
         t = time.time()
-        while not conned or ABORT_REQUESTED:
+        while sleepTime<500 and (not self.connected or ABORT_REQUESTED or xbmc.abortRequested):
             try:
                 self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
             except Exception, exc:
@@ -33,28 +35,20 @@ class RPCListener(threading.Thread):
                 sleepTime *= 1.5
             else:
                 xbmc.log('Connected to 9090')
-                conned = True
+                self.connected = True
 
         self.sock.setblocking(True)
-        self.cache = cache
-        self.apiclient = None
-
 
     def process(self, data):
         pass
 
     def run(self):
         global ABORT_REQUESTED
-        # raise Exception(__addon__.getSetting('BASE_URL'))
-        self.apiclient = apiclient.apiclient(
-            __addon__.getSetting('BASE_URL'),
-            __addon__.getSetting('KEY'),
-            __addon__.getSetting('SECRET'),
-            __addon__.getSetting('USER'),
-            __addon__.getSetting('PASS'),
-            get_install_id(),
-            rel_api_url=__addon__.getSetting('REL_API_URL'),
-        )
+
+        if not self.connected:
+            return False
+
+        self.apiclient = AppApiClient.getDefaultClient()
 
         while True:
             data = self.sock.recv(1024)
@@ -72,6 +66,7 @@ class RPCListener(threading.Thread):
             else:
                 self.process(data_json)
 
+        self.sock.close()
         xbmc.log('Library thread end')
 
     def process(self, data):
@@ -109,17 +104,17 @@ class RPCListenerHandler(RPCListener):
     def log(self, msg):
         xbmc.log('Library: ' + msg)
 
-    def addorupdate(self, aid, atype):
-        self.cache.addorupdate(aid, atype)
+    def addorupdate(self, atype, aid):
+        self.cache.addorupdate(atype, aid)
 
-    def remove(self, aid, atype):
+    def remove(self, atype, aid):
         self.cache.remove(atype, aid)
 
     def VideoLibrary_OnUpdate(self, data):
-        self.addorupdate(data['params']['data']['item']['id'], data['params']['data']['item']['type'])
+        self.addorupdate(data['params']['data']['item']['type'], data['params']['data']['item']['id'])
 
     def VideoLibrary_OnRemove(self, data):
-        self.remove(data['params']['data']['id'], data['params']['data']['type'])
+        self.remove(data['params']['data']['type'], data['params']['data']['id'])
 
     def Player_OnPlay(self, data):
         self.playerEvent(data)

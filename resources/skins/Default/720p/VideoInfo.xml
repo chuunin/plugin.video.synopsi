@@ -173,19 +173,20 @@
 						</content>
 					</control>
 					<control type="label" id="559">
-								<posx>320</posx>
-								<posy>150</posy>
-								<width>200</width>
-								<height>30</height>
-								<label>Similar movies</label>
-								<font>font13</font>
-								<align>left</align>
-								<aligny>center</aligny>
-								<textcolor>blue</textcolor>
-								<selectedcolor>white</selectedcolor>
-							</control>
+						<posx>455</posx>
+						<posy>140</posy>
+						<width>160</width>
+						<height>30</height>
+						<label>Similar movies</label>
+						<font>font13</font>
+						<align>right</align>
+						<aligny>center</aligny>
+						<textcolor>blue</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
 					<control id="59" type="list">
-						<posx>320</posx>
+						<backgroundcolor>0xff00ff00</backgroundcolor>
+						<posx>330</posx>
 						<posy>180</posy>
 						<width>740</width>
 						<height>200</height>
@@ -250,7 +251,6 @@
 							</control>
 						</itemlayout>
 						<focusedlayout height="200" width="140">
-							
 							<control type="image">
 								<posx>0</posx>
 								<posy>0</posy>
@@ -332,11 +332,29 @@
 							<!-- <item><label>$INFO[Window.Property(Movie.Label.3.1)]</label><label2>$INFO[Window.Property(Movie.Label.3.2)]</label2><onclick>-</onclick></item>-->
 						</content>
 					</control>
+
+					<control id="400" type="textbox">
+						<posx>0</posx>
+						<posy>400</posy>
+						<width>1030</width>
+						<height>138</height>
+						<description>Description Value for Movies</description>
+						<font>font12</font>
+						<align>justify</align>
+						<textcolor>white</textcolor>
+						<pagecontrol>61</pagecontrol>
+						<backgroundcolor>0x8800ff00</backgroundcolor>
+						<!-- <label>$INFO[ListItem.Plot]</label>-->
+						<label>$INFO[Window.Property(Movie.Plot)]</label>
+						<!-- <autoscroll delay="4000" repeat="5000" time="3000">!Control.HasFocus(61) + Skin.HasSetting(AutoScroll)</autoscroll>-->
+						<!-- <visible>!Control.IsVisible(50)</visible>-->
+					</control>
+
 					<!-- <control type="image"><posx>290</posx><posy>380</posy><width>740</width><height>4</height><aspectratio>stretch</aspectratio><texture>separator.png</texture></control>-->
 				</control>
 				<control type="label">
-					<posx>130r</posx>
-					<posy>480</posy>
+					<posx>120r</posx>
+					<posy>665</posy>	
 					<width>400</width>
 					<height>30</height>
 					<font>font13_title</font>
@@ -351,8 +369,8 @@
 				<!-- <control type="label"><posx>130r</posx><posy>480</posy><width>400</width><height>30</height><font>font13_title</font><textcolor>grey2</textcolor><shadowcolor>black</shadowcolor><scroll>true</scroll><align>right</align><aligny>center</aligny><label>[COLOR=blue]$LOCALIZE[206][/COLOR]$INFO[Container(50).CurrentPage, ( $LOCALIZE[31024] ]$INFO[Container(50).NumPages,/, )]</label><visible>Control.IsVisible(50)</visible></control>-->
 				<control id="61" type="spincontrol">
 					<description>Next page button</description>
-					<posx>120r</posx>
-					<posy>485</posy>
+					<posx>105r</posx>
+					<posy>670</posy>
 					<subtype>page</subtype>
 					<font>-</font>
 					<onleft>61</onleft>
@@ -362,21 +380,6 @@
 					<onup>59</onup>
 					<textcolor>-</textcolor>
 					<showonepage>true</showonepage>
-				</control>
-				<control id="400" type="textbox">
-					<description>Description Value for Movies</description>
-					<posx>210</posx>
-					<posy>515</posy>
-					<width>1030</width>
-					<height>120</height>
-					<font>font12</font>
-					<align>justify</align>
-					<textcolor>white</textcolor>
-					<pagecontrol>61</pagecontrol>
-					<!-- <label>$INFO[ListItem.Plot]</label>-->
-					<label>$INFO[Window.Property(Movie.Plot)]</label>
-					<!-- <autoscroll delay="4000" repeat="5000" time="3000">!Control.HasFocus(61) + Skin.HasSetting(AutoScroll)</autoscroll>-->
-					<!-- <visible>!Control.IsVisible(50)</visible>-->
 				</control>
 				<!-- <control type="image"><description>Actor image</description><posx>210</posx><posy>480</posy><width>160</width><height>160</height><texture>$INFO[Container(50).Listitem.Icon]</texture><aspectratio>keep</aspectratio><visible>Control.IsVisible(50)</visible></control><control id="50" type="panel"><posx>380</posx><posy>520</posy><width>860</width><height>120</height><onleft>9000</onleft><onright>61</onright><onup>61</onup><ondown>9000</ondown><viewtype label="">list</viewtype><pagecontrol>61</pagecontrol><scrolltime>200</scrolltime><orientation>vertical</orientation><itemlayout height="40" width="430"><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><texture border="5">button-nofocus.png</texture></control><control type="label"><posx>10</posx><posy>0</posy><width>410</width><height>40</height><font>font12</font><align>left</align><aligny>center</aligny><selectedcolor>white</selectedcolor><info>ListItem.Label</info></control></itemlayout><focusedlayout height="40" width="430"><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><visible>!Control.HasFocus(50)</visible><texture border="5">button-nofocus.png</texture></control><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><visible>Control.HasFocus(50)</visible><texture border="5">button-focus2.png</texture></control><control type="label"><posx>10</posx><posy>0</posy><width>410</width><height>40</height><font>font12</font><align>left</align><aligny>center</aligny><selectedcolor>white</selectedcolor><info>ListItem.Label</info></control></focusedlayout></control>-->
 				<control id="9000" type="grouplist">
@@ -399,6 +402,7 @@
 					<control id="5" type="button">
 						<include>ButtonInfoDialogsCommonValues</include>
 						<label>Play</label>
+						<onclick>PlayMedia($INFO[Window.Property(Movie.File)])</onclick>
 					</control>
 					<control id="10" type="button">
 						<include>ButtonInfoDialogsCommonValues</include>
