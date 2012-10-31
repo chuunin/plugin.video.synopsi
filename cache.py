@@ -5,6 +5,16 @@ import json
 from utilities import *
 from app_apiclient import ApiClient
 
+
+xbmc2stv_key_translation = {
+    'file_name': 'file', 
+    'stv_title_hash': 'stv_hash', 
+    'os_title_hash': 'os_title_hash', 
+    'total_time': 'runtime', 
+    'label': 'originaltitle', 
+    'imdb_id': 'imdbnumber'
+}
+
 class StvList(object):
     """
     Library cache.
@@ -67,6 +77,11 @@ class StvList(object):
     def log(self, msg):
         xbmc.log('CACHE / ' + str(msg))
 
+    def _translate_xbmc2stv_keys(self, a, b):
+        for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
+            if b.has_key(src_key):
+                a[dst_key] = b[src_key]
+
     def addorupdate(self, atype, aid):
         # find out actual data about movie
         movie = get_details(atype, aid)
@@ -77,12 +92,23 @@ class StvList(object):
         if not self.hasTypeId(movie['type'], movie['id']):
             # get stv hash
             movie['stv_hash'] = stv_hash(movie['file'])
+            movie['os_title_hash'] = hash_opensubtitle(movie['file'])
             # try to get synopsi id
             # for now, try only if there is 'imdbnumber'
-            if movie.has_key('imdbnumber'):
-                title = self.apiclient.titleIdentify(imdb_id=movie['imdbnumber'][2:], stv_title_hash=movie['stv_hash'])
-                if title.has_key('title_id'):
-                    movie['stvId'] = title['title_id']
+
+            # TODO: stv_subtitle_hash - hash of the subtitle file if presented
+            ident = {}
+            self._translate_xbmc2stv_keys(ident, movie)
+            # correct exceptions
+            if ident.has_key('imdb_id'):
+                ident['imdb_id'] = ident['imdb_id'][2:]
+
+            # self.log('ident:' + json.dumps(ident, indent=4))    
+
+            title = self.apiclient.titleIdentify(**ident)
+            if title.has_key('title_id'):
+                movie['stvId'] = title['title_id']
+
             self.put(movie)
 
         # it is already in cache, some property has changed (e.g. lastplayed time)
