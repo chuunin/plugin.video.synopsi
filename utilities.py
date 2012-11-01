@@ -555,26 +555,30 @@ def home_screen_fill(apiClient):
 	xbmc.log('movie_recco count:' + str(len(movie_recco)))
 	xbmc.log('episode_recco count:' + str(len(episode_recco)))
 
-	MOVIES_COUNT = 5
+	MOVIES_COUNT = 5	# count of template display slots
 	WINDOW = xbmcgui.Window( 10000 )
 
 	for i in range(1, MOVIES_COUNT+1):
-		m = movie_recco[i]
-		xbmc.log('movie %d %s' % (i, m['name']))
+		# recco could return less than 5 items
+		if i < len(movie_recco):
+			m = movie_recco[i]
+			xbmc.log('movie %d %s' % (i, m['name']))
 
-		WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
-		WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
-		WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
-		WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i), m['cover_large'])
+			WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
+			WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
+			WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
+			WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i), m['cover_large'])
 
-		e = episode_recco[i]
-		xbmc.log('episode %d %s' % (i, e['name']))
-		WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
-		WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
-		WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
-		WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
-		WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
-		WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
+		# recco could return less than 5 items
+		if i < len(episode_recco):
+			e = episode_recco[i]
+			xbmc.log('episode %d %s' % (i, e['name']))
+			WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
+			WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
+			WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
+			WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
+			WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
+			WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
 
 def login_screen(apiClient):
