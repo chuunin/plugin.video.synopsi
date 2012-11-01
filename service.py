@@ -8,6 +8,7 @@ from cache import *
 from utilities import home_screen_fill, login_screen
 import xbmc, xbmcgui, xbmcaddon
 from app_apiclient import AppApiClient
+import thread
 
 __addon__  = get_current_addon()
 
@@ -24,7 +25,7 @@ def main():
     # get or generate install-unique ID
     iuid = get_install_id()
 
-    home_screen_fill(apiclient1)
+    thread.start_new_thread(home_screen_fill, (apiclient1, ))
 
     # try to restore cache  
     cacheSer = __addon__.getSetting(id='CACHE')
