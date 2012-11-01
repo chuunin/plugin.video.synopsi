@@ -1,6 +1,6 @@
 import xbmc, xbmcgui, xbmcaddon
 # except ImportError:
-#     from tests import xbmc, xbmcgui, xbmcaddon
+#    from tests import xbmc, xbmcgui, xbmcaddon
 import threading
 import time
 from random import randint
@@ -16,8 +16,8 @@ CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 
 __addon__  = get_current_addon()
 __addonname__ = __addon__.getAddonInfo('name')
-__cwd__       = __addon__.getAddonInfo('path')
-__author__    = __addon__.getAddonInfo('author')
+__cwd__    = __addon__.getAddonInfo('path')
+__author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __language__  = __addon__.getLocalizedString
 
@@ -50,7 +50,7 @@ class SynopsiPlayer(xbmc.Player):
         self.log(eventName)
 
         event = {
-            'event': eventName,                
+            'event': eventName,             
             'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
         }
 
@@ -131,14 +131,36 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def setStvList(self, cache):
         self.cache = cache
 
+    def rate_file(self, filepath):
+        rating = get_rating()
+
+        # if user rated the title
+        if rating < 4:
+            # temporary:
+            # get the title id
+            # query cache to get stvId
+            detail = self.cache.getByFilename(filepath)
+
+            # get stv id
+            self.log('detail: ' + str(detail))
+            if detail.has_key('stvId'):
+                data = { 'rating': rating, 'player_events': self.playerEvents }
+                self.apiclient.titleWatched(detail['stvId'], **data)
+            self.playerEvents = []
+
+    def update_current_time(self):
+        self.current_time = self.get_time_or_none()
+        self.log('time:' + str(self.current_time))
+
     def started(self):
+        self.update_current_time()
         self.playerEvent('start')
 
     def ended(self):
         self.playerEvent('end')
+        # ask for 'rating only if file is in library and 
         if self.cache.hasFilename(self.last_played_file):
-            get_rating()
-            
+            self.rate_file(self.last_played_file)
 
     def ended_without_rating(self):
         self.playerEvent('end')
@@ -147,30 +169,20 @@ class SynopsiPlayerDecor(SynopsiPlayer):
         self.playerEvent('stop')
         self.log(json.dumps(self.playerEvents, indent=4))
         self.log('time:' + str(self.current_time))
+        self.log('total time:' + str(self.total_time))
+        percent = self.current_time / self.total_time
+        self.log('percent:' + str(self.current_time / self.total_time))
 
-        # ask for 'rating only if stopped and more than 70% of movie passed
-        if self.cache.hasFilename(self.last_played_file):
-            rating = get_rating()
-
-            # if user rated the title
-            if rating < 4:
-                # temporary:
-                # get the title id
-                # query cache to get stvId
-                detail = self.cache.getByFilename(self.last_played_file)
-
-                # get stv id
-                self.log('detail: ' + str(detail))
-                if detail.has_key('stvId'):
-                    data = { 'rating': rating, 'player_events': self.playerEvents }
-                    self.apiclient.titleWatched(detail['stvId'], **data)
-                self.playerEvents = []
-
+        # ask for 'rating only if file is in library and stopped and more than 70% of movie passed
+        if percent > 0.7 and self.cache.hasFilename(self.last_played_file):
+            self.rate_file(self.last_played_file)
 
     def paused(self):
+        self.update_current_time()
         self.playerEvent('pause')
 
     def resumed(self):
+        self.update_current_time()
         self.playerEvent('resume')
 
 class Scrobbler(threading.Thread):
@@ -193,9 +205,7 @@ class Scrobbler(threading.Thread):
 
         #   wait for abort flag
         while not library.ABORT_REQUESTED and not xbmc.abortRequested:
-            player.current_time = player.get_time_or_none()
-            # self.log('time:' + str(player.current_time))
-
+            player.update_current_time()
             xbmc.sleep(500)
         
         dbg = ''
