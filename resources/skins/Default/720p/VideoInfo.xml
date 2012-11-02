@@ -204,7 +204,7 @@
 					</control>
 					<control type="label">
 						<posx>120r</posx>
-						<posy>345</posy>	
+						<posy>305</posy>	
 						<width>400</width>
 						<height>30</height>
 						<font>font13_title</font>
@@ -220,7 +220,7 @@
 					<control id="61" type="spincontrol">
 						<description>Next page button</description>
 						<posx>105r</posx>
-						<posy>350</posy>
+						<posy>310</posy>
 						<subtype>page</subtype>
 						<font>-</font>
 						<onleft>61</onleft>
