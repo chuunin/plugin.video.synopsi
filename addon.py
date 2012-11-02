@@ -18,7 +18,7 @@ import re
 import os.path
 import logging
 import test
-from app_apiclient import AppApiClient
+from app_apiclient import AppApiClient, LoginState
 from utilities import *
 from cache import StvList
 
@@ -252,13 +252,22 @@ def show_categories():
     # add_directory("Trending TV Shows", "url", 1, "icon.png", 6)
 
 
-def show_movies(url, type, movie_type):
-    for movie in get_items(type, movie_type):
-        log(json.dumps(movie, indent=4))
-        movie['type'] = movie_type
-        add_movie(movie, "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
-         C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
-            2, movie.get('cover_medium'), movie.get("id"))
+def show_movies(url, type, movie_type, dirhandle):
+    errorMsg = None
+    try:
+        for movie in get_items(type, movie_type):
+            log(json.dumps(movie, indent=4))
+            movie['type'] = movie_type
+            add_movie(movie, "stack://C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD1\paddo-jedgar-a.avi , \
+             C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
+                2, movie.get('cover_medium'), movie.get("id"))
+    except AuthenticationError:
+        errorMsg = "Correct your login and password information in setting dialog to use this plugin"
+    finally:
+        xbmcplugin.endOfDirectory(dirhandle)
+
+    if errorMsg:
+        xbmcgui.Dialog().ok('SynopsiTV', errorMsg)
 
 
 def show_video_dialog(url, name, json_data):
@@ -330,6 +339,7 @@ atype = None
 data = None
 
 apiClient = AppApiClient.getDefaultClient()
+apiClient.login_state_announce = LoginState.AddonDialog
 stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))
@@ -358,6 +368,8 @@ except:
     pass
    
 
+dirhandle = int(sys.argv[1])
+
 log('mode: %s type: %s' % (mode, atype))    
 log('mode type: %s' % type(mode))    
 log('url: %s' % (url))    
@@ -372,25 +384,15 @@ if mode==None or url==None or len(url)<1:
 
     xbmc.executebuiltin("Container.SetViewMode(503)")
 elif mode==1:
-    xbmc.log('movies')
-    show_movies(url, atype, 'movie')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    show_movies(url, atype, 'movie', dirhandle)
 elif mode==11:
-    xbmc.log('tv shows')
-    show_movies(url, atype, 'episode')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    show_movies(url, atype, 'episode', dirhandle)
 elif mode==12:
-    xbmc.log('movies local')
-    show_movies(url, atype, 'movie')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    show_movies(url, atype, 'movie', dirhandle)
 elif mode==13:
-    xbmc.log('tv shows')
-    show_movies(url, atype, 'episode')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    show_movies(url, atype, 'episode', dirhandle)
 elif mode==20:
-    xbmc.log('tv shows')
-    show_movies(url, atype, 'none')
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    show_movies(url, atype, 'none', dirhandle)
 elif mode==2:
     json_data['type'] = atype
     show_video_dialog(url, name, json_data)

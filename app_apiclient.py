@@ -3,11 +3,16 @@ from utilities import *
 import threading
 import xbmcgui
 
+class LoginState:
+	Notify = 1
+	AddonDialog = 2
+
 class AppApiClient(ApiClient):
-	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
+	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/', lsa=LoginState.Notify):
 		super(AppApiClient, self).__init__(base_url, key, secret, username, password, device_id, originReqHost, debugLvl, accessTokenTimeout, rel_api_url)
 		self._lock_access_token = threading.Lock()
 		self._rejected_to_correct = False
+		self.login_state_announce = lsa
 
 	def reloadUserPass(self):
 		__addon__ = get_current_addon()
@@ -26,24 +31,28 @@ class AppApiClient(ApiClient):
 			try:
 				self.reloadUserPass()
 				ApiClient.getAccessToken(self)
-				# raise AuthenticationError
-				notification('Logged in as %s' % self.username)
+				if self.login_state_announce==LoginState.Notify:
+					notification('Logged in as %s' % self.username)		
+
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
-				# crashes
+				# this crashes
 				# finished = not login_screen(self)
-				if self._rejected_to_correct:
-					notification('Authentication failed. Correct your login/password in plugin settings')
-				else:
-					if xbmcgui.Dialog().yesno("SynopsiTV", "Authentication failed", "Would you like to open settings and correct your login info?"):
-						addon = get_current_addon()
-						addon.openSettings()
-						self.setUserPass(addon.getSetting('USER'), addon.getSetting('PASS'))
+				if self.login_state_announce==LoginState.Notify:
+					if self._rejected_to_correct:
+						notification('Authentication failed. Correct your login/password in plugin settings')
 					else:
-						self._rejected_to_correct = True
+						if xbmcgui.Dialog().yesno("SynopsiTV", "Authentication failed", "Would you like to open settings and correct your login info?"):
+							addon = get_current_addon()
+							addon.openSettings()
+							self.setUserPass(addon.getSetting('USER'), addon.getSetting('PASS'))
+						else:
+							self._rejected_to_correct = True
+					finished = True
 
-				finished = True
-				xbmc.log('Trying new credentials ? %d' % int(not finished))
+				elif self.login_state_announce==LoginState.AddonDialog:
+					raise
+
 			except Exception as e:
 				finished = True
 				xbmc.log('Another exception')
