@@ -18,7 +18,7 @@ import re
 import os.path
 import logging
 import test
-from app_apiclient import AppApiClient, LoginState
+from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
 from cache import StvList
 
@@ -112,25 +112,18 @@ def get_trending_tvshows():
 
 def get_items(_type, movie_type = None):
     log('get_items:' + str(_type))
-    try:
-        if _type == 1:
-            return get_global_recco(movie_type)['titles']
-        elif _type == 2:
-            return get_local_recco(movie_type)['titles']
-        elif _type == 3:
-            return get_unwatched_episodes()
-        elif _type == 4:
-            return get_lists()
-        elif _type == 5:
-            return get_trending_movies()
-        elif _type == 6:
-            return get_trending_tvshows()
-    except Exception as exc:
-        # error getting items
-        # display error dialog and log errors
-        log('ERROR /' + str(exc))
-        return [{'name': 'ERROR ' + str(exc)}]
-        # return []
+    if _type == 1:
+        return get_global_recco(movie_type)['titles']
+    elif _type == 2:
+        return get_local_recco(movie_type)['titles']
+    elif _type == 3:
+        return get_unwatched_episodes()
+    elif _type == 4:
+        return get_lists()
+    elif _type == 5:
+        return get_trending_movies()
+    elif _type == 6:
+        return get_trending_tvshows()
 
 def add_to_list(movieid, listid):
     pass
@@ -262,13 +255,13 @@ def show_movies(url, type, movie_type, dirhandle):
              C:\Users\Tommy\Videos\Movies\J Edgar.2011.DVDRip XviD-PADDO\CD2\paddo-jedgar-b.avi",
                 2, movie.get('cover_medium'), movie.get("id"))
     except AuthenticationError:
-        errorMsg = "Correct your login and password information in setting dialog to use this plugin"
+        errorMsg = True
     finally:
         xbmcplugin.endOfDirectory(dirhandle)
 
     if errorMsg:
-        xbmcgui.Dialog().ok('SynopsiTV', errorMsg)
-
+        if dialog_check_login_correct():
+            xbmc.executebuiltin('RunPlugin(plugin.video.synopsi,mode=999')
 
 def show_video_dialog(url, name, json_data):
     global stvList, apiClient
@@ -377,7 +370,7 @@ log('data: %s' % (data))
 
 if mode==None or url==None or len(url)<1:
     show_categories()
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    xbmcplugin.endOfDirectory(dirhandle)
     xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
     xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')

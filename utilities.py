@@ -629,6 +629,16 @@ def get_rating():
 	del ui
 	return _response
 
+def dialog_check_login_correct():
+	if dialog_login_fail_yesno():
+		addon = get_current_addon()
+		x = addon.openSettings()
+		xbmc.log('opensettings: ' + x)
+		return x
+
+def dialog_login_fail_yesno():
+	return xbmcgui.Dialog().yesno("SynopsiTV", "Authentication failed", "Would you like to open settings and correct your login info?")
+
 
 # init local variables
 xbmcRPC = xbmcRPCclient()
