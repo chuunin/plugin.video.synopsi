@@ -233,17 +233,12 @@ def show_categories():
     """
     Shows initial categories on home screen.
     """
-    add_directory("Movie recommendations", "url", 1, "list.png", 1)
-    add_directory("TV Show recommendations", "url", 11, "list.png", 1)
+    add_directory("Movie Recommendations", "url", 1, "list.png", 1)
+    add_directory("TV Show", "url", 11, "list.png", 1)
     add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
-    add_directory("Local TV Show recommendations", "url", 13, "list.png", 2)
-    add_directory("Unwatched TV episodes", "url", 20, "icon.png", 3)
-    add_directory("Settings", "url", 90, "icon.png", 1)
-
-    # add_directory("Lists", "url", 1, "icon.png", 4)
-    # add_directory("Trending Movies", "url", 1, "icon.png", 5, view_mode=500)
-    # add_directory("Trending TV Shows", "url", 1, "icon.png", 6)
-
+    add_directory("Unwatched TV Show Episodes", "url", 20, "icon.png", 3)
+    add_directory("Upcoming TV Episodes", "url", 20, "icon.png", 3)
+    add_directory("Login and Settings", "url", 90, "icon.png", 1)
 
 def show_movies(url, type, movie_type, dirhandle):
     errorMsg = None
@@ -261,7 +256,13 @@ def show_movies(url, type, movie_type, dirhandle):
 
     if errorMsg:
         if dialog_check_login_correct():
-            xbmc.executebuiltin('RunPlugin(plugin.video.synopsi,mode=999')
+            xbmc.executebuiltin('Container.Refresh')
+        else:
+            xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')            
+  
+    # xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
+
+
 
 def show_video_dialog(url, name, json_data):
     global stvList, apiClient
@@ -392,6 +393,7 @@ elif mode==2:
 elif mode==90:
     __addon__.openSettings()
 elif mode==999:
+    xbmcplugin.endOfDirectory(dirhandle)
     jdata = {
         'id': 1232,
         'name': 'XBMC Skinning Tutorial',
@@ -405,6 +407,6 @@ elif mode==999:
         }
     }
     show_video_dialog(0, 0, jdata)
-
+    
 
 
