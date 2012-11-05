@@ -21,6 +21,7 @@ def main():
         # enable home screen recco
         __addon__.openSettings()
         xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
+        xbmc.executebuiltin('ReloadSkin()')
         __addon__.setSetting(id='FIRSTRUN', value="false")
 
     # get or generate install-unique ID
