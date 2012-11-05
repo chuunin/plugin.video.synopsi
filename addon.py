@@ -40,10 +40,7 @@ def uniunquote(uni):
 def get_local_recco(movie_type):
     global apiClient
 
-    props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date',
-    'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
-
-    resRecco =  apiClient.profileRecco(movie_type, True, props)
+    resRecco =  apiClient.profileRecco(movie_type, True)
 
     # log('local recco for ' + movie_type)
 
@@ -56,10 +53,7 @@ def get_local_recco(movie_type):
 def get_global_recco(movie_type):
     global apiClient
 
-    props = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date',
-    'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
-
-    resRecco =  apiClient.profileRecco(movie_type, False, props)
+    resRecco =  apiClient.profileRecco(movie_type, False)
 
     # log('global recco for ' + movie_type)
 
