@@ -17,6 +17,7 @@ import urllib2
 import re
 import os.path
 import logging
+from datetime import datetime
 import test
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
@@ -45,7 +46,7 @@ def get_local_recco(movie_type):
     # log('local recco for ' + movie_type)
 
     # for title in resRecco['titles']:
-    #     log('resRecco:' + title['name'])
+    #    log('resRecco:' + title['name'])
 
     return resRecco
 
@@ -58,7 +59,7 @@ def get_global_recco(movie_type):
     # log('global recco for ' + movie_type)
 
     # for title in resRecco['titles']:
-    #     log(title['name'])
+    #    log(title['name'])
 
     return resRecco
 
@@ -142,18 +143,27 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
         for i in range(5):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
-
+            
         labels = dict()
+        #~ labels['Director'] = self.data['']
+        #~ labels['Writer'] = self.data['']
+        #~ labels['Runtime'] = self.data['']
+        labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
+
+        xlabels = dict()
         if self.data.has_key('xbmc_movie_detail'):
-            labels["Director"] = self.data['xbmc_movie_detail']['director']
-            labels["Writer"] = self.data['xbmc_movie_detail']['writer']
-            labels["Runtime"] = self.data['xbmc_movie_detail']['runtime'] + ' min'
-            labels["Release date"] = self.data['xbmc_movie_detail']['premiered']
+            xlabels["Director"] = self.data['xbmc_movie_detail']['director']
+            xlabels["Writer"] = self.data['xbmc_movie_detail']['writer']
+            xlabels["Runtime"] = self.data['xbmc_movie_detail']['runtime'] + ' min'
+            xlabels["Release date"] = self.data['xbmc_movie_detail']['premiered']
             tFile = self.data['xbmc_movie_detail'].get('file')
+            xbmc.log('file:' + str(tFile))
             if tFile:
                 win.setProperty("Movie.File", tFile)
-            else:
-                self.getControl(5).setEnabled(False)
+                self.getControl(5).setEnabled(True)
+                
+
+        labels.update(xlabels)
 
         # set available labels
         i = 1
@@ -171,8 +181,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
                 win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_medium'])
                 i = i + 1
 
-        if self.data.has_key('trailer') and self.data["trailer"]:
-            _youid = self.data["trailer"].split("/")
+        tmpTrail = self.data.get('trailer')
+        if tmpTrail:
+            _youid = tmpTrail.split("/")
             _youid.reverse()
             win.setProperty("Movie.Trailer.Id", str(_youid[0]))
         else:
@@ -252,7 +263,7 @@ def show_movies(url, type, movie_type, dirhandle):
         if dialog_check_login_correct():
             xbmc.executebuiltin('Container.Refresh')
         else:
-            xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')            
+            xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')         
   
     # xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
 
@@ -311,8 +322,8 @@ __addon__  = get_current_addon()
 addonPath = __addon__.getAddonInfo('path')
 
 __addonname__ = __addon__.getAddonInfo('name')
-__cwd__       = __addon__.getAddonInfo('path')
-__author__    = __addon__.getAddonInfo('author')
+__cwd__    = __addon__.getAddonInfo('path')
+__author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 
 xbmc.log('SYS ARGV:' + str(sys.argv)) 
@@ -359,8 +370,8 @@ except:
 dirhandle = int(sys.argv[1])
 
 log('mode: %s type: %s' % (mode, atype))    
-log('mode type: %s' % type(mode))    
-log('url: %s' % (url))    
+log('mode type: %s' % type(mode))   
+log('url: %s' % (url))  
 log('data: %s' % (data))    
 
 if mode==None or url==None or len(url)<1:
