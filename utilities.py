@@ -532,7 +532,7 @@ def get_install_id():
 
 	return iuid
 
-def home_screen_fill(apiClient):
+def home_screen_fill(apiClient, cache):
 	"""
 	This method updates movies on HomePage.
 	"""
@@ -562,21 +562,27 @@ def home_screen_fill(apiClient):
 		# recco could return less than 5 items
 		if i < len(movie_recco):
 			m = movie_recco[i]
+			lib_item = cache.getByStvId(m['id'])
 			xbmc.log('movie %d %s' % (i, m['name']))
-
+			xbmc.log('lib_item %s' % (str(lib_item)))
+			
 			WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
-			WINDOW.setProperty("LatestMovie.{0}.Path".format(i), m['cover_large'])
+			if lib_item:
+				WINDOW.setProperty("LatestMovie.{0}.Path".format(i), lib_item['file'])
 			WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
 			WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i), m['cover_large'])
 
 		# recco could return less than 5 items
 		if i < len(episode_recco):
 			e = episode_recco[i]
+			lib_item = cache.getByStvId(m['id'])
 			xbmc.log('episode %d %s' % (i, e['name']))
+			xbmc.log('lib_item %s' % (str(lib_item)))
 			WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
 			WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
 			WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
-			WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
+			if lib_item:
+				WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
 			WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
 			WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
