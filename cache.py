@@ -232,6 +232,16 @@ class StvList(object):
                     episode['type'] = "episode"
                     self.put(episode)
 
+    def save(self, path):
+        f = open(path, 'w')
+        f.write(self.serialize())
+        f.close()
+
+    def load(self, path):
+        f = open(path, 'r')
+        self.deserialize(f.read())
+        f.close()
+
     def _getKey(self, type, id):
         return str(type) + '--' + str(id)
 
