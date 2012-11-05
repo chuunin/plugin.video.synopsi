@@ -11,6 +11,7 @@ from app_apiclient import AppApiClient
 import thread
 
 __addon__  = get_current_addon()
+__cwd__    = __addon__.getAddonInfo('path')
 
 def main():
     apiclient1 = AppApiClient.getDefaultClient()
@@ -26,11 +27,10 @@ def main():
     iuid = get_install_id()
 
     # try to restore cache  
-    cacheSer = __addon__.getSetting(id='CACHE')
     cache = StvList(iuid, apiclient1)
- 
+
     try:
-        cache.deserialize(cacheSer)
+        cache.load(os.path.join(__cwd__, 'resources', 'cache.dat'))
     except:
         # first time
         xbmc.log('CACHE restore failed. If this is your first run, its ok')
@@ -58,9 +58,7 @@ def main():
             break;
 
     xbmc.log('library and scrobbler quit')
-
-
-    __addon__.setSetting(id='CACHE', value=cache.serialize())
+    cache.save(os.path.join(__cwd__, 'resources', 'cache.dat'))
 
 
 if __name__ == "__main__":
