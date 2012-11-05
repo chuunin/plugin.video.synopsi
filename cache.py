@@ -44,15 +44,15 @@ class StvList(object):
 
     @classmethod
     def getDefaultList(cls, apiClient=None):
-        __addon__  = get_current_addon()
+        addon  = get_current_addon()
         if not apiClient:
             apiClient = AppApiClient.getDefaultClient()
 
         iuid = get_install_id()    
         cache = StvList(iuid, apiClient) 
         try:
-            cacheSer = __addon__.getSetting(id='CACHE')            
-            cache.deserialize(cacheSer)
+            cwd = addon.getAddonInfo('path')
+			cache.load(os.path.join(cwd, 'resources', 'cache.dat'))
         except:
             # first time
             xbmc.log('CACHE restore failed. If this is your first run, its ok')
