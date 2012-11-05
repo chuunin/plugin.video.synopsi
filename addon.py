@@ -39,12 +39,9 @@ def uniunquote(uni):
     return urllib.unquote_plus(uni.decode('utf-8'))
 
 def get_local_recco(movie_type):
-    global apiClient
-
     resRecco =  apiClient.profileRecco(movie_type, True)
 
     # log('local recco for ' + movie_type)
-
     # for title in resRecco['titles']:
     #    log('resRecco:' + title['name'])
 
@@ -52,12 +49,9 @@ def get_local_recco(movie_type):
 
 
 def get_global_recco(movie_type):
-    global apiClient
-
     resRecco =  apiClient.profileRecco(movie_type, False)
 
     # log('global recco for ' + movie_type)
-
     # for title in resRecco['titles']:
     #    log(title['name'])
 
@@ -65,8 +59,6 @@ def get_global_recco(movie_type):
 
 
 def get_unwatched_episodes():
-    global apiClient
-
     episodes =  apiClient.unwatchedEpisodes()
 
     log('unwatched episodes')
@@ -123,9 +115,9 @@ def get_items(_type, movie_type = None):
 def add_to_list(movieid, listid):
     pass
 
-
-def set_already_watched(movieid):
-    pass
+def set_already_watched(stv_id, rating):
+    log('already watched %d rating %d' % (stv_id, rating))
+    apiClient.titleWatched(stv_id, rating=rating)
 
 class VideoDialog(xbmcgui.WindowXMLDialog):
     """
@@ -161,7 +153,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             if tFile:
                 win.setProperty("Movie.File", tFile)
                 self.getControl(5).setEnabled(True)
-                
 
         labels.update(xlabels)
 
@@ -191,17 +182,18 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 
     def onClick(self, controlId):
+        log('onClick: ' + str(controlId))
         if controlId == 5: # play
-            pass
+            self.close()
         if controlId == 6: # add to list
             dialog = xbmcgui.Dialog()
             ret = dialog.select('Choose list', ['Watch later', 'Action', 'Favorite'])
         if controlId == 10: # trailer
-            pass
+            self.close()
         if controlId == 11: # already watched
-            pass
-        log('controlId: ' + str(controlId))
-        self.close()
+            rating = get_rating()
+            if rating < 4:
+                set_already_watched(self.data['id'], rating)
 
     def onFocus(self, controlId):
         self.controlId = controlId
