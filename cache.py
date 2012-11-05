@@ -52,7 +52,7 @@ class StvList(object):
         cache = StvList(iuid, apiClient) 
         try:
             cwd = addon.getAddonInfo('path')
-			cache.load(os.path.join(cwd, 'resources', 'cache.dat'))
+            cache.load(os.path.join(cwd, 'resources', 'cache.dat'))
         except:
             # first time
             xbmc.log('CACHE restore failed. If this is your first run, its ok')
