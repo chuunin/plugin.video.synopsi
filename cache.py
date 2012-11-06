@@ -100,7 +100,7 @@ class StvList(object):
             ident = {}
             self._translate_xbmc2stv_keys(ident, movie)
             # correct exceptions
-            if ident.has_key('imdb_id'):
+            if ident.get('imdb_id'):
                 ident['imdb_id'] = ident['imdb_id'][2:]
 
             # self.log('ident:' + json.dumps(ident, indent=4))    
