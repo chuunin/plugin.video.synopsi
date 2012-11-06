@@ -1,29 +1,17 @@
-import xbmc, xbmcgui, xbmcaddon
-import logging
-import json
-import sys
-import datetime
-from base64 import b64encode
-from urllib import urlencode
-from urllib2 import Request, urlopen, HTTPError, URLError
-from utilities import *
-import httplib
+import apiclient
+import threading
 
-RATING_CODE = {
-	1: 'like',
-	2: 'neutral',
-	3: 'dislike'
-}
+class
 
-defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime' ]
-						
-
-class AuthenticationError(Exception):
+class NotConnectedException(Exception):
 	pass
 
-class ApiClient(object):
+class CachedApiClient(apiclient.ApiClient. threading.Thread):
 	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
+		super(CachedApiClient, self).__init__()
+
+		self._cache = DataCache()
 		self.baseUrl = base_url
 		self.key = key
 		self.secret = secret
@@ -77,6 +65,41 @@ class ApiClient(object):
 	def setUserPass(self, username, password):
 		self.username = username
 		self.password = password
+
+	def queueRequest(self, req):
+		self.failedRequest.append(req)
+
+	def tryEmptyQueue(self):
+		# assume connected
+		connected = True
+		while connected and len(self.failedRequest) > 0:
+			try:
+				response = self.doRequest(self.failedRequest[0], False)
+				# on success, pop the request out of queue
+				self.pop(0)
+			except:
+				# if network failure
+				connected = False
+				
+		return connected
+
+	def doRequest(self, req, cacheable=True):
+		if not self.isAuthenticated():
+			access = self.getAccessToken()
+			if not access:
+				self._logger.error('Could not get the auth token')
+				return False
+
+		# put the cacheable request into queue
+		if cacheable:
+			self.queueRequest(req)
+			# try to empty queue, if not success, return back
+			if not self.tryEmptyQueue():
+				raise NotConnectedException()
+		else:
+			response = urlopen(req)
+			response_json = json.loads(response.readline())
+			return response_json
 
 	def getAccessToken(self):
 		data = {
@@ -135,51 +158,14 @@ class ApiClient(object):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
-	def prepareRequest(self, requestData):
-		url = self.apiUrl + requestData['methodPath']
-		method = requestData['method']
-		data = None
 
-		if not requestData.has_key('data'):
-			requestData['data'] = {}
-
-		# append data to post
-		if method == 'post':
-			post = requestData['data']		
-			post['bearer_token'] = self.accessToken
-			data = urlencode(post)
-
-		# append data to get
-		if method == 'get':
-			get = requestData['data']
-			get['bearer_token'] = self.accessToken
-			url += '?' + urlencode(get)
-			data = None
-			self._logger.debug('URL:' + url)
-
-		if 'post' in locals():
-			self._logger.debug('post:' + str(post))
-		if 'get' in locals():
-			self._logger.debug('get:' + str(get))		
-
-		self._logger.debug('data:' + str(data))	
-		req = Request(
-					url,
-					data = data,
-					headers = self.authHeaders, 
-					origin_req_host = self.originReqHost
-				)		
-
-		return req
-
-	def execute(self, requestData):
-		if not self.isAuthenticated():
-			self.getAccessToken()
-
-		req = self.prepareRequest(requestData)
+	def execute(self, requestData, cacheable=False):
 		try:
-			response = urlopen(req)
-			response_json = json.loads(response.readline())
+			req = self.prepareRequest(requestData)
+			response_json = self.doRequest(
+				req,
+				cacheable
+			)
 
 		except HTTPError as e:
 			self._logger.error('APICLIENT:' + url)
@@ -199,18 +185,7 @@ class ApiClient(object):
 #	api methods
 #	list independent
 	def titleWatched(self, titleId, **data):
-		# normalize ratings
-		if data.has_key('rating') and isinstance(data['rating'], (int, long)):
-			data['rating'] = RATING_CODE[data['rating']]
-
-		data['device_id'] = self.device_id
-		req = {
-			'methodPath': 'title/%d/watched/' % titleId,
-			'method': 'post',
-			'data': data
-		}
-
-		self.execute(req)
+		ApiClient.titleWatched(self, titleId, **data)
 
 	def titleIdentify(self, **data):
 		""" Try to match synopsi title by various data """
@@ -287,6 +262,14 @@ class ApiClient(object):
 
 		return self.execute(req)
 
+	def libraryListCreate(self, list_uid):
+		req = {
+			'methodPath': 'library/list/%s/create/' % list_uid,
+			'method': 'get',
+		}
+
+		return self.execute(req)
+
 	def unwatchedEpisodes(self, props=defaultTitleProps):
 		req = {
 			'methodPath': 'profile/unwatched_episodes/',
@@ -297,5 +280,6 @@ class ApiClient(object):
 		}
 
 		return self.execute(req)
+
 
 
