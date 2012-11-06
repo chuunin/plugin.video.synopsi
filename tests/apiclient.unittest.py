@@ -103,7 +103,7 @@ class ApiTest(unittest.TestCase):
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
-		props = [ 'year','image' ]
+		props = [ 'year', 'cover_small' ]
 		data = client.profileRecco('movie', False, props)
 
 		self.assertTrue(data.has_key('recco_id'))
@@ -116,7 +116,7 @@ class ApiTest(unittest.TestCase):
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
-		props = [ 'year','image' ]
+		props = [ 'year', 'cover_small' ]
 		data = client.profileRecco('movie', True, props)
 
 		self.assertTrue(data.has_key('recco_id'))
@@ -125,8 +125,6 @@ class ApiTest(unittest.TestCase):
 
 
 	def test_title_similar(self):
-		global connection
-
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
@@ -134,8 +132,11 @@ class ApiTest(unittest.TestCase):
 		data_similar = client.titleSimilar(1947362)
 		#print data_similar
 
-
-
+	def test_title(self):
+		c = connection		
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		title = client.title(1947362)
+		print title
 
 
 
@@ -157,6 +158,7 @@ if __name__ == '__main__':
 	logger = logging.getLogger()
 
 	suite = unittest.TestLoader().loadTestsFromTestCase(ApiTest)
+
 	unittest.TextTestRunner(verbosity=2).run(suite)
 
 

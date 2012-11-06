@@ -15,7 +15,7 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
-defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime' ]
+defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime' ]
 						
 
 class NotConnectedException(Exception):
@@ -316,7 +316,6 @@ class ApiClient(object):
 			'methodPath': '/title/%d/' % titleId,
 			'method': 'get',
 			'data': {
-				'device_id': self.device_id,
 				'title_property[]': ','.join(props)
 			}
 		}
