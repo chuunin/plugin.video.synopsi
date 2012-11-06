@@ -15,7 +15,8 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
-defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year' ]
+defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'image', 'link', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime' ]
+						
 
 class NotConnectedException(Exception):
 	pass
@@ -309,11 +310,11 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def libraryTitle(self, titleId, props=defaultTitleProps):
+	def title(self, titleId, props=defaultTitleProps):
 		" Get title from library "
 		req = {
-			'methodPath': 'library/title/%d/' % titleId,
-			'method': 'post',
+			'methodPath': '/title/%d/' % titleId,
+			'method': 'get',
 			'data': {
 				'device_id': self.device_id,
 				'title_property[]': ','.join(props)
