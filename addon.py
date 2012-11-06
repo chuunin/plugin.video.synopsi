@@ -228,7 +228,7 @@ def show_categories():
     """
     Shows initial categories on home screen.
     """
-    xbmc.executebuiltin("Container.SetViewMode(500)")
+    xbmc.executebuiltin("Container.SetViewMode(503)")
     add_directory("Movie Recommendations", "url", 1, "list.png", 1)
     add_directory("TV Show", "url", 11, "list.png", 1)
     add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
@@ -238,7 +238,6 @@ def show_categories():
 
 def show_movies(url, type, movie_type, dirhandle):
     errorMsg = None
-    xbmc.executebuiltin("Container.SetViewMode(500)")
     try:
         for movie in get_items(type, movie_type):
             log(json.dumps(movie, indent=4))
@@ -249,6 +248,7 @@ def show_movies(url, type, movie_type, dirhandle):
         errorMsg = True
     finally:
         xbmcplugin.endOfDirectory(dirhandle)
+        xbmc.executebuiltin("Container.SetViewMode(500)")
 
     if errorMsg:
         if dialog_check_login_correct():
@@ -332,7 +332,7 @@ stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))
 
-param_vars = [ 'url', 'name', 'mode', 'type', 'data' ]
+param_vars = ['url', 'name', 'mode', 'type', 'data']
 p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
 if p['url']:
@@ -360,12 +360,11 @@ log('url: %s' % (p['url']))
 log('data: %s' % (p['data']))    
 
 if p['mode']==None or p['url']==None or len(p['url'])<1:
+    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
+    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
     show_categories()
     xbmcplugin.endOfDirectory(dirhandle)
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
-    xbmc.executebuiltin("Container.SetViewMode(503)")
 elif p['mode']==1:
     show_movies(p['url'], p['type'], 'movie', dirhandle)
 elif p['mode']==11:
