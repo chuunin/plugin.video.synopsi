@@ -150,7 +150,6 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
     def update_current_time(self):
         self.current_time = self.get_time_or_none()
-        self.log('time:' + str(self.current_time))
 
     def started(self):
         self.update_current_time()
