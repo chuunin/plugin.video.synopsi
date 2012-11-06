@@ -28,6 +28,9 @@ from cache import StvList
 movies = test.jsfile
 movie_response = { 'titles': movies }
 
+reccoDefaultProps = ['id', 'cover_medium', 'name']
+detailProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime']
+
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
     xbmc.log('ADDON / ' + str(msg))
@@ -39,7 +42,7 @@ def uniunquote(uni):
     return urllib.unquote_plus(uni.decode('utf-8'))
 
 def get_local_recco(movie_type):
-    resRecco =  apiClient.profileRecco(movie_type, True)
+    resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaultProps)
 
     # log('local recco for ' + movie_type)
     # for title in resRecco['titles']:
@@ -49,7 +52,7 @@ def get_local_recco(movie_type):
 
 
 def get_global_recco(movie_type):
-    resRecco =  apiClient.profileRecco(movie_type, False)
+    resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaultProps)
 
     # log('global recco for ' + movie_type)
     # for title in resRecco['titles']:
@@ -137,15 +140,15 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
             
         labels = dict()
-        #~ labels['Director'] = self.data['']
-        #~ labels['Writer'] = self.data['']
-        #~ labels['Runtime'] = self.data['']
+        labels['Director'] = ', '.join(self.data['directors'])
+        labels['Writer'] = ', '.join(self.data['writers'])
+        labels['Runtime'] = '%d min' % self.data['runtime']
         labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
 
         xlabels = dict()
         if self.data.has_key('xbmc_movie_detail'):
-            xlabels["Director"] = self.data['xbmc_movie_detail']['director']
-            xlabels["Writer"] = self.data['xbmc_movie_detail']['writer']
+            xlabels["Director"] = ', '.join(self.data['xbmc_movie_detail']['director'])
+            xlabels["Writer"] = ', '.join(self.data['xbmc_movie_detail']['writer'])
             xlabels["Runtime"] = self.data['xbmc_movie_detail']['runtime'] + ' min'
             xlabels["Release date"] = self.data['xbmc_movie_detail']['premiered']
             tFile = self.data['xbmc_movie_detail'].get('file')
@@ -263,6 +266,8 @@ def show_movies(url, type, movie_type, dirhandle):
 def show_video_dialog(url, name, json_data):
     global stvList, apiClient
 
+    stv_details = apiClient.title(json_data['id'], detailProps)
+
     # add xbmc id if available
     if stvList.hasStvId(json_data['id']):
         cacheItem = stvList.getByStvId(json_data['id'])
@@ -271,6 +276,9 @@ def show_video_dialog(url, name, json_data):
         json_data['xbmc_movie_detail'] = get_details('movie', json_data['xbmc_id'], True)
 
     log('show video:' + json.dumps(json_data, indent=4))
+    log('stv_details video:' + json.dumps(stv_details, indent=4))
+    stv_details.update(json_data)
+    json_data=stv_details
 
     # get similar movies
     similars = apiClient.titleSimilar(json_data['id'])
