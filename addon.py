@@ -203,18 +203,17 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.close()
 
 
-def add_directory(name, url, mode, iconimage, atype, view_mode=500):
+def add_directory(name, url, mode, iconimage, atype):
     u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # liz.setInfo(type="Video", infoLabels={"Title": name} )
     liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-    xbmc.executebuiltin("Container.SetViewMode({0})".format(view_mode))
     return ok
 
 
-def add_movie(movie, url, mode, iconimage, movieid, view_mode=500):
+def add_movie(movie, url, mode, iconimage, movieid):
     json_data = json.dumps(movie)
     u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
@@ -222,7 +221,6 @@ def add_movie(movie, url, mode, iconimage, movieid, view_mode=500):
     liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
     liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
-    xbmc.executebuiltin("Container.SetViewMode({0})".format(view_mode))
     return ok
 
 
@@ -230,6 +228,7 @@ def show_categories():
     """
     Shows initial categories on home screen.
     """
+    xbmc.executebuiltin("Container.SetViewMode(500)")
     add_directory("Movie Recommendations", "url", 1, "list.png", 1)
     add_directory("TV Show", "url", 11, "list.png", 1)
     add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
@@ -239,6 +238,7 @@ def show_categories():
 
 def show_movies(url, type, movie_type, dirhandle):
     errorMsg = None
+    xbmc.executebuiltin("Container.SetViewMode(500)")
     try:
         for movie in get_items(type, movie_type):
             log(json.dumps(movie, indent=4))
@@ -319,14 +319,12 @@ __version__   = __addon__.getAddonInfo('version')
 
 xbmc.log('SYS ARGV:' + str(sys.argv)) 
 
-params = get_params()
-xbmc.log(str(params))
+# params = get_params()
+url_parsed = urlparse.urlparse(sys.argv[2])
+params = urlparse.parse_qs(url_parsed.query)
 
-url = None
-name = None
-mode = None
-atype = None
-data = None
+xbmc.log('url_parsed:' + str(url_parsed))
+xbmc.log('params:' + str(params))
 
 apiClient = AppApiClient.getDefaultClient()
 apiClient.login_state_announce = LoginState.AddonDialog
@@ -334,61 +332,56 @@ stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))
 
-try:
-    url=uniunquote(params["url"])
-except:
-    pass
-try:
-    name=uniunquote(params["name"])
-except:
-    pass
-try:
-    mode=int(params["mode"])
-except:
-    pass
-try:
-    atype=int(params["type"])
-except:
-    pass
+param_vars = [ 'url', 'name', 'mode', 'type', 'data' ]
+p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
-try:
-    data = uniunquote(params["data"])
-    json_data = json.loads(data)
-except:
-    pass
+if p['url']:
+    p['url']=uniunquote(p['url'])
+
+if p['name']:
+    p['name']=uniunquote(p['name'])
+
+if p['mode']:
+    p['mode']=int(p['mode'])
+
+if p['type']:
+    p['type']=int(p['type'])
+
+if p['data']:
+    p['data'] = uniunquote(p['data'])
+    p['json_data'] = json.loads(p['data'])
    
 
 dirhandle = int(sys.argv[1])
 
-log('mode: %s type: %s' % (mode, atype))    
-log('mode type: %s' % type(mode))   
-log('url: %s' % (url))  
-log('data: %s' % (data))    
+log('mode: %s type: %s' % (p['mode'], p['type']))    
+log('mode type: %s' % type(p['mode']))   
+log('url: %s' % (p['url']))  
+log('data: %s' % (p['data']))    
 
-if mode==None or url==None or len(url)<1:
+if p['mode']==None or p['url']==None or len(p['url'])<1:
     show_categories()
     xbmcplugin.endOfDirectory(dirhandle)
     xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
     xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
-
     xbmc.executebuiltin("Container.SetViewMode(503)")
-elif mode==1:
-    show_movies(url, atype, 'movie', dirhandle)
-elif mode==11:
-    show_movies(url, atype, 'episode', dirhandle)
-elif mode==12:
-    show_movies(url, atype, 'movie', dirhandle)
-elif mode==13:
-    show_movies(url, atype, 'episode', dirhandle)
-elif mode==20:
-    show_movies(url, atype, 'none', dirhandle)
-elif mode==2:
-    json_data['type'] = atype
-    show_video_dialog(url, name, json_data)
-elif mode==90:
+elif p['mode']==1:
+    show_movies(p['url'], p['type'], 'movie', dirhandle)
+elif p['mode']==11:
+    show_movies(p['url'], p['type'], 'episode', dirhandle)
+elif p['mode']==12:
+    show_movies(p['url'], p['type'], 'movie', dirhandle)
+elif p['mode']==13:
+    show_movies(p['url'], p['type'], 'episode', dirhandle)
+elif p['mode']==20:
+    show_movies(p['url'], p['type'], 'none', dirhandle)
+elif p['mode']==2:
+    p['json_data']['type'] = p['type']
+    show_video_dialog(p['url'], p['name'], p['json_data'])
+elif p['mode']==90:
     __addon__.openSettings()
-elif mode==999:
+elif p['mode']==999:
     xbmcplugin.endOfDirectory(dirhandle)
     jdata = {
         'id': 1232,
