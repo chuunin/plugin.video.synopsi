@@ -130,13 +130,16 @@ class ApiTest(unittest.TestCase):
 
 		# 1947362 "Ben-Hur (1959)"
 		data_similar = client.titleSimilar(1947362)
-		#print data_similar
+		self.assertTrue(data_similar.has_key('recco_id'))
+		self.assertTrue(data_similar.has_key('titles'))
+		self.assertTrue(len(data_similar['titles']) > 0)
 
 	def test_title(self):
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		title = client.title(1947362)
-		print title
+		self.assertTrue(title.has_key('cover_full'))
+		self.assertTrue(title.has_key('genres'))
 
 
 
