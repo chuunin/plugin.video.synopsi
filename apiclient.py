@@ -16,6 +16,11 @@ RATING_CODE = {
 }
 
 defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime' ]
+
+class CacheType:
+	No = 1
+	Write = 2
+	Read = 4
 						
 
 class AuthenticationError(Exception):
@@ -89,12 +94,8 @@ class ApiClient(object):
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
-		# self._logger.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
-		# self._logger.debug('apiclient getaccesstoken %s' % str(data))
-
 		# get token
 		try:
-
 			req = Request(
 					self.baseUrl + 'oauth2/token/', 
 					data=urlencode(data), 
@@ -171,26 +172,13 @@ class ApiClient(object):
 
 		return req
 
-	def execute(self, requestData):
+	def execute(self, requestData, cache_type=CacheType.No):
 		if not self.isAuthenticated():
 			self.getAccessToken()
 
 		req = self.prepareRequest(requestData)
-		try:
-			response = urlopen(req)
-			response_json = json.loads(response.readline())
-
-		except HTTPError as e:
-			self._logger.error('APICLIENT:' + url)
-			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + e.read())
-			response_json = {}
-
-		except URLError as e:
-			self._logger.error('APICLIENT:' + url)
-			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + str(e.reason))
-			response_json = {}
+		response = urlopen(req)
+		response_json = json.loads(response.readline())
 
 		return response_json
 
@@ -209,7 +197,7 @@ class ApiClient(object):
 			'data': data
 		}
 
-		self.execute(req)
+		self.execute(req, CacheType.Write)
 
 	def titleIdentify(self, **data):
 		""" Try to match synopsi title by various data """
@@ -220,7 +208,7 @@ class ApiClient(object):
 			'data': data
 		}
 
-		return self.execute(req)
+		return self.execute(req, CacheType.Read)
 
 	def titleSimilar(self, titleId, props=defaultTitleProps):
 		req = {
@@ -231,7 +219,7 @@ class ApiClient(object):
 			}
 		}
 
-		return self.execute(req)
+		return self.execute(req, CacheType.Read)
 
 # conditionally dependent
 	def profileRecco(self, atype, local=False, props=defaultTitleProps):
@@ -247,7 +235,7 @@ class ApiClient(object):
 		if local:
 			req['data']['device_id'] = self.device_id
 
-		return self.execute(req)
+		return self.execute(req, CacheType.Read)
 
 # list dependent
 	def libraryTitleAdd(self, titleId):
@@ -260,7 +248,7 @@ class ApiClient(object):
 			}
 		}	
 
-		return self.execute(req)
+		return self.execute(req, CacheType.Write)
 
 	def libraryTitleRemove(self, titleId):
 		req = {
@@ -272,7 +260,7 @@ class ApiClient(object):
 			}
 		}
 
-		return self.execute(req)
+		return self.execute(req, CacheType.Write)
 
 	def title(self, titleId, props=defaultTitleProps):
 		" Get title from library "
@@ -284,7 +272,7 @@ class ApiClient(object):
 			}
 		}
 
-		return self.execute(req)
+		return self.execute(req, CacheType.Read)
 
 	def unwatchedEpisodes(self, props=defaultTitleProps):
 		req = {
@@ -295,6 +283,6 @@ class ApiClient(object):
 			}
 		}
 
-		return self.execute(req)
+		return self.execute(req, CacheType.Read)
 
 
