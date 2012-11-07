@@ -59,17 +59,13 @@ class StvList(object):
 
         return cache
 
-
     def serialize(self):
         self.log(json.dumps([self.byTypeId, self.byFilename, self.byStvId]))
         pickled_base64_cache = base64.b64encode(pickle.dumps([self.byTypeId, self.byFilename, self.byStvId]))
-        # self.log('PICKLED:' + pickled_base64_cache)
-        # self.log('UNPICKLED:' + str(pickle.loads(base64.b64decode(pickled_base64_cache))))
         return pickled_base64_cache
 
     def deserialize(self, _string):
         unpickled_list = pickle.loads(base64.b64decode(_string))
-        # self.log('UNPICKLED:' + str(unpickled_list))
         self.byTypeId = unpickled_list[0]
         self.byFilename = unpickled_list[1]
         self.byStvId = unpickled_list[2]
