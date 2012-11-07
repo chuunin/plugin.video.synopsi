@@ -97,64 +97,6 @@ class CachedApiClient(apiclient.ApiClient):
 			response_json = json.loads(response.readline())
 			return response_json
 
-	def getAccessToken(self):
-		data = {
-			'grant_type': 'password',
-			'client_id': self.key,
-			'client_secret': self.secret,
-			'username': self.username,
-			'password': self.password
-		}
-
-		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
-
-		# self._logger.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
-		# self._logger.debug('apiclient getaccesstoken %s' % str(data))
-
-		# get token
-		try:
-
-			req = Request(
-					self.baseUrl + 'oauth2/token/', 
-					data=urlencode(data), 
-					headers=self.authHeaders, 
-					origin_req_host=self.originReqHost)
-						
-			# self._logger.debug('request REQ HOST:' + str(req.get_origin_req_host()))
-			# self._logger.debug('request URL:' + str(req.get_full_url()))
-			# self._logger.debug('request HEADERS:' + str(req.headers.items()))
-			# self._logger.debug('request DATA:' + str(req.get_data()))
-
-			response = urlopen(req)
-
-			# self._logger.debug('request RESPONSE:' + str(response))
-			response_json = json.loads(response.readline())
-
-		except HTTPError as e:
-			self._logger.error('%d %s' % (e.code, e))
-			self._logger.error(e.read())
-			raise AuthenticationError()
-
-		except URLError as e:
-			self._logger.error(str(e))
-			self._logger.error(e.reason)
-			raise AuthenticationError()
-
-		except Exception as e:
-		 	self._logger.error('ANOTHER EXCEPTION:' + str(e))
-			raise AuthenticationError()
-
-
-		self.accessToken = response_json['access_token']
-		self.accessTokenSessionStart = datetime.datetime.now()
-		self.refreshToken = response_json['refresh_token']
-		self._logger.debug('new access token: ' + self.accessToken)
-
-	def isAuthenticated(self):
-		# if we have some acess token and if access token session didn't timeout
-		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
-
-
 	def execute(self, requestData, cache_type=CacheType.No):
 		try:
 			response = self.execute(requestData)			
