@@ -22,16 +22,16 @@ class ApiTest(unittest.TestCase):
 		global connection
 
 		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
+		client = CachedApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
 		client.getAccessToken()
-		self.assertIsInstance(client, ApiClient)
+		self.assertIsInstance(client, CachedApiClient)
 		return client
 
 	def test_library_add(self):
 		global connection
 
 		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		client = CachedApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		client.getAccessToken()
 
 		# 60569 "Malcolm X"
