@@ -8,9 +8,10 @@ class NotConnectedException(Exception):
 
 class RequestDataCache():
 
-	def __init__(self):
+	def __init__(self, path):
 		self._storage = {}
 		self._logger = logging.getLogger()
+		self._path = path
 
 	def put(self, reqData, response):
 		self._logger.debug('DataCache PUT /' + json.dumps(reqData))
@@ -19,12 +20,45 @@ class RequestDataCache():
 	def get(self, reqData):
 		return self._storage[reqData]
 
+	def save(self):
+		self.save_to(self.path)
+	
+	def load(self):
+		return self.load_from(self.path)
+
+    def save_to(self, path):
+        f = open(path, 'w')
+        f.write(self.serialize())
+        f.close()
+
+    def load_from(self, path):
+        f = open(path, 'r')
+        self.deserialize(f.read())
+        f.close()
+
+    def serialize(self):        
+        pickled_base64_cache = base64.b64encode(pickle.dumps(self._storage))
+        return pickled_base64_cache
+
+    def deserialize(self, _string):
+        self._storage = pickle.loads(base64.b64decode(_string))
+
+
 class CachedApiClient(apiclient.ApiClient):
 	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		super(CachedApiClient, self).__init__()
 
-		self._cache = RequestDataCache()
+		addon = get_current_addon()
+		cwd    = addon.getAddonInfo('path')
+
+		# try to load cache
+		self._cache = RequestDataCache(os.path.join(cwd, 'read_request_cache.dat')
+		try:
+			self._cache.load()
+		except:
+			pass
+
 		self.baseUrl = base_url
 		self.key = key
 		self.secret = secret
@@ -50,7 +84,9 @@ class CachedApiClient(apiclient.ApiClient):
 		self.failedRequest = []
 		# self._logger.error('APIURL:' + self.apiUrl)
 		# self._logger.error('BASEURL:' + self.baseUrl)		
-		
+	
+	def __del__(self):
+		self._cache.save()
 
 	@classmethod
 	def getDefaultClient(cls):
