@@ -1,4 +1,4 @@
-from apiclient import *
+from cachedapiclient import *
 from utilities import *
 import threading
 import xbmcgui
@@ -7,12 +7,14 @@ class LoginState:
 	Notify = 1
 	AddonDialog = 2
 
-class AppApiClient(ApiClient):
+class AppApiClient(CachedApiClient):
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/', lsa=LoginState.Notify):
+		xbmc.log('AppApiClient init')
 		super(AppApiClient, self).__init__(base_url, key, secret, username, password, device_id, originReqHost, debugLvl, accessTokenTimeout, rel_api_url)
 		self._lock_access_token = threading.Lock()
 		self._rejected_to_correct = False
 		self.login_state_announce = lsa
+		xbmc.log('AppApiClient init END')
 
 	def reloadUserPass(self):
 		__addon__ = get_current_addon()

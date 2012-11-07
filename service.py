@@ -14,7 +14,7 @@ __addon__  = get_current_addon()
 __cwd__    = __addon__.getAddonInfo('path')
 
 def main():
-    apiclient1 = AppApiClient.getDefaultClient()
+    apiclient = AppApiClient.getDefaultClient()
     
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
@@ -28,7 +28,7 @@ def main():
     iuid = get_install_id()
 
     # try to restore cache  
-    cache = StvList(iuid, apiclient1)
+    cache = StvList(iuid, apiclient)
 
     try:
         cache.load(os.path.join(__cwd__, 'resources', 'cache.dat'))
@@ -38,12 +38,13 @@ def main():
 
     cache.list()
 
-    thread.start_new_thread(home_screen_fill, (apiclient1, cache))
+    thread.start_new_thread(home_screen_fill, (apiclient, cache))
 
     s = Scrobbler(cache)
     l = RPCListenerHandler(cache)
     s.start()
     l.start()
+    apiclient.start()
 
     xbmc.log('Entering service loop')
     while True:

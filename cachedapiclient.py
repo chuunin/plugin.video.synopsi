@@ -1,14 +1,14 @@
 from apiclient import *
-import threading
+from threading import Thread, Lock
 import logging
 import base64
 import pickle
+import time
 
 class NotConnectedException(Exception):
 	pass
 
 class RequestDataCache():
-
 	def __init__(self, path):
 		self._storage = {}
 		self._logger = logging.getLogger()
@@ -47,10 +47,11 @@ class RequestDataCache():
 	def dump(self):
 		print 'DataCache: ' + str(self._storage)
 
-class CachedApiClient(ApiClient):
+class CachedApiClient(ApiClient, Thread):
 	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
-		super(CachedApiClient, self).__init__(base_url, key, secret, username, password, device_id, originReqHost, debugLvl, accessTokenTimeout, rel_api_url)
+		Thread.__init__(self)
+		ApiClient.__init__(self, base_url, key, secret, username, password, device_id, originReqHost, debugLvl, accessTokenTimeout, rel_api_url)
 
 		addon = get_current_addon()
 		cwd    = addon.getAddonInfo('path')
@@ -62,7 +63,12 @@ class CachedApiClient(ApiClient):
 		except:
 			pass
 
+		# thread part
+		self._stop = False
+
 		self._cache.dump()
+		self._requestLock = Lock()
+		self._logger.debug('CachedApiClient __init__')
 	
 	def __del__(self):
 		self._cache.save()
@@ -86,25 +92,8 @@ class CachedApiClient(ApiClient):
 				
 		return connected
 
-	def doRequest(self, req, cacheable=True):
-		if not self.isAuthenticated():
-			access = self.getAccessToken()
-			if not access:
-				self._logger.error('Could not get the auth token')
-				return False
-
-		# put the cacheable request into queue
-		if cacheable:
-			self.queueRequest(req)
-			# try to empty queue, if not success, return back
-			if not self.tryEmptyQueue():
-				raise NotConnectedException()
-		else:
-			response = urlopen(req)
-			response_json = json.loads(response.readline())
-			return response_json
-
 	def execute(self, requestData, cache_type=CacheType.No):
+		self._requestLock.acquire()
 		try:
 			response_json = ApiClient.execute(self, requestData)
 			self._cache.put(requestData, response_json)
@@ -119,7 +108,20 @@ class CachedApiClient(ApiClient):
 				response_json = self._cache.get(requestData)				
 			else:
 				raise	
-
+		self._requestLock.release()
 		return response_json
+
+	def stop(self):
+		self._stop = True
+
+	def run(self):
+		self._logger.debug('ApiClient Thread START')
+		while not self._stop:
+			if len(self.failedRequest) > 0:
+				self.tryEmptyQueue()
+			else:
+				time.sleep(1)
+
+		self._logger.debug('ApiClient Thread END')
 
 
