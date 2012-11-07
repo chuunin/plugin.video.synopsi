@@ -58,62 +58,9 @@ class CachedApiClient(apiclient.ApiClient):
 			self._cache.load()
 		except:
 			pass
-
-		self.baseUrl = base_url
-		self.key = key
-		self.secret = secret
-		self.username = username
-		self.password = password
-		self.accessToken = None
-		self.refreshToken = None
-		self.apiUrl = self.baseUrl + rel_api_url
-		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
-		self.authHeaders = None
-		self.device_id = device_id  
-		self._logger = logging.getLogger()
-		
-		# xbmc.log('Log handler count %d ' % len(self._logger.handlers))
-
-		if len(self._logger.handlers)==0:
-			self._logger.addHandler(logging.StreamHandler(sys.stdout))
-
-		self._logger.setLevel(debugLvl)
-		self._logger.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
-		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
-		self.accessTokenSessionStart = None
-		self.failedRequest = []
-		# self._logger.error('APIURL:' + self.apiUrl)
-		# self._logger.error('BASEURL:' + self.baseUrl)		
 	
 	def __del__(self):
 		self._cache.save()
-
-	@classmethod
-	def getDefaultClient(cls):
-		if ApiClient._instance:
-			return ApiClient._instance
-
-		__addon__  = get_current_addon()
-
-		iuid = get_install_id()
-		
-		# get or generate install-unique ID
-		ApiClient._instance = cls(
-			__addon__.getSetting('BASE_URL'),
-			__addon__.getSetting('KEY'),
-			__addon__.getSetting('SECRET'),
-			__addon__.getSetting('USER'),
-			__addon__.getSetting('PASS'),
-			iuid,
-			debugLvl=logging.ERROR,
-			rel_api_url=__addon__.getSetting('REL_API_URL'),
-		)
-
-		return ApiClient._instance
-
-	def setUserPass(self, username, password):
-		self.username = username
-		self.password = password
 
 	def queueRequest(self, requestData):
 		self.failedRequest.append(requestData)
