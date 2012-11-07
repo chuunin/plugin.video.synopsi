@@ -166,7 +166,6 @@ class ApiClient(object):
 		req = Request(
 					url,
 					data = data,
-					headers = self.authHeaders, 
 					origin_req_host = self.originReqHost
 				)		
 
