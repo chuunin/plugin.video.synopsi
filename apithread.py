@@ -6,12 +6,25 @@ class
 class NotConnectedException(Exception):
 	pass
 
-class CachedApiClient(apiclient.ApiClient. threading.Thread):
+class RequestDataCache():
+
+	def __init__(self):
+		self._storage = {}
+		self._logger = logging.getLogger()
+
+	def put(self, reqData, response):
+		self._logger.debug('DataCache PUT /' + json.dumps(reqData))
+		self._storage[reqData] = response
+
+	def get(self, reqData):
+		return self._storage[reqData]
+
+class CachedApiClient(apiclient.ApiClient):
 	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		super(CachedApiClient, self).__init__()
 
-		self._cache = DataCache()
+		self._cache = RequestDataCache()
 		self.baseUrl = base_url
 		self.key = key
 		self.secret = secret
@@ -66,8 +79,8 @@ class CachedApiClient(apiclient.ApiClient. threading.Thread):
 		self.username = username
 		self.password = password
 
-	def queueRequest(self, req):
-		self.failedRequest.append(req)
+	def queueRequest(self, requestData):
+		self.failedRequest.append(requestData)
 
 	def tryEmptyQueue(self):
 		# assume connected
@@ -159,127 +172,24 @@ class CachedApiClient(apiclient.ApiClient. threading.Thread):
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
 
-	def execute(self, requestData, cacheable=False):
+	def execute(self, requestData, cache_type=CacheType.No):
 		try:
-			req = self.prepareRequest(requestData)
-			response_json = self.doRequest(
-				req,
-				cacheable
-			)
-
-		except HTTPError as e:
+			response = self.execute(requestData)			
+			response_json = json.loads(response.readline())
+			self._cache.put(requestData, response_json)
+		except Exception as e:
 			self._logger.error('APICLIENT:' + url)
 			self._logger.error('APICLIENT:' + str(e))
 			self._logger.error('APICLIENT:' + e.read())
-			response_json = {}
-
-		except URLError as e:
-			self._logger.error('APICLIENT:' + url)
-			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + str(e.reason))
-			response_json = {}
+			# handle accordingly to cache_type or re-raise the exception
+			if cache_type==CacheType.Write:
+				self.queueRequest(requestData)
+				response_json = None
+			elif cache_type==CacheType.Read:
+				response_json = self._cache.get(requestData)				
+			else:
+				raise	
 
 		return response_json
-
-
-#	api methods
-#	list independent
-	def titleWatched(self, titleId, **data):
-		ApiClient.titleWatched(self, titleId, **data)
-
-	def titleIdentify(self, **data):
-		""" Try to match synopsi title by various data """
-		data['device_id'] = self.device_id
-		req = {
-			'methodPath': 'title/identify/',
-			'method': 'get',
-			'data': data
-		}
-
-		return self.execute(req)
-
-	def titleSimilar(self, titleId, props=defaultTitleProps):
-		req = {
-			'methodPath': 'title/%d/similar/' % titleId,
-			'method': 'get',
-			'data': {
-				'title_property[]': ','.join(props)
-			}
-		}
-
-		return self.execute(req)
-
-# conditionally dependent
-	def profileRecco(self, atype, local=False, props=defaultTitleProps):
-		req = {
-			'methodPath': 'profile/recco/',
-			'method': 'get',
-			'data': {
-				'type': atype,
-				'title_property[]': ','.join(props)
-			}
-		}
-
-		if local:
-			req['data']['device_id'] = self.device_id
-
-		return self.execute(req)
-
-# list dependent
-	def libraryTitleAdd(self, titleId):
-		req = {
-			'methodPath': 'library/title/%d/add/' % titleId,
-			'method': 'post',
-			'data':
-			{
-				'device_id': self.device_id
-			}
-		}	
-
-		return self.execute(req)
-
-	def libraryTitleRemove(self, titleId):
-		req = {
-			'methodPath': 'library/title/%d/' % titleId,
-			'method': 'get',
-			'data': {
-				'_method': 'delete',
-				'device_id': self.device_id
-			}
-		}
-
-		return self.execute(req)
-
-	def title(self, titleId, props=defaultTitleProps):
-		" Get title from library "
-		req = {
-			'methodPath': '/title/%d/' % titleId,
-			'method': 'get',
-			'data': {
-				'title_property[]': ','.join(props)
-			}
-		}
-
-		return self.execute(req)
-
-	def libraryListCreate(self, list_uid):
-		req = {
-			'methodPath': 'library/list/%s/create/' % list_uid,
-			'method': 'get',
-		}
-
-		return self.execute(req)
-
-	def unwatchedEpisodes(self, props=defaultTitleProps):
-		req = {
-			'methodPath': 'profile/unwatched_episodes/',
-			'method': 'get',
-			'data': {
-				'title_property[]': ','.join(props)
-			}
-		}
-
-		return self.execute(req)
-
 
 
