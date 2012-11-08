@@ -55,7 +55,7 @@ class SynopsiPlayer(xbmc.Player):
         }
 
         if self.playing:
-            event['movieTime'] = self.current_time
+            event['position'] = int(self.current_time)
 
         self.playerEvents.append(event)
 
@@ -74,7 +74,7 @@ class SynopsiPlayer(xbmc.Player):
             if xbmc.Player().isPlayingVideo():
                 self.playing = True
                 self.total_time = xbmc.Player().getTotalTime()
-                self.current_time = self.get_time_or_none()
+                self.current_time = self.get_time()
                 self.started()
                 self.media_file = xbmc.Player().getPlayingFile()
                 self.last_played_file = self.media_file
@@ -112,13 +112,13 @@ class SynopsiPlayer(xbmc.Player):
             self.resumed()
         else:
             self.log('resumed not playing?')
-    
-    def get_time_or_none(self):
+
+
+    def get_time(self, default=None):
         try:
-            t = 0
             t = self.getTime()
         except:
-            return None
+            return default
 
         return t
 
@@ -131,25 +131,15 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def setStvList(self, cache):
         self.cache = cache
 
-    def rate_file(self, filepath):
-        rating = get_rating()
-
-        # if user rated the title
-        if rating < 4:
-            # temporary:
-            # get the title id
-            # query cache to get stvId
-            detail = self.cache.getByFilename(filepath)
-
-            # get stv id
-            self.log('detail: ' + str(detail))
-            if detail.has_key('stvId'):
-                data = { 'rating': rating, 'player_events': self.playerEvents }
-                self.apiclient.titleWatched(detail['stvId'], **data)
-            self.playerEvents = []
-
     def update_current_time(self):
-        self.current_time = self.get_time_or_none()
+        """ This function updates the current_time. To avoid race condition, it will not update 
+            the current time, if get_time returns None, but the player is still playing a file
+            (acording to the self.playing variable). This indicates that the scrobbler update loop
+            tries to update time while we are in the onPlayBackStopped method and handlers """
+        t = self.get_time()
+        if t or not self.playing:
+            self.current_time = t
+
 
     def started(self):
         self.update_current_time()
@@ -167,14 +157,31 @@ class SynopsiPlayerDecor(SynopsiPlayer):
     def stopped(self):  
         self.playerEvent('stop')
         self.log(json.dumps(self.playerEvents, indent=4))
-        self.log('time:' + str(self.current_time))
-        self.log('total time:' + str(self.total_time))
+        # self.log('time:' + str(self.current_time))
+        # self.log('total time:' + str(self.total_time))
         percent = self.current_time / self.total_time
         self.log('percent:' + str(self.current_time / self.total_time))
 
-        # ask for 'rating only if file is in library and stopped and more than 70% of movie passed
-        if percent > 0.7 and self.cache.hasFilename(self.last_played_file):
-            self.rate_file(self.last_played_file)
+        data = { 'player_events': json.dumps(self.playerEvents) }
+
+        # work only on files in library
+        if self.cache.hasFilename(self.last_played_file):
+            # ask for rating only if more than 70% of movie passed
+            if percent > 0.7:
+                rating = get_rating()
+                # if user rated the title
+                if rating < 4:
+                    data['rating'] = rating
+        
+            detail = self.cache.getByFilename(self.last_played_file)
+
+            # get stv id
+            self.log('detail: ' + str(detail))
+            # only for identified by synopsi
+            if detail.has_key('stvId'):
+                self.apiclient.titleWatched(detail['stvId'], **data)
+
+        self.playerEvents = []
 
     def paused(self):
         self.update_current_time()
