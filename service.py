@@ -9,13 +9,14 @@ from utilities import home_screen_fill, login_screen
 import xbmc, xbmcgui, xbmcaddon
 from app_apiclient import AppApiClient
 import thread
+import logging
 
 __addon__  = get_current_addon()
 __cwd__    = __addon__.getAddonInfo('path')
 
 def main():
     apiclient = AppApiClient.getDefaultClient()
-    
+    apiclient._logger.setLevel(logging.DEBUG)
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
         # enable home screen recco

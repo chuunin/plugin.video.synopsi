@@ -15,7 +15,7 @@ class RequestDataCache():
 		self._path = path
 
 	def put(self, reqData, response):
-		self._logger.debug('DataCache PUT /' + json.dumps(reqData))
+		self._logger.debug('DATACACHE PUT /' + json.dumps(reqData))
 		self._storage[json.dumps(reqData)] = response
 
 	def get(self, reqData, default=None):
@@ -45,7 +45,7 @@ class RequestDataCache():
 		self._storage = pickle.loads(base64.b64decode(_string))
 
 	def dump(self):
-		print 'DataCache: ' + str(self._storage)
+		print 'DATACACHE: ' + str(self._storage)
 
 class CachedApiClient(ApiClient, Thread):
 	_instance = None
@@ -93,6 +93,7 @@ class CachedApiClient(ApiClient, Thread):
 		return connected
 
 	def execute(self, requestData, cache_type=CacheType.No):
+		self._logger.debug('CACHED EXECUTE')
 		self._requestLock.acquire()
 		try:
 			response_json = ApiClient.execute(self, requestData)
@@ -109,6 +110,7 @@ class CachedApiClient(ApiClient, Thread):
 			else:
 				raise	
 		self._requestLock.release()
+		self._logger.debug('CACHED EXIT')
 		return response_json
 
 	def stop(self):
