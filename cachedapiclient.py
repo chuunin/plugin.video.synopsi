@@ -74,6 +74,7 @@ class CachedApiClient(ApiClient, Thread):
 		self._cache.save()
 
 	def queueRequest(self, requestData):
+		self._logger.debug('QUEUEING REQ /' str(requestData['methodPath']))
 		self.failedRequest.append(requestData)
 
 	def tryEmptyQueue(self):
@@ -107,8 +108,10 @@ class CachedApiClient(ApiClient, Thread):
 				response_json = None
 			elif cache_type==CacheType.Read:
 				response_json = self._cache.get(requestData)				
+				self._logger.debug('GETTING FROM CACHE ' str(requestData['methodPath']))
 			else:
-				raise	
+				raise
+
 		self._requestLock.release()
 		self._logger.debug('CACHED EXIT')
 		return response_json
