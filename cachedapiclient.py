@@ -57,7 +57,7 @@ class CachedApiClient(ApiClient, Thread):
 		cwd    = addon.getAddonInfo('path')
 
 		# try to load cache
-		self._cache = RequestDataCache(os.path.join(cwd, 'read_request_cache.dat'))
+		self._cache = RequestDataCache(os.path.join(cwd, 'resources', 'read_request_cache.dat'))
 		try:
 			self._cache.load()
 		except:
