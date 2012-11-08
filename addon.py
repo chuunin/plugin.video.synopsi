@@ -249,15 +249,21 @@ def show_movies(url, type, movie_type, dirhandle):
                 2, movie.get('cover_medium'), movie.get("id"))
     except AuthenticationError:
         errorMsg = True
+    except:
+        errorMsg = "Three was an error getting movie list"
+
     finally:
         xbmcplugin.endOfDirectory(dirhandle)
         xbmc.executebuiltin("Container.SetViewMode(500)")
 
-    if errorMsg:
+    if errorMsg == True:
         if dialog_check_login_correct():
             xbmc.executebuiltin('Container.Refresh')
         else:
             xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')         
+    elif errorMsg:
+        # dialog with error message
+        pass
   
     # xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
 

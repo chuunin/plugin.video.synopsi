@@ -21,6 +21,9 @@ class RequestDataCache():
 	def get(self, reqData, default=None):
 		return self._storage.get(json.dumps(reqData), default)
 
+	def gete(self, reqData):
+		return self._storage[json.dumps(reqData)]
+
 	def save(self):
 		self.save_to(self._path)
 	
@@ -74,7 +77,7 @@ class CachedApiClient(ApiClient, Thread):
 		self._cache.save()
 
 	def queueRequest(self, requestData):
-		self._logger.debug('QUEUEING REQ /' str(requestData['methodPath']))
+		self._logger.debug('QUEUEING REQ /' + str(requestData['methodPath']))
 		self.failedRequest.append(requestData)
 
 	def tryEmptyQueue(self):
@@ -107,8 +110,8 @@ class CachedApiClient(ApiClient, Thread):
 				self.queueRequest(requestData)
 				response_json = None
 			elif cache_type==CacheType.Read:
-				response_json = self._cache.get(requestData)				
-				self._logger.debug('GETTING FROM CACHE ' str(requestData['methodPath']))
+				self._logger.debug('GETTING FROM CACHE ' + str(requestData['methodPath']))
+				response_json = self._cache.gete(requestData)				
 			else:
 				raise
 
