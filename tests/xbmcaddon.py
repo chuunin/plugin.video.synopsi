@@ -1,4 +1,5 @@
 import xbmc
+import os
 
 class Addon(object):
     """
@@ -7,18 +8,16 @@ class Addon(object):
     def __init__(self):
         super(Addon, self).__init__()
         self.data = {}
+        self.info = { 'path': os.path.realpath(__file__) }
     
-    def getAddonInfo(self, type):
-        return ""
+    def getAddonInfo(self, key):
+        return self.info.get(key, '')
 
     def setSetting(self, id="id", value="value"):
         self.data[id] = value
 
     def getSetting(self, id):
-        if self.data.has_key(id):
-            return self.data[id]
-        else:
-            return ""
+        return self.data.get(id, '')
 
     def openSettings(self):
         pass
