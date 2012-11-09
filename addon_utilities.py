@@ -213,7 +213,7 @@ def show_categories(pluginhandle):
     add_directory("Upcoming TV Episodes", "url", 20, "icon.png", 3, pluginhandle)
     add_directory("Login and Settings", "url", 90, "icon.png", 1, pluginhandle)
 
-def show_movies(url, type, movie_type, dirhandle):
+def show_movies(url, type, movie_type, pluginhandle):
     errorMsg = None
     try:
         for movie in get_items(type, movie_type):
@@ -227,7 +227,7 @@ def show_movies(url, type, movie_type, dirhandle):
         errorMsg = "Three was an error getting movie list"
 
     finally:
-        xbmcplugin.endOfDirectory(dirhandle)
+        xbmcplugin.endOfDirectory(pluginhandle)
         xbmc.executebuiltin("Container.SetViewMode(500)")
 
     if errorMsg == True:
