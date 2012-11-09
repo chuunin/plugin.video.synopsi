@@ -33,7 +33,7 @@ class AddonClient():
         json = { 
             'command': command,
             'pluginhandle': self.pluginhandle,
-            'data': **arguments
+            'data': arguments
         }
 
         xbmc.log(json)
@@ -88,7 +88,7 @@ if __name__=='__main__':
         addonClient.execute('show_categories')
     elif p['mode']==1:
         addonClient.execute(
-            'show_movies'
+            'show_movies',
             {
                 'url': p['url'],
                 'type': p['type'],
@@ -97,7 +97,7 @@ if __name__=='__main__':
         )
     elif p['mode']==11:
         addonClient.execute(
-            'show_movies'
+            'show_movies',
             {
                 'url': p['url'],
                 'type': p['type'],
@@ -106,7 +106,7 @@ if __name__=='__main__':
         )
     elif p['mode']==12:
         addonClient.execute(
-            'show_movies'
+            'show_movies',
             {
                 'url': p['url'],
                 'type': p['type'],
@@ -115,7 +115,7 @@ if __name__=='__main__':
         )
     elif p['mode']==13:
             addonClient.execute(
-            'show_movies'
+            'show_movies',
             {
                 'url': p['url'],
                 'type': p['type'],
@@ -124,7 +124,7 @@ if __name__=='__main__':
         )
     elif p['mode']==20:
         addonClient.execute(
-            'show_movies'
+            'show_movies',
             {
                 'url': p['url'],
                 'type': p['type'],
@@ -134,7 +134,7 @@ if __name__=='__main__':
     elif p['mode']==2:
         p['json_data']['type'] = p['type']
         addonClient.execute(
-            'show_video_dialog'
+            'show_video_dialog',
             {
                 'url': p['url'],
                 'name': p['name'],
