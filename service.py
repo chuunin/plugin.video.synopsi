@@ -17,6 +17,7 @@ __cwd__    = __addon__.getAddonInfo('path')
 def main():
     apiclient = AppApiClient.getDefaultClient()
     apiclient._logger.setLevel(logging.DEBUG)
+
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
         # enable home screen recco
@@ -43,9 +44,9 @@ def main():
 
     s = Scrobbler(cache)
     l = RPCListenerHandler(cache)
+    apiclient.start()
     s.start()
     l.start()
-    apiclient.start()
 
     xbmc.log('Entering service loop')
     while True:
