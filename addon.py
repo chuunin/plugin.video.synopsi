@@ -17,6 +17,7 @@ import urllib2
 import re
 import os.path
 import logging
+import socket
 from datetime import datetime
 import test
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
@@ -206,13 +207,13 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.close()
 
 
-def add_directory(name, url, mode, iconimage, atype):
+def add_directory(name, url, mode, iconimage, atype, pluginhandle):
     u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # liz.setInfo(type="Video", infoLabels={"Title": name} )
-    liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
-    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
+    # liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
     return ok
 
 
@@ -227,17 +228,17 @@ def add_movie(movie, url, mode, iconimage, movieid):
     return ok
 
 
-def show_categories():
+def show_categories(pluginhandle):
     """
     Shows initial categories on home screen.
     """
     xbmc.executebuiltin("Container.SetViewMode(503)")
-    add_directory("Movie Recommendations", "url", 1, "list.png", 1)
-    add_directory("TV Show", "url", 11, "list.png", 1)
-    add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
-    add_directory("Unwatched TV Show Episodes", "url", 20, "icon.png", 3)
-    add_directory("Upcoming TV Episodes", "url", 20, "icon.png", 3)
-    add_directory("Login and Settings", "url", 90, "icon.png", 1)
+    add_directory("Movie Recommendations", "url", 1, "list.png", 1, pluginhandle)
+    add_directory("TV Show", "url", 11, "list.png", 1, pluginhandle)
+    add_directory("Local Movie recommendations", "url", 12, "list.png", 2, pluginhandle)
+    add_directory("Unwatched TV Show Episodes", "url", 20, "icon.png", 3, pluginhandle)
+    add_directory("Upcoming TV Episodes", "url", 20, "icon.png", 3, pluginhandle)
+    add_directory("Login and Settings", "url", 90, "icon.png", 1, pluginhandle)
 
 def show_movies(url, type, movie_type, dirhandle):
     errorMsg = None
@@ -323,92 +324,99 @@ def get_params():
 
     return param
 
-__addon__  = get_current_addon()
-addonPath = __addon__.getAddonInfo('path')
 
-__addonname__ = __addon__.getAddonInfo('name')
-__cwd__    = __addon__.getAddonInfo('path')
-__author__  = __addon__.getAddonInfo('author')
-__version__   = __addon__.getAddonInfo('version')
+if __name__=='__main__':
+    __addon__  = get_current_addon()
+    addonPath = __addon__.getAddonInfo('path')
 
-xbmc.log('SYS ARGV:' + str(sys.argv)) 
+    __addonname__ = __addon__.getAddonInfo('name')
+    __cwd__    = __addon__.getAddonInfo('path')
+    __author__  = __addon__.getAddonInfo('author')
+    __version__   = __addon__.getAddonInfo('version')
 
-# params = get_params()
-url_parsed = urlparse.urlparse(sys.argv[2])
-params = urlparse.parse_qs(url_parsed.query)
+    xbmc.log('SYS ARGV:' + str(sys.argv)) 
 
-xbmc.log('url_parsed:' + str(url_parsed))
-xbmc.log('params:' + str(params))
+    # params = get_params()
+    url_parsed = urlparse.urlparse(sys.argv[2])
+    params = urlparse.parse_qs(url_parsed.query)
 
-apiClient = AppApiClient.getDefaultClient()
-apiClient.login_state_announce = LoginState.AddonDialog
-stvList = StvList.getDefaultList(apiClient)
+    xbmc.log('url_parsed:' + str(url_parsed))
+    xbmc.log('params:' + str(params))
 
-# xbmc.log(str(sys.argv))
+    apiClient = AppApiClient.getDefaultClient()
+    apiClient.login_state_announce = LoginState.AddonDialog
+    stvList = StvList.getDefaultList(apiClient)
 
-param_vars = ['url', 'name', 'mode', 'type', 'data']
-p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
+    # xbmc.log(str(sys.argv))
 
-if p['url']:
-    p['url']=uniunquote(p['url'])
+    param_vars = ['url', 'name', 'mode', 'type', 'data']
+    p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
-if p['name']:
-    p['name']=uniunquote(p['name'])
+    if p['url']:
+        p['url']=uniunquote(p['url'])
 
-if p['mode']:
-    p['mode']=int(p['mode'])
+    if p['name']:
+        p['name']=uniunquote(p['name'])
 
-if p['type']:
-    p['type']=int(p['type'])
+    if p['mode']:
+        p['mode']=int(p['mode'])
 
-if p['data']:
-    p['data'] = uniunquote(p['data'])
-    p['json_data'] = json.loads(p['data'])
-   
+    if p['type']:
+        p['type']=int(p['type'])
 
-dirhandle = int(sys.argv[1])
+    if p['data']:
+        p['data'] = uniunquote(p['data'])
+        p['json_data'] = json.loads(p['data'])
+       
 
-log('mode: %s type: %s' % (p['mode'], p['type']))    
-log('mode type: %s' % type(p['mode']))   
-log('url: %s' % (p['url']))  
-log('data: %s' % (p['data']))    
+    pluginhandle = int(sys.argv[1])
 
-if p['mode']==None or p['url']==None or len(p['url'])<1:
-    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
-    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
-    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
-    show_categories()
-    xbmcplugin.endOfDirectory(dirhandle)
-elif p['mode']==1:
-    show_movies(p['url'], p['type'], 'movie', dirhandle)
-elif p['mode']==11:
-    show_movies(p['url'], p['type'], 'episode', dirhandle)
-elif p['mode']==12:
-    show_movies(p['url'], p['type'], 'movie', dirhandle)
-elif p['mode']==13:
-    show_movies(p['url'], p['type'], 'episode', dirhandle)
-elif p['mode']==20:
-    show_movies(p['url'], p['type'], 'none', dirhandle)
-elif p['mode']==2:
-    p['json_data']['type'] = p['type']
-    show_video_dialog(p['url'], p['name'], p['json_data'])
-elif p['mode']==90:
-    __addon__.openSettings()
-elif p['mode']==999:
-    xbmcplugin.endOfDirectory(dirhandle)
-    jdata = {
-        'id': 1232,
-        'name': 'XBMC Skinning Tutorial',
-        'plot': 'Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum. Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum.',
-        'cover_large': 'https://s3.amazonaws.com/titles.synopsi.tv/01498059-267.jpg',
-        'xbmc_movie_detail': {
-            'director': 'Ratan Hatan',
-            'writer': 'Eugo Aianora',
-            'runtime': '102',
-            'premiered': '1. aug. 2012',
+    log('mode: %s type: %s' % (p['mode'], p['type']))    
+    log('mode type: %s' % type(p['mode']))   
+    log('url: %s' % (p['url']))  
+    log('data: %s' % (p['data']))    
+
+    if p['mode']==None or p['url']==None or len(p['url'])<1:
+        # xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
+        # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+        # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('localhost', 9889))
+        s.sendall('Hello, world')
+        s.close()
+
+        #show_categories()
+        #xbmcplugin.endOfDirectory(pluginhandle)
+    elif p['mode']==1:
+        show_movies(p['url'], p['type'], 'movie', pluginhandle)
+    elif p['mode']==11:
+        show_movies(p['url'], p['type'], 'episode', pluginhandle)
+    elif p['mode']==12:
+        show_movies(p['url'], p['type'], 'movie', pluginhandle)
+    elif p['mode']==13:
+        show_movies(p['url'], p['type'], 'episode', pluginhandle)
+    elif p['mode']==20:
+        show_movies(p['url'], p['type'], 'none', pluginhandle)
+    elif p['mode']==2:
+        p['json_data']['type'] = p['type']
+        show_video_dialog(p['url'], p['name'], p['json_data'])
+    elif p['mode']==90:
+        __addon__.openSettings()
+    elif p['mode']==999:
+        xbmcplugin.endOfDirectory(pluginhandle)
+        jdata = {
+            'id': 1232,
+            'name': 'XBMC Skinning Tutorial',
+            'plot': 'Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum. Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum.',
+            'cover_large': 'https://s3.amazonaws.com/titles.synopsi.tv/01498059-267.jpg',
+            'xbmc_movie_detail': {
+                'director': 'Ratan Hatan',
+                'writer': 'Eugo Aianora',
+                'runtime': '102',
+                'premiered': '1. aug. 2012',
+            }
         }
-    }
-    show_video_dialog(0, 0, jdata)
-    
+        show_video_dialog(0, 0, jdata)
+        
 
 

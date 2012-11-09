@@ -6,13 +6,36 @@ from scrobbler import Scrobbler
 from library import RPCListenerHandler
 from cache import *
 from utilities import home_screen_fill, login_screen
-import xbmc, xbmcgui, xbmcaddon
+from addon import show_categories
+import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 from app_apiclient import AppApiClient
 import thread
 import logging
+import socket
 
 __addon__  = get_current_addon()
 __cwd__    = __addon__.getAddonInfo('path')
+
+def addon_service():
+
+    HOST = ''           # Symbolic name meaning all available interfaces
+    PORT = 9889         # Arbitrary non-privileged port
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((HOST, PORT))
+    s.listen(1)
+    
+    while 1:
+        conn, addr = s.accept()
+        print 'Connected by', addr
+        while 1:
+            data = conn.recv(1024)
+            if not data: 
+                break
+        conn.close()
+        show_categories(0)
+        xbmcplugin.endOfDirectory(0)
+
+
 
 def main():
     apiclient = AppApiClient.getDefaultClient()
@@ -41,6 +64,7 @@ def main():
     cache.list()
 
     thread.start_new_thread(home_screen_fill, (apiclient, cache))
+    thread.start_new_thread(addon_service, ())
 
     s = Scrobbler(cache)
     l = RPCListenerHandler(cache)
