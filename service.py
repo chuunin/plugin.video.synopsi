@@ -12,6 +12,7 @@ from app_apiclient import AppApiClient
 import thread
 import logging
 import socket
+import addon_utilities
 
 __addon__  = get_current_addon()
 __cwd__    = __addon__.getAddonInfo('path')
