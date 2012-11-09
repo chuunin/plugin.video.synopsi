@@ -5,6 +5,7 @@ Default file for SynopsiTV addon. See addon.xml
 """
 import urlparse
 import socket
+import json
 from utilities import get_current_addon
 
 def log(msg):
@@ -17,16 +18,16 @@ class AddonClient():
         self.pluginhandle = pluginhandle
 
     def execute(self, command, **arguments):
-        json = { 
+        json_data = { 
             'command': command,
             'pluginhandle': self.pluginhandle,
             'data': arguments
         }
 
-        xbmc.log(str(json))
+        xbmc.log(str(json_data))
 
         self.s.connect(('localhost', 9889))
-        self.s.sendall(json.dumps(json))
+        self.s.sendall(json.dumps(json_data))
         self.s.close()
 
 
