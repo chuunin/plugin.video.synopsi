@@ -28,6 +28,10 @@ class AppApiClient(CachedApiClient):
 			self.password = __addon__.getSetting('PASS')
 			changed = True
 
+		# invalidate access token
+		if changed:
+			self.invalidateAccessToken()
+
 		return changed
 
 	def getAccessToken(self):
@@ -40,11 +44,10 @@ class AppApiClient(CachedApiClient):
 		while not finished:
 			# try to log in if user credentials changed
 			try:
-				if self.reloadUserPass():
-					ApiClient.getAccessToken(self)
+				ApiClient.getAccessToken(self)
 
-					if self.login_state_announce==LoginState.Notify:
-						notification('Logged in as %s' % self.username)		
+				if self.login_state_announce==LoginState.Notify:
+					notification('Logged in as %s' % self.username)		
 
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
@@ -54,7 +57,9 @@ class AppApiClient(CachedApiClient):
 					if self._rejected_to_correct:
 						notification('Authentication failed. Correct your login/password in plugin settings')
 					else:
-						if not dialog_check_login_correct():
+						wants_change = dialog_check_login_correct()
+						changed = self.reloadUserPass()
+						if not wants_change or not changed:
 							self._rejected_to_correct = True
 							
 					finished = True
@@ -73,3 +78,4 @@ class AppApiClient(CachedApiClient):
 
 		xbmc.log(threading.current_thread().name + ' getAccessToken END')
 		self._lock_access_token.release()
+

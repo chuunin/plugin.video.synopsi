@@ -34,8 +34,8 @@ class ApiClient(object):
 		self.secret = secret
 		self.username = username
 		self.password = password
-		self.accessToken = None
-		self.refreshToken = None
+		self.invalidateAccessToken()
+		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.apiUrl = self.baseUrl + rel_api_url
 		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
@@ -49,8 +49,6 @@ class ApiClient(object):
 
 		self._logger.setLevel(debugLvl)
 		self._logger.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
-		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
-		self.accessTokenSessionStart = None
 		self.failedRequest = []
 		# self._logger.error('APIURL:' + self.apiUrl)
 		# self._logger.error('BASEURL:' + self.baseUrl)		
@@ -113,13 +111,13 @@ class ApiClient(object):
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			self._logger.error('%d %s' % (e.code, e))
-			self._logger.error(e.read())
+			self._logger.error('APICLIENT HTTPERROR %d %s' % (e.code, e))
+			self._logger.error('APICLIENT HTTPERROR ' + str(e.read()))
 			raise AuthenticationError()
 
 		except URLError as e:
-			self._logger.error(str(e))
-			self._logger.error(e.reason)
+			self._logger.error('APICLIENT URLERROR ' + str(e))
+			self._logger.error('APICLIENT URLERROR ' + e.reason)
 			raise AuthenticationError()
 
 		except Exception as e:
@@ -131,6 +129,12 @@ class ApiClient(object):
 		self.accessTokenSessionStart = datetime.datetime.now()
 		self.refreshToken = response_json['refresh_token']
 		self._logger.debug('new access token: ' + self.accessToken)
+
+	def invalidateAccessToken(self):
+		self.accessToken = None
+		self.accessTokenSessionStart = None
+		self.refreshToken = None
+
 
 	def isAuthenticated(self):
 		# if we have some acess token and if access token session didn't timeout
