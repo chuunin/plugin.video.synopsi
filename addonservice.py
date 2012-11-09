@@ -25,7 +25,8 @@ class AddonService(threading.Thread):
             # parse data
             
             # handle requested method
-            show_categories(0)
-            xbmcplugin.endOfDirectory(0)
+            
+            method = getattr(self, methodName)
+            method(arguments)
 
 
