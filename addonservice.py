@@ -2,16 +2,17 @@ import threading
 from addon_utilities import *
 
 class AddonService(threading.Thread):
-    def __init__(host, port):
+    def __init__(self, host, port):
         super(AddonService, self).__init__()
         self.host = host        # Symbolic name meaning all available interfaces
         self.port = port        # Arbitrary non-privileged port
         self._log = logging.getLogger()
 
-    def run():
+    def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind((self.host, self.port))
         s.listen(1)
+        self._log.debug('SERVICE / Listening on %s:%d' % (self.host, self.port))
         
         while not xbmc.abortRequested:
             conn, addr = s.accept()

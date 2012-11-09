@@ -3,23 +3,30 @@
 Default file for SynopsiTV addon. See addon.xml 
 <extension point="xbmc.python.pluginsource" library="addon.py">
 """
+import urlparse
+import socket
+from utilities import get_current_addon
+
+def log(msg):
+    #logging.debug('ADDON: ' + str(msg))
+    xbmc.log('ADDON / ' + str(msg))
 
 class AddonClient():
     def __init__(self, pluginhandle):        
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.pluginhandle = pluginhandle
 
-    def execute(command, **arguments):
+    def execute(self, command, **arguments):
         json = { 
             'command': command,
             'pluginhandle': self.pluginhandle,
             'data': arguments
         }
 
-        xbmc.log(json)
+        xbmc.log(str(json))
 
         self.s.connect(('localhost', 9889))
-        self.sendall(json.dumps(json))
+        self.s.sendall(json.dumps(json))
         self.s.close()
 
 

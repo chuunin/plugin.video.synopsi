@@ -8,6 +8,7 @@ from cache import *
 from utilities import home_screen_fill, login_screen
 import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 from app_apiclient import AppApiClient
+from addonservice import AddonService
 import thread
 import logging
 import socket
@@ -45,11 +46,10 @@ def main():
     cache.list()
 
     thread.start_new_thread(home_screen_fill, (apiclient, cache))
-    thread.start_new_thread(addon_service, ())
 
     host = __addon__.getSetting('ADDON_SVC_HOST')
-    port = __addon__.getSetting('ADDON_SVC_PORT')
-    
+    port = int(__addon__.getSetting('ADDON_SVC_PORT'))
+
     addon_service = AddonService(host, port)
     scrobbler = Scrobbler(cache)
     rpc_listener = RPCListenerHandler(cache)

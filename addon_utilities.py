@@ -22,10 +22,6 @@ movie_response = { 'titles': movies }
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime']
 
-def log(msg):
-    #logging.debug('ADDON: ' + str(msg))
-    xbmc.log('ADDON / ' + str(msg))
-
 def uniquote(s):
     return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
 
