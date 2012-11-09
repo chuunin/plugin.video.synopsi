@@ -13,20 +13,28 @@ class AddonService(threading.Thread):
         s.bind((self.host, self.port))
         s.listen(1)
         
-        while 1:
+        while not xbmc.abortRequested:
             conn, addr = s.accept()
             self._log.debug('Accepted connection from ', addr)
             # receive data
-            while 1:
+            while not xbmc.abortRequested:
                 data = conn.recv(1024)
                 if not data: break
             conn.close()
 
             # parse data
-            
+            json_data = json.loads(data)
+
             # handle requested method
-            
+            methodName = json_data['command']
+            pluginhandle = json_data['pluginhandle']
+            arguments = json_data['arguments']
+
             method = getattr(self, methodName)
-            method(arguments)
+            method(self, arguments, pluginhandle=pluginhandle)
+
+    def show_categories(self, args):
+        show_categories(args['pluginhandle'])
+
 
 
