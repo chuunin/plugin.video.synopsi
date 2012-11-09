@@ -3,26 +3,6 @@
 Default file for SynopsiTV addon. See addon.xml 
 <extension point="xbmc.python.pluginsource" library="addon.py">
 """
-import xbmc
-import xbmcgui
-import xbmcplugin
-import xbmcaddon
-import xbmcvfs
-import urllib
-import sys
-import os
-import time
-import json
-import urllib2
-import re
-import os.path
-import logging
-import socket
-from datetime import datetime
-import test
-from app_apiclient import AppApiClient, LoginState, AuthenticationError
-from utilities import *
-from cache import StvList
 
 class AddonClient():
     def __init__(self, pluginhandle):        

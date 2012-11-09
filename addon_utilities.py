@@ -1,3 +1,20 @@
+# -*- coding: utf-8 -*- 
+import xbmc
+import xbmcgui
+import xbmcplugin
+import xbmcaddon
+import urllib
+import sys
+import os
+import time
+import json
+import os.path
+import logging
+import socket
+from datetime import datetime
+from app_apiclient import AppApiClient, LoginState, AuthenticationError
+from utilities import *
+import test
 
 movies = test.jsfile
 movie_response = { 'titles': movies }
@@ -58,16 +75,9 @@ def get_lists():
     log('get_lists')
     return movies
 
-
-def get_movies_in_list(listid):
-    log('get_movies_in_list')
-    return movies
-
-
 def get_trending_movies():
     log('get_trending_movies')
     return movies
-
 
 def get_trending_tvshows():
     log('get_trending_tvshows')
@@ -88,9 +98,6 @@ def get_items(_type, movie_type = None):
         return get_trending_movies()
     elif _type == 6:
         return get_trending_tvshows()
-
-def add_to_list(movieid, listid):
-    pass
 
 def set_already_watched(stv_id, rating):
     log('already watched %d rating %d' % (stv_id, rating))
