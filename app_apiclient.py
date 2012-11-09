@@ -79,3 +79,6 @@ class AppApiClient(CachedApiClient):
 		xbmc.log(threading.current_thread().name + ' getAccessToken END')
 		self._lock_access_token.release()
 
+	def execute(self, requestData, cache_type=CacheType.No, lsa=LoginState.Notify):
+		self.login_state_announce = lsa
+		CachedApiClient.execute(self, requestData, cache_type)
