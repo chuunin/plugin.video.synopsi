@@ -1,7 +1,7 @@
 import xbmc, xbmcgui, xbmcaddon
 # except ImportError:
 #    from tests import xbmc, xbmcgui, xbmcaddon
-import threading
+from mythread import MyThread
 import time
 from random import randint
 import library
@@ -191,7 +191,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
         self.update_current_time()
         self.playerEvent('resume')
 
-class Scrobbler(threading.Thread):
+class Scrobbler(MyThread):
     """
     Thread creates SynopsiPlayer to receive events and waits for ABORT request.
     """

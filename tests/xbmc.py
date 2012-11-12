@@ -2,10 +2,9 @@ import logging
 import sys
 import SocketServer
 import socket
-import threading
 import time
 import json
-import threading
+from mythread import MyThread
 
 abortRequested = False
 
@@ -31,7 +30,7 @@ def executebuiltin(builtin):
         print "Executed Builtin:", builtin
 
 
-class Player(threading.Thread):
+class Player(MyThread):
     def __init__(self):
         super(Player, self).__init__()
         self.start()

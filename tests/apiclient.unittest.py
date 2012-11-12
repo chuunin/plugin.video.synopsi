@@ -159,9 +159,7 @@ if __name__ == '__main__':
 	}
 
 	logger = logging.getLogger()
-
 	suite = unittest.TestLoader().loadTestsFromTestCase(ApiTest)
-
 	unittest.TextTestRunner(verbosity=2).run(suite)
 
 
