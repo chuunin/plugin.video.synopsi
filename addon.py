@@ -72,7 +72,7 @@ if __name__=='__main__':
     log('url: %s' % (p['url']))  
     log('data: %s' % (p['data']))    
 
-    if p['mode']==None or p['url']==None or len(p['url'])<1:
+    if p['mode']==None or len(p['url'])<1:
         addonClient.execute('show_categories')
     elif p['mode']==1:
         addonClient.execute(

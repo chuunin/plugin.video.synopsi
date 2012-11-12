@@ -184,9 +184,9 @@ def add_directory(name, url, mode, iconimage, atype, pluginhandle):
     return ok
 
 
-def add_movie(movie, url, mode, iconimage, pluginhandle):
+def add_movie(movie, mode, iconimage, pluginhandle):
     json_data = json.dumps(movie)
-    u = pluginPath+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
+    u = pluginPath+"?mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
     li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     li.setProperty('IsPlayable', False)
@@ -201,12 +201,12 @@ def show_categories(pluginhandle):
     Shows initial categories on home screen.
     """
     xbmc.executebuiltin("Container.SetViewMode(503)")
-    add_directory("Movie Recommendations", "url", 1, "list.png", 1, pluginhandle)
-    add_directory("TV Show", "url", 11, "list.png", 1, pluginhandle)
-    add_directory("Local Movie recommendations", "url", 12, "list.png", 2, pluginhandle)
-    add_directory("Unwatched TV Show Episodes", "url", 20, "icon.png", 3, pluginhandle)
-    add_directory("Upcoming TV Episodes", "url", 20, "icon.png", 3, pluginhandle)
-    add_directory("Login and Settings", "url", 90, "icon.png", 1, pluginhandle)
+    add_directory("Movie Recommendations", 1, "list.png", 1, pluginhandle)
+    add_directory("TV Show", 11, "list.png", 1, pluginhandle)
+    add_directory("Local Movie recommendations", 12, "list.png", 2, pluginhandle)
+    add_directory("Unwatched TV Show Episodes", 20, "icon.png", 3, pluginhandle)
+    add_directory("Upcoming TV Episodes", 20, "icon.png", 3, pluginhandle)
+    add_directory("Login and Settings", 90, "icon.png", 1, pluginhandle)
     xbmcplugin.endOfDirectory(pluginhandle)
 
 def show_movies(apiClient, url, list_type, movie_type, pluginhandle):
