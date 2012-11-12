@@ -54,7 +54,7 @@ class StvList(object):
             cache.load(os.path.join(cwd, 'resources', 'cache.dat'))
         except:
             # first time
-            xbmc.log('CACHE restore failed. If this is your first run, its ok')
+            self.log('restore failed. If this is your first run, its ok')
 
         return cache
 

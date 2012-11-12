@@ -9,12 +9,12 @@ class LoginState:
 
 class AppApiClient(CachedApiClient):
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/', lsa=LoginState.Notify):
-		xbmc.log('AppApiClient init')
 		super(AppApiClient, self).__init__(base_url, key, secret, username, password, device_id, originReqHost, debugLvl, accessTokenTimeout, rel_api_url)
+		self._log.debug('AppApiClient init')
 		self._lock_access_token = threading.Lock()
 		self._rejected_to_correct = False
 		self.login_state_announce = lsa
-		xbmc.log('AppApiClient init END')
+		self._log.debug('AppApiClient init END')
 
 	def reloadUserPass(self):
 		__addon__ = get_current_addon()
@@ -36,10 +36,10 @@ class AppApiClient(CachedApiClient):
 
 	def getAccessToken(self):
 		if not self._lock_access_token.acquire(False):
-			xbmc.log('getAccessToken lock NOT acquired')
+			self._log.debug('getAccessToken lock NOT acquired')
 			return False
 
-		xbmc.log(threading.current_thread().name + ' getAccessToken START')
+		self._log.debug(threading.current_thread().name + ' getAccessToken START')
 		finished = False
 		while not finished:
 			# try to log in if user credentials changed
@@ -69,16 +69,16 @@ class AppApiClient(CachedApiClient):
 
 			except Exception as e:
 				finished = True
-				xbmc.log('Another exception')
-				xbmc.log(str(e))
+				self._log.debug('Another exception')
+				self._log.debug(str(e))
 			else:
 				finished = True
-				xbmc.log('Login success')
+				self._log.debug('Login success')
 
 
-		xbmc.log(threading.current_thread().name + ' getAccessToken END')
+		self._log.debug('getAccessToken END')
 		self._lock_access_token.release()
 
 	def execute(self, requestData, cache_type=CacheType.No, lsa=LoginState.Notify):
 		self.login_state_announce = lsa
-		CachedApiClient.execute(self, requestData, cache_type)
+		return CachedApiClient.execute(self, requestData, cache_type)

@@ -40,18 +40,16 @@ class ApiClient(object):
 		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
 		self.device_id = device_id  
-		self._logger = logging.getLogger()
+		self._log = logging.getLogger()
 		
-		# xbmc.log('Log handler count %d ' % len(self._logger.handlers))
+		if len(self._log.handlers)==0:
+			self._log.addHandler(logging.StreamHandler(sys.stdout))
 
-		if len(self._logger.handlers)==0:
-			self._logger.addHandler(logging.StreamHandler(sys.stdout))
-
-		self._logger.setLevel(debugLvl)
-		self._logger.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
+		self._log.setLevel(debugLvl)
+		self._log.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
 		self.failedRequest = []
-		# self._logger.error('APIURL:' + self.apiUrl)
-		# self._logger.error('BASEURL:' + self.baseUrl)		
+		# self._log.error('APIURL:' + self.apiUrl)
+		# self._log.error('BASEURL:' + self.baseUrl)		
 		
 
 	@classmethod
@@ -100,35 +98,35 @@ class ApiClient(object):
 					headers=self.authHeaders, 
 					origin_req_host=self.originReqHost)
 						
-			# self._logger.debug('request REQ HOST:' + str(req.get_origin_req_host()))
-			# self._logger.debug('request URL:' + str(req.get_full_url()))
-			# self._logger.debug('request HEADERS:' + str(req.headers.items()))
-			# self._logger.debug('request DATA:' + str(req.get_data()))
+			# self._log.debug('request REQ HOST:' + str(req.get_origin_req_host()))
+			# self._log.debug('request URL:' + str(req.get_full_url()))
+			# self._log.debug('request HEADERS:' + str(req.headers.items()))
+			# self._log.debug('request DATA:' + str(req.get_data()))
 
 			response = urlopen(req)
 
-			# self._logger.debug('request RESPONSE:' + str(response))
+			# self._log.debug('request RESPONSE:' + str(response))
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			self._logger.error('APICLIENT HTTPERROR %d %s' % (e.code, e))
-			self._logger.error('APICLIENT HTTPERROR ' + str(e.read()))
+			self._log.error('APICLIENT HTTPERROR %d %s' % (e.code, e))
+			self._log.error('APICLIENT HTTPERROR ' + str(e.read()))
 			raise AuthenticationError()
 
 		except URLError as e:
-			self._logger.error('APICLIENT URLERROR ' + str(e))
-			self._logger.error('APICLIENT URLERROR ' + e.reason)
+			self._log.error('APICLIENT URLERROR ' + str(e))
+			self._log.error('APICLIENT URLERROR ' + e.reason)
 			raise AuthenticationError()
 
 		except Exception as e:
-		 	self._logger.error('ANOTHER EXCEPTION:' + str(e))
+		 	self._log.error('ANOTHER EXCEPTION:' + str(e))
 			raise AuthenticationError()
 
 
 		self.accessToken = response_json['access_token']
 		self.accessTokenSessionStart = datetime.datetime.now()
 		self.refreshToken = response_json['refresh_token']
-		self._logger.debug('new access token: ' + self.accessToken)
+		self._log.debug('new access token: ' + self.accessToken)
 
 	def invalidateAccessToken(self):
 		self.accessToken = None
@@ -160,14 +158,15 @@ class ApiClient(object):
 			get['bearer_token'] = self.accessToken
 			url += '?' + urlencode(get)
 			data = None
-			self._logger.debug('URL:' + url)
 
+		self._log.debug('URL:' + url)
 		if 'post' in locals():
-			self._logger.debug('post:' + str(post))
+			self._log.debug('POST:' + str(post))
 		if 'get' in locals():
-			self._logger.debug('get:' + str(get))		
-
-		self._logger.debug('data:' + str(data))	
+			self._log.debug('GET:' + str(get))		
+		if data:
+			self._log.debug('DATA:' + str(data))	
+			
 		req = Request(
 					url,
 					data = data,

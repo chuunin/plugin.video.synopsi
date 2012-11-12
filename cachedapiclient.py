@@ -1,5 +1,6 @@
 from apiclient import *
-from threading import Thread, Lock
+from threading import Lock
+from mythread import MyThread
 import logging
 import base64
 import pickle
@@ -11,11 +12,11 @@ class NotConnectedException(Exception):
 class RequestDataCache():
 	def __init__(self, path):
 		self._storage = {}
-		self._logger = logging.getLogger()
+		self._log = logging.getLogger()
 		self._path = path
 
 	def put(self, reqData, response):
-		self._logger.debug('DATACACHE PUT /' + json.dumps(reqData))
+		self._log.debug('DATACACHE PUT /' + json.dumps(reqData))
 		self._storage[json.dumps(reqData)] = response
 
 	def get(self, reqData, default=None):
@@ -50,10 +51,10 @@ class RequestDataCache():
 	def dump(self):
 		print 'DATACACHE: ' + str(self._storage)
 
-class CachedApiClient(ApiClient, Thread):
+class CachedApiClient(ApiClient, MyThread):
 	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
-		Thread.__init__(self)
+		MyThread.__init__(self)
 		ApiClient.__init__(self, base_url, key, secret, username, password, device_id, originReqHost, debugLvl, accessTokenTimeout, rel_api_url)
 
 		addon = get_current_addon()
@@ -71,13 +72,13 @@ class CachedApiClient(ApiClient, Thread):
 
 		self._cache.dump()
 		self._requestLock = Lock()
-		self._logger.debug('CachedApiClient __init__')
+		self._log.debug('CachedApiClient __init__')
 	
 	def __del__(self):
 		self._cache.save()
 
 	def queueRequest(self, requestData):
-		self._logger.debug('QUEUEING REQ /' + str(requestData['methodPath']))
+		self._log.debug('QUEUEING REQ /' + str(requestData['methodPath']))
 		self.failedRequest.append(requestData)
 
 	def tryEmptyQueue(self):
@@ -97,39 +98,40 @@ class CachedApiClient(ApiClient, Thread):
 		return connected
 
 	def execute(self, requestData, cache_type=CacheType.No):
-		self._logger.debug('CACHED EXECUTE')
+		self._log.debug('CACHED EXECUTE')
 		self._requestLock.acquire()
+		self._log.debug('CACHED EXECUTE IN')
 		try:
 			response_json = ApiClient.execute(self, requestData)
 			self._cache.put(requestData, response_json)
 		except Exception as e:
-			self._logger.error('APICLIENT:' + requestData['methodPath'])
-			self._logger.error('APICLIENT:' + str(e))
+			self._log.error('APICLIENT:' + requestData['methodPath'])
+			self._log.error('APICLIENT:' + str(e))
 			# handle accordingly to cache_type or re-raise the exception
 			if cache_type==CacheType.Write:
 				self.queueRequest(requestData)
 				response_json = None
 			elif cache_type==CacheType.Read:
-				self._logger.debug('GETTING FROM CACHE ' + str(requestData['methodPath']))
+				self._log.debug('GETTING FROM CACHE ' + str(requestData['methodPath']))
 				response_json = self._cache.gete(requestData)				
 			else:
 				raise
 
 		self._requestLock.release()
-		self._logger.debug('CACHED EXIT')
+		self._log.debug('CACHED EXIT')
 		return response_json
 
 	def stop(self):
 		self._stop = True
 
 	def run(self):
-		self._logger.debug('ApiClient Thread START')
+		self._log.debug('ApiClient Thread START')
 		while not self._stop:
 			if len(self.failedRequest) > 0:
 				self.tryEmptyQueue()
 			else:
 				time.sleep(1)
 
-		self._logger.debug('ApiClient Thread END')
+		self._log.debug('ApiClient Thread END')
 
 

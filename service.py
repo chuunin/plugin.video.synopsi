@@ -21,7 +21,7 @@ __cwd__    = __addon__.getAddonInfo('path')
 
 def main():
     apiclient = AppApiClient.getDefaultClient()
-    apiclient._logger.setLevel(logging.DEBUG)
+    apiclient._log.setLevel(logging.DEBUG)
 
     # on first run
     if __addon__.getSetting('FIRSTRUN') == 'true':
@@ -50,12 +50,12 @@ def main():
     host = __addon__.getSetting('ADDON_SVC_HOST')
     port = int(__addon__.getSetting('ADDON_SVC_PORT'))
 
-    addon_service = AddonService(host, port)
+    addon_service = AddonService(host, port, apiclient)
     scrobbler = Scrobbler(cache)
     rpc_listener = RPCListenerHandler(cache)
 
-    addon_service.start()
     apiclient.start()
+    addon_service.start()
     scrobbler.start()
     rpc_listener.start()
 
