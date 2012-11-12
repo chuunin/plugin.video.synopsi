@@ -145,7 +145,7 @@ class ApiTest(unittest.TestCase):
 
 if __name__ == '__main__': 
 	connection = {
-		'base_url': 'http://test.papi.synopsi.tv/',
+		'base_url': 'http://test-papi.synopsi.tv/',
 		'key': 'e20e8f465f42e96d8340e81bfc48c757',
 		'secret': '72ab379c50650f7aec044b14db306430a55f09a2da1eb8e40b297a54b30e4b4f',
 		'rel_api_url': '1.0/',
