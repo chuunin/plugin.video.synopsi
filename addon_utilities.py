@@ -21,6 +21,10 @@ movie_response = { 'titles': movies }
 
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime']
+pluginPath = 'plugin://plugin.video.synopsi'
+
+def log(msg):
+    xbmc.log('ADDON / ' + str(msg))
 
 def uniquote(s):
     return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
@@ -28,27 +32,15 @@ def uniquote(s):
 def uniunquote(uni):
     return urllib.unquote_plus(uni.decode('utf-8'))
 
-def get_local_recco(movie_type):
+def get_local_recco(apiClient, movie_type):
     resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaultProps)
-
-    # log('local recco for ' + movie_type)
-    # for title in resRecco['titles']:
-    #    log('resRecco:' + title['name'])
-
     return resRecco
 
-
-def get_global_recco(movie_type):
+def get_global_recco(apiClient, movie_type):
     resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaultProps)
-
-    # log('global recco for ' + movie_type)
-    # for title in resRecco['titles']:
-    #    log(title['name'])
-
     return resRecco
 
-
-def get_unwatched_episodes():
+def get_unwatched_episodes(apiClient):
     episodes =  apiClient.unwatchedEpisodes()
 
     log('unwatched episodes')
@@ -79,23 +71,22 @@ def get_trending_tvshows():
     log('get_trending_tvshows')
     return movies
 
-
-def get_items(_type, movie_type = None):
-    log('get_items:' + str(_type))
-    if _type == 1:
-        return get_global_recco(movie_type)['titles']
-    elif _type == 2:
-        return get_local_recco(movie_type)['titles']
-    elif _type == 3:
-        return get_unwatched_episodes()
-    elif _type == 4:
+def get_items(apiClient, list_type, movie_type = None):
+    log('get_items:' + str(list_type))
+    if list_type == 1:
+        return get_global_recco(apiClient, movie_type)['titles']
+    elif list_type == 2:
+        return get_local_recco(apiClient, movie_type)['titles']
+    elif list_type == 3:
+        return get_unwatched_episodes(apiClient)
+    elif list_type == 4:
         return get_lists()
-    elif _type == 5:
+    elif list_type == 5:
         return get_trending_movies()
-    elif _type == 6:
+    elif list_type == 6:
         return get_trending_tvshows()
 
-def set_already_watched(stv_id, rating):
+def set_already_watched(apiClient, stv_id, rating):
     log('already watched %d rating %d' % (stv_id, rating))
     apiClient.titleWatched(stv_id, rating=rating)
 
@@ -184,23 +175,24 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 
 def add_directory(name, url, mode, iconimage, atype, pluginhandle):
-    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
+    u = pluginPath+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
     ok = True
-    liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    # liz.setInfo(type="Video", infoLabels={"Title": name} )
-    # liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
-    ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=liz,isFolder=True)
+    li = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    # li.setInfo(type="Video", infoLabels={"Title": name} )
+    # li.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=li,isFolder=True)
     return ok
 
 
-def add_movie(movie, url, mode, iconimage, movieid):
+def add_movie(movie, url, mode, iconimage, pluginhandle):
     json_data = json.dumps(movie)
-    u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
+    u = pluginPath+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
-    liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
-    liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
-    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
+    li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    li.setProperty('IsPlayable', False)
+    li.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
+    # li.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=li,isFolder=False)
     return ok
 
 
@@ -215,19 +207,28 @@ def show_categories(pluginhandle):
     add_directory("Unwatched TV Show Episodes", "url", 20, "icon.png", 3, pluginhandle)
     add_directory("Upcoming TV Episodes", "url", 20, "icon.png", 3, pluginhandle)
     add_directory("Login and Settings", "url", 90, "icon.png", 1, pluginhandle)
+    xbmcplugin.endOfDirectory(pluginhandle)
 
-def show_movies(url, type, movie_type, pluginhandle):
+def show_movies(apiClient, url, list_type, movie_type, pluginhandle):
     errorMsg = None
+
     try:
-        for movie in get_items(type, movie_type):
+        for movie in get_items(apiClient, list_type, movie_type):
             log(json.dumps(movie, indent=4))
+            log('pluginhandle: %d' % pluginhandle)
             movie['type'] = movie_type
-            add_movie(movie, "url",
-                2, movie.get('cover_medium'), movie.get("id"))
+            add_movie(
+                movie, 
+                "url",
+                2, 
+                movie.get('cover_medium'), 
+                pluginhandle
+            )
     except AuthenticationError:
         errorMsg = True
-    except:
+    except Exception, e:
         errorMsg = "Three was an error getting movie list"
+        errorMsg += "(%s)" % str(e)
 
     finally:
         xbmcplugin.endOfDirectory(pluginhandle)
@@ -240,6 +241,7 @@ def show_movies(url, type, movie_type, pluginhandle):
             xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')         
     elif errorMsg:
         # dialog with error message
+        log(errorMsg)
         pass
   
     # xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
@@ -264,8 +266,7 @@ def test_dialogwindow():
 
 
 
-def show_video_dialog(url, name, json_data):
-    global stvList, apiClient
+def show_video_dialog(apiClient, url, name, json_data):
 
     stv_details = apiClient.title(json_data['id'], detailProps)
 
