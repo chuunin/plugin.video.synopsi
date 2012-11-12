@@ -1,41 +1,63 @@
-import threading
+import mythread
 from addon_utilities import *
 
-class AddonService(threading.Thread):
-    def __init__(self, host, port):
+class AddonService(mythread.MyThread):
+    def __init__(self, host, port, apiClient):
         super(AddonService, self).__init__()
         self.host = host        # Symbolic name meaning all available interfaces
         self.port = port        # Arbitrary non-privileged port
-        self._log = logging.getLogger()
+        self.apiClient = apiClient
 
     def run(self):
+        self._log('ADDON SERVICE / Thread start')
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.5)
         s.bind((self.host, self.port))
         s.listen(1)
         self._log.debug('SERVICE / Listening on %s:%d' % (self.host, self.port))
-        
+
         while not xbmc.abortRequested:
-            conn, addr = s.accept()
-            self._log.debug('Accepted connection from ', addr)
+            try:
+                conn, addr = s.accept()
+            except:
+                continue
+                
+            self._log.debug('Accepted connection from %s' % str(addr))
+            data = ""
+            
             # receive data
             while not xbmc.abortRequested:
-                data = conn.recv(1024)
-                if not data: break
+                data_chunk = conn.recv(1024)
+                if not data_chunk: break
+                data += data_chunk
+
             conn.close()
 
+            self._log.debug('SERVICE / RECV / ' + str(data))
+
             # parse data
-            json_data = json.loads(data)
+            try:
+                json_data = json.loads(data)
+            except:
+                self._log.debug('Invalid data "%s"' % str(data))
+                continue
 
-            # handle requested method
-            methodName = json_data['command']
-            pluginhandle = json_data['pluginhandle']
-            arguments = json_data['arguments']
+            try:
+                # handle requested method
+                methodName = json_data['command']
+                arguments = json_data.get('arguments', {})
+                method = getattr(self, methodName)
+                method(arguments)
+            except Exception as e:
+                # raise
+                self._log.error('ERROR CALLING METHOD "%s": %s' (methodName, str(e)))
 
-            method = getattr(self, methodName)
-            method(self, arguments, pluginhandle=pluginhandle)
+        self._log('ADDON SERVICE / Thread end')
 
-    def show_categories(self, args):
-        show_categories(args['pluginhandle'])
+    def show_categories(self, arguments):
+        show_categories(**arguments)
 
 
+    def show_movies(self, arguments):
+        show_movies(self.apiClient, **arguments)
 
