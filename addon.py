@@ -7,28 +7,28 @@ import urlparse
 import socket
 import json
 from utilities import get_current_addon
+from addon_utilities import uniunquote
 
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
     xbmc.log('ADDON / ' + str(msg))
 
-class AddonClient():
+class AddonClient(object):
     def __init__(self, pluginhandle):        
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.pluginhandle = pluginhandle
 
-    def execute(self, command, **arguments):
+    def execute(self, command, arguments={}):
+        arguments['pluginhandle'] = self.pluginhandle
         json_data = { 
             'command': command,
-            'pluginhandle': self.pluginhandle,
-            'data': arguments
+            'arguments': arguments
         }
 
-        xbmc.log(str(json_data))
-
         self.s.connect(('localhost', 9889))
+        xbmc.log('CLIENT / SEND / ' + json.dumps(json_data, indent=4))
         self.s.sendall(json.dumps(json_data))
-        self.s.close()
+        self.s.close()        
 
 
 if __name__=='__main__':
@@ -79,7 +79,7 @@ if __name__=='__main__':
             'show_movies',
             {
                 'url': p['url'],
-                'type': p['type'],
+                'list_type': p['type'],
                 'movie_type': 'movie'
             }
         )
@@ -88,7 +88,7 @@ if __name__=='__main__':
             'show_movies',
             {
                 'url': p['url'],
-                'type': p['type'],
+                'list_type': p['type'],
                 'movie_type': 'episode'
             }
         )
@@ -97,7 +97,7 @@ if __name__=='__main__':
             'show_movies',
             {
                 'url': p['url'],
-                'type': p['type'],
+                'list_type': p['type'],
                 'movie_type': 'movie'
             }
         )
@@ -106,7 +106,7 @@ if __name__=='__main__':
             'show_movies',
             {
                 'url': p['url'],
-                'type': p['type'],
+                'list_type': p['type'],
                 'movie_type': 'episode'
             }
         )
@@ -115,7 +115,7 @@ if __name__=='__main__':
             'show_movies',
             {
                 'url': p['url'],
-                'type': p['type'],
+                'list_type': p['type'],
                 'movie_type': 'none'
             }
         )
