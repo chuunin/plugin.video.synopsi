@@ -174,8 +174,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.close()
 
 
-def add_directory(name, url, mode, iconimage, atype, pluginhandle):
-    u = pluginPath+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
+def add_directory(name, mode, iconimage, atype, pluginhandle):
+    u = pluginPath+"?mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
     ok = True
     li = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # li.setInfo(type="Video", infoLabels={"Title": name} )
@@ -218,8 +218,7 @@ def show_movies(apiClient, url, list_type, movie_type, pluginhandle):
             log('pluginhandle: %d' % pluginhandle)
             movie['type'] = movie_type
             add_movie(
-                movie, 
-                "url",
+                movie,
                 2, 
                 movie.get('cover_medium'), 
                 pluginhandle
@@ -248,7 +247,7 @@ def show_movies(apiClient, url, list_type, movie_type, pluginhandle):
 
 
 
-def test_dialogwindow():
+def test_dialogwindow(pluginhandle):
     xbmcplugin.endOfDirectory(pluginhandle)
     jdata = {
         'id': 1232,
@@ -266,7 +265,7 @@ def test_dialogwindow():
 
 
 
-def show_video_dialog(apiClient, url, name, json_data):
+def show_video_dialog(apiClient, name, json_data):
 
     stv_details = apiClient.title(json_data['id'], detailProps)
 
