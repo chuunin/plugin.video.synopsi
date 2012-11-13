@@ -313,8 +313,12 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def title(self, titleId, props=defaultTitleProps):
+	def title(self, titleId, props=defaultTitleProps, cast_props=None):
 		" Get title from library "
+
+		if cast_props:
+			props += ['cast']
+		
 		req = {
 			'methodPath': '/title/%d/' % titleId,
 			'method': 'get',
@@ -322,6 +326,9 @@ class ApiClient(object):
 				'title_property[]': ','.join(props)
 			}
 		}
+
+		if cast_props:
+			req['data']['cast_property[]'] = ','.join(cast_props)
 
 		return self.execute(req)
 

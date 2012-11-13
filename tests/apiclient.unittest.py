@@ -12,6 +12,7 @@ def pprint(data):
 
 	if data is dict and data.has_key('_db_queries'):
 		del data['_db_queries']
+
 	msg = json.dumps(data, indent=4)
 	# print msg
 	logger.debug(msg)
@@ -135,8 +136,11 @@ class ApiTest(unittest.TestCase):
 	def test_title(self):
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-		title = client.title(1947362)
-		print title
+		title = client.title(1947362, cast_props=['name'])
+		
+		self.assertTrue(title.has_key('cover_full'))
+		self.assertTrue(title.has_key('cast'))
+		self.assertTrue(title['cast'][0]['name']=='Charlton Heston')
 
 
 
