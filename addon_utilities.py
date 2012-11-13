@@ -33,63 +33,6 @@ def uniquote(s):
 def uniunquote(uni):
     return urllib.unquote_plus(uni.decode('utf-8'))
 
-def get_local_recco(apiClient, movie_type):
-    resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaultProps)
-    return resRecco
-
-def get_global_recco(apiClient, movie_type):
-    resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaultProps)
-    return resRecco
-
-def get_unwatched_episodes(apiClient):
-    episodes =  apiClient.unwatchedEpisodes()
-
-    log('unwatched episodes')
-    for title in episodes['top']:
-        log(title['name'])
-
-    result = episodes['lineup']
-    if not result:
-        # let user know there is no lineup
-        # provide some alternative listing
-        result = episodes['upcoming']
-        if not result:
-            # let user know there is no upcoming
-            # provide some alternative listing
-            result = episodes['top']
-        
-    return result
-
-def get_lists():
-    log('get_lists')
-    return movies
-
-def get_trending_movies():
-    log('get_trending_movies')
-    return movies
-
-def get_trending_tvshows():
-    log('get_trending_tvshows')
-    return movies
-
-def get_items(apiClient, list_type, movie_type = None):
-    log('get_items:' + str(list_type))
-    if list_type == 1:
-        return get_global_recco(apiClient, movie_type)['titles']
-    elif list_type == 2:
-        return get_local_recco(apiClient, movie_type)['titles']
-    elif list_type == 3:
-        return get_unwatched_episodes(apiClient)
-    elif list_type == 4:
-        return get_lists()
-    elif list_type == 5:
-        return get_trending_movies()
-    elif list_type == 6:
-        return get_trending_tvshows()
-
-def set_already_watched(apiClient, stv_id, rating):
-    log('already watched %d rating %d' % (stv_id, rating))
-    apiClient.titleWatched(stv_id, rating=rating)
 
 class VideoDialog(xbmcgui.WindowXMLDialog):
     """
@@ -175,10 +118,104 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.close()
 
 
+def show_video_dialog(apiClient, name, json_data):
+
+    stv_details = apiClient.title(json_data['id'], detailProps)
+
+    # add xbmc id if available
+    if stvList.hasStvId(json_data['id']):
+        cacheItem = stvList.getByStvId(json_data['id'])
+        json_data['xbmc_id'] = cacheItem['id']
+        log('xbmc id:' + str(json_data['xbmc_id']))
+        json_data['xbmc_movie_detail'] = get_details('movie', json_data['xbmc_id'], True)
+
+    log('show video:' + json.dumps(json_data, indent=4))
+    log('stv_details video:' + json.dumps(stv_details, indent=4))
+    stv_details.update(json_data)
+    json_data=stv_details
+
+    # get similar movies
+    similars = apiClient.titleSimilar(json_data['id'])
+    if similars.has_key('titles'):
+        json_data['similars'] = similars['titles']
+
+    try:
+        win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+    except ValueError, e:
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
+        ui.doModal()
+        del ui
+    else:
+        win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
+        win.close()
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
+        ui.doModal()
+        del ui
+
+
+def get_local_recco(apiClient, movie_type):
+    resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaultProps)
+    return resRecco
+
+def get_global_recco(apiClient, movie_type):
+    resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaultProps)
+    return resRecco
+
+def get_unwatched_episodes(apiClient):
+    episodes =  apiClient.unwatchedEpisodes()
+
+    log('unwatched episodes')
+    for title in episodes['top']:
+        log(title['name'])
+
+    result = episodes['lineup']
+    if not result:
+        # let user know there is no lineup
+        # provide some alternative listing
+        result = episodes['upcoming']
+        if not result:
+            # let user know there is no upcoming
+            # provide some alternative listing
+            result = episodes['top']
+        
+    return result
+
+def get_lists():
+    log('get_lists')
+    return movies
+
+def get_trending_movies():
+    log('get_trending_movies')
+    return movies
+
+def get_trending_tvshows():
+    log('get_trending_tvshows')
+    return movies
+
+def get_items(apiClient, list_type, movie_type = None):
+    log('get_items:' + str(list_type))
+    if list_type == 1:
+        return get_global_recco(apiClient, movie_type)['titles']
+    elif list_type == 2:
+        return get_local_recco(apiClient, movie_type)['titles']
+    elif list_type == 3:
+        return get_unwatched_episodes(apiClient)
+    elif list_type == 4:
+        return get_lists()
+    elif list_type == 5:
+        return get_trending_movies()
+    elif list_type == 6:
+        return get_trending_tvshows()
+
+def set_already_watched(apiClient, stv_id, rating):
+    log('already watched %d rating %d' % (stv_id, rating))
+    apiClient.titleWatched(stv_id, rating=rating)
+
 def add_directory(name, mode, iconimage, atype, pluginhandle):
     u = pluginPath+"?mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
     ok = True
     li = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    # li.setProperty('IsPlayable', 'False')
     # li.setInfo(type="Video", infoLabels={"Title": name} )
     # li.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=li,isFolder=True)
@@ -191,7 +228,7 @@ def add_movie(movie, mode, iconimage, pluginhandle):
     ok = True
     li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	# a mysterious bug workaround from xbmc forum
-    li.setProperty('IsPlayable', 'False')
+    # li.setProperty('IsPlayable', 'False')
     li.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
     # li.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=li,isFolder=False)
@@ -212,13 +249,21 @@ def show_categories(pluginhandle):
     xbmcplugin.endOfDirectory(pluginhandle)
 
 def show_movies(apiClient, list_type, movie_type, pluginhandle):
+    items = get_items(apiClient, list_type, movie_type)
+    show_movie_list(items, pluginhandle)
+
+
+  
+    # xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
+
+
+def show_movie_list(items, pluginhandle):
     errorMsg = None
 
     try:
-        for movie in get_items(apiClient, list_type, movie_type):
+        for movie in items
             log(json.dumps(movie, indent=4))
-            log('pluginhandle: %d' % pluginhandle)
-            movie['type'] = movie_type
+            # movie['type'] = movie_type
             add_movie(
                 movie,
                 2, 
@@ -267,40 +312,6 @@ def test_dialogwindow(pluginhandle):
     show_video_dialog(0, 0, jdata)
 
 
-
-def show_video_dialog(apiClient, name, json_data):
-
-    stv_details = apiClient.title(json_data['id'], detailProps)
-
-    # add xbmc id if available
-    if stvList.hasStvId(json_data['id']):
-        cacheItem = stvList.getByStvId(json_data['id'])
-        json_data['xbmc_id'] = cacheItem['id']
-        log('xbmc id:' + str(json_data['xbmc_id']))
-        json_data['xbmc_movie_detail'] = get_details('movie', json_data['xbmc_id'], True)
-
-    log('show video:' + json.dumps(json_data, indent=4))
-    log('stv_details video:' + json.dumps(stv_details, indent=4))
-    stv_details.update(json_data)
-    json_data=stv_details
-
-    # get similar movies
-    similars = apiClient.titleSimilar(json_data['id'])
-    if similars.has_key('titles'):
-        json_data['similars'] = similars['titles']
-
-    try:
-        win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-    except ValueError, e:
-        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
-        ui.doModal()
-        del ui
-    else:
-        win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
-        win.close()
-        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
-        ui.doModal()
-        del ui
 
 def addon_openSettings():
     addon = get_current_addon()
