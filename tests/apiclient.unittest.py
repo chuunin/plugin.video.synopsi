@@ -104,7 +104,7 @@ class ApiTest(unittest.TestCase):
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
 		props = [ 'year', 'cover_small' ]
-		data = client.profileRecco('movie', False, props)
+		data = client.profileRecco('movie', False, 5, props)
 
 		self.assertTrue(data.has_key('recco_id'))
 		self.assertTrue(data.has_key('titles'))
@@ -117,7 +117,7 @@ class ApiTest(unittest.TestCase):
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
 		props = [ 'year', 'cover_small' ]
-		data = client.profileRecco('movie', True, props)
+		data = client.profileRecco('movie', True, 5, props)
 
 		self.assertTrue(data.has_key('recco_id'))
 		self.assertTrue(data.has_key('titles'))

@@ -270,7 +270,7 @@ class ApiClient(object):
 		return self.execute(req)
 
 # conditionally dependent
-	def profileRecco(self, atype, local=False, props=defaultTitleProps):
+	def profileRecco(self, atype, local=False, limit=None, props=defaultTitleProps):
 		req = {
 			'methodPath': 'profile/recco/',
 			'method': 'get',
@@ -282,6 +282,9 @@ class ApiClient(object):
 
 		if local:
 			req['data']['device_id'] = self.device_id
+
+		if limit:
+			req['data']['limit'] = limit
 
 		return self.execute(req)
 

@@ -24,6 +24,8 @@ __cwd__      = __addon__.getAddonInfo('path')
 __profile__      = __addon__.getAddonInfo('profile')
 __lockLoginScreen__ = threading.Lock()
 
+homeReccoLimit = 5
+
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """
     Sends notification to XBMC.
@@ -544,8 +546,8 @@ def home_screen_fill(apiClient, cache):
 
 	# get recco movies and episodes
 	try:
-		movie_recco = apiClient.profileRecco('movie', True)['titles']
-		episode_recco = apiClient.profileRecco('episode', True)['titles']
+		movie_recco = apiClient.profileRecco('movie', True, homeReccoLimit)['titles']
+		episode_recco = apiClient.profileRecco('episode', True, homeReccoLimit)['titles']
 	except:
 		notification('Movie reccomendation service failed')
 		return
