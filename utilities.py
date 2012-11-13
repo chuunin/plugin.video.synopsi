@@ -21,8 +21,8 @@ CANCEL_DIALOG2 = (61467, )
 
 __addon__    = xbmcaddon.Addon()
 __cwd__      = __addon__.getAddonInfo('path')
+__profile__      = __addon__.getAddonInfo('profile')
 __lockLoginScreen__ = threading.Lock()
-
 
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """
@@ -34,6 +34,11 @@ def get_current_addon():
 	global __addon__
 	return __addon__
 
+def clear_setting_cache():
+	"Clear cached addon setting. Usefull after update"
+	settingsPath = xbmc.translatePath(os.path.join(__profile__, 'settings.xml'))
+	if os.path.exists(settingsPath):
+		os.remove(settingsPath)
 
 class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 	"""
