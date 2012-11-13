@@ -59,7 +59,6 @@ class StvList(object):
         return cache
 
     def serialize(self):
-        self.log(json.dumps([self.byTypeId, self.byFilename, self.byStvId]))
         pickled_base64_cache = base64.b64encode(pickle.dumps([self.byTypeId, self.byFilename, self.byStvId]))
         return pickled_base64_cache
 
