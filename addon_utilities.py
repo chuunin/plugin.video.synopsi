@@ -190,7 +190,8 @@ def add_movie(movie, mode, iconimage, pluginhandle):
     u = pluginPath+"?mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
     li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    # li.setProperty('IsPlayable', 'False')
+	# a mysterious bug workaround from xbmc forum
+    li.setProperty('IsPlayable', 'False')
     li.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
     # li.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=li,isFolder=False)
