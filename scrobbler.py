@@ -46,7 +46,6 @@ class SynopsiPlayer(xbmc.Player):
         xbmc.log('SynopsiPlayer: ' + msg)
 
     def playerEvent(self, eventName):
-        notification(eventName, 'notify')
         self.log('playerEvent:' + eventName)
 
         event = {
