@@ -30,6 +30,7 @@ movie_response = { 'titles': movies }
 
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime']
+reccoDefaulLimit = 29
 
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
@@ -42,7 +43,7 @@ def uniunquote(uni):
     return urllib.unquote_plus(uni.decode('utf-8'))
 
 def get_local_recco(movie_type):
-    resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaultProps)
+    resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaulLimit, reccoDefaultProps)
 
     # log('local recco for ' + movie_type)
     # for title in resRecco['titles']:
@@ -52,7 +53,7 @@ def get_local_recco(movie_type):
 
 
 def get_global_recco(movie_type):
-    resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaultProps)
+    resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaulLimit, reccoDefaultProps)
 
     # log('global recco for ' + movie_type)
     # for title in resRecco['titles']:
@@ -171,6 +172,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         i = 1
         if self.data.has_key('similars'):
             for item in self.data['similars']:
+                win.setProperty("Movie.Similar.{0}.Id".format(i), str(item['id']))
                 win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
                 win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_medium'])
                 i = i + 1
@@ -262,10 +264,12 @@ def show_movies(url, type, movie_type, dirhandle):
     # xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
 
 
+def show_video_dialog_byId(stv_id):
+    stv_details = apiClient.title(json_data['id'], detailProps)
+
+
 
 def show_video_dialog(url, name, json_data):
-    global stvList, apiClient
-
     stv_details = apiClient.title(json_data['id'], detailProps)
 
     # add xbmc id if available
@@ -285,6 +289,9 @@ def show_video_dialog(url, name, json_data):
     if similars.has_key('titles'):
         json_data['similars'] = similars['titles']
 
+    open_video_dialog(json_data)
+
+def open_video_dialog(json_data):
     try:
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
     except ValueError, e:
@@ -386,6 +393,8 @@ elif p['mode']==20:
 elif p['mode']==2:
     p['json_data']['type'] = p['type']
     show_video_dialog(p['url'], p['name'], p['json_data'])
+elif p['mode']==901:
+    show_video_dialog_byId(p['stv_id'])
 elif p['mode']==90:
     __addon__.openSettings()
 elif p['mode']==999:
