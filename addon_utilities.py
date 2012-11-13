@@ -250,18 +250,14 @@ def show_categories(pluginhandle):
 
 def show_movies(apiClient, list_type, movie_type, pluginhandle):
     items = get_items(apiClient, list_type, movie_type)
-    show_movie_list(items, pluginhandle)
-
-
-  
-    # xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
+    show_movie_list(items, pluginhandle) 
 
 
 def show_movie_list(items, pluginhandle):
     errorMsg = None
 
     try:
-        for movie in items
+        for movie in items:
             log(json.dumps(movie, indent=4))
             # movie['type'] = movie_type
             add_movie(

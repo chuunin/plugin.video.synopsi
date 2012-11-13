@@ -54,13 +54,9 @@ class AddonService(mythread.MyThread):
             except Exception as e:
                 # raise
                 self._log.error('ERROR CALLING METHOD "%s": %s' % (methodName, str(e)))
-                self._log.error('TRACEBACK / ' + traceback.format_exc)
+                self._log.error('TRACEBACK / ' + traceback.format_exc())
 
         self._log.debug('ADDON SERVICE / Thread end')
-
-    def show_categories(self, arguments):
-        show_categories(**arguments)
-
 
     def get_items(self, arguments):
         return get_items(self.apiClient, **arguments)

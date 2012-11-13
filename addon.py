@@ -21,7 +21,6 @@ class AddonClient(object):
         self.pluginhandle = pluginhandle
 
     def execute(self, command, arguments={}):
-        arguments['pluginhandle'] = self.pluginhandle
         json_data = { 
             'command': command,
             'arguments': arguments
@@ -30,7 +29,10 @@ class AddonClient(object):
         self.s.connect(('localhost', 9889))
         xbmc.log('CLIENT / SEND / ' + json.dumps(json_data, indent=4))
         self.s.sendall(json.dumps(json_data))
+        response = self.s.recv(4096)
         self.s.close()        
+        response_json = json.loads(response)
+        return response_json
 
 
 if __name__=='__main__':
@@ -76,7 +78,7 @@ if __name__=='__main__':
     log('data: %s' % (p['data']))    
 
     if p['mode']==None:
-        addonClient.execute('show_categories')
+        show_categories(pluginhandle)
     elif p['mode']==1:
         items = addonClient.execute(
             'get_items',
@@ -86,7 +88,10 @@ if __name__=='__main__':
             }
         )
 
-        
+        log('items:' + len(items))
+
+        show_movie_list(items, pluginhandle)
+
     elif p['mode']==11:
         items = addonClient.execute(
             'get_items',
