@@ -29,7 +29,7 @@ movies = test.jsfile
 movie_response = { 'titles': movies }
 
 reccoDefaultProps = ['id', 'cover_medium', 'name']
-detailProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime']
+detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 reccoDefaulLimit = 29
 
 def log(msg):
@@ -142,7 +142,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             
         labels = dict()
         labels['Director'] = ', '.join(self.data['directors'])
-        labels['Writer'] = ', '.join(self.data['writers'])
+        labels['Cast'] = ', '.join(map(lambda x:x['name'], self.data['cast']))
         labels['Runtime'] = '%d min' % self.data['runtime']
         labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
 
@@ -265,12 +265,10 @@ def show_movies(url, type, movie_type, dirhandle):
 
 
 def show_video_dialog_byId(stv_id):
-    stv_details = apiClient.title(json_data['id'], detailProps)
-
-
+    stv_details = apiClient.title(json_data['id'], detailProps, ['name'])
 
 def show_video_dialog(url, name, json_data):
-    stv_details = apiClient.title(json_data['id'], detailProps)
+    stv_details = apiClient.title(json_data['id'], detailProps, ['name'])
 
     # add xbmc id if available
     if stvList.hasStvId(json_data['id']):
