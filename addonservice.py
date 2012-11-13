@@ -9,7 +9,7 @@ class AddonService(mythread.MyThread):
         self.apiClient = apiClient
 
     def run(self):
-        self._log('ADDON SERVICE / Thread start')
+        self._log.debug('ADDON SERVICE / Thread start')
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(0.5)
         s.bind((self.host, self.port))
@@ -52,7 +52,7 @@ class AddonService(mythread.MyThread):
                 # raise
                 self._log.error('ERROR CALLING METHOD "%s": %s' (methodName, str(e)))
 
-        self._log('ADDON SERVICE / Thread end')
+        self._log.debug('ADDON SERVICE / Thread end')
 
     def show_categories(self, arguments):
         show_categories(**arguments)
