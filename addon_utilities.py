@@ -11,6 +11,7 @@ import json
 import os.path
 import logging
 import socket
+import traceback
 from datetime import datetime
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
@@ -189,7 +190,7 @@ def add_movie(movie, mode, iconimage, pluginhandle):
     u = pluginPath+"?mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     ok = True
     li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    li.setProperty('IsPlayable', False)
+    # li.setProperty('IsPlayable', 'False')
     li.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
     # li.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=pluginhandle,url=u,listitem=li,isFolder=False)
@@ -209,7 +210,7 @@ def show_categories(pluginhandle):
     add_directory("Login and Settings", 90, "icon.png", 1, pluginhandle)
     xbmcplugin.endOfDirectory(pluginhandle)
 
-def show_movies(apiClient, url, list_type, movie_type, pluginhandle):
+def show_movies(apiClient, list_type, movie_type, pluginhandle):
     errorMsg = None
 
     try:
@@ -226,8 +227,9 @@ def show_movies(apiClient, url, list_type, movie_type, pluginhandle):
     except AuthenticationError:
         errorMsg = True
     except Exception, e:
-        errorMsg = "Three was an error getting movie list"
-        errorMsg += "(%s)" % str(e)
+        errorMsg = "Three was an error getting movie list\n"
+        errorMsg += traceback.format_exc()
+        errorMsg += "\n (%s)" % str(e)
 
     finally:
         xbmcplugin.endOfDirectory(pluginhandle)
