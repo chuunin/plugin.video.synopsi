@@ -1,4 +1,6 @@
 import mythread
+import traceback
+
 from addon_utilities import *
 
 class AddonService(mythread.MyThread):
@@ -46,11 +48,13 @@ class AddonService(mythread.MyThread):
                 # handle requested method
                 methodName = json_data['command']
                 arguments = json_data.get('arguments', {})
+
                 method = getattr(self, methodName)
                 method(arguments)
             except Exception as e:
                 # raise
-                self._log.error('ERROR CALLING METHOD "%s": %s' (methodName, str(e)))
+                self._log.error('ERROR CALLING METHOD "%s": %s' % (methodName, str(e)))
+                self._log.error('TRACEBACK / ' + traceback.format_exc)
 
         self._log.debug('ADDON SERVICE / Thread end')
 
