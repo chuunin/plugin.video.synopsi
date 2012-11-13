@@ -60,7 +60,7 @@ class ApiTest(unittest.TestCase):
 		# 60569 "Malcolm X"
 		data = client.titleIdentify(imdb_id=60569, stv_title_hash='')
 
-		stv_title_id = data['title_id']
+		stv_title_id = data['id']
 
 		data = client.libraryTitleAdd(stv_title_id)
 

@@ -106,8 +106,8 @@ class StvList(object):
             # self.log('ident:' + json.dumps(ident, indent=4))    
 
             title = self.apiclient.titleIdentify(**ident)
-            if title.has_key('title_id'):
-                movie['stvId'] = title['title_id']
+            if title.has_key('id'):
+                movie['stvId'] = title['id']
 
             self.put(movie)
 
