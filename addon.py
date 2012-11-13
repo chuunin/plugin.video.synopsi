@@ -6,8 +6,10 @@ Default file for SynopsiTV addon. See addon.xml
 import urlparse
 import socket
 import json
+import xbmcplugin
+import xbmc
 from utilities import get_current_addon
-from addon_utilities import uniunquote
+from addon_utilities import *
 
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
@@ -32,15 +34,16 @@ class AddonClient(object):
 
 
 if __name__=='__main__':
-    __addon__  = get_current_addon()
+    xbmc.log('SYS ARGV:' + str(sys.argv)) 
 
+    __addon__  = get_current_addon()
     __addonname__ = __addon__.getAddonInfo('name')
     __cwd__    = __addon__.getAddonInfo('path')
     __author__  = __addon__.getAddonInfo('author')
     __version__   = __addon__.getAddonInfo('version')
-    addonClient = AddonClient(int(sys.argv[1]))
 
-    xbmc.log('SYS ARGV:' + str(sys.argv)) 
+    pluginhandle = int(sys.argv[1])
+    addonClient = AddonClient(pluginhandle)
 
     url_parsed = urlparse.urlparse(sys.argv[2])
     params = urlparse.parse_qs(url_parsed.query)
@@ -75,40 +78,42 @@ if __name__=='__main__':
     if p['mode']==None:
         addonClient.execute('show_categories')
     elif p['mode']==1:
-        addonClient.execute(
-            'show_movies',
+        items = addonClient.execute(
+            'get_items',
             {
                 'list_type': p['type'],
                 'movie_type': 'movie'
             }
         )
+
+        
     elif p['mode']==11:
-        addonClient.execute(
-            'show_movies',
+        items = addonClient.execute(
+            'get_items',
             {
                 'list_type': p['type'],
                 'movie_type': 'episode'
             }
         )
     elif p['mode']==12:
-        addonClient.execute(
-            'show_movies',
+        items = addonClient.execute(
+            'get_items',
             {
                 'list_type': p['type'],
                 'movie_type': 'movie'
             }
         )
     elif p['mode']==13:
-            addonClient.execute(
-            'show_movies',
+        items = addonClient.execute(
+            'get_items',
             {
                 'list_type': p['type'],
                 'movie_type': 'episode'
             }
         )
     elif p['mode']==20:
-        addonClient.execute(
-            'show_movies',
+        items = addonClient.execute(
+            'get_items',
             {
                 'list_type': p['type'],
                 'movie_type': 'none'

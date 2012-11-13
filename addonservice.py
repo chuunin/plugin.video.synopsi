@@ -62,6 +62,6 @@ class AddonService(mythread.MyThread):
         show_categories(**arguments)
 
 
-    def show_movies(self, arguments):
-        show_movies(self.apiClient, **arguments)
+    def get_items(self, arguments):
+        return get_items(self.apiClient, **arguments)
 
