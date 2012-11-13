@@ -72,13 +72,12 @@ if __name__=='__main__':
     log('url: %s' % (p['url']))  
     log('data: %s' % (p['data']))    
 
-    if p['mode']==None or len(p['url'])<1:
+    if p['mode']==None:
         addonClient.execute('show_categories')
     elif p['mode']==1:
         addonClient.execute(
             'show_movies',
             {
-                'url': p['url'],
                 'list_type': p['type'],
                 'movie_type': 'movie'
             }
@@ -87,7 +86,6 @@ if __name__=='__main__':
         addonClient.execute(
             'show_movies',
             {
-                'url': p['url'],
                 'list_type': p['type'],
                 'movie_type': 'episode'
             }
@@ -96,7 +94,6 @@ if __name__=='__main__':
         addonClient.execute(
             'show_movies',
             {
-                'url': p['url'],
                 'list_type': p['type'],
                 'movie_type': 'movie'
             }
@@ -105,7 +102,6 @@ if __name__=='__main__':
             addonClient.execute(
             'show_movies',
             {
-                'url': p['url'],
                 'list_type': p['type'],
                 'movie_type': 'episode'
             }
@@ -114,7 +110,6 @@ if __name__=='__main__':
         addonClient.execute(
             'show_movies',
             {
-                'url': p['url'],
                 'list_type': p['type'],
                 'movie_type': 'none'
             }
