@@ -3,11 +3,14 @@
 Default file for SynopsiTV addon. See addon.xml 
 <extension point="xbmc.python.pluginsource" library="addon.py">
 """
+# xbmc
 import xbmc
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import xbmcvfs
+
+# python standart lib
 import urllib
 import sys
 import os
@@ -17,7 +20,10 @@ import urllib2
 import re
 import os.path
 import logging
+import traceback
 from datetime import datetime
+
+# application
 import test
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
@@ -32,10 +38,24 @@ movie_response = { 'titles': movies }
 # constant
 t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
 t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
+t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 reccoDefaulLimit = 29
+
+class ActionCode:
+    MovieRecco = 10
+    TVShows = 20
+    LocalMovieRecco = 30
+    UnwatchedEpisodes = 40
+    UpcomingEpisodes = 50
+
+    LoginAndSettings = 90
+
+    VideoDialogShow = 900
+    VideoDialogShowById = 910
+
 
 def log(msg):
     #logging.debug('ADDON: ' + str(msg))
@@ -88,6 +108,16 @@ def get_upcoming_episodes():
     result = episodes['upcoming']
     return result
 
+def get_top_tvshow():
+    episodes =  apiClient.unwatchedEpisodes()
+
+    log('top tvshows')
+    for title in episodes['top']:
+        log(title['name'])
+    result = episodes['top']
+    return result
+
+
 def get_lists():
     log('get_lists')
     return movies
@@ -108,22 +138,37 @@ def get_trending_tvshows():
     return movies
 
 
-def get_items(_type, movie_type = None):
-    log('get_items:' + str(_type))
-    if _type == 1:
+def get_items(list_type, movie_type = None):
+    log('get_items:' + str(list_type))
+    if list_type == 1:
         return get_global_recco(movie_type)['titles']
-    elif _type == 2:
+    elif list_type == 2:
         return get_local_recco(movie_type)['titles']
-    elif _type == 3:
+    elif list_type == 3:
         return get_unwatched_episodes()
-    elif _type == 33:
+    elif list_type == 33:
         return get_upcoming_episodes()        
-    elif _type == 4:
+    elif list_type == 4:
         return get_lists()
-    elif _type == 5:
+    elif list_type == 5:
         return get_trending_movies()
-    elif _type == 6:
+    elif list_type == 6:
         return get_trending_tvshows()
+
+def get_item_list(action_code):
+    log('get_item_list:' + str(action_code))
+    
+    if action_code==ActionCode.MovieRecco:
+        return get_global_recco('movie')['titles']
+    if action_code==ActionCode.TVShows:
+        return get_top_tvshow()
+    if action_code==ActionCode.LocalMovieRecco:
+        return get_local_recco('movie')['titles']
+    if action_code==ActionCode.UnwatchedEpisodes:
+        return get_unwatched_episodes()
+    if action_code==ActionCode.UpcomingEpisodes:
+        return get_upcoming_episodes()
+
 
 def add_to_list(movieid, listid):
     pass
@@ -245,25 +290,35 @@ def show_categories():
     Shows initial categories on home screen.
     """
     xbmc.executebuiltin("Container.SetViewMode(503)")
-    add_directory("Movie Recommendations", "url", 1, "list.png", 1)
-    add_directory("TV Show", "url", 11, "list.png", 1)
-    add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
-    add_directory("Unwatched TV Show Episodes", "url", 20, "icon.png", 3)
-    add_directory("Upcoming TV Episodes", "url", 21, "icon.png", 33)
-    add_directory("Login and Settings", "url", 90, "icon.png", 1)
+    add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png", 1)
+    add_directory("TV Shows", "url", ActionCode.TVShows, "list.png", 1)
+    add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png", 2)
+    add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "icon.png", 3)
+    add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "icon.png", 33)
+    add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "icon.png", 1)
 
-def show_movies(url, type, movie_type, dirhandle):
+def show_submenu(action_code, dirhandle):
+    try:
+        item_list = get_item_list(action_code)
+        show_movie_list(item_list, dirhandle)
+    except ListEmptyException:    
+        raise
+    except:
+        log(traceback.format_exc())
+        xbmcgui.Dialog().ok(t_stv, t_listing_failed)
+        xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')         
+
+
+def show_movie_list(item_list, dirhandle):
     errorMsg = None
     try:
-        movie_items = get_items(type, movie_type)
-        if not movie_items:
+        if not item_list:
             raise ListEmptyException
             
-        for movie in movie_items:
+        for movie in item_list:
             log(json.dumps(movie, indent=4))
-            movie['type'] = movie_type
             add_movie(movie, "url",
-                2, movie.get('cover_medium'), movie.get("id"))
+                ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
     except AuthenticationError:
         errorMsg = True
     finally:
@@ -383,38 +438,39 @@ if p['data']:
 dirhandle = int(sys.argv[1])
 
 log('mode: %s type: %s' % (p['mode'], p['type']))    
-log('mode type: %s' % type(p['mode']))   
 log('url: %s' % (p['url']))  
 log('data: %s' % (p['data']))    
 
-if p['mode']==None or p['url']==None or len(p['url'])<1:
+if p['mode']==None:
     # xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
     # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
     show_categories()
     xbmcplugin.endOfDirectory(dirhandle)
-elif p['mode']==1:
-    show_movies(p['url'], p['type'], 'movie', dirhandle)
-elif p['mode']==11:
-    show_movies(p['url'], p['type'], 'episode', dirhandle)
-elif p['mode']==12:
-    show_movies(p['url'], p['type'], 'movie', dirhandle)
-elif p['mode']==13:
-    show_movies(p['url'], p['type'], 'episode', dirhandle)
-elif p['mode']==20:
+elif p['mode']==ActionCode.MovieRecco:
+    show_submenu(p['mode'], dirhandle)
+
+elif p['mode']==ActionCode.TVShows:
+    show_submenu(p['mode'], dirhandle)
+
+elif p['mode']==ActionCode.LocalMovieRecco:
+    show_submenu(p['mode'], dirhandle)
+
+elif p['mode']==ActionCode.UnwatchedEpisodes:
     try:
-        show_movies(p['url'], p['type'], 'none', dirhandle)
+        show_submenu(p['mode'], dirhandle)
     except ListEmptyException:
         xbmcgui.Dialog().ok(t_stv, t_nounwatched)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-elif p['mode']==21:
+
+elif p['mode']==ActionCode.UpcomingEpisodes:
     try:
-        show_movies(p['url'], p['type'], 'none', dirhandle)
+        show_submenu(p['mode'], dirhandle)
     except ListEmptyException:
         xbmcgui.Dialog().ok(t_stv, t_noupcoming)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
         
-elif p['mode']==2:
+elif p['mode']==ActionCode.VideoDialogShow:
     p['json_data']['type'] = p['type']
     show_video_dialog(p['url'], p['name'], p['json_data'])
 elif p['mode']==901:
