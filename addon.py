@@ -25,9 +25,14 @@ from cache import StvList
 
 # from PIL import Image, ImageDraw, ImageOps
 
+# test files
 movies = test.jsfile
 movie_response = { 'titles': movies }
 
+# constant
+t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
+t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
+t_stv = 'SynopsiTV'
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 reccoDefaulLimit = 29
@@ -41,6 +46,9 @@ def uniquote(s):
 
 def uniunquote(uni):
     return urllib.unquote_plus(uni.decode('utf-8'))
+
+class ListEmptyException(BaseException):
+    pass
 
 def get_local_recco(movie_type):
     resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaulLimit, reccoDefaultProps)
@@ -66,19 +74,18 @@ def get_unwatched_episodes():
     episodes =  apiClient.unwatchedEpisodes()
 
     log('unwatched episodes')
-    for title in episodes['top']:
+    for title in episodes['lineup']:
         log(title['name'])
-
     result = episodes['lineup']
-    if not result:
-        # let user know there is no lineup
-        # provide some alternative listing
-        result = episodes['upcoming']
-        if not result:
-            # let user know there is no upcoming
-            # provide some alternative listing
-            result = episodes['top']
-        
+    return result
+    
+def get_upcoming_episodes():
+    episodes =  apiClient.unwatchedEpisodes()
+
+    log('upcoming episodes')
+    for title in episodes['upcoming']:
+        log(title['name'])
+    result = episodes['upcoming']
     return result
 
 def get_lists():
@@ -109,6 +116,8 @@ def get_items(_type, movie_type = None):
         return get_local_recco(movie_type)['titles']
     elif _type == 3:
         return get_unwatched_episodes()
+    elif _type == 33:
+        return get_upcoming_episodes()        
     elif _type == 4:
         return get_lists()
     elif _type == 5:
@@ -240,13 +249,17 @@ def show_categories():
     add_directory("TV Show", "url", 11, "list.png", 1)
     add_directory("Local Movie recommendations", "url", 12, "list.png", 2)
     add_directory("Unwatched TV Show Episodes", "url", 20, "icon.png", 3)
-    add_directory("Upcoming TV Episodes", "url", 20, "icon.png", 3)
+    add_directory("Upcoming TV Episodes", "url", 21, "icon.png", 33)
     add_directory("Login and Settings", "url", 90, "icon.png", 1)
 
 def show_movies(url, type, movie_type, dirhandle):
     errorMsg = None
     try:
-        for movie in get_items(type, movie_type):
+        movie_items = get_items(type, movie_type)
+        if not movie_items:
+            raise ListEmptyException
+            
+        for movie in movie_items:
             log(json.dumps(movie, indent=4))
             movie['type'] = movie_type
             add_movie(movie, "url",
@@ -389,7 +402,18 @@ elif p['mode']==12:
 elif p['mode']==13:
     show_movies(p['url'], p['type'], 'episode', dirhandle)
 elif p['mode']==20:
-    show_movies(p['url'], p['type'], 'none', dirhandle)
+    try:
+        show_movies(p['url'], p['type'], 'none', dirhandle)
+    except ListEmptyException:
+        xbmcgui.Dialog().ok(t_stv, t_nounwatched)
+        xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+elif p['mode']==21:
+    try:
+        show_movies(p['url'], p['type'], 'none', dirhandle)
+    except ListEmptyException:
+        xbmcgui.Dialog().ok(t_stv, t_noupcoming)
+        xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+        
 elif p['mode']==2:
     p['json_data']['type'] = p['type']
     show_video_dialog(p['url'], p['name'], p['json_data'])
