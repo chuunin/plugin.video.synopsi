@@ -42,7 +42,9 @@ t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
+defaultCastProps = ['name']
 reccoDefaulLimit = 29
+
 
 class ActionCode:
     MovieRecco = 10
@@ -308,7 +310,6 @@ def show_submenu(action_code, dirhandle):
         xbmcgui.Dialog().ok(t_stv, t_listing_failed)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')         
 
-
 def show_movie_list(item_list, dirhandle):
     errorMsg = None
     try:
@@ -335,13 +336,16 @@ def show_movie_list(item_list, dirhandle):
 
 
 def show_video_dialog_byId(stv_id):
-    stv_details = apiClient.title(json_data['id'], detailProps, ['name'])
+    stv_details = apiClient.title(stv_id, detailProps, defaultCastProps)
+    show_video_dialog_data(stv_details)
 
-def show_video_dialog(url, name, json_data):
-    stv_details = apiClient.title(json_data['id'], detailProps, ['name'])
+def show_video_dialog(json_data):
+    stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)
+    show_video_dialog_data(stv_details, json_data)
 
+def show_video_dialog_data(stv_details, json_data={}):
     # add xbmc id if available
-    if stvList.hasStvId(json_data['id']):
+    if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
         cacheItem = stvList.getByStvId(json_data['id'])
         json_data['xbmc_id'] = cacheItem['id']
         log('xbmc id:' + str(json_data['xbmc_id']))
@@ -374,24 +378,6 @@ def open_video_dialog(json_data):
         del ui
 
 
-def get_params():
-    param=[]
-    paramstring=sys.argv[2]
-    if len(paramstring)>=2:
-        params=sys.argv[2]
-        cleanedparams=params.replace('?','')
-        if (params[len(params)-1]=='/'):
-            params=params[0:len(params)-2]
-        pairsofparams=cleanedparams.split('&')
-        param={}
-        for i in range(len(pairsofparams)):
-            splitparams={}
-            splitparams=pairsofparams[i].split('=')
-            if (len(splitparams))==2:
-                param[splitparams[0]]=splitparams[1]
-
-    return param
-
 __addon__  = get_current_addon()
 addonPath = __addon__.getAddonInfo('path')
 
@@ -402,7 +388,6 @@ __version__   = __addon__.getAddonInfo('version')
 
 xbmc.log('SYS ARGV:' + str(sys.argv)) 
 
-# params = get_params()
 url_parsed = urlparse.urlparse(sys.argv[2])
 params = urlparse.parse_qs(url_parsed.query)
 
@@ -415,7 +400,7 @@ stvList = StvList.getDefaultList(apiClient)
 
 # xbmc.log(str(sys.argv))
 
-param_vars = ['url', 'name', 'mode', 'type', 'data']
+param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
 p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
 if p['url']:
@@ -466,9 +451,9 @@ elif p['mode']==ActionCode.UpcomingEpisodes:
         
 elif p['mode']==ActionCode.VideoDialogShow:
     p['json_data']['type'] = p['type']
-    show_video_dialog(p['url'], p['name'], p['json_data'])
+    show_video_dialog(p['json_data'])
 elif p['mode']==901:
-    show_video_dialog_byId(p['stv_id'])
+    show_video_dialog_byId(int(p['stv_id']))
 elif p['mode']==90:
     __addon__.openSettings()
 elif p['mode']==999:
@@ -485,7 +470,7 @@ elif p['mode']==999:
             'premiered': '1. aug. 2012',
         }
     }
-    show_video_dialog(0, 0, jdata)
+    show_video_dialog(jdata)
     
 
 
