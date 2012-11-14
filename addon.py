@@ -447,13 +447,7 @@ if p['mode']==None:
     # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
     show_categories()
     xbmcplugin.endOfDirectory(dirhandle)
-elif p['mode']==ActionCode.MovieRecco:
-    show_submenu(p['mode'], dirhandle)
-
-elif p['mode']==ActionCode.TVShows:
-    show_submenu(p['mode'], dirhandle)
-
-elif p['mode']==ActionCode.LocalMovieRecco:
+elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco]:
     show_submenu(p['mode'], dirhandle)
 
 elif p['mode']==ActionCode.UnwatchedEpisodes:
