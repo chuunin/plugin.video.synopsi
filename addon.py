@@ -454,7 +454,7 @@ elif p['mode']==ActionCode.VideoDialogShow:
     show_video_dialog(p['json_data'])
 elif p['mode']==ActionCode.VideoDialogShowById:
     show_video_dialog_byId(int(p['stv_id']))
-elif p['mode']==90:
+elif p['mode']==ActionCode.LoginAndSettings:
     __addon__.openSettings()
 elif p['mode']==999:
     xbmcplugin.endOfDirectory(dirhandle)
