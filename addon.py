@@ -199,11 +199,13 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             rating = get_rating()
             if rating < 4:
                 set_already_watched(self.data['id'], rating)
+            xbmc.executebuiltin('Container.Update')
 
     def onFocus(self, controlId):
         self.controlId = controlId
 
     def onAction(self, action):
+        log('action:' + str(action.getId()))
         if (action.getId() in CANCEL_DIALOG):
             self.close()
 
@@ -213,7 +215,7 @@ def add_directory(name, url, mode, iconimage, atype):
     ok = True
     liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     # liz.setInfo(type="Video", infoLabels={"Title": name} )
-    liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    # liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
     return ok
 
@@ -224,7 +226,7 @@ def add_movie(movie, url, mode, iconimage, movieid):
     ok = True
     liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
-    liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    # liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
     return ok
 
