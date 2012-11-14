@@ -375,50 +375,44 @@
 							<item>
 								<label>$INFO[Window.Property(Movie.Similar.1.Label)]</label>
 								<icon>$INFO[Window.Property(Movie.Similar.1.Cover)]</icon>
-								<onclick>-</onclick>
 								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
 								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.1.Id)])</onclick> -->
-								<!-- <onclick>RunScript(plugin.video.synopsi/addon.py,mode=901&amp;stv_id=$INFO[Window.Property(Movie.Similar.1.Id)])</onclick> -->
+								<onclick>RunScript(plugin.video.synopsi,0,?mode=910&amp;stv_id=$INFO[Window.Property(Movie.Similar.1.Id)])</onclick>
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Similar.2.Label)]</label>
 								<icon>$INFO[Window.Property(Movie.Similar.2.Cover)]</icon>
-								<onclick>-</onclick>
 								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
 								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.2.Id)])</onclick> -->
-								<!-- <onclick>RunScript(plugin.video.synopsi/addon.py,mode=901&amp;stv_id=$INFO[Window.Property(Movie.Similar.2.Id)])</onclick> -->
+								<onclick>RunScript(plugin.video.synopsi,0,?mode=910&amp;stv_id=$INFO[Window.Property(Movie.Similar.2.Id)])</onclick>
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Similar.3.Label)]</label>
 								<icon>$INFO[Window.Property(Movie.Similar.3.Cover)]</icon>
-								<onclick>-</onclick>
 								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
 								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.3.Id)])</onclick> -->
-								<!-- <onclick>RunScript(plugin.video.synopsi/addon.py,mode=901&amp;stv_id=$INFO[Window.Property(Movie.Similar.3.Id)])</onclick> -->
+								<onclick>RunScript(plugin.video.synopsi,0,?mode=910&amp;stv_id=$INFO[Window.Property(Movie.Similar.3.Id)])</onclick>
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Similar.4.Label)]</label>
 								<icon>$INFO[Window.Property(Movie.Similar.4.Cover)]</icon>
-								<onclick>-</onclick>
 								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
 								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.4.Id)])</onclick> -->
-								<!-- <onclick>RunScript(plugin.video.synopsi/addon.py,mode=901&amp;stv_id=$INFO[Window.Property(Movie.Similar.4.Id)])</onclick> -->
+								<onclick>RunScript(plugin.video.synopsi,0,?mode=910&amp;stv_id=$INFO[Window.Property(Movie.Similar.4.Id)])</onclick>
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Similar.5.Label)]</label>
 								<icon>$INFO[Window.Property(Movie.Similar.5.Cover)]</icon>
-								<onclick>-</onclick>
 								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
 								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.5.Id)])</onclick> -->
-								<!-- <onclick>RunScript(plugin.video.synopsi/addon.py,mode=901&amp;stv_id=$INFO[Window.Property(Movie.Similar.5.Id)])</onclick> -->
+								<onclick>RunScript(plugin.video.synopsi,0,?mode=910&amp;stv_id=$INFO[Window.Property(Movie.Similar.5.Id)])</onclick>
 							</item>
 							<item>
 								<label>$INFO[Window.Property(Movie.Similar.6.Label)]</label>
 								<icon>$INFO[Window.Property(Movie.Similar.6.Cover)]</icon>
-								<onclick>-</onclick>
 								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
 								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.6.Id)])</onclick> -->
-								<!-- <onclick>RunScript(plugin.video.synopsi/addon.py,mode=901&amp;stv_id=$INFO[Window.Property(Movie.Similar.6.Id)])</onclick> -->
+								<onclick>RunScript(plugin.video.synopsi,0,?mode=910&amp;stv_id=$INFO[Window.Property(Movie.Similar.6.Id)])</onclick>
 							</item>
 							<!-- <item><label>$INFO[Window.Property(Movie.Label.3.1)]</label><label2>$INFO[Window.Property(Movie.Label.3.2)]</label2><onclick>-</onclick></item>-->
 						</content>

@@ -452,7 +452,7 @@ elif p['mode']==ActionCode.UpcomingEpisodes:
 elif p['mode']==ActionCode.VideoDialogShow:
     p['json_data']['type'] = p['type']
     show_video_dialog(p['json_data'])
-elif p['mode']==901:
+elif p['mode']==ActionCode.VideoDialogShowById:
     show_video_dialog_byId(int(p['stv_id']))
 elif p['mode']==90:
     __addon__.openSettings()
