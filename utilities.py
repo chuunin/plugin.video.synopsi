@@ -283,7 +283,7 @@ def get_api_port():
 
 	path = os.path.join('special://profile', 'userdata', 'advancedsettings.xml')
 	path = xbmc.translatePath(path)
-	
+
 	value = 9090
 
 	if os.path.isfile(path):
@@ -445,6 +445,26 @@ def get_tvshow_details(movie_id):
 	Get dict of movie_id details.
 	"""
 	properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+    #	"title", 
+    #   "genre", 
+    #   "year", 
+    #   "rating", 
+    #   "plot", 
+    #   "studio", 
+    #   "mpaa", 
+    #   "cast", 
+    #   "playcount", 
+    #   "episode", 
+    #   "imdbnumber", 
+    #   "premiered", 
+    #   "votes", 
+    #   "lastplayed", 
+    #   "fanart", 
+    #   "thumbnail", 
+    #   "file", 
+    #   "originaltitle", 
+    #   "sorttitle", 
+    #   "episodeguide"
 
 	response = xbmcRPC.execute(
 		'VideoLibrary.GetTVShowDetails',
@@ -492,6 +512,8 @@ def get_details(atype, aid, all_prop=False):
 		movie = get_movie_details(aid, all_prop)
 	elif atype == "episode":
 		movie = get_episode_details(aid)
+	elif atype == "tvshow":
+		movie = get_tvshow_details(aid)
 	else:
 		raise Exception('Unknow video type: %s' % atype)
 
