@@ -108,7 +108,7 @@ class RPCListenerHandler(RPCListener):
         self.log(json.dumps(data, indent=4))
 
     def log(self, msg):
-        xbmc.log('Library: ' + msg)
+        xbmc.log('LIBRARY / ' + msg)
 
     def addorupdate(self, atype, aid):
         self.cache.addorupdate(atype, aid)
