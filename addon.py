@@ -200,7 +200,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         labels['Director'] = ', '.join(self.data['directors'])
         labels['Cast'] = ', '.join(map(lambda x:x['name'], self.data['cast']))
         labels['Runtime'] = '%d min' % self.data['runtime']
-        labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
+        if self.data.get('date'):
+            labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
 
         xlabels = dict()
         if self.data.has_key('xbmc_movie_detail'):
@@ -224,6 +225,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             i = i + 1
 
 
+        win.setProperty('BottomListingLabel', 'Similar movies')
         # similars
         i = 1
         if self.data.has_key('similars'):

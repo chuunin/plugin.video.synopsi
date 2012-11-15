@@ -224,9 +224,9 @@
 						<posy>385</posy>
 						<width>160</width>
 						<height>30</height>
-						<label>Similar movies</label>
+						<label>$INFO[Window.Property(BottomListingLabel)]</label>
 						<font>font13</font>
-						<align>right</align>
+						<align>left</align>
 						<aligny>center</aligny>
 						<textcolor>blue</textcolor>
 						<selectedcolor>white</selectedcolor>
