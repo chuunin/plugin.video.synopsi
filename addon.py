@@ -8,7 +8,6 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
-import xbmcvfs
 
 # python standart lib
 import urllib
