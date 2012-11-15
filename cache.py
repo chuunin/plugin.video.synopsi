@@ -2,6 +2,7 @@ import base64
 import pickle
 import xbmc
 import json
+import traceback
 from utilities import *
 from app_apiclient import ApiClient
 
@@ -133,7 +134,6 @@ class StvList(object):
             self.apiclient.libraryTitleAdd(item['stvId'])
 
         self.log(logstr)
-        self.list()
 
     def update(self, item):
         typeIdStr = self._getKey(item['type'], item['id'])
@@ -160,11 +160,10 @@ class StvList(object):
                 self.apiclient.libraryTitleRemove(item['stvId'])
                 del self.byStvId[item['stvId']]
         except Exception as e:
-            self.log(e)
+            self.log(traceback.format_exc())
             self.log('REMOVE FAILED / ' + typeIdStr)    
 
         self.log('REMOVE / ' + typeIdStr)
-        self.list()
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(self._getKey(type, id))
