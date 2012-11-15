@@ -280,13 +280,10 @@ def get_api_port():
 	This function returns TCP port to which is changed XBMC RPC API.
 	If nothing is changed return default 9090.
 	"""
-	path = os.path.dirname(os.path.dirname(__cwd__))
-	#TODO
-	if os.name == "nt":
-		path = path + "\userdata\advancedsettings.xml"
-	else:
-		path = path + "/userdata/advancedsettings.xml"
 
+	path = os.path.join('special://profile', 'userdata', 'advancedsettings.xml')
+	path = xbmc.translatePath(path)
+	
 	value = 9090
 
 	if os.path.isfile(path):
