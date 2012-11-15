@@ -176,7 +176,7 @@
 					<control id="400" type="textbox">
 						<description>Plot</description>
 						<posx>305</posx>
-						<posy>170</posy>
+						<posy>150</posy>
 						<width>720</width>
 						<height>138</height>
 						<font>font12</font>
@@ -410,7 +410,7 @@
 					<control id="9000" type="grouplist">
 						<posx>300</posx>
 						<posy>340</posy>
-						<width>550</width>
+						<width>740</width>
 						<height>40</height>
 						<itemgap>2</itemgap>
 						<!-- <align>center</align>-->
@@ -438,6 +438,10 @@
 						<control id="11" type="button">
 							<include>ButtonInfoDialogsCommonValues</include>
 							<label>Watched</label>
+						</control>
+						<control id="13" type="button">
+							<include>ButtonInfoDialogsCommonValues</include>
+							<label>Correct</label>
 						</control>
 						<!-- <control type="button" id="12"><description>Get Fanart</description><include>ButtonInfoDialogsCommonValues</include><label>20413</label></control><control type="button" id="11"><description>Play Trailer</description><include>ButtonInfoDialogsCommonValues</include><label>20410</label><visible>!IsEmpty(ListItem.Trailer) + !Skin.HasSetting(WindowedTrailer)</visible></control><control type="button" id="15"><description>Play Trailer Windowed</description><include>ButtonInfoDialogsCommonValues</include><label>20410</label><onclick>PlayMedia($INFO[ListItem.Trailer],1)</onclick><visible>!IsEmpty(ListItem.Trailer) + Skin.HasSetting(WindowedTrailer)</visible></control><control type="button" id="100"><description>Fetch TvTunes stuff</description><include>ButtonInfoDialogsCommonValues</include><label>31127</label><onclick>XBMC.RunScript(script.tvtunes,mode=solo&amp;tvpath=$INFO[ListItem.FilenameAndPath]&amp;tvname=$INFO[ListItem.TVShowTitle])</onclick><visible>Skin.HasSetting(ActivateTvTunes) + System.HasAddon(script.tvtunes) + Container.Content(TVShows)</visible></control>-->
 					</control>
