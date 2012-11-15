@@ -20,7 +20,6 @@ def pprint(data):
 
 class ApiTest(unittest.TestCase):
 	def test_auth(self):
-		global connection
 
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
@@ -29,7 +28,6 @@ class ApiTest(unittest.TestCase):
 		return client
 
 	def test_auth_fail(self):
-		global connection
 
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
@@ -39,7 +37,6 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(client.isAuthenticated()==False)
 
 	def test_unwatched_episodes(self):
-		global connection
 
 		c = copy(connection)
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
@@ -50,15 +47,41 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(data.has_key('top'))
 		self.assertTrue(data.has_key('upcoming'))
 
-	def test_library_add(self):
-		global connection
+	def test_title_identify(self):
+		c = connection		
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
+		ident = {
+			"file_name": "/Volumes/FLOAT/Film/_videne/Night_On_Earth/Night_On_Earth.avi", 
+			"stv_title_hash": "1defa7f69476e9ffca7b8ceb8c251275afc31ade", 
+			"os_title_hash": "486d1f7112f9749d", 
+			"imdb_id": "0102536"
+		}
+		stv_title = client.titleIdentify(**ident)
+
+		ident2 = {
+			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi', 
+			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db', 
+			'os_title_hash': '484e59acbfaf64e5', 
+			'imdb_id': '0472198'		
+		}
+
+		stv_title = client.titleIdentify(**ident2)
+
+
+	def test_library_add(self):
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 		client.getAccessToken()
 
-		# 60569 "Malcolm X"
-		data = client.titleIdentify(imdb_id=60569, stv_title_hash='')
+		ident = {
+			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi', 
+			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db', 
+			'os_title_hash': '484e59acbfaf64e5', 
+			'imdb_id': '0472198'		
+		}
+
+		data = client.titleIdentify(**ident)
 
 		stv_title_id = data['id']
 
@@ -99,7 +122,6 @@ class ApiTest(unittest.TestCase):
 		data = client.libraryTitleRemove(stv_title_id)
 
 	def test_profile_recco(self):
-		global connection
 
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
@@ -112,7 +134,6 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(len(data['titles']) > 0)
 
 	def test_profile_recco_local(self):
-		global connection
 
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
