@@ -111,10 +111,12 @@ class RPCListenerHandler(RPCListener):
         self.cache.remove(atype, aid)
 
     def VideoLibrary_OnUpdate(self, data):
-        self.addorupdate(data['params']['data']['item']['type'], data['params']['data']['item']['id'])
+        item = data['params']['data']['item']
+        self.addorupdate(item['type'], item['id'])
 
     def VideoLibrary_OnRemove(self, data):
-        self.remove(data['params']['data']['type'], data['params']['data']['id'])
+        d = data['params']['data']
+        self.remove(d['type'], d['id'])
 
     def Player_OnPlay(self, data):
         self.playerEvent(data)
