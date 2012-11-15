@@ -40,6 +40,7 @@ t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
 t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
 t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
+t_unavail = 'N/A'
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 defaultCastProps = ['name']
@@ -196,26 +197,42 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         for i in range(5):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
             
-        labels = dict()
-        labels['Director'] = ', '.join(self.data['directors'])
-        labels['Cast'] = ', '.join(map(lambda x:x['name'], self.data['cast']))
-        labels['Runtime'] = '%d min' % self.data['runtime']
+        stv_labels = {}        
+        if self.data.get('directors'): 
+            stv_labels['Director'] = ', '.join(self.data['directors'])
+        if self.data.get('cast'):    
+            stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], self.data['cast']))
+        if self.data.get('runtime'):
+            stv_labels['Runtime'] = '%d min' % self.data['runtime']
         if self.data.get('date'):
-            labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
+            stv_labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
 
-        xlabels = dict()
+        xbmclabels = {}
         if self.data.has_key('xbmc_movie_detail'):
-            xlabels["Director"] = ', '.join(self.data['xbmc_movie_detail']['director'])
-            xlabels["Writer"] = ', '.join(self.data['xbmc_movie_detail']['writer'])
-            xlabels["Runtime"] = self.data['xbmc_movie_detail']['runtime'] + ' min'
-            xlabels["Release date"] = self.data['xbmc_movie_detail']['premiered']
-            tFile = self.data['xbmc_movie_detail'].get('file')
+            d = self.data['xbmc_movie_detail']
+            if d.get('director'):
+                xbmclabels["Director"] = ', '.join(d['director'])
+            if d.get('writer'):
+                xbmclabels["Writer"] = ', '.join(d['writer'])
+            if d.get('runtime'):
+                xbmclabels["Runtime"] = d['runtime'] + ' min'
+            if d.get('premiered'):    
+                xbmclabels["Release date"] = d['premiered']
+
+            tFile = d.get('file')
             xbmc.log('file:' + str(tFile))
             if tFile:
                 win.setProperty("Movie.File", tFile)
-                self.getControl(5).setEnabled(True)
+                self.getControl(5).setEnabled(True)          
 
-        labels.update(xlabels)
+        labels = {}
+        labels.update(xbmclabels)
+        labels.update(stv_labels)
+        
+        # set unavail labels
+        for label in ['Director','Cast','Runtime','Release date']:
+            if not labels.has_key(label):
+                labels[label] = t_unavail
 
         # set available labels
         i = 1
