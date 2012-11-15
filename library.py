@@ -6,6 +6,7 @@ import threading
 import time
 import socket
 import json
+import re
 import traceback
 from app_apiclient import AppApiClient
 from utilities import *
@@ -20,7 +21,6 @@ class RPCListener(threading.Thread):
         super(RPCListener, self).__init__()
         self.cache = cache
         self.apiclient = None
-
         self.sock = socket.socket()
         self.sock.settimeout(5)
         self.connected = False
@@ -46,25 +46,31 @@ class RPCListener(threading.Thread):
         global ABORT_REQUESTED
 
         if not self.connected:
+            xbmc.log('RPC Listener cannot run, there is not connection to xbmc')
             return False
 
         self.apiclient = AppApiClient.getDefaultClient()
 
         while True:
             data = self.sock.recv(1024)
+            data = data.replace('}{', '},{')
+            datapack='[%s]' % data
             # xbmc.log('SynopsiTV: {0}'.format(str(data)))
             try:
-                data_json = json.loads(str(data))
-                method = data_json.get("method")
+                data_json = json.loads(datapack)
             except ValueError, e:
                 xbmc.log('RPC ERROR:' + str(e))
+                xbmc.log('RPC ERROR DATA:' + str(data))
                 continue
 
-            if method == "System.OnQuit":
-                ABORT_REQUESTED = True
-                break
-            else:
-                self.process(data_json)
+            for request in data_json:
+                method = request.get("method")
+
+                if method == "System.OnQuit":
+                    ABORT_REQUESTED = True
+                    break
+                else:
+                    self.process(request)
 
         self.sock.close()
         xbmc.log('Library thread end')
