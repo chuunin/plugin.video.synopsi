@@ -172,19 +172,6 @@
 							<!-- <item><label>$INFO[Window.Property(Movie.Label.5.1)]</label><label2>$INFO[Window.Property(Movie.Label.5.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.6.1)]</label><label2>$INFO[Window.Property(Movie.Label.6.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.7.1)]</label><label2>$INFO[Window.Property(Movie.Label.7.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.8.1)]</label><label2>$INFO[Window.Property(Movie.Label.8.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.9.1)]</label><label2>$INFO[Window.Property(Movie.Label.9.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.10.1)]</label><label2>$INFO[Window.Property(Movie.Label.10.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.11.1)]</label><label2>$INFO[Window.Property(Movie.Label.11.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.12.1)]</label><label2>$INFO[Window.Property(Movie.Label.12.2)]</label2><onclick>-</onclick></item>-->
 						</content>
 					</control>
-					<control type="label">
-						<posx>455</posx>
-						<posy>140</posy>	
-						<width>160</width>
-						<height>30</height>
-						<font>font13</font>
-						<textcolor>blue</textcolor>
-						<scroll>true</scroll>
-						<align>right</align>
-						<aligny>center</aligny>
-						<label>$LOCALIZE[207]</label>
-						<!-- <visible>Control.IsVisible(400)</visible>-->
-					</control>
 
 					<control id="400" type="textbox">
 						<description>Plot</description>
