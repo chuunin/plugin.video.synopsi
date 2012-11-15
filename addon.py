@@ -297,10 +297,10 @@ def add_directory(name, url, mode, iconimage, atype):
 def add_movie(movie, url, mode, iconimage, movieid):
     json_data = json.dumps(movie)
     u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
-    ok = True
     liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    liz.setInfo( type="Video", infoLabels={ "Title": "Titulok" } )
-    # liz.setProperty("Fanart_Image", addonPath + 'fanart.jpg')
+    if movie.get('already_watched'):
+        liz.setInfo( type="Video", infoLabels={ "playcount": 1 } )
+
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
     return ok
 
