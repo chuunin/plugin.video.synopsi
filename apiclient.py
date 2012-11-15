@@ -217,9 +217,7 @@ class ApiClient(object):
 			)
 
 		except HTTPError as e:
-			self._logger.error('APICLIENT:' + url)
-			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + e.read())
+			self._logger.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, str(e), e.read()))
 			response_json = {}
 
 		except URLError as e:
