@@ -427,9 +427,6 @@ log('url: %s' % (p['url']))
 log('data: %s' % (p['data']))    
 
 if p['mode']==None:
-    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).clearProperty("Fanart_Image")
-    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart_Image", addonPath + 'fanart.jpg')
-    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty("Fanart", addonPath + 'fanart.jpg')
     show_categories()
     xbmcplugin.endOfDirectory(dirhandle)
 elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco]:
