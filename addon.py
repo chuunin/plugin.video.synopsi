@@ -482,7 +482,14 @@ elif p['mode']==ActionCode.VideoDialogShow:
     p['json_data']['type'] = p['type']
     show_video_dialog(p['json_data'])
 elif p['mode']==ActionCode.VideoDialogShowById:
-    show_video_dialog_byId(int(p['stv_id']))
+    try:
+        stv_id = int(p['stv_id'])
+    except TypeError:
+        log('ERROR / Wrong params')
+        sys.exit(0)
+        
+    show_video_dialog_byId(stv_id)
+    
 elif p['mode']==ActionCode.LoginAndSettings:
     __addon__.openSettings()
 elif p['mode']==999:
