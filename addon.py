@@ -487,11 +487,16 @@ elif p['mode']==ActionCode.VideoDialogShowById:
     except TypeError:
         log('ERROR / Wrong params')
         sys.exit(0)
-        
+
     show_video_dialog_byId(stv_id)
     
 elif p['mode']==ActionCode.LoginAndSettings:
     __addon__.openSettings()
+
+elif p['mode']==970:
+    xbmc.executebuiltin('CleanLibrary(video)')
+    xbmc.executebuiltin('UpdateLibrary(video)')
+
 elif p['mode']==999:
     xbmcplugin.endOfDirectory(dirhandle)
     jdata = {
