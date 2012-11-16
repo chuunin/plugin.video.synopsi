@@ -56,8 +56,11 @@ class ActionCode:
 
     LoginAndSettings = 90
 
+    TVShowEpisodes = 60
+
     VideoDialogShow = 900
     VideoDialogShowById = 910
+
 
 
 def log(msg):
@@ -112,7 +115,7 @@ def get_upcoming_episodes():
     return result
 
 def get_top_tvshow():
-    episodes =  apiClient.unwatchedEpisodes()
+    episodes = apiClient.unwatchedEpisodes()
 
     log('top tvshows')
     for title in episodes['top']:
@@ -120,6 +123,9 @@ def get_top_tvshow():
     result = episodes['top']
     return result
 
+def get_tvshow_episodes(tvshow_id):
+    # episodes = apiClient.
+    pass
 
 def get_lists():
     log('get_lists')
@@ -140,37 +146,21 @@ def get_trending_tvshows():
     log('get_trending_tvshows')
     return movies
 
-
-def get_items(list_type, movie_type = None):
-    log('get_items:' + str(list_type))
-    if list_type == 1:
-        return get_global_recco(movie_type)['titles']
-    elif list_type == 2:
-        return get_local_recco(movie_type)['titles']
-    elif list_type == 3:
-        return get_unwatched_episodes()
-    elif list_type == 33:
-        return get_upcoming_episodes()        
-    elif list_type == 4:
-        return get_lists()
-    elif list_type == 5:
-        return get_trending_movies()
-    elif list_type == 6:
-        return get_trending_tvshows()
-
-def get_item_list(action_code):
+def get_item_list(action_code, **params):
     log('get_item_list:' + str(action_code))
     
     if action_code==ActionCode.MovieRecco:
         return get_global_recco('movie')['titles']
-    if action_code==ActionCode.TVShows:
+    elif action_code==ActionCode.TVShows:
         return get_top_tvshow()
-    if action_code==ActionCode.LocalMovieRecco:
+    elif action_code==ActionCode.LocalMovieRecco:
         return get_local_recco('movie')['titles']
-    if action_code==ActionCode.UnwatchedEpisodes:
+    elif action_code==ActionCode.UnwatchedEpisodes:
         return get_unwatched_episodes()
-    if action_code==ActionCode.UpcomingEpisodes:
+    elif action_code==ActionCode.UpcomingEpisodes:
         return get_upcoming_episodes()
+    elif action_code==ActionCode.UpcomingEpisodes:
+        return get_tvshow_episodes(**params)
 
 
 def add_to_list(movieid, listid):
@@ -210,6 +200,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.getControl(5).setEnabled(True)
 
         win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
+        win.setProperty("Movie.Similar.ClickMode", self.data['click_mode'])
 
         # similars
         i = 1
@@ -267,7 +258,7 @@ def add_movie(movie, url, mode, iconimage, movieid):
     json_data = json.dumps(movie)
     u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-    if movie.get('already_watched'):
+    if movie.get('watched'):
         liz.setInfo( type="Video", infoLabels={ "playcount": 1 } )
 
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
@@ -305,8 +296,7 @@ def show_movie_list(item_list, dirhandle):
             
         for movie in item_list:
             log(json.dumps(movie, indent=4))
-            add_movie(movie, "url",
-                ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
+            add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
     except AuthenticationError:
         errorMsg = True
     finally:
@@ -394,10 +384,12 @@ def show_video_dialog_data(stv_details, json_data={}):
         # get similar movies
         similars = apiClient.titleSimilar(tpl_data['id'])
         if similars.has_key('titles'):
+            tpl_data['click_mode'] = ActionCode.VideoDialogShowById
             tpl_data['similars'] = similars['titles']
     elif tpl_data['type'] == 'tvshow':
         # append seasons
         if tpl_data.has_key('seasons'):
+            tpl_data['click_mode'] = ActionCode.TVShowEpisodes
             tpl_data['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
 
     open_video_dialog(tpl_data)
@@ -487,6 +479,7 @@ elif p['mode']==ActionCode.UpcomingEpisodes:
         
 elif p['mode']==ActionCode.VideoDialogShow:
     show_video_dialog(p['json_data'])
+
 elif p['mode']==ActionCode.VideoDialogShowById:
     try:
         stv_id = int(p['stv_id'])
@@ -495,7 +488,10 @@ elif p['mode']==ActionCode.VideoDialogShowById:
         sys.exit(0)
 
     show_video_dialog_byId(stv_id)
-    
+
+elif p['mode']==ActionCode.TVShowEpisodes:
+    show_episodes(p['json_data'])
+
 elif p['mode']==ActionCode.LoginAndSettings:
     __addon__.openSettings()
 
