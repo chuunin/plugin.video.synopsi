@@ -52,7 +52,7 @@ class RPCListener(threading.Thread):
         self.apiclient = AppApiClient.getDefaultClient()
 
         while True:
-            data = self.sock.recv(1024)
+            data = self.sock.recv(8192)
             data = data.replace('}{', '},{')
             datapack='[%s]' % data
             # xbmc.log('SynopsiTV: {0}'.format(str(data)))
