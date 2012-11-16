@@ -163,6 +163,16 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(title.has_key('cast'))
 		self.assertTrue(title['cast'][0]['name']=='Charlton Heston')
 
+	def test_tvshow(self):
+		c = connection		
+		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		title = client.tvshow(14335, cast_props=['name'])
+
+		self.assertTrue(title.has_key('cover_full'))
+		self.assertTrue(title.get('type')=='tvshow')
+		self.assertTrue(title.get('year')=='2005')
+		self.assertTrue(title['cast'][0]['name']=='Josh Radnor')
+
 
 
 if __name__ == '__main__': 
