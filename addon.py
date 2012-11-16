@@ -123,9 +123,9 @@ def get_top_tvshow():
     result = episodes['top']
     return result
 
-def get_tvshow_episodes(tvshow_id):
-    # episodes = apiClient.
-    pass
+def get_tvshow_season(tvshow_id):
+    season = apiClient.season(tvshow_id)
+    return season['episodes']
 
 def get_lists():
     log('get_lists')
@@ -146,7 +146,7 @@ def get_trending_tvshows():
     log('get_trending_tvshows')
     return movies
 
-def get_item_list(action_code, **params):
+def get_item_list(action_code, **kwargs):
     log('get_item_list:' + str(action_code))
     
     if action_code==ActionCode.MovieRecco:
@@ -159,8 +159,8 @@ def get_item_list(action_code, **params):
         return get_unwatched_episodes()
     elif action_code==ActionCode.UpcomingEpisodes:
         return get_upcoming_episodes()
-    elif action_code==ActionCode.UpcomingEpisodes:
-        return get_tvshow_episodes(**params)
+    elif action_code==ActionCode.TVShowEpisodes:
+        return get_tvshow_season(kwargs['stv_id'])
 
 
 def add_to_list(movieid, listid):
@@ -200,7 +200,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.getControl(5).setEnabled(True)
 
         win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
-        win.setProperty("Movie.Similar.ClickMode", self.data['click_mode'])
+        win.setProperty("Movie.Similar.ClickMode", str(self.data['click_mode']))
 
         # similars
         i = 1
@@ -277,9 +277,9 @@ def show_categories():
     add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "icon.png", 33)
     add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "icon.png", 1)
 
-def show_submenu(action_code, dirhandle):
+def show_submenu(action_code, dirhandle, **kwargs):
     try:
-        item_list = get_item_list(action_code)
+        item_list = get_item_list(action_code, **kwargs)
         show_movie_list(item_list, dirhandle)
     except ListEmptyException:    
         raise
@@ -460,8 +460,10 @@ log('data: %s' % (p['data']))
 if p['mode']==None:
     show_categories()
     xbmcplugin.endOfDirectory(dirhandle)
-elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco]:
-    show_submenu(p['mode'], dirhandle)
+
+elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco, ActionCode.TVShowEpisodes]:
+    params = {'stv_id': p['stv_id']} if p['stv_id'] else None
+    show_submenu(p['mode'], dirhandle, **params)
 
 elif p['mode']==ActionCode.UnwatchedEpisodes:
     try:
@@ -488,9 +490,6 @@ elif p['mode']==ActionCode.VideoDialogShowById:
         sys.exit(0)
 
     show_video_dialog_byId(stv_id)
-
-elif p['mode']==ActionCode.TVShowEpisodes:
-    show_episodes(p['json_data'])
 
 elif p['mode']==ActionCode.LoginAndSettings:
     __addon__.openSettings()
