@@ -462,7 +462,7 @@ if p['mode']==None:
     xbmcplugin.endOfDirectory(dirhandle)
 
 elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco, ActionCode.TVShowEpisodes]:
-    params = {'stv_id': p['stv_id']} if p['stv_id'] else None
+    params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
     show_submenu(p['mode'], dirhandle, **params)
 
 elif p['mode']==ActionCode.UnwatchedEpisodes:
