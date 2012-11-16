@@ -369,7 +369,7 @@ class ApiClient(object):
 
 	def season(self, tvshow_id, props=defaultSeasonProps2, episode_props=smallListProps):
 		req = {
-			'methodPath': 'season/%d/' % tvshow_id,
+			'methodPath': 'season/%d/' % int(tvshow_id),
 			'method': 'get',
 			'data': {
 				'title_property[]': ','.join(props),
