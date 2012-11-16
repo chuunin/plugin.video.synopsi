@@ -327,8 +327,10 @@ def show_video_dialog_byId(stv_id):
     show_video_dialog_data(stv_details)
 
 def show_video_dialog(json_data):
+    # log('show video:' + json.dumps(json_data, indent=4))
+
     if json_data.get('type') == 'tvshow':
-        stv_details = apiClient.tvshow(tpl_data['id'], tvshowDetailProps, defaultCastProps)
+        stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
     else:
         stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)
 
@@ -345,13 +347,12 @@ def show_video_dialog_data(stv_details, json_data={}):
     log('show video:' + json.dumps(json_data, indent=4))
     log('stv_details video:' + json.dumps(stv_details, indent=4))
     
-    # update only nonempty values
+    # update empty stv_details with only nonempty values from xbmc
     for k, v in json_data.iteritems():
-        if v:
+        if v and not stv_details[k]:
             stv_details[k] = v
 
     tpl_data=stv_details
-
      
     stv_labels = {}        
     if tpl_data.get('directors'): 
@@ -394,10 +395,10 @@ def show_video_dialog_data(stv_details, json_data={}):
         similars = apiClient.titleSimilar(tpl_data['id'])
         if similars.has_key('titles'):
             tpl_data['similars'] = similars['titles']
-    elif tpl_data['type'] == 'tvshows':
+    elif tpl_data['type'] == 'tvshow':
         # append seasons
         if tpl_data.has_key('seasons'):
-            tpl_data['similars'] = stv_details['seasons']
+            tpl_data['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
 
     open_video_dialog(tpl_data)
 
@@ -429,7 +430,7 @@ xbmc.log('SYS ARGV:' + str(sys.argv))
 url_parsed = urlparse.urlparse(sys.argv[2])
 params = urlparse.parse_qs(url_parsed.query)
 
-xbmc.log('url_parsed:' + str(url_parsed))
+# xbmc.log('url_parsed:' + str(url_parsed))
 xbmc.log('params:' + str(params))
 
 apiClient = AppApiClient.getDefaultClient()
@@ -485,7 +486,6 @@ elif p['mode']==ActionCode.UpcomingEpisodes:
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
         
 elif p['mode']==ActionCode.VideoDialogShow:
-    p['json_data']['type'] = p['type']
     show_video_dialog(p['json_data'])
 elif p['mode']==ActionCode.VideoDialogShowById:
     try:
