@@ -195,54 +195,20 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
         for i in range(5):
             win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
-            
-        stv_labels = {}        
-        if self.data.get('directors'): 
-            stv_labels['Director'] = ', '.join(self.data['directors'])
-        if self.data.get('cast'):    
-            stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], self.data['cast']))
-        if self.data.get('runtime'):
-            stv_labels['Runtime'] = '%d min' % self.data['runtime']
-        if self.data.get('date'):
-            stv_labels['Release date'] = datetime.fromtimestamp(self.data['date']).strftime('%x')
-
-        xbmclabels = {}
-        if self.data.has_key('xbmc_movie_detail'):
-            d = self.data['xbmc_movie_detail']
-            if d.get('director'):
-                xbmclabels["Director"] = ', '.join(d['director'])
-            if d.get('writer'):
-                xbmclabels["Writer"] = ', '.join(d['writer'])
-            if d.get('runtime'):
-                xbmclabels["Runtime"] = d['runtime'] + ' min'
-            if d.get('premiered'):    
-                xbmclabels["Release date"] = d['premiered']
-
-            tFile = d.get('file')
-            xbmc.log('file:' + str(tFile))
-            if tFile:
-                win.setProperty("Movie.File", tFile)
-                self.getControl(5).setEnabled(True)          
-
-        labels = {}
-        labels.update(xbmclabels)
-        labels.update(stv_labels)
-        
-        # set unavail labels
-        for label in ['Director','Cast','Runtime','Release date']:
-            if not labels.has_key(label):
-                labels[label] = t_unavail
-
+       
         # set available labels
         i = 1
-        for key in labels.keys():
+        for key, value in self.data['labels'].iteritems():
             win.setProperty("Movie.Label.{0}.1".format(i), key)
-            win.setProperty("Movie.Label.{0}.2".format(i), labels[key])
+            win.setProperty("Movie.Label.{0}.2".format(i), value)
             i = i + 1
 
+        # enable file playing if available
+        if self.data.has_key('file'):
+            win.setProperty("Movie.File", self.data['file'])
+            self.getControl(5).setEnabled(True)
 
         win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
-
 
         # similars
         i = 1
@@ -381,12 +347,51 @@ def show_video_dialog_data(stv_details, json_data={}):
 
     tpl_data=stv_details
 
+     
+    stv_labels = {}        
+    if tpl_data.get('directors'): 
+        stv_labels['Director'] = ', '.join(tpl_data['directors'])
+    if tpl_data.get('cast'):    
+        stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], tpl_data['cast']))
+    if tpl_data.get('runtime'):
+        stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
+    if tpl_data.get('date'):
+        stv_labels['Release date'] = datetime.fromtimestamp(tpl_data['date']).strftime('%x')
+
+    xbmclabels = {}
+    if tpl_data.has_key('xbmc_movie_detail'):
+        d = tpl_data['xbmc_movie_detail']
+        if d.get('director'):
+            xbmclabels["Director"] = ', '.join(d['director'])
+        if d.get('writer'):
+            xbmclabels["Writer"] = ', '.join(d['writer'])
+        if d.get('runtime'):
+            xbmclabels["Runtime"] = d['runtime'] + ' min'
+        if d.get('premiered'):    
+            xbmclabels["Release date"] = d['premiered']
+        if d.get('file'):
+            tpl_data['file'] = d.get('file')
+
+    labels = {}
+    labels.update(xbmclabels)
+    labels.update(stv_labels)
+    
+    # set unavail labels
+    for label in ['Director','Cast','Runtime','Release date']:
+        if not labels.has_key(label):
+            labels[label] = t_unavail
+
+    tpl_data['labels'] = labels
     tpl_data['BottomListingLabel'] = type2listinglabel.get(tpl_data['type'], '')    
 
-    # get similar movies
-    similars = apiClient.titleSimilar(tpl_data['id'])
-    if similars.has_key('titles'):
-        tpl_data['similars'] = similars['titles']
+    if tpl_data['type'] == 'movie':
+        # get similar movies
+        similars = apiClient.titleSimilar(tpl_data['id'])
+        if similars.has_key('titles'):
+            tpl_data['similars'] = similars['titles']
+    elif tpl_data['type'] == 'tvshows':
+        if tpl_data.has_key('seasons'):
+            tpl_data['similars'] = stv_details['seasons']
 
     open_video_dialog(tpl_data)
 
