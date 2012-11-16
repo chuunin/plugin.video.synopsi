@@ -15,11 +15,13 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
-defaultTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
-defaultTVShowProps = defaultTitleProps + ['seasons']
+commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
+watchableTitleProps = commonTitleProps + ['watched']
+defaultTVShowProps = commonTitleProps + ['seasons']
 smallListProps = ['id', 'cover_medium', 'name']
 allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
 defaultSeasonProps = ['id', 'cover_medium', 'season_number'] 						
+defaultSeasonProps2 = ['id', 'episodes']
 
 class NotConnectedException(Exception):
 	pass
@@ -271,7 +273,7 @@ class ApiClient(object):
 		return self.execute(req)
 
 # conditionally dependent
-	def profileRecco(self, atype, local=False, limit=None, props=defaultTitleProps):
+	def profileRecco(self, atype, local=False, limit=None, props=watchableTitleProps):
 		req = {
 			'methodPath': 'profile/recco/',
 			'method': 'get',
@@ -314,7 +316,7 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def title(self, titleId, props=defaultTitleProps, cast_props=None, cast_limit=None):
+	def title(self, titleId, props=watchableTitleProps, cast_props=None, cast_limit=None):
 		" Get title from library "
 
 		if cast_props:
@@ -365,6 +367,18 @@ class ApiClient(object):
 
 		return self.execute(req)
 
+	def season(self, tvshow_id, props=defaultSeasonProps2, episode_props=smallListProps):
+		req = {
+			'methodPath': 'season/%d/' % tvshow_id,
+			'method': 'get',
+			'data': {
+				'title_property[]': ','.join(props),
+				'episode_property[]': ','.join(episode_props)
+			}
+		}
+
+		return self.execute(req)
+
 	def libraryListCreate(self, list_uid):
 		req = {
 			'methodPath': 'library/list/%s/create/' % list_uid,
@@ -373,7 +387,7 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def unwatchedEpisodes(self, props=defaultTitleProps):
+	def unwatchedEpisodes(self, props=watchableTitleProps):
 		req = {
 			'methodPath': 'profile/unwatched_episodes/',
 			'method': 'get',
