@@ -525,7 +525,7 @@ class xbmcRPCclient(object):
 		self.__logLevel = logLevel
 
 	def execute(self, methodName, params):
-		dic = {
+		req = {
 			'params': params,
 			'jsonrpc': '2.0',
 			'method': methodName,
@@ -533,9 +533,9 @@ class xbmcRPCclient(object):
 		}
 
 		if self.__logLevel:
-			xbmc.log('xbmc RPC request: ' + str(json.dumps(dic)))
+			xbmc.log('xbmc RPC request: ' + str(json.dumps(req)))
 
-		response = xbmc.executeJSONRPC(json.dumps(dic))
+		response = xbmc.executeJSONRPC(json.dumps(req))
 		
 		json_response = json.loads(response)
 
@@ -543,6 +543,9 @@ class xbmcRPCclient(object):
 			xbmc.log('xbmc RPC response: ' + str(json.dumps(json_response, indent=4)))
 
 		if json_response.has_key('error') and json_response['error']:
+			xbmc.log('xbmc RPC ERROR: ' + json_response['error']['message'])
+			xbmc.log('xbmc RPC request: ' + str(json.dumps(req, indent=4)))
+			xbmc.log('xbmc RPC response: ' + str(json.dumps(json_response, indent=4)))
 			raise Exception(json_response['error']['message'])
 
 		return json_response['result']
