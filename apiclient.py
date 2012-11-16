@@ -15,8 +15,11 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
-defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime' ]
-						
+defaultTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
+defaultTVShowProps = defaultTitleProps + ['seasons']
+smallListProps = ['id', 'cover_medium', 'name']
+allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
+defaultSeasonProps = ['id', 'cover_medium', 'season_number'] 						
 
 class NotConnectedException(Exception):
 	pass
@@ -256,7 +259,7 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def titleSimilar(self, titleId, props=defaultTitleProps):
+	def titleSimilar(self, titleId, props=smallListProps):
 		req = {
 			'methodPath': 'title/%d/similar/' % titleId,
 			'method': 'get',
@@ -311,7 +314,7 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def title(self, titleId, props=defaultTitleProps, cast_props=None):
+	def title(self, titleId, props=defaultTitleProps, cast_props=None, cast_limit=None):
 		" Get title from library "
 
 		if cast_props:
@@ -325,12 +328,15 @@ class ApiClient(object):
 			}
 		}
 
-		if cast_props:
-			req['data']['cast_property[]'] = ','.join(cast_props)
+		if 'cast' in props:
+			if cast_limit:
+				req['data']['cast_limit'] = cast_limit
+			if cast_props:
+				req['data']['cast_property[]'] = ','.join(cast_props)
 
 		return self.execute(req)
 
-	def tvshow(self, titleId, props=defaultTitleProps, cast_props=None):
+	def tvshow(self, titleId, props=defaultTVShowProps, cast_props=None, cast_limit=None, season_props=defaultSeasonProps, season_limit=None):
 		" Get title from library "
 
 		if cast_props:
@@ -340,12 +346,22 @@ class ApiClient(object):
 			'methodPath': '/tvshow/%d/' % titleId,
 			'method': 'get',
 			'data': {
-				'title_property[]': ','.join(props)
+				'title_property[]': ','.join(props),
+				'season_property[]': ','.join(season_props)
 			}
 		}
 
-		if cast_props:
-			req['data']['cast_property[]'] = ','.join(cast_props)
+		if 'cast' in props:
+			if cast_limit:
+				req['data']['cast_limit'] = cast_limit
+			if cast_props:
+				req['data']['cast_property[]'] = ','.join(cast_props)
+
+		if 'seasons' in props:
+			if season_limit:
+				req['data']['season_limit'] = season_limit
+			if season_props:
+				req['data']['season_property[]'] = ','.join(season_props)
 
 		return self.execute(req)
 
