@@ -152,19 +152,22 @@ class StvList(object):
 
     def remove(self, type, id):
         typeIdStr = self._getKey(type, id)
+        self.log('REMOVE / ' + typeIdStr)
         try:
             item = self.getByTypeId(type, id)
-            del self.byFilename[item['file']]
-            del self.byTypeId[typeIdStr]
 
-            if item.has_key('stvId'):
-                self.apiclient.libraryTitleRemove(item['stvId'])
-                del self.byStvId[item['stvId']]
+            # suppose cache is consistent and remove only if one of indexes is available            
+            if self.byTypeId.has_key(typeIdStr):
+                del self.byFilename[item['file']]            
+                del self.byTypeId[typeIdStr]
+
+                if item.has_key('stvId'):
+                    self.apiclient.libraryTitleRemove(item['stvId'])
+                    del self.byStvId[item['stvId']]
+
         except Exception as e:
-            self.log(traceback.format_exc())
             self.log('REMOVE FAILED / ' + typeIdStr)    
 
-        self.log('REMOVE / ' + typeIdStr)
 
     def hasTypeId(self, type, id):
         return self.byTypeId.has_key(self._getKey(type, id))
