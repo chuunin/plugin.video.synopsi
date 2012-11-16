@@ -330,6 +330,25 @@ class ApiClient(object):
 
 		return self.execute(req)
 
+	def tvshow(self, titleId, props=defaultTitleProps, cast_props=None):
+		" Get title from library "
+
+		if cast_props:
+			props += ['cast']
+		
+		req = {
+			'methodPath': '/tvshow/%d/' % titleId,
+			'method': 'get',
+			'data': {
+				'title_property[]': ','.join(props)
+			}
+		}
+
+		if cast_props:
+			req['data']['cast_property[]'] = ','.join(cast_props)
+
+		return self.execute(req)
+
 	def libraryListCreate(self, list_uid):
 		req = {
 			'methodPath': 'library/list/%s/create/' % list_uid,
