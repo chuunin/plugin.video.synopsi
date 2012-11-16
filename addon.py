@@ -42,6 +42,7 @@ t_stv = 'SynopsiTV'
 t_unavail = 'N/A'
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
+tvshowDetailProps = detailProps + ['seasons']
 defaultCastProps = ['name']
 reccoDefaulLimit = 29
 type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
@@ -326,7 +327,11 @@ def show_video_dialog_byId(stv_id):
     show_video_dialog_data(stv_details)
 
 def show_video_dialog(json_data):
-    stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)
+    if json_data.get('type') == 'tvshow':
+        stv_details = apiClient.tvshow(tpl_data['id'], tvshowDetailProps, defaultCastProps)
+    else:
+        stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)
+
     show_video_dialog_data(stv_details, json_data)
 
 def show_video_dialog_data(stv_details, json_data={}):
@@ -390,6 +395,7 @@ def show_video_dialog_data(stv_details, json_data={}):
         if similars.has_key('titles'):
             tpl_data['similars'] = similars['titles']
     elif tpl_data['type'] == 'tvshows':
+        # append seasons
         if tpl_data.has_key('seasons'):
             tpl_data['similars'] = stv_details['seasons']
 
