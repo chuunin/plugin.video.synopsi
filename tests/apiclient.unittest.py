@@ -166,11 +166,10 @@ class ApiTest(unittest.TestCase):
 	def test_tvshow(self):
 		c = connection		
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-		title = client.tvshow(14335, cast_props=['name'])
-
+		title = client.tvshow(14335, cast_props=['name'], season_props=['id','season_number'], season_limit=3)
 		self.assertTrue(title.has_key('cover_full'))
 		self.assertTrue(title.get('type')=='tvshow')
-		self.assertTrue(title.get('year')=='2005')
+		self.assertTrue(title.get('year')==2005)
 		self.assertTrue(title['cast'][0]['name']=='Josh Radnor')
 
 
