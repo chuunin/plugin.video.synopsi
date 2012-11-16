@@ -44,7 +44,7 @@ reccoDefaultProps = ['id', 'cover_medium', 'name']
 detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 defaultCastProps = ['name']
 reccoDefaulLimit = 29
-
+type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
 
 class ActionCode:
     MovieRecco = 10
@@ -241,7 +241,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             i = i + 1
 
 
-        win.setProperty('BottomListingLabel', 'Similar movies')
+        win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
+
+
         # similars
         i = 1
         if self.data.has_key('similars'):
@@ -371,27 +373,34 @@ def show_video_dialog_data(stv_details, json_data={}):
 
     log('show video:' + json.dumps(json_data, indent=4))
     log('stv_details video:' + json.dumps(stv_details, indent=4))
-    stv_details.update(json_data)
-    json_data=stv_details
+    
+    # update only nonempty values
+    for k, v in json_data.iteritems():
+        if v:
+            stv_details[k] = v
+
+    tpl_data=stv_details
+
+    tpl_data['BottomListingLabel'] = type2listinglabel.get(tpl_data['type'], '')    
 
     # get similar movies
-    similars = apiClient.titleSimilar(json_data['id'])
+    similars = apiClient.titleSimilar(tpl_data['id'])
     if similars.has_key('titles'):
-        json_data['similars'] = similars['titles']
+        tpl_data['similars'] = similars['titles']
 
-    open_video_dialog(json_data)
+    open_video_dialog(tpl_data)
 
-def open_video_dialog(json_data):
+def open_video_dialog(tpl_data):
     try:
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
     except ValueError, e:
-        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
         ui.doModal()
         del ui
     else:
         win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
         win.close()
-        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=json_data)
+        ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
         ui.doModal()
         del ui
 
