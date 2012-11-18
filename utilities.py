@@ -15,7 +15,7 @@ from urllib import urlencode
 from urllib2 import Request, urlopen
 from utilities import *
 
-CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, 100)
+CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
 
 

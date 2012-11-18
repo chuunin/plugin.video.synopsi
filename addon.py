@@ -236,7 +236,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             rating = get_rating()
             if rating < 4:
                 set_already_watched(self.data['id'], rating)
-            xbmc.executebuiltin('Container.Update')
+            self.close()
+            xbmc.executebuiltin('Container.Refresh()')
+            
 
     def onFocus(self, controlId):
         self.controlId = controlId
