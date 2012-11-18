@@ -177,6 +177,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
     """
     def __init__(self, *args, **kwargs):
         self.data = kwargs['data']
+        self.controlId = None
 
     def onInit(self):
         win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -244,8 +245,10 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         self.controlId = controlId
 
     def onAction(self, action):
-        log('action:' + str(action.getId()))
-        if (action.getId() in CANCEL_DIALOG):
+        log('getattr:' + str(getattr(self, 'controlId', 0)))
+        log('action: %s focused id:%d' % (str(action.getId()), getattr(self, 'controlId', 0)))
+        
+        if (action.getId() in CANCEL_DIALOG) or (action.getId()==100 and self.controlId==59):
             self.close()
 
 
@@ -300,7 +303,7 @@ def show_movie_list(item_list, dirhandle):
             raise ListEmptyException
             
         for movie in item_list:
-            log(json.dumps(movie, indent=4))
+            # log(json.dumps(movie, indent=4))
             add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
     except AuthenticationError:
         errorMsg = True
@@ -344,7 +347,7 @@ def show_video_dialog_data(stv_details, json_data={}):
     
     # update empty stv_details with only nonempty values from xbmc
     for k, v in json_data.iteritems():
-        if v and not stv_details[k]:
+        if v and not stv_details.get(k):
             stv_details[k] = v
 
     tpl_data=stv_details
