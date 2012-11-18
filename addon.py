@@ -245,9 +245,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         self.controlId = controlId
 
     def onAction(self, action):
-        log('getattr:' + str(getattr(self, 'controlId', 0)))
-        log('action: %s focused id:%d' % (str(action.getId()), getattr(self, 'controlId', 0)))
-        
+        # log('action: %s focused id:%d' % (str(action.getId()), getattr(self, 'controlId', 0)))        
         if (action.getId() in CANCEL_DIALOG) or (action.getId()==100 and self.controlId==59):
             self.close()
 
