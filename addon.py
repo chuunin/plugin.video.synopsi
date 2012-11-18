@@ -56,8 +56,9 @@ class ActionCode:
 
     LoginAndSettings = 90
 
+    Redirect2TVShowEpisodes = 59
     TVShowEpisodes = 60
-
+    
     VideoDialogShow = 900
     VideoDialogShowById = 910
 
@@ -219,6 +220,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         else:
             self.getControl(10).setEnabled(False)
 
+        if not self.data['type'] in ['movie', 'episode']:
+            self.getControl(11).setEnabled(False)
 
     def onClick(self, controlId):
         log('onClick: ' + str(controlId))
@@ -389,8 +392,10 @@ def show_video_dialog_data(stv_details, json_data={}):
     elif tpl_data['type'] == 'tvshow':
         # append seasons
         if tpl_data.has_key('seasons'):
-            tpl_data['click_mode'] = ActionCode.TVShowEpisodes
+            tpl_data['click_mode'] = ActionCode.Redirect2TVShowEpisodes
             tpl_data['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
+    else:
+        tpl_data['click_mode'] = ActionCode.VideoDialogShowById
 
     open_video_dialog(tpl_data)
 
@@ -464,6 +469,9 @@ if p['mode']==None:
 elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco, ActionCode.TVShowEpisodes]:
     params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
     show_submenu(p['mode'], dirhandle, **params)
+
+elif p['mode']==ActionCode.Redirect2TVShowEpisodes:
+    xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, int(p['stv_id'])))
 
 elif p['mode']==ActionCode.UnwatchedEpisodes:
     try:
