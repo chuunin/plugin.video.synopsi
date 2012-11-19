@@ -24,7 +24,27 @@ __cwd__      = __addon__.getAddonInfo('path')
 __profile__      = __addon__.getAddonInfo('profile')
 __lockLoginScreen__ = threading.Lock()
 
+# constant
 homeReccoLimit = 5
+reccoDefaultProps = ['id', 'cover_medium', 'name']
+detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
+tvshowDetailProps = detailProps + ['seasons']
+defaultCastProps = ['name']
+reccoDefaulLimit = 29
+type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
+
+# texts
+t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
+t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
+t_nolocalrecco = 'There are no items in this list. Either you have no items in your library or they have not been recognized by Synopsi'
+t_listing_failed = 'Unknown error'
+t_stv = 'SynopsiTV'
+t_unavail = 'N/A'
+
+
+
+
+
 
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """
@@ -46,7 +66,7 @@ def check_first_run():
 		xbmc.executebuiltin('ReloadSkin()')
 		__addon__.setSetting(id='FIRSTRUN', value="false")
 
-def dialog_text(msg, max_row_index=20):
+def dialog_text(msg, max_line_length=20, max_lines=3):
 	line_end = [0]
 	idx = -1
 	line_no = 0
@@ -57,28 +77,37 @@ def dialog_text(msg, max_row_index=20):
 		idx = msg.find(' ', idx+1)
 		if idx==-1:
 			break
-		elif idx-line_end[-1] > max_row_index:
+		elif idx-line_end[-1] > max_line_length:
 			line_end.append(last_idx)
 			line_no += 1
-			if line_no>max_lines:
+			if line_no >= max_lines:
 				break
 
 	line_end.append(None)
 
-	result = {}
+	result = []
 	last_index = 0
 	c = 1
 	for end_index in line_end[1:]:
 		line = msg[last_index:end_index]
-		result['line%d' % c] = line
+		result.append(line)
+		if not end_index:
+			break
+
 		last_index = end_index+1
 		c += 1
 
 	return result
 
+def list_get(alist, index, default=''):
+	try:
+		return alist[index]
+	except IndexError:
+		return default
+
 def dialog_ok(msg):
-	lines = dialog_text(msg, 30)
-	xbmcgui.Dialog().ok(t_stv, **lines)
+	lines = dialog_text(msg, 45)
+	xbmcgui.Dialog().ok(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
 
 def clear_setting_cache():
 	"Clear cached addon setting. Usefull after update"

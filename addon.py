@@ -34,20 +34,6 @@ from cache import StvList
 movies = test.jsfile
 movie_response = { 'titles': movies }
 
-# constant
-t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
-t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
-t_nolocalrecco = 'There are no items in this list. Either you have no items in your library or they have not been recognized by Synopsi'
-t_listing_failed = 'Unknown error'
-t_stv = 'SynopsiTV'
-t_unavail = 'N/A'
-reccoDefaultProps = ['id', 'cover_medium', 'name']
-detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
-tvshowDetailProps = detailProps + ['seasons']
-defaultCastProps = ['name']
-reccoDefaulLimit = 29
-type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
-
 class ActionCode:
     MovieRecco = 10
     TVShows = 20
@@ -292,7 +278,7 @@ def show_submenu(action_code, dirhandle, **kwargs):
         raise
     except:
         log(traceback.format_exc())
-        xbmcgui.Dialog().ok(t_stv, t_listing_failed)
+        dialog_ok(t_listing_failed)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')         
 
 def show_movie_list(item_list, dirhandle):
@@ -477,7 +463,7 @@ elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMo
     try:
         show_submenu(p['mode'], dirhandle, **params)
     except:
-        xbmcgui.Dialog().ok(t_stv, t_nolocalrecco)
+        dialog_ok(t_nolocalrecco)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 
 elif p['mode']==ActionCode.Redirect2TVShowEpisodes:
@@ -487,14 +473,14 @@ elif p['mode']==ActionCode.UnwatchedEpisodes:
     try:
         show_submenu(p['mode'], dirhandle)
     except ListEmptyException:
-        xbmcgui.Dialog().ok(t_stv, t_nounwatched)
+        dialog_ok(t_nounwatched)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 
 elif p['mode']==ActionCode.UpcomingEpisodes:
     try:
         show_submenu(p['mode'], dirhandle)
     except ListEmptyException:
-        xbmcgui.Dialog().ok(t_stv, t_noupcoming)
+        dialog_ok(t_noupcoming)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
         
 elif p['mode']==ActionCode.VideoDialogShow:
