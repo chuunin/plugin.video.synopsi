@@ -37,6 +37,7 @@ movie_response = { 'titles': movies }
 # constant
 t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
 t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
+t_nolocalrecco = 'There are no items in this list. Either you have no items in your library or they have not been recognized by Synopsi'
 t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 t_unavail = 'N/A'
@@ -471,7 +472,11 @@ if p['mode']==None:
 
 elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco, ActionCode.TVShowEpisodes]:
     params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
-    show_submenu(p['mode'], dirhandle, **params)
+    try:
+        show_submenu(p['mode'], dirhandle, **params)
+    except:
+        xbmcgui.Dialog().ok(t_stv, t_nolocalrecco)
+        xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 
 elif p['mode']==ActionCode.Redirect2TVShowEpisodes:
     xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, int(p['stv_id'])))
