@@ -46,6 +46,39 @@ def check_first_run():
 		xbmc.executebuiltin('ReloadSkin()')
 		__addon__.setSetting(id='FIRSTRUN', value="false")
 
+def dialog_text(msg, max_row_index=20):
+	line_end = [0]
+	idx = -1
+	line_no = 0
+	row_start = 0
+
+	while True:
+		last_idx = idx
+		idx = msg.find(' ', idx+1)
+		if idx==-1:
+			break
+		elif idx-line_end[-1] > max_row_index:
+			line_end.append(last_idx)
+			line_no += 1
+			if line_no>max_lines:
+				break
+
+	line_end.append(None)
+
+	result = {}
+	last_index = 0
+	c = 1
+	for end_index in line_end[1:]:
+		line = msg[last_index:end_index]
+		result['line%d' % c] = line
+		last_index = end_index+1
+		c += 1
+
+	return result
+
+def dialog_ok(msg):
+	lines = dialog_text(msg, 30)
+	xbmcgui.Dialog().ok(t_stv, **lines)
 
 def clear_setting_cache():
 	"Clear cached addon setting. Usefull after update"
