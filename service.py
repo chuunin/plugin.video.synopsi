@@ -16,13 +16,8 @@ __cwd__    = __addon__.getAddonInfo('path')
 def main():
     apiclient1 = AppApiClient.getDefaultClient()
     
-    # on first run
-    if __addon__.getSetting('FIRSTRUN') == 'true':
-        # enable home screen recco
-        __addon__.openSettings()
-        xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
-        xbmc.executebuiltin('ReloadSkin()')
-        __addon__.setSetting(id='FIRSTRUN', value="false")
+    # check first run
+    check_first_run()
 
     # get or generate install-unique ID
     iuid = get_install_id()

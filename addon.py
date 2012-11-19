@@ -434,6 +434,8 @@ params = urlparse.parse_qs(url_parsed.query)
 # xbmc.log('url_parsed:' + str(url_parsed))
 xbmc.log('params:' + str(params))
 
+check_first_run()
+
 apiClient = AppApiClient.getDefaultClient()
 apiClient.login_state_announce = LoginState.AddonDialog
 stvList = StvList.getDefaultList(apiClient)

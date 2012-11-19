@@ -36,6 +36,17 @@ def get_current_addon():
 	global __addon__
 	return __addon__
 
+def check_first_run():
+	# on first run
+	if __addon__.getSetting('FIRSTRUN') == 'true':
+		xbmc.log('SYNOPSI FIRST RUN')
+	    # enable home screen recco
+	    __addon__.openSettings()
+	    xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
+	    xbmc.executebuiltin('ReloadSkin()')
+	    __addon__.setSetting(id='FIRSTRUN', value="false")
+
+
 def clear_setting_cache():
 	"Clear cached addon setting. Usefull after update"
 	settingsPath = xbmc.translatePath(os.path.join(__profile__, 'settings.xml'))

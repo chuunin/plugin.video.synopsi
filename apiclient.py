@@ -165,7 +165,7 @@ class ApiClient(object):
 			raise AuthenticationError()
 
 		except Exception as e:
-		 	self._logger.error('ANOTHER EXCEPTION:' + str(e))
+		 	self._logger.error('OTHER EXCEPTION:' + str(e))
 			raise AuthenticationError()
 
 
