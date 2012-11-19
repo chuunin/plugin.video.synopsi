@@ -40,11 +40,11 @@ def check_first_run():
 	# on first run
 	if __addon__.getSetting('FIRSTRUN') == 'true':
 		xbmc.log('SYNOPSI FIRST RUN')
-	    # enable home screen recco
-	    __addon__.openSettings()
-	    xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
-	    xbmc.executebuiltin('ReloadSkin()')
-	    __addon__.setSetting(id='FIRSTRUN', value="false")
+		# enable home screen recco
+		__addon__.openSettings()
+		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
+		xbmc.executebuiltin('ReloadSkin()')
+		__addon__.setSetting(id='FIRSTRUN', value="false")
 
 
 def clear_setting_cache():
