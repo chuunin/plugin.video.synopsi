@@ -193,12 +193,16 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
         # similars
         i = 1
+        items = []
+
         if self.data.has_key('similars'):
             for item in self.data['similars']:
-                win.setProperty("Movie.Similar.{0}.Id".format(i), str(item['id']))
-                win.setProperty("Movie.Similar.{0}.Label".format(i), item['name'])
-                win.setProperty("Movie.Similar.{0}.Cover".format(i), item['cover_medium'])
+                li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
+                items.append(li)
                 i = i + 1
+
+        # similars alternative
+        self.getControl(59).addItems(items)
 
         tmpTrail = self.data.get('trailer')
         if tmpTrail:

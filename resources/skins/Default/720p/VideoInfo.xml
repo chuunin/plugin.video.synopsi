@@ -319,52 +319,9 @@
 								<selectedcolor>white</selectedcolor>
 							</control>
 						</focusedlayout>
-						<content>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.1.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.1.Cover)]</icon>
-								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
-								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.1.Id)])</onclick> -->
-								<onclick>RunScript(plugin.video.synopsi,0,?mode=$INFO[Window.Property(Movie.Similar.ClickMode)]&amp;stv_id=$INFO[Window.Property(Movie.Similar.1.Id)])</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.2.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.2.Cover)]</icon>
-								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
-								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.2.Id)])</onclick> -->
-								<onclick>RunScript(plugin.video.synopsi,0,?mode=$INFO[Window.Property(Movie.Similar.ClickMode)]&amp;stv_id=$INFO[Window.Property(Movie.Similar.2.Id)])</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.3.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.3.Cover)]</icon>
-								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
-								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.3.Id)])</onclick> -->
-								<onclick>RunScript(plugin.video.synopsi,0,?mode=$INFO[Window.Property(Movie.Similar.ClickMode)]&amp;stv_id=$INFO[Window.Property(Movie.Similar.3.Id)])</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.4.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.4.Cover)]</icon>
-								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
-								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.4.Id)])</onclick> -->
-								<onclick>RunScript(plugin.video.synopsi,0,?mode=$INFO[Window.Property(Movie.Similar.ClickMode)]&amp;stv_id=$INFO[Window.Property(Movie.Similar.4.Id)])</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.5.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.5.Cover)]</icon>
-								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
-								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.5.Id)])</onclick> -->
-								<onclick>RunScript(plugin.video.synopsi,0,?mode=$INFO[Window.Property(Movie.Similar.ClickMode)]&amp;stv_id=$INFO[Window.Property(Movie.Similar.5.Id)])</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.6.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.6.Cover)]</icon>
-								<!-- <onclick>Dialog.Close(all,true)</onclick> -->
-								<!-- <onclick>RunAddon(plugin.video.synopsi, $INFO[Window.Property(Movie.Similar.6.Id)])</onclick> -->
-								<onclick>RunScript(plugin.video.synopsi,0,?mode=$INFO[Window.Property(Movie.Similar.ClickMode)]&amp;stv_id=$INFO[Window.Property(Movie.Similar.6.Id)])</onclick>
-							</item>
-							<!-- <item><label>$INFO[Window.Property(Movie.Label.3.1)]</label><label2>$INFO[Window.Property(Movie.Label.3.2)]</label2><onclick>-</onclick></item>-->
-						</content>
+				
 					</control>
+
 					<!-- <control type="image"><posx>290</posx><posy>380</posy><width>740</width><height>4</height><aspectratio>stretch</aspectratio><texture>separator.png</texture></control>-->
 				
 				<!-- <control type="image"><description>Actor image</description><posx>210</posx><posy>480</posy><width>160</width><height>160</height><texture>$INFO[Container(50).Listitem.Icon]</texture><aspectratio>keep</aspectratio><visible>Control.IsVisible(50)</visible></control><control id="50" type="panel"><posx>380</posx><posy>520</posy><width>860</width><height>120</height><onleft>9000</onleft><onright>61</onright><onup>61</onup><ondown>9000</ondown><viewtype label="">list</viewtype><pagecontrol>61</pagecontrol><scrolltime>200</scrolltime><orientation>vertical</orientation><itemlayout height="40" width="430"><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><texture border="5">button-nofocus.png</texture></control><control type="label"><posx>10</posx><posy>0</posy><width>410</width><height>40</height><font>font12</font><align>left</align><aligny>center</aligny><selectedcolor>white</selectedcolor><info>ListItem.Label</info></control></itemlayout><focusedlayout height="40" width="430"><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><visible>!Control.HasFocus(50)</visible><texture border="5">button-nofocus.png</texture></control><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><visible>Control.HasFocus(50)</visible><texture border="5">button-focus2.png</texture></control><control type="label"><posx>10</posx><posy>0</posy><width>410</width><height>40</height><font>font12</font><align>left</align><aligny>center</aligny><selectedcolor>white</selectedcolor><info>ListItem.Label</info></control></focusedlayout></control>-->
