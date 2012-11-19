@@ -198,6 +198,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         if self.data.has_key('similars'):
             for item in self.data['similars']:
                 li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
+                li.setProperty('id', str(item['id']))
                 items.append(li)
                 i = i + 1
 
@@ -219,17 +220,20 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         log('onClick: ' + str(controlId))
         if controlId == 5: # play
             self.close()
-        if controlId == 6: # add to list
+        elif controlId == 6: # add to list
             dialog = xbmcgui.Dialog()
             ret = dialog.select('Choose list', ['Watch later', 'Action', 'Favorite'])
-        if controlId == 10: # trailer
+        elif controlId == 10: # trailer
             self.close()
-        if controlId == 11: # already watched
+        elif controlId == 11: # already watched
             rating = get_rating()
             if rating < 4:
                 set_already_watched(self.data['id'], rating)
             self.close()
             xbmc.executebuiltin('Container.Refresh()')
+        elif controlId == 59:
+            selected_item = self.getControl(59).getSelectedItem()
+
             
 
     def onFocus(self, controlId):

@@ -43,8 +43,8 @@ t_unavail = 'N/A'
 
 
 
-
-
+def dump(var):
+	return json.dumps(var, indent=4)
 
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """
