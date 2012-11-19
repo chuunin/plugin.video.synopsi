@@ -201,8 +201,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
                 items.append(li)
                 i = i + 1
 
-        # similars alternative
-        self.getControl(59).addItems(items)
+            # similars alternative
+            self.getControl(59).addItems(items)
 
         tmpTrail = self.data.get('trailer')
         if tmpTrail:
