@@ -19,14 +19,12 @@ def pprint(data):
 
 class CacheTest(unittest.TestCase):
 	def test_save(self):
-		cache = StvList(c['device_id'], apiClient)
+		
 		cache.put(test_item1)
-
 		str_cache_ser = cache.serialize()				
 		cache.save('cache.test.dat')
 		
-	def test_load(self):
-		cache = StvList(c['device_id'], apiClient)		
+	def test_load(self):	
 		cache.load('cache.test.dat')
 		cache.list()
 		
@@ -37,6 +35,14 @@ class CacheTest(unittest.TestCase):
 			"os_title_hash": null, 
 			"imdb_id": "0109362"
 		}
+
+	def test_get_path(self):
+		movie = {
+			'file': "stack:///Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi , /Volumes/FLOAT/Film/cache ceske titulky/Cache - CD2.avi", 
+		}
+
+		print cache.get_path(movie)
+
 
 if __name__ == '__main__':
 	test_item1 = {
@@ -62,7 +68,8 @@ if __name__ == '__main__':
 
 	c = connection
 	apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-	
+	cache = StvList(c['device_id'], apiClient)	
+
 	logger = logging.getLogger()
 
 	suite = unittest.TestLoader().loadTestsFromTestCase(CacheTest)
