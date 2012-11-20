@@ -59,18 +59,6 @@ class ApiTest(unittest.TestCase):
 		stv_title = client.titleIdentify(**ident2)
 
 
-	def test_title_identify_stack(self):	
-		# identifying stack:// items
-		ident3 = {
-            "file_name": "stack:///Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi , /Volumes/FLOAT/Film/cache ceske titulky/Cache - CD2.avi", 
-            "stv_title_hash": null, 
-            "os_title_hash": null, 
-            "imdb_id": "0109362"
-		}
-
-		stv_title = client.titleIdentify(**ident3)
-
-
 	def test_library_add(self):		
 		client.getAccessToken()
 
