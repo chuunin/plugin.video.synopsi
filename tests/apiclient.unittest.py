@@ -19,16 +19,12 @@ def pprint(data):
 
 
 class ApiTest(unittest.TestCase):
-	def test_auth(self):
-
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
+	def test_auth(self):		
 		client.getAccessToken()
 		self.assertIsInstance(client, ApiClient)
 		return client
 
 	def test_auth_fail(self):
-
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
@@ -36,10 +32,7 @@ class ApiTest(unittest.TestCase):
 		self.assertRaises(AuthenticationError, client.getAccessToken)
 		self.assertTrue(client.isAuthenticated()==False)
 
-	def test_unwatched_episodes(self):
-
-		c = copy(connection)
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+	def test_unwatched_episodes(self):		
 		data = client.unwatchedEpisodes()
 
 		self.assertTrue(data.has_key('lineup'))
@@ -47,10 +40,7 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(data.has_key('top'))
 		self.assertTrue(data.has_key('upcoming'))
 
-	def test_title_identify(self):
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-
+	def test_title_identify(self):	
 		ident = {
 			"file_name": "/Volumes/FLOAT/Film/_videne/Night_On_Earth/Night_On_Earth.avi", 
 			"stv_title_hash": "1defa7f69476e9ffca7b8ceb8c251275afc31ade", 
@@ -69,9 +59,19 @@ class ApiTest(unittest.TestCase):
 		stv_title = client.titleIdentify(**ident2)
 
 
-	def test_library_add(self):
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+	def test_title_identify_stack(self):	
+		# identifying stack:// items
+		ident3 = {
+            "file_name": "stack:///Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi , /Volumes/FLOAT/Film/cache ceske titulky/Cache - CD2.avi", 
+            "stv_title_hash": null, 
+            "os_title_hash": null, 
+            "imdb_id": "0109362"
+		}
+
+		stv_title = client.titleIdentify(**ident3)
+
+
+	def test_library_add(self):		
 		client.getAccessToken()
 
 		ident = {
@@ -122,9 +122,7 @@ class ApiTest(unittest.TestCase):
 		data = client.libraryTitleRemove(stv_title_id)
 
 	def test_profile_recco(self):
-
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		
 
 		props = [ 'year', 'cover_small' ]
 		data = client.profileRecco('movie', False, 5, props)
@@ -134,9 +132,7 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(len(data['titles']) > 0)
 
 	def test_profile_recco_local(self):
-
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		
 
 		props = [ 'year', 'cover_small' ]
 		data = client.profileRecco('movie', True, 5, props)
@@ -146,26 +142,19 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(len(data['titles']) > 0)
 
 
-	def test_title_similar(self):
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-
+	def test_title_similar(self):	
 		# 1947362 "Ben-Hur (1959)"
 		data_similar = client.titleSimilar(1947362)
 		#print data_similar
 
-	def test_title(self):
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+	def test_title(self):		
 		title = client.title(1947362, cast_props=['name'])
 		
 		self.assertTrue(title.has_key('cover_full'))
 		self.assertTrue(title.has_key('cast'))
 		self.assertTrue(title['cast'][0]['name']=='Charlton Heston')
 
-	def test_tvshow(self):
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+	def test_tvshow(self):		
 		title = client.tvshow(14335, cast_props=['name'], season_props=['id','season_number'], season_limit=3)
 		
 		# print json.dumps(title, indent=4)		
@@ -175,9 +164,7 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(title.get('year')==2005)
 		self.assertTrue(title['cast'][0]['name']=='Josh Radnor')
 
-	def test_season(self):
-		c = connection		
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+	def test_season(self):		
 		title = client.season(14376)
 
 		# print json.dumps(title, indent=4)
@@ -204,6 +191,8 @@ if __name__ == '__main__':
 		'password': 'aaa',
 		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd',
 	}
+	c = connection
+	client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
 
 	logger = logging.getLogger()
 
