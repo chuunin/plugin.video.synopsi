@@ -83,6 +83,13 @@ class StvList(object):
             if b.has_key(src_key):
                 a[dst_key] = b[src_key]
 
+    def get_path(self, movie):
+        if 'stack://' in movie['file']:
+            parts = movie['file'][8:].split(" , ")
+            return parts[0]
+        else:
+            return movie['file']
+
     def addorupdate(self, atype, aid):
         # find out actual data about movie
         movie = get_details(atype, aid)
@@ -92,12 +99,12 @@ class StvList(object):
         # if not in cache, it's been probably added
         if not self.hasTypeId(movie['type'], movie['id']):
             # get stv hash
-            movie['stv_hash'] = stv_hash(movie['file'])
-            movie['os_title_hash'] = hash_opensubtitle(movie['file'])
+            path = get_path(movie)
+            movie['stv_hash'] = stv_hash(path)
+            movie['os_title_hash'] = hash_opensubtitle(path)
             # try to get synopsi id
-            # for now, try only if there is 'imdbnumber'
-
             # TODO: stv_subtitle_hash - hash of the subtitle file if presented
+
             ident = {}
             self._translate_xbmc2stv_keys(ident, movie)
             # correct exceptions
