@@ -43,7 +43,6 @@ class ActionCode:
 
     LoginAndSettings = 90
 
-    Redirect2TVShowEpisodes = 59
     TVShowEpisodes = 60
     
     VideoDialogShow = 900
@@ -189,7 +188,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             self.getControl(5).setEnabled(True)
 
         win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
-        win.setProperty("Movie.Similar.ClickMode", str(self.data['click_mode']))
 
         # similars
         i = 1
@@ -233,15 +231,21 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             xbmc.executebuiltin('Container.Refresh()')
         elif controlId == 59:
             selected_item = self.getControl(59).getSelectedItem()
+            stv_id = int(selected_item.getProperty('id'))
 
+            if self.data['type'] == 'tvshow':
+                self.close()
+                xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
+            else:
+                show_video_dialog_byId(stv_id)
             
 
     def onFocus(self, controlId):
         self.controlId = controlId
 
     def onAction(self, action):
-        # log('action: %s focused id:%d' % (str(action.getId()), getattr(self, 'controlId', 0)))        
-        if (action.getId() in CANCEL_DIALOG) or (action.getId()==100 and self.controlId==59):
+        log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))        
+        if (action.getId() in CANCEL_DIALOG):
             self.close()
 
 
@@ -385,15 +389,11 @@ def show_video_dialog_data(stv_details, json_data={}):
         # get similar movies
         similars = apiClient.titleSimilar(tpl_data['id'])
         if similars.has_key('titles'):
-            tpl_data['click_mode'] = ActionCode.VideoDialogShowById
             tpl_data['similars'] = similars['titles']
     elif tpl_data['type'] == 'tvshow':
         # append seasons
         if tpl_data.has_key('seasons'):
-            tpl_data['click_mode'] = ActionCode.Redirect2TVShowEpisodes
             tpl_data['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
-    else:
-        tpl_data['click_mode'] = ActionCode.VideoDialogShowById
 
     open_video_dialog(tpl_data)
 
@@ -473,9 +473,6 @@ elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMo
     except:
         dialog_ok(t_nolocalrecco)
         xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-
-elif p['mode']==ActionCode.Redirect2TVShowEpisodes:
-    xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, int(p['stv_id'])))
 
 elif p['mode']==ActionCode.UnwatchedEpisodes:
     try:
