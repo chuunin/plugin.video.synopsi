@@ -183,6 +183,18 @@ class ApiClient(object):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
+	def _unicode_input(self, data):
+		safe_data = {}
+		for k, v in data.iteritems():
+			if isinstance(v, unicode):
+				safe_data[k] = unicode(v).encode('utf-8')
+			elif isinstance(v, dict):
+				safe_data[k] = self._unicode_input(v)
+			else:
+				safe_data[k] = v
+
+		return safe_data
+
 	def execute(self, requestData, cacheable=True):
 		if not self.isAuthenticated():
 			self.getAccessToken()
@@ -193,6 +205,8 @@ class ApiClient(object):
 
 		if not requestData.has_key('data'):
 			requestData['data'] = {}
+		else:
+			requestData['data'] = self._unicode_input(requestData['data'])
 
 		# append data to post
 		if method == 'post':

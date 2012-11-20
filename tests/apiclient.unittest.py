@@ -1,5 +1,5 @@
 import os, sys
-import unittest
+from unittest import *
 import logging
 import json
 from copy import copy
@@ -18,7 +18,7 @@ def pprint(data):
 	logger.debug(msg)
 
 
-class ApiTest(unittest.TestCase):
+class ApiTest(TestCase):
 	def test_auth(self):		
 		client.getAccessToken()
 		self.assertIsInstance(client, ApiClient)
@@ -162,7 +162,17 @@ class ApiTest(unittest.TestCase):
 		self.assertTrue(title.get('year')==2005)
 		self.assertTrue(title['cast'][0]['name']=='Josh Radnor')
 
+	def test_unicode_input(self):
+		data = {
+			'key-one': u'Alfa - \u03b1',
+			'key-dict': {
+				'key-nested': u'Gama - \u03b3'
+			}
+		}
 
+		print client._unicode_input(data)
+
+# def test_unicode_input():
 
 
 if __name__ == '__main__': 
@@ -184,8 +194,8 @@ if __name__ == '__main__':
 
 	logger = logging.getLogger()
 
-	suite = unittest.TestLoader().loadTestsFromTestCase(ApiTest)
-
-	unittest.TextTestRunner(verbosity=2).run(suite)
+	# suite = TestLoader().loadTestsFromTestCase(ApiTest)
+	suite = TestLoader().loadTestsFromName('ApiTest.test_unicode_input', sys.modules[__name__])
+	TextTestRunner(verbosity=2).run(suite)
 
 
