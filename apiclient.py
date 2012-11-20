@@ -155,8 +155,13 @@ class ApiClient(object):
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			self._logger.error('%d %s' % (e.code, e))
-			self._logger.error(e.read())
+			response = json.loads(e.read())
+			if "User authentication failed" in response['error_description']:
+				self._logger.info('%d %s' % (e.code, response['error_description']))
+			else:
+				self._logger.error('%d %s' % (e.code, e))
+				self._logger.error(e.read())
+
 			raise AuthenticationError()
 
 		except URLError as e:
