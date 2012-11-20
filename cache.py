@@ -99,7 +99,7 @@ class StvList(object):
         # if not in cache, it's been probably added
         if not self.hasTypeId(movie['type'], movie['id']):
             # get stv hash
-            path = get_path(movie)
+            path = self.get_path(movie)
             movie['stv_hash'] = stv_hash(path)
             movie['os_title_hash'] = hash_opensubtitle(path)
             # try to get synopsi id
