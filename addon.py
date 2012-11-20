@@ -86,29 +86,39 @@ def get_global_recco(movie_type):
 def get_unwatched_episodes():
     episodes =  apiClient.unwatchedEpisodes()
 
-    log('unwatched episodes')
-    for title in episodes['lineup']:
-        log(title['name'])
+    # log('unwatched episodes')
+    # for title in episodes['lineup']:
+    #     log(title['name'])
+
     result = episodes['lineup']
     return result
     
 def get_upcoming_episodes():
     episodes =  apiClient.unwatchedEpisodes()
 
-    log('upcoming episodes')
-    for title in episodes['upcoming']:
-        log(title['name'])
+    # log('upcoming episodes')
+    # for title in episodes['upcoming']:
+    #     log(title['name'])
+
     result = episodes['upcoming']
     return result
 
 def get_top_tvshow():
     episodes = apiClient.unwatchedEpisodes()
 
-    log('top tvshows')
-    for title in episodes['top']:
-        log(title['name'])
+    # log('top tvshows')
+    # for title in episodes['top']:
+    #     log(title['name'])
+
     result = episodes['top']
     return result
+
+def get_local_tvshows():
+    localtvshows = get_all_tvshows()
+    log(dump(localtvshows))
+
+    return [ { 'name': item['label'] } for item in localtvshows['tvshows'] ]
+
 
 def get_tvshow_season(tvshow_id):
     season = apiClient.season(tvshow_id)
@@ -260,7 +270,7 @@ def add_directory(name, url, mode, iconimage, atype):
 
 
 def add_movie(movie, url, mode, iconimage, movieid):
-    json_data = json.dumps(movie)
+    json_data = dump(movie)
     u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
     liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     if movie.get('watched'):
@@ -300,7 +310,7 @@ def show_movie_list(item_list, dirhandle):
             raise ListEmptyException
             
         for movie in item_list:
-            # log(json.dumps(movie, indent=4))
+            # log(dump(movie))
             add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
     except AuthenticationError:
         errorMsg = True
@@ -322,7 +332,7 @@ def show_video_dialog_byId(stv_id):
     show_video_dialog_data(stv_details)
 
 def show_video_dialog(json_data):
-    # log('show video:' + json.dumps(json_data, indent=4))
+    # log('show video:' + dump(json_data))
 
     if json_data.get('type') == 'tvshow':
         stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
@@ -339,8 +349,8 @@ def show_video_dialog_data(stv_details, json_data={}):
         log('xbmc id:' + str(json_data['xbmc_id']))
         json_data['xbmc_movie_detail'] = get_details('movie', json_data['xbmc_id'], True)
 
-    log('show video:' + json.dumps(json_data, indent=4))
-    log('stv_details video:' + json.dumps(stv_details, indent=4))
+    log('show video:' + dump(json_data))
+    log('stv_details video:' + dump(stv_details))
     
     # update empty stv_details with only nonempty values from xbmc
     for k, v in json_data.iteritems():
@@ -523,5 +533,3 @@ elif p['mode']==999:
     }
     show_video_dialog(jdata)
     
-
-

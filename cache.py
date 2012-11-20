@@ -16,6 +16,8 @@ xbmc2stv_key_translation = {
     'imdb_id': 'imdbnumber'
 }
 
+playable_types = ['movie', 'episode']
+
 class StvList(object):
     """
     Library cache.
@@ -62,7 +64,7 @@ class StvList(object):
 
 
     def serialize(self):
-        self.log(json.dumps([self.byTypeId, self.byFilename, self.byStvId]))
+        self.log(dump([self.byTypeId, self.byFilename, self.byStvId]))
         pickled_base64_cache = base64.b64encode(pickle.dumps([self.byTypeId, self.byFilename, self.byStvId]))
         # self.log('PICKLED:' + pickled_base64_cache)
         # self.log('UNPICKLED:' + str(pickle.loads(base64.b64decode(pickled_base64_cache))))
@@ -99,9 +101,10 @@ class StvList(object):
         # if not in cache, it's been probably added
         if not self.hasTypeId(movie['type'], movie['id']):
             # get stv hash
-            path = self.get_path(movie)
-            movie['stv_hash'] = stv_hash(path)
-            movie['os_title_hash'] = hash_opensubtitle(path)
+            if movie['type'] in playable_types:
+                path = self.get_path(movie)
+                movie['stv_hash'] = stv_hash(path)
+                movie['os_title_hash'] = hash_opensubtitle(path)
             # try to get synopsi id
             # TODO: stv_subtitle_hash - hash of the subtitle file if presented
 
@@ -111,7 +114,7 @@ class StvList(object):
             if ident.get('imdb_id'):
                 ident['imdb_id'] = ident['imdb_id'][2:]
 
-            self.log('ident:' + json.dumps(ident, indent=4))    
+            self.log('ident:' + dump(ident))    
 
             title = self.apiclient.titleIdentify(**ident)
             if title.has_key('id'):
@@ -203,7 +206,7 @@ class StvList(object):
 
         self.log('LIST /')
         for rec in self.byTypeId.values():
-            self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + json.dumps(rec))
+            self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + dump(rec))
 
     def listByFilename(self):
         if len(self.byFilename) == 0:
@@ -212,7 +215,7 @@ class StvList(object):
 
         self.log('LIST /')
         for rec in self.byFilename.items():
-            self.log(rec[0] + '\t| ' + json.dumps(rec[1]))
+            self.log(rec[0] + '\t| ' + dump(rec[1]))
 
     def clear(self):
         self.byFilename = {}
@@ -233,7 +236,7 @@ class StvList(object):
         resTvShows = get_all_tvshows()
         if resTvShows.has_key("tvshows") > 0:
             tv_shows = resTvShows
-            self.log(json.dumps(tv_shows))
+            self.log(dump(tv_shows))
             # print tv_shows
             for show in tv_shows:
                 for episode in get_episodes(show["tvshowid"])["result"]["episodes"]:

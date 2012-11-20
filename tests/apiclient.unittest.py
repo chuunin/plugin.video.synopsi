@@ -3,6 +3,7 @@ from unittest import *
 import logging
 import json
 from copy import copy
+from utilities import *
 
 sys.path.insert(0, os.path.abspath('..'))
 from apiclient import *
@@ -13,7 +14,7 @@ def pprint(data):
 	if data is dict and data.has_key('_db_queries'):
 		del data['_db_queries']
 
-	msg = json.dumps(data, indent=4)
+	msg = dump(data)
 	# print msg
 	logger.debug(msg)
 
@@ -102,7 +103,7 @@ class ApiTest(TestCase):
 
 		watched_data = {
 			'rating': 1, 
-			'player_events': json.dumps(exampleEvents)
+			'player_events': dump(exampleEvents)
 		}
 
 		data = client.titleWatched(stv_title_id, **watched_data)
@@ -145,7 +146,7 @@ class ApiTest(TestCase):
 	def test_tvshow(self):		
 		title = client.tvshow(14335, cast_props=['name'], season_props=['id','season_number'], season_limit=3)
 		
-		# print json.dumps(title, indent=4)		
+		# print dump(title)		
 
 		self.assertTrue(title.has_key('cover_full'))
 		self.assertTrue(title.get('type')=='tvshow')
@@ -155,7 +156,7 @@ class ApiTest(TestCase):
 	def test_season(self):		
 		title = client.season(14376)
 
-		# print json.dumps(title, indent=4)
+		# print dump(title)
 
 		self.assertTrue(title.has_key('cover_full'))
 		self.assertTrue(title.get('type')=='tvshow')

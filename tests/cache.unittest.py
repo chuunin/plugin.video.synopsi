@@ -2,6 +2,7 @@ import os, sys
 import unittest
 import logging
 import json
+from utilities import *
 
 sys.path.insert(0, os.path.abspath('..'))
 from apiclient import *
@@ -12,7 +13,7 @@ def pprint(data):
 
 	if data is dict and data.has_key('_db_queries'):
 		del data['_db_queries']
-	msg = json.dumps(data, indent=4)
+	msg = dump(data)
 	# print msg
 	logger.debug(msg)
 

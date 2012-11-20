@@ -155,13 +155,13 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
     def stopped(self):  
         self.playerEvent('stop')
-        self.log(json.dumps(self.playerEvents, indent=4))
+        self.log(dumps(self.playerEvents))
         # self.log('time:' + str(self.current_time))
         # self.log('total time:' + str(self.total_time))
         percent = self.current_time / self.total_time
         self.log('percent:' + str(self.current_time / self.total_time))
 
-        data = { 'player_events': json.dumps(self.playerEvents) }
+        data = { 'player_events': dumps(self.playerEvents) }
 
         # work only on files in library
         if self.cache.hasFilename(self.last_played_file):

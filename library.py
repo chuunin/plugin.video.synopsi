@@ -105,7 +105,7 @@ class RPCListenerHandler(RPCListener):
 
     #   NOT USED NOW
     def playerEvent(self, data):
-        self.log(json.dumps(data, indent=4))
+        self.log(dump(data))
 
     def log(self, msg):
         xbmc.log('LIBRARY / ' + msg)

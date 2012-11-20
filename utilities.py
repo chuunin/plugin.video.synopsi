@@ -543,7 +543,7 @@ def get_tvshow_details(movie_id):
 		'VideoLibrary.GetTVShowDetails',
 		{
 			'properties': properties,
-			'movieid': movie_id  # s 1 e 2 writes 2
+			'movieid': movie_id 
 		}
 	)
 
@@ -606,19 +606,19 @@ class xbmcRPCclient(object):
 		}
 
 		if self.__logLevel:
-			xbmc.log('xbmc RPC request: ' + str(json.dumps(req)))
+			xbmc.log('xbmc RPC request: ' + str(dump(req)))
 
-		response = xbmc.executeJSONRPC(json.dumps(req))
+		response = xbmc.executeJSONRPC(dump(req))
 		
 		json_response = json.loads(response)
 
 		if self.__logLevel:
-			xbmc.log('xbmc RPC response: ' + str(json.dumps(json_response, indent=4)))
+			xbmc.log('xbmc RPC response: ' + str(dump(json_response)))
 
 		if json_response.has_key('error') and json_response['error']:
 			xbmc.log('xbmc RPC ERROR: ' + json_response['error']['message'])
-			xbmc.log('xbmc RPC request: ' + str(json.dumps(req, indent=4)))
-			xbmc.log('xbmc RPC response: ' + str(json.dumps(json_response, indent=4)))
+			xbmc.log('xbmc RPC request: ' + str(dump(req)))
+			xbmc.log('xbmc RPC response: ' + str(dump(json_response)))
 			raise Exception(json_response['error']['message'])
 
 		return json_response['result']
@@ -652,8 +652,8 @@ def home_screen_fill(apiClient, cache):
 	# episode_recco = jsfile
 	
 
-	# xbmc.log('movie_recco:' + json.dumps(movie_recco, indent=4))
-	# xbmc.log('episode_recco:' + json.dumps(episode_recco, indent=4))
+	# xbmc.log('movie_recco:' + dump(movie_recco, indent=4))
+	# xbmc.log('episode_recco:' + dump(episode_recco, indent=4))
 	xbmc.log('movie_recco count:' + str(len(movie_recco)))
 	xbmc.log('episode_recco count:' + str(len(episode_recco)))
 
