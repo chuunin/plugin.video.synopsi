@@ -18,28 +18,25 @@ def pprint(data):
 
 
 class CacheTest(unittest.TestCase):
-	connection = None
-	apiClient = None
-	_library = None
-		
 	def test_save(self):
-		c = connection
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		cache = StvList(c['device_id'], apiClient)
+		cache.put(test_item1)
 
-		self._library = StvList(c['device_id'], client)
-		self._library.put(test_item1)
-
-		str_cache_ser = self._library.serialize()				
-		self._library.save('cache.test.dat')
+		str_cache_ser = cache.serialize()				
+		cache.save('cache.test.dat')
 		
 	def test_load(self):
-		c = connection
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-
-		self._library = StvList(c['device_id'], client)		
-		self._library.load('cache.test.dat')
-		self._library.list()
+		cache = StvList(c['device_id'], apiClient)		
+		cache.load('cache.test.dat')
+		cache.list()
 		
+	def test_addorupdate_stack(self):
+		stack_ident = {
+			"file_name": "stack:///Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi , /Volumes/FLOAT/Film/cache ceske titulky/Cache - CD2.avi", 
+			"stv_title_hash": null, 
+			"os_title_hash": null, 
+			"imdb_id": "0109362"
+		}
 
 if __name__ == '__main__':
 	test_item1 = {
@@ -62,6 +59,9 @@ if __name__ == '__main__':
 		'password': 'aaa',
 		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd',
 	}
+
+	c = connection
+	apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 	
 	logger = logging.getLogger()
 
