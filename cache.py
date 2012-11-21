@@ -199,6 +199,9 @@ class StvList(object):
         if self.byStvId.has_key(stv_id):
             return self.byStvId[stv_id]
 
+    def getAllByType(self, atype):
+        return self.byType[atype]
+
     def list(self):
         self.log('ID / ' +  self.uuid)
         if len(self.byTypeId) == 0:

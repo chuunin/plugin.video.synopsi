@@ -22,6 +22,7 @@ smallListProps = ['id', 'cover_medium', 'name', 'watched']
 allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
 defaultSeasonProps = ['id', 'cover_medium', 'season_number'] 						
 defaultSeasonProps2 = ['id', 'episodes']
+defaultSearchProps = commonTitleProps
 
 class NotConnectedException(Exception):
 	pass
@@ -269,7 +270,7 @@ class ApiClient(object):
 
 		self.execute(req)
 
-	def titleIdentify(self, **data):
+	def titleIdentify(self, props=commonTitleProps, **data):
 		""" Try to match synopsi title by various data """
 		data['device_id'] = self.device_id
 		req = {
@@ -409,6 +410,17 @@ class ApiClient(object):
 	def unwatchedEpisodes(self, props=watchableTitleProps):
 		req = {
 			'methodPath': 'profile/unwatched_episodes/',
+			'method': 'get',
+			'data': {
+				'title_property[]': ','.join(props)
+			}
+		}
+
+		return self.execute(req)
+
+	def search(self, term, props=defaultSearchProps):
+		req = {
+			'methodPath': 'search/%s' % term,
 			'method': 'get',
 			'data': {
 				'title_property[]': ','.join(props)

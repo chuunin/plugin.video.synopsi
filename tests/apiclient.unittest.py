@@ -176,6 +176,10 @@ class ApiTest(TestCase):
 		enc_data = client._unicode_input(data)
 		self.assertTrue(str(enc_data)=="{'key-one': 'Alfa - \xce\xb1', 'key-dict': {'key-nested': 'Gama - \xce\xb3'}}")
 
+	def test_search(self):
+		result = client.search('Adams aebler')
+		print result
+
 if __name__ == '__main__': 
 	connection = {
 		'base_url': 'https://test-papi.synopsi.tv/',
@@ -195,8 +199,10 @@ if __name__ == '__main__':
 
 	logger = logging.getLogger()
 
-	suite = TestLoader().loadTestsFromTestCase(ApiTest)
+	# suite = TestLoader().loadTestsFromTestCase(ApiTest)
 	# suite = TestLoader().loadTestsFromName('ApiTest.test_unicode_input', sys.modules[__name__])
+	suite = TestLoader().loadTestsFromName('ApiTest.test_search', sys.modules[__name__])
+
 	TextTestRunner(verbosity=2).run(suite)
 
 
