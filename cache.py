@@ -37,9 +37,7 @@ class StvList(object):
         super(StvList, self).__init__()
         self.apiclient = apiclient
 
-        self.byTypeId = {}
-        self.byFilename = {}
-        self.byStvId = {}
+        self.clear()
 
         self.uuid = uuid
         self.list()
@@ -64,8 +62,8 @@ class StvList(object):
 
 
     def serialize(self):
-        self.log(dump([self.byTypeId, self.byFilename, self.byStvId]))
-        pickled_base64_cache = base64.b64encode(pickle.dumps([self.byTypeId, self.byFilename, self.byStvId]))
+        self.log(dump([self.byType, self.byTypeId, self.byFilename, self.byStvId]))
+        pickled_base64_cache = base64.b64encode(pickle.dumps([self.byType, self.byTypeId, self.byFilename, self.byStvId]))
         # self.log('PICKLED:' + pickled_base64_cache)
         # self.log('UNPICKLED:' + str(pickle.loads(base64.b64decode(pickled_base64_cache))))
         return pickled_base64_cache
@@ -73,9 +71,10 @@ class StvList(object):
     def deserialize(self, _string):
         unpickled_list = pickle.loads(base64.b64decode(_string))
         # self.log('UNPICKLED:' + str(unpickled_list))
-        self.byTypeId = unpickled_list[0]
-        self.byFilename = unpickled_list[1]
-        self.byStvId = unpickled_list[2]
+        self.byType = unpickled_list[0]
+        self.byTypeId = unpickled_list[1]
+        self.byFilename = unpickled_list[2]
+        self.byStvId = unpickled_list[3]
 
     def log(self, msg):
         xbmc.log('CACHE / ' + str(msg))
@@ -132,6 +131,7 @@ class StvList(object):
         " Put a new record in the list "
         typeIdStr = self._getKey(item['type'], item['id'])
         
+        self.byType[item['type']][item['id']] = item
         self.byTypeId[typeIdStr] = item
         self.byFilename[item['file']] = item
         if item.has_key('stvId'):
@@ -160,16 +160,17 @@ class StvList(object):
 
         self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
 
-    def remove(self, type, id):
-        typeIdStr = self._getKey(type, id)
+    def remove(self, atype, aid):
+        typeIdStr = self._getKey(atype, aid)
         self.log('REMOVE / ' + typeIdStr)
         try:
-            item = self.getByTypeId(type, id)
+            item = self.getByTypeId(atype, aid)
 
             # suppose cache is consistent and remove only if one of indexes is available            
             if self.byTypeId.has_key(typeIdStr):
                 del self.byFilename[item['file']]            
                 del self.byTypeId[typeIdStr]
+                del self.byType[atype][aid]
 
                 if item.has_key('stvId'):
                     self.apiclient.libraryTitleRemove(item['stvId'])
@@ -218,8 +219,10 @@ class StvList(object):
             self.log(rec[0] + '\t| ' + dump(rec[1]))
 
     def clear(self):
-        self.byFilename = {}
+        self.byType = { 'movie': {}, 'tvshow': {}, 'episode': {}, 'season': {}}
         self.byTypeId = {}
+        self.byFilename = {}
+        self.byStvId = {}
 
     def rebuild(self):
         """
