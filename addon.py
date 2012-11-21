@@ -289,13 +289,13 @@ def add_directory(name, url, mode, iconimage, atype):
 def add_movie(movie, url, mode, iconimage, movieid):
     json_data = dump(movie)
     u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
-    liz = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     if movie.get('watched'):
-        liz.setInfo( type="Video", infoLabels={ "playcount": 1 } )
+        li.setInfo( type="Video", infoLabels={ "playcount": 1 } )
 
-    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
-    return ok
+    new_li = (u, li, False)
 
+    return new_li
 
 def show_categories():
     """
@@ -325,10 +325,16 @@ def show_movie_list(item_list, dirhandle):
     try:
         if not item_list:
             raise ListEmptyException
-            
+        
+        lis = []    
         for movie in item_list:
             # log(dump(movie))
-            add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
+            lis.append(
+                add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
+            )
+
+        xbmcplugin.addDirectoryItems(dirhandle, lis)
+
     except AuthenticationError:
         errorMsg = True
     finally:
@@ -439,7 +445,7 @@ def open_video_dialog(tpl_data):
         del ui
 
 def open_manual_ident():
-    ui = KeyboardDialog('DialogKeyboard.xml', __cwd__, "Default")
+    ui = KeyboardDialog('DialogKeyboard.xml', __cwd__)
     ui.doModal()
     del ui
 
