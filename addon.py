@@ -248,7 +248,24 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
                 xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
             else:
                 show_video_dialog_byId(stv_id)
-            
+        elif controlId == 13:
+            open_manual_ident()
+
+    def onFocus(self, controlId):
+        self.controlId = controlId
+
+    def onAction(self, action):
+        log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))        
+        if (action.getId() in CANCEL_DIALOG):
+            self.close()
+
+class KeyboardDialog(xbmcgui.WindowXMLDialog):
+    """
+    Dialog about video information.
+    """
+
+    def onClick(self, controlId):
+        log('onClick: ' + str(controlId))
 
     def onFocus(self, controlId):
         self.controlId = controlId
@@ -420,6 +437,11 @@ def open_video_dialog(tpl_data):
         ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
         ui.doModal()
         del ui
+
+def open_manual_ident():
+    ui = KeyboardDialog('DialogKeyboard.xml', __cwd__, "Default")
+    ui.doModal()
+    del ui
 
 
 __addon__  = get_current_addon()
