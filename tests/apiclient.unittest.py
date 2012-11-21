@@ -3,9 +3,9 @@ from unittest import *
 import logging
 import json
 from copy import copy
-from utilities import *
 
 sys.path.insert(0, os.path.abspath('..'))
+from utilities import *
 from apiclient import *
 
 def pprint(data):
@@ -46,8 +46,10 @@ class ApiTest(TestCase):
 			"file_name": "/Volumes/FLOAT/Film/_videne/Night_On_Earth/Night_On_Earth.avi", 
 			"stv_title_hash": "1defa7f69476e9ffca7b8ceb8c251275afc31ade", 
 			"os_title_hash": "486d1f7112f9749d", 
-			"imdb_id": "0102536"
+			"imdb_id": "0102536",
+			'title_property[]': ','.join(['name', 'cover_medium'])
 		}
+
 		stv_title = client.titleIdentify(**ident)
 
 		ident2 = {
@@ -103,7 +105,7 @@ class ApiTest(TestCase):
 
 		watched_data = {
 			'rating': 1, 
-			'player_events': dump(exampleEvents)
+			'player_events': json.dumps(exampleEvents)
 		}
 
 		data = client.titleWatched(stv_title_id, **watched_data)
@@ -171,10 +173,8 @@ class ApiTest(TestCase):
 			}
 		}
 
-		print client._unicode_input(data)
-
-# def test_unicode_input():
-
+		enc_data = client._unicode_input(data)
+		self.assertTrue(str(enc_data)=="{'key-one': 'Alfa - \xce\xb1', 'key-dict': {'key-nested': 'Gama - \xce\xb3'}}")
 
 if __name__ == '__main__': 
 	connection = {
@@ -195,8 +195,8 @@ if __name__ == '__main__':
 
 	logger = logging.getLogger()
 
-	# suite = TestLoader().loadTestsFromTestCase(ApiTest)
-	suite = TestLoader().loadTestsFromName('ApiTest.test_unicode_input', sys.modules[__name__])
+	suite = TestLoader().loadTestsFromTestCase(ApiTest)
+	# suite = TestLoader().loadTestsFromName('ApiTest.test_unicode_input', sys.modules[__name__])
 	TextTestRunner(verbosity=2).run(suite)
 
 
