@@ -408,7 +408,7 @@ def get_all_tvshows():
 	"""
 	Get movies from xbmc library. Start is the first in list and end is the last.
 	"""
-	properties = ['file', 'imdbnumber', "lastplayed", "playcount", "episode"]
+	properties = ['file', 'imdbnumber', "lastplayed", "playcount", "episode", "thumbnail"]
 
 	response = xbmcRPC.execute(
 		'VideoLibrary.GetTVShows',
