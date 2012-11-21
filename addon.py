@@ -110,15 +110,19 @@ def get_top_tvshow():
     # for title in episodes['top']:
     #     log(title['name'])
 
-    result = episodes['top']
+    local_tvshows = get_local_tvshows()
+
+    result = []
+    result += local_tvshows
+    result += episodes['top']
+    
     return result
 
 def get_local_tvshows():
     localtvshows = get_all_tvshows()
     log(dump(localtvshows))
 
-    return [ { 'name': item['label'] } for item in localtvshows['tvshows'] ]
-
+    return [ { 'name': item['label'], 'cover_medium': item['thumbnail'] } for item in localtvshows['tvshows'] ]
 
 def get_tvshow_season(tvshow_id):
     season = apiClient.season(tvshow_id)
