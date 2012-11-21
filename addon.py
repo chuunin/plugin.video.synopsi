@@ -21,6 +21,7 @@ import os.path
 import logging
 import traceback
 from datetime import datetime
+import CommonFunctions
 
 # application
 import test
@@ -29,6 +30,9 @@ from utilities import *
 from cache import StvList
 
 # from PIL import Image, ImageDraw, ImageOps
+
+common = CommonFunctions
+common.plugin = "SynopsiTV"
 
 # test files
 movies = test.jsfile
@@ -103,19 +107,23 @@ def get_upcoming_episodes():
     result = episodes['upcoming']
     return result
 
-def get_top_tvshow():
+def get_top_tvshows():
     episodes = apiClient.unwatchedEpisodes()
 
     # log('top tvshows')
     # for title in episodes['top']:
     #     log(title['name'])
 
-    local_tvshows = get_local_tvshows()
+    result = episodes['top']
+    return result
+
+def get_tvshows():
+    local_tvshows = stvList.getAllByType('tvshow')
 
     result = []
-    result += local_tvshows
-    result += episodes['top']
-    
+    result += local_tvshows.values()
+    result += get_top_tvshows()
+
     return result
 
 def get_local_tvshows():
@@ -153,7 +161,7 @@ def get_item_list(action_code, **kwargs):
     if action_code==ActionCode.MovieRecco:
         return get_global_recco('movie')['titles']
     elif action_code==ActionCode.TVShows:
-        return get_top_tvshow()
+        return get_tvshows()
     elif action_code==ActionCode.LocalMovieRecco:
         return get_local_recco('movie')['titles']
     elif action_code==ActionCode.UnwatchedEpisodes:
@@ -449,9 +457,14 @@ def open_video_dialog(tpl_data):
         del ui
 
 def open_manual_ident():
-    ui = KeyboardDialog('DialogKeyboard.xml', __cwd__)
-    ui.doModal()
-    del ui
+    # search_term = common.getUserInput("Title", "")
+    # results = apiClient.search(search_term)
+
+    xbmc.executebuiltin('ActivateWindow(6)')
+
+def MyVideoNav():
+    pass
+
 
 
 __addon__  = get_current_addon()
