@@ -543,7 +543,7 @@ def get_tvshow_details(movie_id):
 		'VideoLibrary.GetTVShowDetails',
 		{
 			'properties': properties,
-			'movieid': movie_id 
+			'tvshowid': movie_id 
 		}
 	)
 
