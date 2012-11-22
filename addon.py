@@ -260,7 +260,10 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
             else:
                 show_video_dialog_byId(stv_id)
         elif controlId == 13:
-            open_manual_ident()
+            new_identity = user_title_search()
+            if new_identity and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
+                apiClient.title_identify_correct(new_identity['id'], self.data['stv_title_hash'])
+
 
     def onFocus(self, controlId):
         self.controlId = controlId
@@ -480,12 +483,20 @@ def open_select_movie_dialog(tpl_data):
     return result
 
 
-def open_manual_ident():
+def user_title_search():
     search_term = common.getUserInput("Title", "")
-    results = apiClient.search(search_term)
-    data = { 'movies': results['search_result'] }
-    selected = open_select_movie_dialog(data)   
-    log(dump(selected))
+    if search_term:
+        results = apiClient.search(search_term)
+        if len(results['search_result']) == 0:
+            dialog_ok('No results')
+        else:
+            data = { 'movies': results['search_result'] }
+            return open_select_movie_dialog(data)
+    else:
+        dialog_ok('Enter a title name to search for')
+
+    return
+
 
     
 def MyVideoNav():
@@ -592,7 +603,7 @@ elif p['mode']==971:
     stvList.list()    
     
 elif p['mode']==972:
-    search = apiClient.search('Forrest')
+    search = apiClient.search('Code')
     data = { 'movies': search['search_result']}
     open_select_movie_dialog(data)   
     
