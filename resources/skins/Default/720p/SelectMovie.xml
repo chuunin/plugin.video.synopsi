@@ -1,6 +1,5 @@
 <window id="8011">
 	<defaultcontrol always="true">59</defaultcontrol>
-	<allowoverlay>no</allowoverlay>
 	<zorder>999</zorder>
 	<controls>
 		<control type="group">
@@ -49,7 +48,7 @@
 				<posx>20</posx>
 				<posy>40</posy>
 				<width>920</width>
-				<height>600</height>
+				<height>560</height>
 				<onleft>59</onleft>
 				<onright>59</onright>
 				<onup>9000</onup>
@@ -89,6 +88,7 @@
 						<height>140</height>
 						<info>ListItem.Icon</info>
 						<bordersize>5</bordersize>
+						<bordertexture border="5">folder-focus.png</bordertexture>
 						<texture background="true">$INFO[ListItem.Icon]</texture>
 					</control>
 					<control type="label">
@@ -100,8 +100,9 @@
 						<font>font13</font>
 						<align>left</align>
 						<aligny>center</aligny>
-						<textcolor>white</textcolor>
+						<textcolor>FFF0E0E0</textcolor>
 						<selectedcolor>white</selectedcolor>
+						<!-- <colordiffuse>FF88FF88</colordiffuse> -->
 					</control>
 				</focusedlayout>
 			</control>
