@@ -20,6 +20,7 @@ import re
 import os.path
 import logging
 import traceback
+import subprocess
 from datetime import datetime
 import CommonFunctions
 
@@ -212,7 +213,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
         win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
 
         # similars
-        i = 1
         items = []
 
         if self.data.has_key('similars'):
@@ -220,7 +220,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
                 li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
                 li.setProperty('id', str(item['id']))
                 items.append(li)
-                i = i + 1
 
             # similars alternative
             self.getControl(59).addItems(items)
@@ -262,22 +261,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
                 show_video_dialog_byId(stv_id)
         elif controlId == 13:
             open_manual_ident()
-
-    def onFocus(self, controlId):
-        self.controlId = controlId
-
-    def onAction(self, action):
-        log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))        
-        if (action.getId() in CANCEL_DIALOG):
-            self.close()
-
-class KeyboardDialog(xbmcgui.WindowXMLDialog):
-    """
-    Dialog about video information.
-    """
-
-    def onClick(self, controlId):
-        log('onClick: ' + str(controlId))
 
     def onFocus(self, controlId):
         self.controlId = controlId
@@ -456,12 +439,55 @@ def open_video_dialog(tpl_data):
         ui.doModal()
         del ui
 
+class SelectMovieDialog(xbmcgui.WindowXMLDialog):
+    """ Dialog for choosing movie corrections """
+    def __init__(self, *args, **kwargs):
+        self.data = kwargs['data']
+        self.controlId = None
+        self.selectedMovie = None
+
+    def onInit(self):
+        items = []
+        for item in self.data['movies']:
+            text = '%s (%d) %s' % (item['name'], item['year'], ', '.join(item['directors']))
+            li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
+            li.setProperty('id', str(item['id']))
+            items.append(li)
+
+            self.getControl(59).addItems(items)
+
+    def onClick(self, controlId):
+        log('onClick: ' + str(controlId))
+        if self.controlId == 59:
+            sel_index = self.getControl(59).getSelectedPosition()
+            self.selectedMovie = self.data['movies'][sel_index]
+            self.close()
+
+
+    def onFocus(self, controlId):
+        self.controlId = controlId
+
+    def onAction(self, action):
+        log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+        if (action.getId() in CANCEL_DIALOG):
+            self.close()
+
+def open_select_movie_dialog(tpl_data):
+    ui = SelectMovieDialog("SelectMovie.xml", __cwd__, "Default", data=tpl_data)
+    ui.doModal()
+    result = ui.selectedMovie
+    del ui
+    return result
+
+
 def open_manual_ident():
-    # search_term = common.getUserInput("Title", "")
-    # results = apiClient.search(search_term)
+    search_term = common.getUserInput("Title", "")
+    results = apiClient.search(search_term)
+    data = { 'movies': results['search_result'] }
+    selected = open_select_movie_dialog(data)   
+    log(dump(selected))
 
-    xbmc.executebuiltin('ActivateWindow(6)')
-
+    
 def MyVideoNav():
     pass
 
@@ -561,6 +587,15 @@ elif p['mode']==ActionCode.LoginAndSettings:
 elif p['mode']==970:
     xbmc.executebuiltin('CleanLibrary(video)')
     xbmc.executebuiltin('UpdateLibrary(video)')
+
+elif p['mode']==971:
+    stvList.list()    
+    
+elif p['mode']==972:
+    search = apiClient.search('Forrest')
+    data = { 'movies': search['search_result']}
+    open_select_movie_dialog(data)   
+    
 
 elif p['mode']==999:
     xbmcplugin.endOfDirectory(dirhandle)
