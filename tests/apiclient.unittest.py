@@ -184,6 +184,11 @@ class ApiTest(TestCase):
 		# print dump(result)
 		self.assertTrue(result.has_key('search_result'))
 
+	def test_identify_correct(self):
+		result = client.title_identify_correct(1947362, '8b05ff1ad4865480e4705a42b413115db2bf94db')
+		# print dump(result)
+		self.assertTrue(result['status']=='ok')
+
 
 if __name__ == '__main__': 
 	connection = {

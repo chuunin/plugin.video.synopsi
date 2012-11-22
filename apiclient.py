@@ -294,6 +294,24 @@ class ApiClient(object):
 
 		return self.execute(req)
 
+	def title_identify_correct(self, titleId, stv_title_hash, stv_subtitle_hash=None):
+		data = {
+			'title_id': titleId,
+			'stv_title_hash': stv_title_hash,
+			'device_id': self.device_id
+		}
+
+		if stv_subtitle_hash:
+			data['stv_subtitle_hash'] = stv_subtitle_hash
+
+		req = {
+			'methodPath': '/title/identify/mark_pair/',
+			'method': 'post',
+			'data': data
+		}
+		
+		return self.execute(req)
+
 # conditionally dependent
 	def profileRecco(self, atype, local=False, limit=None, props=watchableTitleProps):
 		req = {
