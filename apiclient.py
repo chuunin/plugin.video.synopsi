@@ -16,6 +16,7 @@ RATING_CODE = {
 }
 
 commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
+defaultIdentifyProps = commonTitleProps + ['tvshow_id']
 watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
 smallListProps = ['id', 'cover_medium', 'name', 'watched']
@@ -270,9 +271,10 @@ class ApiClient(object):
 
 		self.execute(req)
 
-	def titleIdentify(self, props=commonTitleProps, **data):
+	def titleIdentify(self, props=defaultIdentifyProps, **data):
 		""" Try to match synopsi title by various data """
 		data['device_id'] = self.device_id
+		data['title_property[]'] = ','.join(props)
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'get',
@@ -420,9 +422,10 @@ class ApiClient(object):
 
 	def search(self, term, props=defaultSearchProps):
 		req = {
-			'methodPath': 'search/%s' % term,
+			'methodPath': 'search/',
 			'method': 'get',
 			'data': {
+				'name': term,
 				'title_property[]': ','.join(props)
 			}
 		}
