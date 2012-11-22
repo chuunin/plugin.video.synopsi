@@ -52,6 +52,9 @@ class ApiTest(TestCase):
 
 		stv_title = client.titleIdentify(**ident)
 
+		self.assertTrue(stv_title.has_key('type'))
+		self.assertEqual(stv_title['type'], 'movie')
+
 		ident2 = {
 			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi', 
 			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db', 
@@ -174,11 +177,13 @@ class ApiTest(TestCase):
 		}
 
 		enc_data = client._unicode_input(data)
-		self.assertTrue(str(enc_data)=="{'key-one': 'Alfa - \xce\xb1', 'key-dict': {'key-nested': 'Gama - \xce\xb3'}}")
+		self.assertEquals(str(enc_data), r"{'key-one': 'Alfa - \xce\xb1', 'key-dict': {'key-nested': 'Gama - \xce\xb3'}}")
 
 	def test_search(self):
 		result = client.search('Adams aebler')
-		print result
+		# print dump(result)
+		self.assertTrue(result.has_key('search_result'))
+
 
 if __name__ == '__main__': 
 	connection = {
@@ -199,9 +204,9 @@ if __name__ == '__main__':
 
 	logger = logging.getLogger()
 
-	# suite = TestLoader().loadTestsFromTestCase(ApiTest)
+	suite = TestLoader().loadTestsFromTestCase(ApiTest)
 	# suite = TestLoader().loadTestsFromName('ApiTest.test_unicode_input', sys.modules[__name__])
-	suite = TestLoader().loadTestsFromName('ApiTest.test_search', sys.modules[__name__])
+	# suite = TestLoader().loadTestsFromName('ApiTest.test_search', sys.modules[__name__])
 
 	TextTestRunner(verbosity=2).run(suite)
 
