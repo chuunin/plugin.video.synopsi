@@ -273,12 +273,9 @@ class ApiClient(object):
 
 	def titleIdentify(self, props=defaultIdentifyProps, **data):
 		""" Try to match synopsi title by various data """
-		def nonempty(x):
-			return x
-
 		# filter-out empty data	
-		data = filter(nonempty, data)
-		
+		data = dict((k, v) for k, v in data.iteritems() if v)	
+				
 		data['device_id'] = self.device_id
 		data['title_property[]'] = ','.join(props)
 		req = {
