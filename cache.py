@@ -10,7 +10,6 @@ from app_apiclient import ApiClient
 
 xbmc2stv_key_translation = {
     'file_name': 'file', 
-    'stv_title_hash': 'stv_hash', 
     'os_title_hash': 'os_title_hash', 
     'total_time': 'runtime', 
     'label': 'originaltitle', 
@@ -59,6 +58,7 @@ class StvList(object):
             # first time
             xbmc.log('CACHE restore failed. If this is your first run, its ok')
 
+        cache.list()
         return cache
 
 
@@ -93,9 +93,11 @@ class StvList(object):
             return movie['file']
 
     def addorupdate(self, atype, aid):
-        natype=unicode(atype).encode('utf-8')
-        if atype != natype:
-            self.log('converted "%s" > "%s"' % (atype, natype))
+        #~ natype=unicode(atype).encode('utf-8')
+        #~ if atype != natype:
+            #~ self.log('converted "%s" > "%s"' % (atype, natype))
+            #~ 
+        #~ atype = natype
             
         # find out actual data about movie
         movie = get_details(atype, aid)
@@ -107,11 +109,11 @@ class StvList(object):
             # get stv hash
             if movie['type'] in playable_types:
                 path = self.get_path(movie)
-                movie['stv_hash'] = stv_hash(path)
+                movie['stv_title_hash'] = stv_hash(path)
                 movie['os_title_hash'] = hash_opensubtitle(path)
+
             # try to get synopsi id
             # TODO: stv_subtitle_hash - hash of the subtitle file if presented
-
             ident = {}
             self._translate_xbmc2stv_keys(ident, movie)
             # correct exceptions
@@ -121,6 +123,7 @@ class StvList(object):
             self.log('ident:' + dump(ident))    
 
             title = self.apiclient.titleIdentify(**ident)
+            self.log('title' + dump(title))
             if title.has_key('id'):
                 movie['stvId'] = title['id']
                 self.log('File identified %s' % movie['file'])
