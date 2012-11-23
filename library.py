@@ -82,7 +82,6 @@ class RPCListener(threading.Thread):
             xbmc.log('Unknown method: ' + methodName)
             return
 
-        xbmc.log('calling: ' + methodName)
         xbmc.log(str(data))
         
         #   Try to call that method

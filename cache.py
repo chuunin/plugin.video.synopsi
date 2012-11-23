@@ -11,6 +11,7 @@ from app_apiclient import ApiClient
 xbmc2stv_key_translation = {
     'file_name': 'file', 
     'os_title_hash': 'os_title_hash', 
+    'stv_title_hash': 'stv_title_hash', 
     'total_time': 'runtime', 
     'label': 'originaltitle', 
     'imdb_id': 'imdbnumber'
