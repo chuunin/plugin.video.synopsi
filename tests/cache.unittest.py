@@ -37,6 +37,10 @@ class CacheTest(unittest.TestCase):
 			"imdb_id": "0109362"
 		}
 
+	def test_put(self):
+		item = { 'type': u'movie', 'id': 1, 'file': 'xxx' }
+		cache.put(item)
+		
 	def test_get_path(self):
 		movie = {
 			'file': "stack:///Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi , /Volumes/FLOAT/Film/cache ceske titulky/Cache - CD2.avi", 

@@ -63,7 +63,6 @@ class ApiTest(TestCase):
 
 		stv_title = client.titleIdentify(**ident2)
 		self.assertTrue(stv_title.has_key('type'))
-		self.assertEqual(stv_title['type'], 'movie')
 
 
 	def test_library_add(self):		
