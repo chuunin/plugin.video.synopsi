@@ -181,7 +181,7 @@ class ApiClient(object):
 		self.refreshToken = response_json['refresh_token']
 		self._logger.debug('new access token: ' + self.accessToken)
 
-	def updateAccessTokenTimeout():
+	def updateAccessTokenTimeout(self):
 		self.accessTokenSessionStart = datetime.datetime.now()
 		
 	def isAuthenticated(self):
@@ -246,7 +246,7 @@ class ApiClient(object):
 			)
 
 		except HTTPError as e:
-			response_json = e.read()
+			response_json = json.loads(e.read())
 			self._logger.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, str(e), response_json))
 
 		except URLError as e:
