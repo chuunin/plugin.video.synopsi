@@ -1,10 +1,10 @@
 import os, sys
-import unittest
+from unittest import *
 import logging
 import json
-from utilities import *
 
 sys.path.insert(0, os.path.abspath('..'))
+from utilities import *
 from apiclient import *
 from cache import StvList
 
@@ -18,7 +18,7 @@ def pprint(data):
 	logger.debug(msg)
 
 
-class CacheTest(unittest.TestCase):
+class CacheTest(TestCase):
 	def test_save(self):
 		
 		cache.put(test_item1)
@@ -36,6 +36,7 @@ class CacheTest(unittest.TestCase):
 			"os_title_hash": null, 
 			"imdb_id": "0109362"
 		}
+		
 
 	def test_put(self):
 		item = { 'type': u'movie', 'id': 1, 'file': 'xxx' }
@@ -77,7 +78,11 @@ if __name__ == '__main__':
 
 	logger = logging.getLogger()
 
-	suite = unittest.TestLoader().loadTestsFromTestCase(CacheTest)
-	unittest.TextTestRunner(verbosity=2).run(suite)
+	if len(sys.argv) < 2:
+		suite = TestLoader().loadTestsFromTestCase(CacheTest)
+	else:
+		suite = TestLoader().loadTestsFromName('CacheTest.' + sys.argv[1], sys.modules[__name__])
+		
+	TextTestRunner(verbosity=2).run(suite)
 
 
