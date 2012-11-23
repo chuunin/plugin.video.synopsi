@@ -1,3 +1,4 @@
+
 import base64
 import pickle
 import xbmc
@@ -77,7 +78,7 @@ class StvList(object):
         self.byStvId = unpickled_list[3]
 
     def log(self, msg):
-        xbmc.log('CACHE / ' + str(msg))
+        xbmc.log('CACHE / ' + unicode(msg))
 
     def _translate_xbmc2stv_keys(self, a, b):
         for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
@@ -92,6 +93,10 @@ class StvList(object):
             return movie['file']
 
     def addorupdate(self, atype, aid):
+        natype=unicode(atype).encode('utf-8')
+        if atype != natype:
+            self.log('converted "%s" > "%s"' % (atype, natype))
+            
         # find out actual data about movie
         movie = get_details(atype, aid)
         movie['type'] = atype
@@ -130,6 +135,8 @@ class StvList(object):
     def put(self, item):
         " Put a new record in the list "
         typeIdStr = self._getKey(item['type'], item['id'])
+        
+        self.log(typeIdStr)
         
         self.byType[item['type']][item['id']] = item
         self.byTypeId[typeIdStr] = item
