@@ -53,16 +53,17 @@ class ApiTest(TestCase):
 		stv_title = client.titleIdentify(**ident)
 
 		self.assertTrue(stv_title.has_key('type'))
-		self.assertEqual(stv_title['type'], 'movie')
 
 		ident2 = {
 			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi', 
 			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db', 
 			'os_title_hash': '484e59acbfaf64e5', 
-			'imdb_id': '0472198'		
+			'imdb_id': ''		
 		}
 
 		stv_title = client.titleIdentify(**ident2)
+		self.assertTrue(stv_title.has_key('type'))
+		self.assertEqual(stv_title['type'], 'movie')
 
 
 	def test_library_add(self):		
@@ -209,9 +210,11 @@ if __name__ == '__main__':
 
 	logger = logging.getLogger()
 
-	suite = TestLoader().loadTestsFromTestCase(ApiTest)
-	# suite = TestLoader().loadTestsFromName('ApiTest.test_unicode_input', sys.modules[__name__])
-	# suite = TestLoader().loadTestsFromName('ApiTest.test_search', sys.modules[__name__])
+
+	if len(sys.argv) < 2:
+		suite = TestLoader().loadTestsFromTestCase(ApiTest)
+	else:
+		suite = TestLoader().loadTestsFromName('ApiTest.' + sys.argv[1], sys.modules[__name__])
 
 	TextTestRunner(verbosity=2).run(suite)
 
