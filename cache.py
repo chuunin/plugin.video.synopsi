@@ -1,9 +1,13 @@
+# xbmc
+import xbmc,xbmcvfs
 
+# python standart lib
 import base64
 import pickle
-import xbmc
 import json
 import traceback
+
+# application
 from utilities import *
 from app_apiclient import ApiClient
 
