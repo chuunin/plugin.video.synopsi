@@ -1,5 +1,5 @@
 # xbmc
-import xbmc,xbmcvfs
+import xbmc
 
 # python standart lib
 import base64
@@ -102,14 +102,8 @@ class StvList(object):
 			return movie['file']
 
 	def addorupdate(self, atype, aid):
-		#~ natype=unicode(atype).encode('utf-8')
-		#~ if atype != natype:
-			#~ self.log('converted "%s" > "%s"' % (atype, natype))
-        if not atype in playable_types:
-            return
-
-			#~ 
-		#~ atype = natype
+		if not atype in playable_types:
+			return
 			
 		# find out actual data about movie
 		movie = get_details(atype, aid)
@@ -129,7 +123,7 @@ class StvList(object):
 			ident = {}
 			self._translate_xbmc2stv_keys(ident, movie)
 
-            # correct input
+			# correct input
 			if ident.get('imdb_id'):
 				ident['imdb_id'] = ident['imdb_id'][2:]
 
@@ -143,22 +137,24 @@ class StvList(object):
 
 			self.put(movie)
 
-            # debug warning on movie type mismatch
-            if movie['type'] != title.get('type'):
-                self.log('Xbmc/Synopsi identification type mismatch: %s / %s in [%s]' % (movie['type'], title.get('type'), movie.get('file')))
+			# debug warning on movie type mismatch
+			if movie['type'] != title.get('type'):
+				self.log('Xbmc/Synopsi identification type mismatch: %s / %s in [%s]' % (movie['type'], title.get('type'), movie.get('file')))
 
-            # for episode, add tvshow
-            if movie['type'] == 'episode':
-                self.add_tvshow(movie['id'], title['tvshow_id'])
+			# for episode, add tvshow
+			if movie['type'] == 'episode':
+				self.log('got episode')
+				self.log('episode:'+dump(title))
+				self.add_tvshow(movie['id'], title['tvshow_id'])
 
 		# it is already in cache, some property has changed (e.g. lastplayed time)
 		else:
 			self.update(movie)
 
-    def add_tvshow(self, xbmc_id, stvId):
-        stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
-        stv_title['id'] = xbmc_id
-        self.put(stv_title)
+	def add_tvshow(self, xbmc_id, stvId):
+		stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
+		stv_title['id'] = xbmc_id
+		self.put(stv_title)
 
 	def put(self, item):
 		" Put a new record in the list "
@@ -171,9 +167,9 @@ class StvList(object):
 			
 		if item.has_key('stvId'):
 			self.byStvId[item['stvId']] = item
-
-		stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
-		logstr = 'PUT / ' + typeIdStr + stvIdStr + ' | ' + item['file']
+			typeIdStr += ' | stvId ' + str(item['stvId'])
+		
+		logstr = 'PUT / ' + typeIdStr + ' | ' + item['file']
 		
 		# if known by synopsi, add to list
 		if item.has_key('stvId'):
@@ -201,16 +197,16 @@ class StvList(object):
 		try:
 			item = self.getByTypeId(atype, aid)
 
-            if item.has_key('stvId'):
-                self.apiclient.libraryTitleRemove(item['stvId'])
-                del self.byStvId[item['stvId']]
+			if item.has_key('stvId'):
+				self.apiclient.libraryTitleRemove(item['stvId'])
+				del self.byStvId[item['stvId']]
 
 			# suppose cache is consistent and remove only if one of indexes is available			
 			if self.byTypeId.has_key(typeIdStr):
-                if self.byFilename.has_key(item['file']):
-				del self.byFilename[item['file']]			
-				del self.byTypeId[typeIdStr]
-				del self.byType[atype][aid]
+				if self.byFilename.has_key(item['file']):
+					del self.byFilename[item['file']]			
+					del self.byTypeId[typeIdStr]
+					del self.byType[atype][aid]
 
 				if item.has_key('stvId'):
 					self.apiclient.libraryTitleRemove(item['stvId'])
@@ -271,13 +267,38 @@ class StvList(object):
 		"""
 		Rebuild whole cache in case it is broken.
 		"""
+		
+		self.clear()
+		#~ movies = get_all_movies()
+		movies = { 'movies': [] }
+				
+		for movie in movies['movies']:
+			self.addorupdate('movie', movie['movieid'])
+		
+		tvshows = get_all_tvshows()
+				
+		self.log('get_all_tvshows ' + dump(tvshows))
+		
+		if tvshows['limits']['total'] > 0:
+			for show in tvshows['tvshows']:
+				episodes = get_episodes(show["tvshowid"])				
+				self.log('episodes: ' + dump(episodes))
+				
+				if episodes['limits']['total'] > 0:
+					for episode in episodes["episodes"]:
+						self.addorupdate('episode', episode['episodeid'])
+
+
+	def rebuild_light(self):
+		"""
+		Rebuild whole cache in case it is broken.
+		"""
 		#~ addon = get_current_addon()
 		#~ addonpath = 	addon.getAddonInfo('path')
 		#~ path = os.path.join(addonpath, 'tests')
 		
 		self.clear()
 		movies = get_all_movies()
-		self.log('get_all_movies ' + dump(movies))
 		
 		# generate testing json
 		#~ f = open(os.path.join(path, 'get_all_movies.json'), 'w')

@@ -42,8 +42,14 @@ class CacheTest(TestCase):
 		}
 
 	def test_put(self):
-		item = { 'type': u'movie', 'id': 1, 'file': 'xxx' }
-		cache.put(item)
+		movie1 = { 'type': u'movie', 'id': 1, 'file': 'xxx' }
+		cache.put(movie1)
+		
+		episode1 = { 'type': u'episode', 'id': 2, 'file': 'episode.s02e22.avi' }
+		cache.put(episode1)
+		
+		movie2 = { 'type': u'movie', 'id': 3, 'file': 'xxx' }
+		cache.put(movie2)
 		
 	def test_get_path(self):
 		movie = {
