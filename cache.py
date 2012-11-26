@@ -148,12 +148,12 @@ class StvList(object):
 	def put(self, item):
 		" Put a new record in the list "
 		typeIdStr = self._getKey(item['type'], item['id'])
-		
-		self.log(typeIdStr)
-		
+				
 		self.byType[item['type']][item['id']] = item
 		self.byTypeId[typeIdStr] = item
-		self.byFilename[item['file']] = item
+		if item['type'] in playable_types:
+			self.byFilename[item['file']] = item
+			
 		if item.has_key('stvId'):
 			self.byStvId[item['stvId']] = item
 
@@ -251,25 +251,46 @@ class StvList(object):
 		"""
 		Rebuild whole cache in case it is broken.
 		"""
+		#~ addon = get_current_addon()
+		#~ addonpath = 	addon.getAddonInfo('path')
+		#~ path = os.path.join(addonpath, 'tests')
 		
 		self.clear()
-		movies = get_all_movies()["movies"]
-		for movie in movies:
+		movies = get_all_movies()
+		self.log('get_all_movies ' + dump(movies))
+		
+		# generate testing json
+		#~ f = open(os.path.join(path, 'get_all_movies.json'), 'w')
+		#~ f.write(dump(movies))
+		#~ f.close()
+		
+		for movie in movies['movies']:
 			movie['id'] = movie["movieid"]
 			movie['type'] = "movie"
 			self.put(movie)
 
-		resTvShows = get_all_tvshows()
-		if resTvShows.has_key("tvshows") > 0:
-			tv_shows = resTvShows
-			self.log(dump(tv_shows))
-			# print tv_shows
-			for show in tv_shows:
-				for episode in get_episodes(show["tvshowid"])["result"]["episodes"]:
-					self.create(_id = episode["episodeid"], _type = "episode", filepath = episode["file"])
-					episode['id'] = episode["episodeid"]
-					episode['type'] = "episode"
-					self.put(episode)
+		
+		tvshows = get_all_tvshows()
+		
+		# generate testing json
+		#~ f = open(os.path.join(path, 'get_all_tvshows.json'), 'w')
+		#~ f.write(dump(tvshows))
+		#~ f.close()
+		
+		self.log('get_all_tvshows ' + dump(tvshows))
+		
+		if tvshows['limits']['total'] > 0:
+			self.log(dump(tvshows))
+			# print tvshows
+			for show in tvshows['tvshows']:
+				episodes = get_episodes(show["tvshowid"])				
+				self.log('episodes: ' + dump(episodes))
+				
+				if episodes['limits']['total'] > 0:
+					for episode in episodes["episodes"]:
+						episode['id'] = episode["episodeid"]
+						episode['type'] = "episode"
+						self.put(episode)
 
 	def save(self):
 		f = open(self.filePath, 'w')
