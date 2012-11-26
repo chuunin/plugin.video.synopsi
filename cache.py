@@ -51,7 +51,7 @@ class StvList(object):
 	def getDefaultFilePath(cls):
 		addon  = get_current_addon()
 		addon_id = addon.getAddonInfo('id')
-		data_path = xbmcvfs.translatePath('special://masterprofile/addon_data/')
+		data_path = xbmc.translatePath('special://masterprofile/addon_data/')
 		return os.path.join(data_path, addon_id, 'cache.dat')
 			
 
