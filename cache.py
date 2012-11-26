@@ -10,7 +10,7 @@ import traceback
 # application
 from utilities import *
 from app_apiclient import ApiClient
-
+from apiclient import commonTitleProps
 
 xbmc2stv_key_translation = {
 	'file_name': 'file', 
@@ -46,7 +46,6 @@ class StvList(object):
 		
 		self.uuid = uuid
 		self.list()
-
 	@classmethod
 	def getDefaultFilePath(cls):
 		addon  = get_current_addon()
@@ -106,6 +105,9 @@ class StvList(object):
 		#~ natype=unicode(atype).encode('utf-8')
 		#~ if atype != natype:
 			#~ self.log('converted "%s" > "%s"' % (atype, natype))
+        if not atype in playable_types:
+            return
+
 			#~ 
 		#~ atype = natype
 			
@@ -126,7 +128,8 @@ class StvList(object):
 			# TODO: stv_subtitle_hash - hash of the subtitle file if presented
 			ident = {}
 			self._translate_xbmc2stv_keys(ident, movie)
-			# correct exceptions
+
+            # correct input
 			if ident.get('imdb_id'):
 				ident['imdb_id'] = ident['imdb_id'][2:]
 
@@ -140,10 +143,22 @@ class StvList(object):
 
 			self.put(movie)
 
+            # debug warning on movie type mismatch
+            if movie['type'] != title.get('type'):
+                self.log('Xbmc/Synopsi identification type mismatch: %s / %s in [%s]' % (movie['type'], title.get('type'), movie.get('file')))
+
+            # for episode, add tvshow
+            if movie['type'] == 'episode':
+                self.add_tvshow(movie['id'], title['tvshow_id'])
+
 		# it is already in cache, some property has changed (e.g. lastplayed time)
 		else:
 			self.update(movie)
 
+    def add_tvshow(self, xbmc_id, stvId):
+        stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
+        stv_title['id'] = xbmc_id
+        self.put(stv_title)
 
 	def put(self, item):
 		" Put a new record in the list "
@@ -186,8 +201,13 @@ class StvList(object):
 		try:
 			item = self.getByTypeId(atype, aid)
 
+            if item.has_key('stvId'):
+                self.apiclient.libraryTitleRemove(item['stvId'])
+                del self.byStvId[item['stvId']]
+
 			# suppose cache is consistent and remove only if one of indexes is available			
 			if self.byTypeId.has_key(typeIdStr):
+                if self.byFilename.has_key(item['file']):
 				del self.byFilename[item['file']]			
 				del self.byTypeId[typeIdStr]
 				del self.byType[atype][aid]
