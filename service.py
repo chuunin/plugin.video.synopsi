@@ -31,7 +31,7 @@ def main():
     cache = StvList(iuid, apiclient1)
 
     try:
-        cache.load(os.path.join(__cwd__, 'resources', 'cache.dat'))
+        cache.load()
     except:
         # first time
         xbmc.log('CACHE restore failed. If this is your first run, its ok')
@@ -59,7 +59,7 @@ def main():
             break;
 
     xbmc.log('library and scrobbler quit')
-    cache.save(os.path.join(__cwd__, 'resources', 'cache.dat'))
+    cache.save()
 
 
 if __name__ == "__main__":
