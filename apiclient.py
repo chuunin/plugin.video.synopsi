@@ -176,11 +176,14 @@ class ApiClient(object):
 			raise AuthenticationError()
 
 
+		self.updateAccessTokenTimeout()
 		self.accessToken = response_json['access_token']
-		self.accessTokenSessionStart = datetime.datetime.now()
 		self.refreshToken = response_json['refresh_token']
 		self._logger.debug('new access token: ' + self.accessToken)
 
+	def updateAccessTokenTimeout(self):
+		self.accessTokenSessionStart = datetime.datetime.now()
+		
 	def isAuthenticated(self):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
@@ -243,14 +246,17 @@ class ApiClient(object):
 			)
 
 		except HTTPError as e:
-			self._logger.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, str(e), e.read()))
-			response_json = {}
+			response_json = json.loads(e.read())
+			self._logger.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, str(e), response_json))
 
 		except URLError as e:
 			self._logger.error('APICLIENT:' + url)
 			self._logger.error('APICLIENT:' + str(e))
 			self._logger.error('APICLIENT:' + str(e.reason))
 			response_json = {}
+	
+		else:
+			self.updateAccessTokenTimeout()
 
 		return response_json
 
@@ -273,6 +279,9 @@ class ApiClient(object):
 
 	def titleIdentify(self, props=defaultIdentifyProps, **data):
 		""" Try to match synopsi title by various data """
+		# filter-out empty data	
+		data = dict((k, v) for k, v in data.iteritems() if v)	
+				
 		data['device_id'] = self.device_id
 		data['title_property[]'] = ','.join(props)
 		req = {

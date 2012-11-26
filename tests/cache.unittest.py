@@ -1,10 +1,15 @@
+# python standart lib
 import os, sys
-import unittest
+from unittest import *
 import logging
 import json
-from utilities import *
 
+# test helper
+from common import connection
+
+# application
 sys.path.insert(0, os.path.abspath('..'))
+from utilities import *
 from apiclient import *
 from cache import StvList
 
@@ -18,62 +23,58 @@ def pprint(data):
 	logger.debug(msg)
 
 
-class CacheTest(unittest.TestCase):
-	def test_save(self):
+class CacheTest(TestCase):
+	def test_save_load(self):
 		
 		cache.put(test_item1)
-		str_cache_ser = cache.serialize()				
-		cache.save('cache.test.dat')
+		cache.save()
 		
-	def test_load(self):	
-		cache.load('cache.test.dat')
-		cache.list()
+		cache.load()
+		
+		self.assertEqual(cache.getByTypeId('movie', '10'), test_item1)
 		
 	def test_addorupdate_stack(self):
 		stack_ident = {
 			"file_name": "stack:///Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi , /Volumes/FLOAT/Film/cache ceske titulky/Cache - CD2.avi", 
-			"stv_title_hash": null, 
-			"os_title_hash": null, 
+			"stv_title_hash": 'FF00FF00', 
+			"os_title_hash": 'FF00FF00', 
 			"imdb_id": "0109362"
 		}
 
+	def test_put(self):
+		item = { 'type': u'movie', 'id': 1, 'file': 'xxx' }
+		cache.put(item)
+		
 	def test_get_path(self):
 		movie = {
 			'file': "stack:///Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi , /Volumes/FLOAT/Film/cache ceske titulky/Cache - CD2.avi", 
 		}
 
-		print cache.get_path(movie)
+		#print cache.get_path(movie)
+		self.assertEqual(cache.get_path(movie), '/Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi')
 
 
 if __name__ == '__main__':
 	test_item1 = {
 		'type': 'movie',
-		'id': 1,
+		'id': 10,
 		'file': '/var/log/virtual.ext',
 		'stvId': 10009
 	}		
 
-	connection = {
-		'base_url': 'http://test.papi.synopsi.tv/',
-		'key': 'e20e8f465f42e96d8340e81bfc48c757',
-		'secret': '72ab379c50650f7aec044b14db306430a55f09a2da1eb8e40b297a54b30e4b4f',
-		'rel_api_url': '1.0/',
-		# 'base_url': 'http://neptune.local:8000/',
-		# 'key': '76ccb5ec8ecddf15c29c5decac35f9',
-		# 'secret': '261029dbbdd5dd481da6564fa1054e',
-		# 'rel_api_url': 'api/public/1.0/',
-		'username': 'martin.smid@gmail.com',
-		'password': 'aaa',
-		'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd',
-	}
-
 	c = connection
-	apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-	cache = StvList(c['device_id'], apiClient)	
+	apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.ERROR, rel_api_url=c['rel_api_url'])
+	cwd = os.path.join(os.getcwd(), 'cache.dat')
+
+	cache = StvList(c['device_id'], apiClient, cwd)	
 
 	logger = logging.getLogger()
 
-	suite = unittest.TestLoader().loadTestsFromTestCase(CacheTest)
-	unittest.TextTestRunner(verbosity=2).run(suite)
+	if len(sys.argv) < 2:
+		suite = TestLoader().loadTestsFromTestCase(CacheTest)
+	else:
+		suite = TestLoader().loadTestsFromName('CacheTest.' + sys.argv[1], sys.modules[__name__])
+		
+	TextTestRunner(verbosity=2).run(suite)
 
 

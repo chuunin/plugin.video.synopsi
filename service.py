@@ -2,13 +2,18 @@
 This is default file of SynopsiTV service. See addon.xml
 <extension point="xbmc.service" library="service.py" start="login|startup">
 """
+# xbmc
+import xbmc, xbmcgui, xbmcaddon
+
+# python standart lib
+import thread
+
+# application
 from scrobbler import Scrobbler
 from library import RPCListenerHandler
 from cache import *
 from utilities import home_screen_fill, login_screen
-import xbmc, xbmcgui, xbmcaddon
 from app_apiclient import AppApiClient
-import thread
 
 __addon__  = get_current_addon()
 __cwd__    = __addon__.getAddonInfo('path')

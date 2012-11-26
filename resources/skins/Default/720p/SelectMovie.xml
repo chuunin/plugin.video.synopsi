@@ -1,9 +1,8 @@
 <window id="8011">
 	<defaultcontrol always="true">59</defaultcontrol>
-	<zorder>999</zorder>
 	<controls>
 		<control type="group">
-			<posx>180</posx>
+			<posx>200</posx>
 			<posy>45</posy>
 			<width>960</width>
 			<height>600</height>
@@ -11,16 +10,17 @@
 			<animation easing="out" effect="slide" end="0,0" start="1100,0" time="400" tween="quadratic">WindowOpen</animation>
 			<animation easing="out" effect="slide" end="1100,0" start="0,0" time="400" tween="quadratic">WindowClose</animation>
 			<control type="image">
-				<posx>0</posx>
-				<posy>0</posy>
+				<posx>5</posx>
+				<posy>5</posy>
 				<width>960</width>
 				<height>600</height>
-				<texture border="15,0,0,0" flipx="true">MediaBladeSub.png</texture>
+				<colordiffuse>FFFFFFFF</colordiffuse>
+				<texture border="20">DialogBack.png</texture>
 			</control>
 			<control type="button">
 				<description>Close Window button</description>
 				<posx>30</posx>
-				<posy>0</posy>
+				<posy>10</posy>
 				<width>64</width>
 				<height>32</height>
 				<label>-</label>
@@ -35,20 +35,22 @@
 				<visible>system.getbool(input.enablemouse)</visible>
 			</control>
 			<control type="label">
-				<posx>0</posx>
-				<posy>0</posy>
-				<width>960</width>
-				<height>20</height>
+				<posx>20</posx>
+				<posy>35</posy>
+				<width>920</width>
+				<height>40</height>
+				<font>font13_title</font>
 				<textcolor>white</textcolor>
 				<selectedcolor>white</selectedcolor>				
-				<info>Choose correct title for this movie</info>
+				<label>Choose correct title for your file</label>
+				<align>center</align>
 			</control>
 			<control id="59" type="list">
 				<description>List of movies</description>
-				<posx>20</posx>
-				<posy>40</posy>
-				<width>920</width>
-				<height>560</height>
+				<posx>40</posx>
+				<posy>80</posy>
+				<width>900</width>
+				<height>500</height>
 				<onleft>59</onleft>
 				<onright>59</onright>
 				<onup>9000</onup>
@@ -91,6 +93,13 @@
 						<bordertexture border="5">folder-focus.png</bordertexture>
 						<texture background="true">$INFO[ListItem.Icon]</texture>
 					</control>
+					<control type="image">
+						<posx>120</posx>
+						<posy>0</posy>
+						<width>760</width>
+						<height>140</height>
+						<texture background="true">HomeSubFO.png</texture>
+					</control>					
 					<control type="label">
 						<posx>140</posx>
 						<posy>0</posy>

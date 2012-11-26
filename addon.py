@@ -77,6 +77,18 @@ def get_local_recco(movie_type):
 
     return resRecco
 
+def get_local_recco2(movie_type):
+    recco = get_local_recco(movie_type)['titles']
+    
+    for title in recco:
+        if stvList.hasStvId(title['id']):
+            cached_title = stvList.getByStvId(title['id'])
+            title['stv_title_hash'] = cached_title['stv_title_hash']
+    stvList.list()
+    xbmc.log(dump(recco))
+        
+    return recco    
+
 
 def get_global_recco(movie_type):
     resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaulLimit, reccoDefaultProps)
@@ -164,7 +176,7 @@ def get_item_list(action_code, **kwargs):
     elif action_code==ActionCode.TVShows:
         return get_tvshows()
     elif action_code==ActionCode.LocalMovieRecco:
-        return get_local_recco('movie')['titles']
+        return get_local_recco2('movie')
     elif action_code==ActionCode.UnwatchedEpisodes:
         return get_unwatched_episodes()
     elif action_code==ActionCode.UpcomingEpisodes:
