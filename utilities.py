@@ -1,7 +1,10 @@
+# xbmc
 try:
 	import xbmc, xbmcgui, xbmcaddon
 except ImportError:
 	from tests import xbmc, xbmcgui, xbmcaddon
+
+# python standart lib
 import json
 import struct
 import os
@@ -13,7 +16,7 @@ import threading
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
-from utilities import *
+
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
@@ -642,7 +645,7 @@ def home_screen_fill(apiClient, cache):
 	# get recco movies and episodes
 	try:
 		movie_recco = apiClient.profileRecco('movie', True, homeReccoLimit)['titles']
-		episode_recco = apiClient.profileRecco('episode', True, homeReccoLimit)['titles']
+		episode_recco = get_unwatched_episodes()
 	except:
 		notification('Movie reccomendation service failed')
 		return

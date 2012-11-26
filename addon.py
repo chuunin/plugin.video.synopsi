@@ -78,6 +78,7 @@ def get_local_recco(movie_type):
     return resRecco
 
 def get_local_recco2(movie_type):
+    """ Updates the get_local_recco function result to include stv_title_hash """
     recco = get_local_recco(movie_type)['titles']
     
     for title in recco:
@@ -132,7 +133,7 @@ def get_top_tvshows():
 
 def get_tvshows():
     local_tvshows = stvList.getAllByType('tvshow')
-
+    log('local_tvshows: ' + str(local_tvshows))
     result = []
     result += local_tvshows.values()
     result += get_top_tvshows()

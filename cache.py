@@ -280,8 +280,6 @@ class StvList(object):
 		self.log('get_all_tvshows ' + dump(tvshows))
 		
 		if tvshows['limits']['total'] > 0:
-			self.log(dump(tvshows))
-			# print tvshows
 			for show in tvshows['tvshows']:
 				episodes = get_episodes(show["tvshowid"])				
 				self.log('episodes: ' + dump(episodes))
