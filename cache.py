@@ -34,28 +34,32 @@ class StvList(object):
 		"stv_id": synopsi_id_library
 	}
 	"""
-	def __init__(self, uuid, apiclient):
+	def __init__(self, uuid, apiclient, filePath=None):
 		super(StvList, self).__init__()
 		self.apiclient = apiclient
-
+		self.filePath = filePath or self.__class__.getDefaultFilePath()
 		self.clear()
-
+		
 		self.uuid = uuid
 		self.list()
 
+	@classmethod
+	def getDefaultFilePath(cls):
+		addon  = get_current_addon()
+		addon_id = addon.getAddonInfo('id')
+		data_path = xbmcvfs.translatePath('special://masterprofile/addon_data/')
+		return os.path.join(data_path, addon_id, 'cache.dat')
+			
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
-		addon  = get_current_addon()
-		addon_id = addon.getAddonInfo('id')
 		if not apiClient:
 			apiClient = AppApiClient.getDefaultClient()
 
 		iuid = get_install_id()	
 		cache = StvList(iuid, apiClient) 
 		try:
-			data_path = xbmcvfs.translatePath('special://masterprofile/addon_data/')
-			cache.load(os.path.join(data_path, addon_id, 'cache.dat'))
+			cache.load()
 		except:
 			# first time
 			xbmc.log('CACHE restore failed. If this is your first run, its ok')
@@ -263,13 +267,13 @@ class StvList(object):
 					episode['type'] = "episode"
 					self.put(episode)
 
-	def save(self, path):
-		f = open(path, 'w')
+	def save(self):
+		f = open(self.filePath, 'w')
 		f.write(self.serialize())
 		f.close()
 
-	def load(self, path):
-		f = open(path, 'r')
+	def load(self):
+		f = open(self.filePath, 'r')
 		self.deserialize(f.read())
 		f.close()
 
