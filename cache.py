@@ -120,7 +120,6 @@ class StvList(object):
 			movie['stv_title_hash'] = stv_hash(path)
 			movie['os_title_hash'] = hash_opensubtitle(path)
 
-
 			# try to get synopsi id
 			# TODO: stv_subtitle_hash - hash of the subtitle file if present
 			ident = {}
@@ -275,7 +274,10 @@ class StvList(object):
 		movies = { 'movies': [] }
 				
 		for movie in movies['movies']:
-			self.addorupdate('movie', movie['movieid'])
+			try:
+				self.addorupdate('movie', movie['movieid'])
+			except Exception as e:
+				self.log(e)
 		
 		tvshows = get_all_tvshows()
 				
@@ -288,7 +290,10 @@ class StvList(object):
 				
 				if episodes['limits']['total'] > 0:
 					for episode in episodes["episodes"]:
-						self.addorupdate('episode', episode['episodeid'])
+						try:
+							self.addorupdate('episode', episode['episodeid'])
+						except Exception as e:
+							self.log(e)
 
 
 	def rebuild_light(self):

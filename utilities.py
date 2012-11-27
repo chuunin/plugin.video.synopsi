@@ -44,7 +44,8 @@ t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 t_unavail = 'N/A'
 
-
+class HashError(Exception):
+	pass
 
 def dump(var):
 	return json.dumps(var, indent=4)
@@ -241,7 +242,7 @@ def stv_hash(filepath):
 			sha1.update(f.read(65536))
 		sha1.update(str(os.path.getsize(filepath)))
 	except (IOError) as e:
-		return None
+		raise HashError('Unable to hash file [%s]' % filepath)
 	
 	return sha1.hexdigest()
 
@@ -300,8 +301,7 @@ def hash_opensubtitle(name):
 		return returnedhash 
 
 	except(IOError):
-		return None
-		# return "IOError"
+		raise HashError('Unable to hash file [%s]' % name)
 
 
 def generate_deviceid():
