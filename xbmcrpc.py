@@ -138,7 +138,7 @@ class xbmcRPCclient(object):
 				# "setid
 			]
 		else:
-			properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+			properties = defaultProperties
 
 		response = self.execute(
 			'VideoLibrary.GetMovieDetails',
@@ -155,7 +155,7 @@ class xbmcRPCclient(object):
 		"""
 		Get dict of movie_id details.
 		"""
-		properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+		properties = defaultProperties
 		#	"title", 
 		#   "genre", 
 		#   "year", 
