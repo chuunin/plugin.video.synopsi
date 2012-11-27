@@ -4,9 +4,9 @@ import xbmc, xbmcgui, xbmcaddon
 # python standart lib
 import json
 
+defaultProperties = ['file', 'imdbnumber', "lastplayed", "playcount"]
 
 class xbmcRPCclient(object):
-	defaultProperties = ['file', 'imdbnumber', "lastplayed", "playcount"]
 	
 	def __init__(self, logLevel = 0):
 		self.__logLevel = logLevel
@@ -37,7 +37,7 @@ class xbmcRPCclient(object):
 
 		return json_response['result']
 
-	def get_all_movies(self, start=None, end=None):
+	def get_movies(self, start=None, end=None):
 		"""
 		Get movies from xbmc library. Start is the first in list and end is the last.
 		"""

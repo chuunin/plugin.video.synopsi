@@ -47,6 +47,7 @@ class StvList(object):
 		
 		self.uuid = uuid
 		self.list()
+		
 	@classmethod
 	def getDefaultFilePath(cls):
 		addon  = get_current_addon()
@@ -70,7 +71,6 @@ class StvList(object):
 
 		cache.list()
 		return cache
-
 
 	def serialize(self):
 		self.log(dump([self.byType, self.byTypeId, self.byFilename, self.byStvId]))
@@ -271,8 +271,8 @@ class StvList(object):
 		"""
 		
 		self.clear()
-		#~ movies = xbmc_rpc.get_all_movies()
-		movies = { 'movies': [] }
+		movies = xbmc_rpc.get_movies()
+		#~ movies = { 'movies': [] }
 				
 		for movie in movies['movies']:
 			try:
@@ -306,10 +306,10 @@ class StvList(object):
 		#~ path = os.path.join(addonpath, 'tests')
 		
 		self.clear()
-		movies = xbmcrpc.get_all_movies()
+		movies = xbmcrpc.get_movies()
 		
 		# generate testing json
-		#~ f = open(os.path.join(path, 'get_all_movies.json'), 'w')
+		#~ f = open(os.path.join(path, 'get_movies.json'), 'w')
 		#~ f.write(dump(movies))
 		#~ f.close()
 		
