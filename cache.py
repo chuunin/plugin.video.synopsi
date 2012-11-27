@@ -110,14 +110,11 @@ class StvList(object):
 		movie = xbmc_rpc.get_details(atype, aid)
 		movie['type'] = atype
 		movie['id'] = aid
-
-		self.log('movie type: %s %s' % (movie['type'], atype))
 		
 		# if not in cache, it's been probably added
 		if not self.hasTypeId(movie['type'], movie['id']):
 			# get stv hash
 			path = self.get_path(movie)
-			self.log('path to hash: ' + path)
 			movie['stv_title_hash'] = stv_hash(path)
 			movie['os_title_hash'] = hash_opensubtitle(path)
 
@@ -281,7 +278,7 @@ class StvList(object):
 			try:
 				self.addorupdate('movie', movie['movieid'])
 			except Exception as e:
-				self.log(e)
+				self.log(unicode(e))
 		
 		tvshows = xbmc_rpc.get_all_tvshows()
 				
@@ -297,7 +294,7 @@ class StvList(object):
 						try:
 							self.addorupdate('episode', episode['episodeid'])
 						except Exception as e:
-							self.log(e)
+							self.log(unicode(e))
 
 
 	def rebuild_light(self):
@@ -343,6 +340,7 @@ class StvList(object):
 						self.put(episode)
 
 	def save(self):
+		self.log('SAVING / ' + self.filePath)
 		f = open(self.filePath, 'w')
 		f.write(self.serialize())
 		f.close()

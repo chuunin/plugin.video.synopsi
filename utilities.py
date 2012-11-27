@@ -50,7 +50,7 @@ def dump(var):
 	return json.dumps(var, indent=4)
 
 def log(msg):
-	log(unicode(msg).encode('utf-8'))
+	xbmc.log(unicode(msg).encode('utf-8'))
 
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """
