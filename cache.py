@@ -11,6 +11,7 @@ import traceback
 from utilities import *
 from app_apiclient import ApiClient
 from apiclient import commonTitleProps
+from xbmcrpc import xbmc_rpc
 
 xbmc2stv_key_translation = {
 	'file_name': 'file', 
@@ -106,7 +107,7 @@ class StvList(object):
 			return
 			
 		# find out actual data about movie
-		movie = get_details(atype, aid)
+		movie = xbmc_rpc.get_details(atype, aid)
 		movie['type'] = atype
 		movie['id'] = aid
 
@@ -270,7 +271,7 @@ class StvList(object):
 		"""
 		
 		self.clear()
-		#~ movies = get_all_movies()
+		#~ movies = xbmcrpc.get_all_movies()
 		movies = { 'movies': [] }
 				
 		for movie in movies['movies']:
@@ -279,13 +280,13 @@ class StvList(object):
 			except Exception as e:
 				self.log(e)
 		
-		tvshows = get_all_tvshows()
+		tvshows = xbmcrpc.get_all_tvshows()
 				
 		self.log('get_all_tvshows ' + dump(tvshows))
 		
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:
-				episodes = get_episodes(show["tvshowid"])				
+				episodes = xbmcrpc.get_episodes(show["tvshowid"])				
 				self.log('episodes: ' + dump(episodes))
 				
 				if episodes['limits']['total'] > 0:
@@ -305,7 +306,7 @@ class StvList(object):
 		#~ path = os.path.join(addonpath, 'tests')
 		
 		self.clear()
-		movies = get_all_movies()
+		movies = xbmcrpc.get_all_movies()
 		
 		# generate testing json
 		#~ f = open(os.path.join(path, 'get_all_movies.json'), 'w')
@@ -318,7 +319,7 @@ class StvList(object):
 			self.put(movie)
 
 		
-		tvshows = get_all_tvshows()
+		tvshows = xbmcrpc.get_all_tvshows()
 		
 		# generate testing json
 		#~ f = open(os.path.join(path, 'get_all_tvshows.json'), 'w')
@@ -329,7 +330,7 @@ class StvList(object):
 		
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:
-				episodes = get_episodes(show["tvshowid"])				
+				episodes = xbmcrpc.get_episodes(show["tvshowid"])				
 				self.log('episodes: ' + dump(episodes))
 				
 				if episodes['limits']['total'] > 0:

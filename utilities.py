@@ -14,6 +14,8 @@ from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
 
+#application
+from xbmcrpc import xbmc_rpc
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
@@ -371,19 +373,6 @@ def get_api_port():
 			pass
 
 	return value
-
-def get_details(atype, aid, all_prop=False):
-	if atype == "movie":                
-		movie = get_movie_details(aid, all_prop)
-	elif atype == "episode":
-		movie = get_episode_details(aid)
-	elif atype == "tvshow":
-		movie = get_tvshow_details(aid)
-	else:
-		raise Exception('Unknow video type: %s' % atype)
-
-	return movie
-
 
 def get_install_id():
 	global __addon__

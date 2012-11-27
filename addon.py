@@ -29,6 +29,8 @@ import test
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
 from cache import StvList
+from xbmcrpc import xbmc_rpc
+
 
 # from PIL import Image, ImageDraw, ImageOps
 
@@ -144,7 +146,7 @@ def get_tvshows():
 	return result
 
 def get_local_tvshows():
-	localtvshows = get_all_tvshows()
+	localtvshows = xbmcrpc.get_all_tvshows()
 	log(dump(localtvshows))
 
 	return [ { 'name': item['label'], 'cover_medium': item['thumbnail'] } for item in localtvshows['tvshows'] ]
@@ -384,7 +386,7 @@ def show_video_dialog_data(stv_details, json_data={}):
 		cacheItem = stvList.getByStvId(json_data['id'])
 		json_data['xbmc_id'] = cacheItem['id']
 		log('xbmc id:' + str(json_data['xbmc_id']))
-		json_data['xbmc_movie_detail'] = get_details('movie', json_data['xbmc_id'], True)
+		json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
 
 	log('show video:' + dump(json_data))
 	log('stv_details video:' + dump(stv_details))

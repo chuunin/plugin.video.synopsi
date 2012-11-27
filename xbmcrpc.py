@@ -6,7 +6,8 @@ import json
 
 
 class xbmcRPCclient(object):
-
+	defaultProperties = ['file', 'imdbnumber', "lastplayed", "playcount"]
+	
 	def __init__(self, logLevel = 0):
 		self.__logLevel = logLevel
 
@@ -21,7 +22,7 @@ class xbmcRPCclient(object):
 		if self.__logLevel:
 			xbmc.log('xbmc RPC request: ' + str(dump(req)))
 
-		response = xbmc.executeJSONRPC(dump(req))
+		response = xbmc.executeJSONRPC(json.dumps(req))
 		
 		json_response = json.loads(response)
 
@@ -37,34 +38,24 @@ class xbmcRPCclient(object):
 		return json_response['result']
 
 
-	def get_movies(start, end):
+	def get_all_movies(start=None, end=None):
 		"""
 		Get movies from xbmc library. Start is the first in list and end is the last.
 		"""
-		properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
 
-		response = self.execute(
-			'VideoLibrary.GetMovies',
-			{
-				'properties': properties,
-				'limits': {'end': end, 'start': start}
-			}
-		)
-
-		return response
-
-	def get_all_movies():
-		"""
-		Get movies from xbmc library. Start is the first in list and end is the last.
-		"""
-		properties = ['file', 'imdbnumber', "lastplayed", "playcount"]
-
-		response = self.execute(
-			'VideoLibrary.GetMovies',
-			{
-				'properties': properties
-			}
-		)
+		data = {
+			'properties': defaultProperties
+		}
+		
+		if start or end:
+			data['limits'] = {}
+			if start:
+				data['limits']['start'] = start
+			if end:
+				data['limits']['end'] = end
+			
+			
+		response = self.execute('VideoLibrary.GetMovies', data)
 
 		return response
 
@@ -82,23 +73,6 @@ class xbmcRPCclient(object):
 		)
 
 		return response
-
-	def get_tvshows(start, end):
-		"""
-		Get movies from xbmc library. Start is the first in list and end is the last.
-		"""
-		properties = ['file', 'imdbnumber', "lastplayed", "playcount", "episode"]
-
-		response = self.execute(
-			'VideoLibrary.GetTVShows',
-			{
-				'properties': properties,
-				'limits': {'end': end, 'start': start}
-			}
-		)
-
-		return response
-
 
 	def get_episodes(twshow_id, season=-1):
 		"""
@@ -230,6 +204,18 @@ class xbmcRPCclient(object):
 
 		return response['episodedetails']
 
+	def get_details(atype, aid, all_prop=False):
+		if atype == "movie":                
+			movie = self.get_movie_details(aid, all_prop)
+		elif atype == "episode":
+			movie = self.get_episode_details(aid)
+		elif atype == "tvshow":
+			movie = self.get_tvshow_details(aid)
+		else:
+			raise Exception('Unknow video type: %s' % atype)
+
+		return movie
+
 	def GetInfoLabels():
 		"""
 		"""
@@ -245,4 +231,4 @@ class xbmcRPCclient(object):
 
 
 # init local variables
-xbmcRPC = xbmcRPCclient()
+xbmc_rpc = xbmcRPCclient()
