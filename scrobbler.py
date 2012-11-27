@@ -19,206 +19,216 @@ CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 
 __addon__  = get_current_addon()
 __addonname__ = __addon__.getAddonInfo('name')
-__cwd__    = __addon__.getAddonInfo('path')
+__cwd__	= __addon__.getAddonInfo('path')
 __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __language__  = __addon__.getLocalizedString
 
 class SynopsiPlayer(xbmc.Player):
-    """ Bugfix and processing layer """
-    started = False
-    ended = False
-    stopped = False
-    paused = False
-    ended_without_rating = False
-    apiclient = None
+	""" Bugfix and processing layer """
+	started = False
+	ended = False
+	stopped = False
+	paused = False
+	ended_without_rating = False
+	apiclient = None
 
-    playing = False
-    media_file = None
-    last_played_file = None
-    playerEvents = []
+	playing = False
+	media_file = None
+	last_played_file = None
+	playerEvents = []
 
-    def __init__(self):
-        super(SynopsiPlayer, self).__init__()
-        self.log('INIT')
-        self.current_time = 0
+	def __init__(self):
+		super(SynopsiPlayer, self).__init__()
+		self.log('INIT')
+		self.current_time = 0
 
-        self.apiclient = AppApiClient.getDefaultClient()
+		self.apiclient = AppApiClient.getDefaultClient()
 
-    def log(self, msg):
-        log('SynopsiPlayer: ' + msg)
+	def log(self, msg):
+		log('SynopsiPlayer: ' + msg)
 
-    def playerEvent(self, eventName):
-        self.log('playerEvent:' + eventName)
+	def playerEvent(self, eventName):
+		self.log('playerEvent:' + eventName)
 
-        event = {
-            'event': eventName,             
-            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
-        }
+		event = {
+			'event': eventName,			 
+			'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+		}
 
-        if self.playing:
-            event['position'] = int(self.current_time)
+		if self.playing:
+			event['position'] = int(self.current_time)
 
-        self.playerEvents.append(event)
+		self.playerEvents.append(event)
 
-    def onPlayBackStarted(self):
-        self.log('onPlayBackStarted')
-        # this is just next file of a movie
-        if self.playing:
-            if self.media_file != xbmc.Player().getPlayingFile():
-                self.ended_without_rating()
-                self.media_file = xbmc.Player().getPlayingFile()
-                self.last_played_file = self.media_file
-                self.subtitle_file = self.getSubtitles()
-        
-        # started new video playback
-        else:
-            if xbmc.Player().isPlayingVideo():
-                self.playing = True
-                self.total_time = xbmc.Player().getTotalTime()
-                self.current_time = self.get_time()
-                self.started()
-                self.media_file = xbmc.Player().getPlayingFile()
-                self.last_played_file = self.media_file
-                self.subtitle_file = self.getSubtitles()
-                self.log('subtitle_file:' + str(self.subtitle_file))
+	def playerEventSeek(self, position):
+		self.log('playerEvent: seek %f' % position)
+		event = {
+			'event': 'seek',			 
+			'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+		}
+		event['position'] = position
+		self.playerEvents.append(event)
+		
 
-        self.log('playing:' + str(self.playing))
+	def onPlayBackStarted(self):
+		self.log('onPlayBackStarted')
+		# this is just next file of a movie
+		if self.playing:
+			if self.media_file != xbmc.Player().getPlayingFile():
+				self.ended_without_rating()
+				self.media_file = xbmc.Player().getPlayingFile()
+				self.last_played_file = self.media_file
+				self.subtitle_file = self.getSubtitles()
+		
+		# started new video playback
+		else:
+			if xbmc.Player().isPlayingVideo():
+				self.playing = True
+				self.total_time = xbmc.Player().getTotalTime()
+				self.current_time = self.get_time()
+				self.started()
+				self.media_file = xbmc.Player().getPlayingFile()
+				self.last_played_file = self.media_file
+				self.subtitle_file = self.getSubtitles()
+				self.log('subtitle_file:' + str(self.subtitle_file))
 
-    def onPlayBackEnded(self):
-        notification("onPlayBackEnded", "onPlayBackEnded")
-        if self.playing:
-            try:
-                self.media_file = xbmc.Player().getPlayingFile()
-            except Exception, e:
-                # TODO: Handle if API will change
-                if "XBMC is not playing any file" in e:
-                    self.playing = False
-                    self.media_file = None
-                    self.ended()
+		self.log('playing:' + str(self.playing))
 
-    def onPlayBackStopped(self):
-        self.log('onPlayBackStopped')
-        if self.playing:
-            self.stopped()
-            self.playing = False
-            self.media_file = None
+	def onPlayBackEnded(self):
+		notification("onPlayBackEnded", "onPlayBackEnded")
+		if self.playing:
+			try:
+				self.media_file = xbmc.Player().getPlayingFile()
+			except Exception, e:
+				# TODO: Handle if API will change
+				if "XBMC is not playing any file" in e:
+					self.playing = False
+					self.media_file = None
+					self.ended()
 
-    def onPlayBackPaused(self):
-        self.log('onPlayBackPaused')
-        if self.playing:
-            self.paused()
+	def onPlayBackStopped(self):
+		self.log('onPlayBackStopped')
+		if self.playing:
+			self.stopped()
+			self.playing = False
+			self.media_file = None
 
-    def onPlayBackResumed(self):
-        if self.playing:
-            self.resumed()
-        else:
-            self.log('resumed not playing?')
+	def onPlayBackPaused(self):
+		self.log('onPlayBackPaused')
+		if self.playing:
+			self.paused()
+
+	def onPlayBackResumed(self):
+		if self.playing:
+			self.resumed()
+		else:
+			self.log('resumed not playing?')
 
 
-    def get_time(self, default=None):
-        try:
-            t = self.getTime()
-        except:
-            return default
+	def get_time(self, default=None):
+		try:
+			t = self.getTime()
+		except:
+			return default
 
-        return t
+		return t
 
 
 class SynopsiPlayerDecor(SynopsiPlayer):
-    """ This class defines methods that are called from the bugfix and processing parent class"""
-    def __init__(self):
-        super(SynopsiPlayerDecor, self).__init__()
+	""" This class defines methods that are called from the bugfix and processing parent class"""
+	def __init__(self):
+		super(SynopsiPlayerDecor, self).__init__()
 
-    def setStvList(self, cache):
-        self.cache = cache
+	def setStvList(self, cache):
+		self.cache = cache
 
-    def update_current_time(self):
-        """ This function updates the current_time. To avoid race condition, it will not update 
-            the current time, if get_time returns None, but the player is still playing a file
-            (acording to the self.playing variable). This indicates that the scrobbler update loop
-            tries to update time while we are in the onPlayBackStopped method and handlers """
-        t = self.get_time()
-        if t or not self.playing:
-            self.current_time = t
+	def update_current_time(self):
+		""" This function updates the current_time. To avoid race condition, it will not update 
+			the current time, if get_time returns None, but the player is still playing a file
+			(acording to the self.playing variable). This indicates that the scrobbler update loop
+			tries to update time while we are in the onPlayBackStopped method and handlers """
+		t = self.get_time()
+		if t or not self.playing:
+			self.current_time = t
 
 
-    def started(self):
-        self.update_current_time()
-        self.playerEvent('start')
+	def started(self):
+		self.update_current_time()
+		self.playerEvent('start')
 
-    def ended(self):
-        self.playerEvent('end')
-        # ask for 'rating only if file is in library and 
-        if self.cache.hasFilename(self.last_played_file):
-            self.rate_file(self.last_played_file)
+	def ended(self):
+		self.playerEvent('end')
+		# ask for 'rating only if file is in library and 
+		if self.cache.hasFilename(self.last_played_file):
+			self.rate_file(self.last_played_file)
 
-    def ended_without_rating(self):
-        self.playerEvent('end')
+	def ended_without_rating(self):
+		self.playerEvent('end')
 
-    def stopped(self):  
-        self.playerEvent('stop')
-        self.log(dump(self.playerEvents))
-        # self.log('time:' + str(self.current_time))
-        # self.log('total time:' + str(self.total_time))
-        percent = self.current_time / self.total_time
-        self.log('percent:' + str(self.current_time / self.total_time))
+	def stopped(self):  
+		self.playerEvent('stop')
+		self.log(dump(self.playerEvents))
+		# self.log('time:' + str(self.current_time))
+		# self.log('total time:' + str(self.total_time))
+		percent = self.current_time / self.total_time
+		self.log('percent:' + str(self.current_time / self.total_time))
 
-        data = { 'player_events': json.dumps(self.playerEvents) }
+		data = { 'player_events': json.dumps(self.playerEvents) }
 
-        # work only on files in library
-        if self.cache.hasFilename(self.last_played_file):
-            # ask for rating only if more than 70% of movie passed
-            if percent > 0.7:
-                rating = get_rating()
-                # if user rated the title
-                if rating < 4:
-                    data['rating'] = rating
-        
-            detail = self.cache.getByFilename(self.last_played_file)
+		# work only on files in library
+		if self.cache.hasFilename(self.last_played_file):
+			# ask for rating only if more than 70% of movie passed
+			if percent > 0.7:
+				rating = get_rating()
+				# if user rated the title
+				if rating < 4:
+					data['rating'] = rating
+		
+			detail = self.cache.getByFilename(self.last_played_file)
 
-            # get stv id
-            self.log('detail: ' + str(detail))
-            # only for identified by synopsi
-            if detail.has_key('stvId'):
-                self.apiclient.titleWatched(detail['stvId'], **data)
+			# get stv id
+			self.log('detail: ' + str(detail))
+			# only for identified by synopsi
+			if detail.has_key('stvId'):
+				self.apiclient.titleWatched(detail['stvId'], **data)
 
-        self.playerEvents = []
+		self.playerEvents = []
 
-    def paused(self):
-        self.update_current_time()
-        self.playerEvent('pause')
+	def paused(self):
+		self.update_current_time()
+		self.playerEvent('pause')
 
-    def resumed(self):
-        self.update_current_time()
-        self.playerEvent('resume')
+	def resumed(self):
+		self.update_current_time()
+		self.playerEvent('resume')
 
 class Scrobbler(threading.Thread):
-    """
-    Thread creates SynopsiPlayer to receive events and waits for ABORT request.
-    """
-    def __init__(self, xcache):
-        super(Scrobbler, self).__init__()
-        self.log('Created Scrobbler thread')
-        self.cache = xcache
+	"""
+	Thread creates SynopsiPlayer to receive events and waits for ABORT request.
+	"""
+	def __init__(self, xcache):
+		super(Scrobbler, self).__init__()
+		self.log('Created Scrobbler thread')
+		self.cache = xcache
 
-    def log(self, msg):
-        log('Scrobbler: ' + msg)
+	def log(self, msg):
+		log('Scrobbler: ' + msg)
 
-    def run(self):
-        self.log('thread run start')
+	def run(self):
+		self.log('thread run start')
 
-        player = SynopsiPlayerDecor()
-        player.setStvList(self.cache)
+		player = SynopsiPlayerDecor()
+		player.setStvList(self.cache)
 
-        #   wait for abort flag
-        while not library.ABORT_REQUESTED and not xbmc.abortRequested:
-            player.update_current_time()
-            xbmc.sleep(500)
-        
-        dbg = ''
-        if library.ABORT_REQUESTED: dbg += "library.ABORT_REQUESTED " 
-        if xbmc.abortRequested: dbg += "xbmc.abortRequested " 
-        
-        self.log("thread run end " + dbg)
+		#   wait for abort flag
+		while not library.ABORT_REQUESTED and not xbmc.abortRequested:
+			player.update_current_time()
+			xbmc.sleep(500)
+		
+		dbg = ''
+		if library.ABORT_REQUESTED: dbg += "library.ABORT_REQUESTED " 
+		if xbmc.abortRequested: dbg += "xbmc.abortRequested " 
+		
+		self.log("thread run end " + dbg)
 

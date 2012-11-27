@@ -17,9 +17,10 @@ ABORT_REQUESTED = False
 
 
 class RPCListener(threading.Thread):
-    def __init__(self, cache):
+    def __init__(self, cache, scrobbler):
         super(RPCListener, self).__init__()
         self.cache = cache
+        self.scrobbler = scrobbler
         self.apiclient = None
         self.sock = socket.socket()
         self.sock.settimeout(5)
@@ -98,10 +99,12 @@ class RPCListenerHandler(RPCListener):
     """
     RPCListenerHandler defines event handler methods that are autotically called from parent class's RPCListener
     """
-    def __init__(self, cache):
-        super(RPCListenerHandler, self).__init__(cache)
-        self.playerEvents = []
+    def __init__(self, cache, scrobbler):
+        super(RPCListenerHandler, self).__init__(cache, scrobbler)
 
+	def _xbmc_time2sec(self, time):
+		return time["hours"] * 3600 + time["minutes"] * 60 + time["seconds"] + time["milliseconds"] / 1000
+		
     #   NOT USED NOW
     def playerEvent(self, data):
         self.log(dump(data))
@@ -124,8 +127,8 @@ class RPCListenerHandler(RPCListener):
         self.playerEvent(data)
 
     def Player_OnSeek(self, data):
-        self.playerEvent(data)
-        pass
+		position = self._xbmc_time2sec(data['params']['data']['player']['time'])
+		self.scrobbler.playerEventSeek(position)
 
     def Player_OnPause(self, data):
         self.playerEvent(data)
