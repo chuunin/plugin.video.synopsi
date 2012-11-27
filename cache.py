@@ -122,7 +122,7 @@ class StvList(object):
 
 
 			# try to get synopsi id
-			# TODO: stv_subtitle_hash - hash of the subtitle file if presented
+			# TODO: stv_subtitle_hash - hash of the subtitle file if present
 			ident = {}
 			self._translate_xbmc2stv_keys(ident, movie)
 
@@ -145,8 +145,7 @@ class StvList(object):
 				self.log('Xbmc/Synopsi identification type mismatch: %s / %s in [%s]' % (movie['type'], title.get('type'), movie.get('file')))
 
 			# for episode, add tvshow
-			if movie['type'] == 'episode':
-				self.log('got episode')
+			if movie['type'] == 'episode' and title.get('type') == 'episode':
 				self.log('episode:'+dump(title))
 				self.add_tvshow(movie['id'], title['tvshow_id'])
 
