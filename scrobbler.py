@@ -1,15 +1,18 @@
-import xbmc, xbmcgui, xbmcaddon
-# except ImportError:
-#    from tests import xbmc, xbmcgui, xbmcaddon
+#xbmc
+import xbmc, xbmcgui, xbmcaddon, xbmcplugin
+
+# python standart lib
 import threading
 import time
 from random import randint
 import library
-import xbmcplugin
-from app_apiclient import AppApiClient
 import logging
 import json
+
+# application
 from utilities import *
+from app_apiclient import AppApiClient
+
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 # Default XBMC constant for hidden cancel button
