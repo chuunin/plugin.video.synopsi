@@ -42,7 +42,7 @@ def main():
 	thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
 	s = Scrobbler(cache)
-	l = RPCListenerHandler(cache)
+	l = RPCListenerHandler(cache, s)
 	s.start()
 	l.start()
 
