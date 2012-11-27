@@ -110,13 +110,16 @@ class StvList(object):
 		movie['type'] = atype
 		movie['id'] = aid
 
+		self.log('movie type: %s %s' % (movie['type'], atype))
+		
 		# if not in cache, it's been probably added
 		if not self.hasTypeId(movie['type'], movie['id']):
 			# get stv hash
-			if movie['type'] in playable_types:
-				path = self.get_path(movie)
-				movie['stv_title_hash'] = stv_hash(path)
-				movie['os_title_hash'] = hash_opensubtitle(path)
+			path = self.get_path(movie)
+			self.log('path to hash: ' + path)
+			movie['stv_title_hash'] = stv_hash(path)
+			movie['os_title_hash'] = hash_opensubtitle(path)
+
 
 			# try to get synopsi id
 			# TODO: stv_subtitle_hash - hash of the subtitle file if presented
