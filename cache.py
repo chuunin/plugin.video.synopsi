@@ -286,7 +286,7 @@ class StvList(object):
 		
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:
-				episodes = xbmcrpc.get_episodes(show["tvshowid"])				
+				episodes = xbmc_rpc.get_episodes(show["tvshowid"])				
 				self.log('episodes: ' + dump(episodes))
 				
 				if episodes['limits']['total'] > 0:
@@ -306,7 +306,7 @@ class StvList(object):
 		#~ path = os.path.join(addonpath, 'tests')
 		
 		self.clear()
-		movies = xbmcrpc.get_movies()
+		movies = xbmc_rpc.get_movies()
 		
 		# generate testing json
 		#~ f = open(os.path.join(path, 'get_movies.json'), 'w')
@@ -319,7 +319,7 @@ class StvList(object):
 			self.put(movie)
 
 		
-		tvshows = xbmcrpc.get_all_tvshows()
+		tvshows = xbmc_rpc.get_all_tvshows()
 		
 		# generate testing json
 		#~ f = open(os.path.join(path, 'get_all_tvshows.json'), 'w')
@@ -330,7 +330,7 @@ class StvList(object):
 		
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:
-				episodes = xbmcrpc.get_episodes(show["tvshowid"])				
+				episodes = xbmc_rpc.get_episodes(show["tvshowid"])				
 				self.log('episodes: ' + dump(episodes))
 				
 				if episodes['limits']['total'] > 0:

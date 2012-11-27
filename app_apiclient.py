@@ -24,7 +24,7 @@ class AppApiClient(ApiClient):
 			log('getAccessToken lock NOT acquired')
 			return False
 
-		log(threading.current_thread().name + ' getAccessToken START')
+		#~ log(threading.current_thread().name + ' getAccessToken START')
 		finished = False
 		while not finished:
 			# try to log in
@@ -52,12 +52,12 @@ class AppApiClient(ApiClient):
 
 			except Exception as e:
 				finished = True
-				log('Another exception')
+				log('Unknown exception')
 				log(str(e))
 			else:
 				finished = True
 				log('Login success')
 
 
-		log(threading.current_thread().name + ' getAccessToken END')
+		#~ log(threading.current_thread().name + ' getAccessToken END')
 		self._lock_access_token.release()
