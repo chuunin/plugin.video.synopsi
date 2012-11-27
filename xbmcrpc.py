@@ -37,8 +37,7 @@ class xbmcRPCclient(object):
 
 		return json_response['result']
 
-
-	def get_all_movies(start=None, end=None):
+	def get_all_movies(self, start=None, end=None):
 		"""
 		Get movies from xbmc library. Start is the first in list and end is the last.
 		"""
@@ -59,7 +58,7 @@ class xbmcRPCclient(object):
 
 		return response
 
-	def get_all_tvshows():
+	def get_all_tvshows(self):
 		"""
 		Get movies from xbmc library. Start is the first in list and end is the last.
 		"""
@@ -74,7 +73,7 @@ class xbmcRPCclient(object):
 
 		return response
 
-	def get_episodes(twshow_id, season=-1):
+	def get_episodes(self, twshow_id, season=-1):
 		"""
 		Get episodes from xbmc library.
 		"""
@@ -98,7 +97,7 @@ class xbmcRPCclient(object):
 
 		return response
 
-	def get_movie_details(movie_id, all_prop=False):
+	def get_movie_details(self, movie_id, all_prop=False):
 		"""
 		Get dict of movie_id details.
 		"""
@@ -150,8 +149,7 @@ class xbmcRPCclient(object):
 
 		return response['moviedetails']
 
-
-	def get_tvshow_details(movie_id):
+	def get_tvshow_details(self, movie_id):
 		"""
 		Get dict of movie_id details.
 		"""
@@ -187,8 +185,7 @@ class xbmcRPCclient(object):
 
 		return response
 
-
-	def get_episode_details(movie_id):
+	def get_episode_details(self, movie_id):
 		"""
 		Get dict of movie_id details.
 		"""
@@ -204,7 +201,7 @@ class xbmcRPCclient(object):
 
 		return response['episodedetails']
 
-	def get_details(atype, aid, all_prop=False):
+	def get_details(self, atype, aid, all_prop=False):
 		if atype == "movie":                
 			movie = self.get_movie_details(aid, all_prop)
 		elif atype == "episode":
@@ -216,7 +213,7 @@ class xbmcRPCclient(object):
 
 		return movie
 
-	def GetInfoLabels():
+	def GetInfoLabels(self):
 		"""
 		"""
 

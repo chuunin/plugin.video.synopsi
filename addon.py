@@ -146,7 +146,7 @@ def get_tvshows():
 	return result
 
 def get_local_tvshows():
-	localtvshows = xbmcrpc.get_all_tvshows()
+	localtvshows = xbmc_rpc.get_all_tvshows()
 	log(dump(localtvshows))
 
 	return [ { 'name': item['label'], 'cover_medium': item['thumbnail'] } for item in localtvshows['tvshows'] ]

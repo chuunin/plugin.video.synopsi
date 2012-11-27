@@ -271,7 +271,7 @@ class StvList(object):
 		"""
 		
 		self.clear()
-		#~ movies = xbmcrpc.get_all_movies()
+		#~ movies = xbmc_rpc.get_all_movies()
 		movies = { 'movies': [] }
 				
 		for movie in movies['movies']:
@@ -280,7 +280,7 @@ class StvList(object):
 			except Exception as e:
 				self.log(e)
 		
-		tvshows = xbmcrpc.get_all_tvshows()
+		tvshows = xbmc_rpc.get_all_tvshows()
 				
 		self.log('get_all_tvshows ' + dump(tvshows))
 		
