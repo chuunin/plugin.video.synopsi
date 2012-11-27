@@ -35,9 +35,9 @@ def main():
 	except:
 		# first time
 		xbmc.log('CACHE restore failed. If this is your first run, its ok')
+		cache.rebuild()
 
 	cache.list()
-	cache.rebuild()
 	
 	thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
