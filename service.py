@@ -12,7 +12,7 @@ import thread
 from scrobbler import Scrobbler
 from library import RPCListenerHandler
 from cache import *
-from utilities import home_screen_fill, login_screen
+from utilities import home_screen_fill, login_screen, log
 from app_apiclient import AppApiClient
 
 __addon__  = get_current_addon()
@@ -34,7 +34,7 @@ def main():
 		cache.load()
 	except:
 		# first time
-		xbmc.log('CACHE restore failed. If this is your first run, its ok')
+		log('CACHE restore failed. If this is your first run, its ok')
 		cache.rebuild()
 
 	cache.list()
@@ -46,20 +46,20 @@ def main():
 	s.start()
 	l.start()
 
-	xbmc.log('Entering service loop')
+	log('Entering service loop')
 	while True:
 		s.join(0.5)
 		l.join(0.5)
 
 		if not l.isAlive() and not s.isAlive():
-			xbmc.log('Service loop end. Both threads are dead')
+			log('Service loop end. Both threads are dead')
 			break
 
 		if False and xbmc.abortRequested:
-			xbmc.log('service.py abortRequested')
+			log('service.py abortRequested')
 			break;
 
-	xbmc.log('library and scrobbler quit')
+	log('library and scrobbler quit')
 	cache.save()
 
 

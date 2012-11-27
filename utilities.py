@@ -49,6 +49,9 @@ class HashError(Exception):
 def dump(var):
 	return json.dumps(var, indent=4)
 
+def log(msg):
+	log(unicode(msg).encode('utf-8'))
+
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """
     Sends notification to XBMC.
@@ -62,7 +65,7 @@ def get_current_addon():
 def check_first_run():
 	# on first run
 	if __addon__.getSetting('FIRSTRUN') == 'true':
-		xbmc.log('SYNOPSI FIRST RUN')
+		log('SYNOPSI FIRST RUN')
 		# enable home screen recco
 		__addon__.openSettings()
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
@@ -177,7 +180,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		"""
 		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
 		"""
-		# xbmc.log(str('onClick:'+str(controlId)))
+		# log(str('onClick:'+str(controlId)))
 
 		# Cancel
 		if controlId==16:
@@ -189,7 +192,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 			self.close()
 
 	def onAction(self, action):
-		# xbmc.log('action id:' + str(action.getId()))
+		# log('action id:' + str(action.getId()))
 		if (action.getId() in CANCEL_DIALOG2):
 			self.response = 1
 			self.close()
@@ -380,7 +383,7 @@ def get_install_id():
 	iuid = __addon__.getSetting(id='INSTALL_UID')
 	if not iuid:
 		iuid = generate_iuid()
-		xbmc.log('iuid:' + iuid)
+		log('iuid:' + iuid)
 		__addon__.setSetting(id='INSTALL_UID', value=iuid)
 
 	return iuid
@@ -403,10 +406,10 @@ def home_screen_fill(apiClient, cache):
 	# episode_recco = jsfile
 	
 
-	# xbmc.log('movie_recco:' + dump(movie_recco, indent=4))
-	# xbmc.log('episode_recco:' + dump(episode_recco, indent=4))
-	xbmc.log('movie_recco count:' + str(len(movie_recco)))
-	xbmc.log('episode_recco count:' + str(len(episode_recco)))
+	# log('movie_recco:' + dump(movie_recco, indent=4))
+	# log('episode_recco:' + dump(episode_recco, indent=4))
+	log('movie_recco count:' + str(len(movie_recco)))
+	log('episode_recco count:' + str(len(episode_recco)))
 
 	MOVIES_COUNT = 5	# count of template display slots
 	WINDOW = xbmcgui.Window( 10000 )
@@ -416,8 +419,8 @@ def home_screen_fill(apiClient, cache):
 		if i < len(movie_recco):
 			m = movie_recco[i]
 			lib_item = cache.getByStvId(m['id'])
-			xbmc.log('movie %d %s' % (i, m['name']))
-			xbmc.log('lib_item %s' % (str(lib_item)))
+			log('movie %d %s' % (i, m['name']))
+			log('lib_item %s' % (str(lib_item)))
 			
 			WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
 			if lib_item:
@@ -429,8 +432,8 @@ def home_screen_fill(apiClient, cache):
 		if i < len(episode_recco):
 			e = episode_recco[i]
 			lib_item = cache.getByStvId(m['id'])
-			xbmc.log('episode %d %s' % (i, e['name']))
-			xbmc.log('lib_item %s' % (str(lib_item)))
+			log('episode %d %s' % (i, e['name']))
+			log('lib_item %s' % (str(lib_item)))
 			WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
 			WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
 			WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
@@ -442,14 +445,14 @@ def home_screen_fill(apiClient, cache):
 
 def login_screen(apiClient):
 	if not __lockLoginScreen__.acquire(False):
-		xbmc.log('login_screen not starting duplicate')
+		log('login_screen not starting duplicate')
 		return False
 
 	username = __addon__.getSetting('USER')
 	password = __addon__.getSetting('PASS')
 
-	xbmc.log('string type: ' + str(type(username)))
-	xbmc.log('string type: ' + str(type(password)))
+	log('string type: ' + str(type(username)))
+	log('string type: ' + str(type(password)))
 
 	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
 	ui.doModal()
@@ -457,7 +460,7 @@ def login_screen(apiClient):
 
 	# dialog result is 'OK'
 	if ui.response==2:
-		xbmc.log('dialog OK')
+		log('dialog OK')
 		# check if data changed
 		d = ui.getData()
 		if username!=d['username'] or password!=d['password']:
@@ -468,13 +471,13 @@ def login_screen(apiClient):
 
 		result=True
 	else:
-		xbmc.log('dialog canceled')
+		log('dialog canceled')
 		result=False
 	
 	del ui
 
 	__lockLoginScreen__.release()
-	xbmc.log('login_screen result: %d' % result)
+	log('login_screen result: %d' % result)
 	return result
 
 def get_rating():

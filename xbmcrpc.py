@@ -20,19 +20,19 @@ class xbmcRPCclient(object):
 		}
 
 		if self.__logLevel:
-			xbmc.log('xbmc RPC request: ' + str(dump(req)))
+			log('xbmc RPC request: ' + dump(req)))
 
 		response = xbmc.executeJSONRPC(json.dumps(req))
 		
 		json_response = json.loads(response)
 
 		if self.__logLevel:
-			xbmc.log('xbmc RPC response: ' + str(dump(json_response)))
+			log('xbmc RPC response: ' + dump(json_response)))
 
 		if json_response.has_key('error') and json_response['error']:
-			xbmc.log('xbmc RPC ERROR: ' + json_response['error']['message'])
-			xbmc.log('xbmc RPC request: ' + str(dump(req)))
-			xbmc.log('xbmc RPC response: ' + str(dump(json_response)))
+			log('xbmc RPC ERROR: ' + json_response['error']['message'])
+			log('xbmc RPC request: ' + dump(req)))
+			log('xbmc RPC response: ' + dump(json_response)))
 			raise Exception(json_response['error']['message'])
 
 		return json_response['result']

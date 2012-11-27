@@ -21,10 +21,10 @@ class AppApiClient(ApiClient):
 
 	def getAccessToken(self):
 		if not self._lock_access_token.acquire(False):
-			xbmc.log('getAccessToken lock NOT acquired')
+			log('getAccessToken lock NOT acquired')
 			return False
 
-		xbmc.log(threading.current_thread().name + ' getAccessToken START')
+		log(threading.current_thread().name + ' getAccessToken START')
 		finished = False
 		while not finished:
 			# try to log in
@@ -52,12 +52,12 @@ class AppApiClient(ApiClient):
 
 			except Exception as e:
 				finished = True
-				xbmc.log('Another exception')
-				xbmc.log(str(e))
+				log('Another exception')
+				log(str(e))
 			else:
 				finished = True
-				xbmc.log('Login success')
+				log('Login success')
 
 
-		xbmc.log(threading.current_thread().name + ' getAccessToken END')
+		log(threading.current_thread().name + ' getAccessToken END')
 		self._lock_access_token.release()

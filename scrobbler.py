@@ -46,7 +46,7 @@ class SynopsiPlayer(xbmc.Player):
         self.apiclient = AppApiClient.getDefaultClient()
 
     def log(self, msg):
-        xbmc.log('SynopsiPlayer: ' + msg)
+        log('SynopsiPlayer: ' + msg)
 
     def playerEvent(self, eventName):
         self.log('playerEvent:' + eventName)
@@ -203,7 +203,7 @@ class Scrobbler(threading.Thread):
         self.cache = xcache
 
     def log(self, msg):
-        xbmc.log('Scrobbler: ' + msg)
+        log('Scrobbler: ' + msg)
 
     def run(self):
         self.log('thread run start')

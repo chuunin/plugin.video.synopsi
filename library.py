@@ -30,11 +30,11 @@ class RPCListener(threading.Thread):
             try:
                 self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
             except Exception, exc:
-                xbmc.log('%0.2f %s' % (time.time() - t, str(exc)))
+                log('%0.2f %s' % (time.time() - t, str(exc)))
                 xbmc.sleep(int(sleepTime))
                 sleepTime *= 1.5
             else:
-                xbmc.log('Connected to 9090')
+                log('Connected to 9090')
                 self.connected = True
 
         self.sock.setblocking(True)
@@ -46,7 +46,7 @@ class RPCListener(threading.Thread):
         global ABORT_REQUESTED
 
         if not self.connected:
-            xbmc.log('RPC Listener cannot run, there is not connection to xbmc')
+            log('RPC Listener cannot run, there is not connection to xbmc')
             return False
 
         self.apiclient = AppApiClient.getDefaultClient()
@@ -55,12 +55,12 @@ class RPCListener(threading.Thread):
             data = self.sock.recv(8192)
             data = data.replace('}{', '},{')
             datapack='[%s]' % data
-            # xbmc.log('SynopsiTV: {0}'.format(str(data)))
+            # log('SynopsiTV: {0}'.format(str(data)))
             try:
                 data_json = json.loads(datapack)
             except ValueError, e:
-                xbmc.log('RPC ERROR:' + str(e))
-                xbmc.log('RPC ERROR DATA:' + str(data))
+                log('RPC ERROR:' + str(e))
+                log('RPC ERROR DATA:' + str(data))
                 continue
 
             for request in data_json:
@@ -73,23 +73,23 @@ class RPCListener(threading.Thread):
                     self.process(request)
 
         self.sock.close()
-        xbmc.log('Library thread end')
+        log('Library thread end')
 
     def process(self, data):
         methodName = data['method'].replace('.', '_')
         method = getattr(self, methodName, None)
         if method == None:
-            xbmc.log('Unknown method: ' + methodName)
+            log('Unknown method: ' + methodName)
             return
 
-        xbmc.log(str(data))
+        log(str(data))
         
         #   Try to call that method
         try:
             method(data)
         except:
-            xbmc.log('Error in method "' + methodName + '"')
-            xbmc.log(traceback.format_exc())
+            log('Error in method "' + methodName + '"')
+            log(traceback.format_exc())
 
         #   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
 
@@ -107,7 +107,7 @@ class RPCListenerHandler(RPCListener):
         self.log(dump(data))
 
     def log(self, msg):
-        xbmc.log('LIBRARY / ' + msg)
+        log('LIBRARY / ' + msg)
 
     def VideoLibrary_OnUpdate(self, data):
         i = data['params']['data']['item']

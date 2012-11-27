@@ -67,7 +67,7 @@ class StvList(object):
 			cache.load()
 		except:
 			# first time
-			xbmc.log('CACHE restore failed. If this is your first run, its ok')
+			log('CACHE restore failed. If this is your first run, its ok')
 
 		cache.list()
 		return cache
@@ -88,7 +88,7 @@ class StvList(object):
 		self.byStvId = unpickled_list[3]
 
 	def log(self, msg):
-		xbmc.log('CACHE / ' + unicode(msg))
+		log('CACHE / ' + msg)
 
 	def _translate_xbmc2stv_keys(self, a, b):
 		for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
@@ -137,6 +137,9 @@ class StvList(object):
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
 				self.log('File identified %s' % movie['file'])
+			else:
+				self.log('File NOT identified %s' % movie['file'])
+
 
 			self.put(movie)
 
@@ -273,8 +276,8 @@ class StvList(object):
 		self.clear()
 		movies = xbmc_rpc.get_movies()
 		#~ movies = { 'movies': [] }
-				
-		for movie in movies['movies']:
+		
+		for movie in movies.get('movies', []):
 			try:
 				self.addorupdate('movie', movie['movieid'])
 			except Exception as e:

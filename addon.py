@@ -59,7 +59,7 @@ class ActionCode:
 
 def log(msg):
 	#logging.debug('ADDON: ' + str(msg))
-	xbmc.log('ADDON / ' + str(msg))
+	log('ADDON / ' + str(msg))
 
 def uniquote(s):
 	return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
@@ -86,7 +86,7 @@ def get_local_recco2(movie_type):
 	for title in recco:
 		if stvList.hasStvId(title['id']):
 			cached_title = stvList.getByStvId(title['id'])
-			xbmc.log(dump(cached_title))
+			log(dump(cached_title))
 			title['stv_title_hash'] = cached_title['stv_title_hash']
 			title['file'] = cached_title['file']
 			
@@ -530,13 +530,13 @@ __cwd__	= __addon__.getAddonInfo('path')
 __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 
-xbmc.log('SYS ARGV:' + str(sys.argv)) 
+log('SYS ARGV:' + str(sys.argv)) 
 
 url_parsed = urlparse.urlparse(sys.argv[2])
 params = urlparse.parse_qs(url_parsed.query)
 
-# xbmc.log('url_parsed:' + str(url_parsed))
-xbmc.log('params:' + str(params))
+# log('url_parsed:' + str(url_parsed))
+log('params:' + str(params))
 
 check_first_run()
 
@@ -544,7 +544,7 @@ apiClient = AppApiClient.getDefaultClient()
 apiClient.login_state_announce = LoginState.AddonDialog
 stvList = StvList.getDefaultList(apiClient)
 
-# xbmc.log(str(sys.argv))
+# log(str(sys.argv))
 
 param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
 p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
