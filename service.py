@@ -14,6 +14,7 @@ from library import RPCListenerHandler
 from cache import *
 from utilities import home_screen_fill, login_screen, log
 from app_apiclient import AppApiClient
+from addonservice import AddonService
 
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
@@ -43,21 +44,24 @@ def main():
 
 	s = Scrobbler(cache)
 	l = RPCListenerHandler(cache, s)
+	aos = AddonService()
 	s.start()
 	l.start()
-
+	aos.start()
+	
 	log('Entering service loop')
 	while True:
 		s.join(0.5)
 		l.join(0.5)
 
-		if not l.isAlive() and not s.isAlive():
+		if not l.isAlive() and not s.isAlive() and not s.isAlive():
 			log('Service loop end. Both threads are dead')
 			break
 
-		if False and xbmc.abortRequested:
+		if xbmc.abortRequested:
 			log('service.py abortRequested')
-			break;
+			aos.stop()
+			#~ break;
 
 	log('library and scrobbler quit')
 	cache.save()
