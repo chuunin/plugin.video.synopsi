@@ -59,7 +59,7 @@ class ActionCode:
 
 def log(msg):
 	#logging.debug('ADDON: ' + str(msg))
-	log('ADDON / ' + str(msg))
+	xbmc.log('ADDON / ' + str(msg))
 
 def uniquote(s):
 	return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
