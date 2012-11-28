@@ -32,7 +32,7 @@ class RPCListener(MyThread):
 				xbmc.sleep(int(sleepTime))
 				sleepTime *= 1.5
 			else:
-				log('Connected to 9090')
+				self._log.info('Connected to 9090')
 				self.connected = True
 
 		self.sock.setblocking(True)
@@ -44,7 +44,7 @@ class RPCListener(MyThread):
 		global ABORT_REQUESTED
 
 		if not self.connected:
-			log('RPC Listener cannot run, there is not connection to xbmc')
+			self._log.error('RPC Listener cannot run, there is not connection to xbmc')
 			return False
 
 		self.apiclient = AppApiClient.getDefaultClient()
@@ -53,12 +53,12 @@ class RPCListener(MyThread):
 			data = self.sock.recv(8192)
 			data = data.replace('}{', '},{')
 			datapack='[%s]' % data
-			# log('SynopsiTV: {0}'.format(str(data)))
+			# self._log.debug('SynopsiTV: {0}'.format(str(data)))
 			try:
 				data_json = json.loads(datapack)
 			except ValueError, e:
-				log('RPC ERROR:' + str(e))
-				log('RPC ERROR DATA:' + str(data))
+				self._log.error('RPC ERROR:' + str(e))
+				self._log.error('RPC ERROR DATA:' + str(data))
 				continue
 
 			for request in data_json:
@@ -71,23 +71,23 @@ class RPCListener(MyThread):
 					self.process(request)
 
 		self.sock.close()
-		log('Library thread end')
+		self._log.info('Library thread end')
 
 	def process(self, data):
 		methodName = data['method'].replace('.', '_')
 		method = getattr(self, methodName, None)
 		if method == None:
-			log('Unknown method: ' + methodName)
+			self._log.warn('Unknown method: ' + methodName)
 			return
 
-		log(str(data))
+		self._log.debug(str(data))
 		
 		#   Try to call that method
 		try:
 			method(data)
 		except:
-			log('Error in method "' + methodName + '"')
-			log(traceback.format_exc())
+			self._log.error('Error in method "' + methodName + '"')
+			self._log.error(traceback.format_exc())
 
 		#   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
 
@@ -104,10 +104,7 @@ class RPCListenerHandler(RPCListener):
 		
 	#   NOT USED NOW
 	def playerEvent(self, data):
-		self.log(dump(data))
-
-	def log(self, msg):
-		log('LIBRARY / ' + msg)
+		self.self._log.debug(dump(data))
 
 	def VideoLibrary_OnUpdate(self, data):
 		i = data['params']['data']['item']
