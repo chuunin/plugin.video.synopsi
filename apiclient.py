@@ -231,14 +231,14 @@ class ApiClient(loggable.Loggable):
 			get['bearer_token'] = self.accessToken
 			url += '?' + urlencode(get)
 			data = None
-			self._log.debug('URL:' + url)
 
 		if 'post' in locals():
 			self._log.debug('post:' + str(post))
 		if 'get' in locals():
-			self._log.debug('get:' + str(get))		
-
-		self._log.debug('data:' + str(data))	
+			self._log.debug('URL:' + url)
+			self._log.debug('get:' + str(get))
+		if data:
+			self._log.debug('data:' + str(data))	
 
 		try:
 			response_json = self.doRequest(
