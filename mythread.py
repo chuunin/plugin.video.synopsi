@@ -8,6 +8,14 @@ class MyThread(threading.Thread):
 		self.name = self.__class__.__name__
 		self._log = logging.Logger(self.name)
 		self._log.setLevel(logging.DEBUG)
+		# assure that log dir exists
+		print('cwd ' + os.getcwd())
+		logdir = os.path.join(os.getcwd(), 'log')
+		print('path exists' + str(os.path.exists(logdir)))
+		if not os.path.exists(logdir):
+			print 'creating log'
+			os.mkdir(logdir)
+		
 		fh = logging.FileHandler(os.path.join('log', self.name + '.log'), mode='w')
 		self._log.addHandler(fh)
 
