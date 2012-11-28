@@ -1,5 +1,5 @@
 import xbmc, xbmcgui, xbmcaddon
-import threading
+from mythread import MyThread
 import time
 import socket
 import json
@@ -13,7 +13,7 @@ from cache import *
 ABORT_REQUESTED = False
 
 
-class RPCListener(threading.Thread):
+class RPCListener(MyThread):
 	def __init__(self, cache, scrobbler):
 		super(RPCListener, self).__init__()
 		self.cache = cache
@@ -125,7 +125,7 @@ class RPCListenerHandler(RPCListener):
 
 	def Player_OnSeek(self, data):
 		position = self._xbmc_time2sec(data['params']['data']['player']['time'])
-		self.scrobbler.playerEventSeek(position)
+		self.scrobbler.player.playerEventSeek(position)
 
 	def Player_OnPause(self, data):
 		self.playerEvent(data)

@@ -2,7 +2,7 @@
 import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 
 # python standart lib
-import threading
+from mythread import MyThread
 import time
 from random import randint
 import library
@@ -203,7 +203,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		self.update_current_time()
 		self.playerEvent('resume')
 
-class Scrobbler(threading.Thread):
+class Scrobbler(MyThread):
 	"""
 	Thread creates SynopsiPlayer to receive events and waits for ABORT request.
 	"""
@@ -211,6 +211,7 @@ class Scrobbler(threading.Thread):
 		super(Scrobbler, self).__init__()
 		self.log('Created Scrobbler thread')
 		self.cache = xcache
+		self.player = None
 
 	def log(self, msg):
 		log('Scrobbler: ' + msg)
@@ -218,12 +219,12 @@ class Scrobbler(threading.Thread):
 	def run(self):
 		self.log('thread run start')
 
-		player = SynopsiPlayerDecor()
-		player.setStvList(self.cache)
+		self.player = SynopsiPlayerDecor()
+		self.player.setStvList(self.cache)
 
 		#   wait for abort flag
 		while not library.ABORT_REQUESTED and not xbmc.abortRequested:
-			player.update_current_time()
+			self.player.update_current_time()
 			xbmc.sleep(500)
 		
 		dbg = ''

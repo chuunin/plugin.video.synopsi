@@ -2,6 +2,7 @@ import unittest
 import SocketServer
 import time
 import threading
+from mythread import MyThread
 import sys
 
 sys.path.append('..')
@@ -45,7 +46,7 @@ class EchoRequestHandler(SocketServer.BaseRequestHandler):
 
 HOST, PORT = "localhost", 9090
 SERVER = SocketServer.TCPServer((HOST, PORT), EchoRequestHandler)
-class TCPServer(threading.Thread):
+class TCPServer(MyThread):
 	def __init__(self):
 		super(TCPServer, self).__init__()
 
