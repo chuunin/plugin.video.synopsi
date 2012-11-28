@@ -16,6 +16,7 @@ ABORT_REQUESTED = False
 class RPCListener(MyThread):
 	def __init__(self, cache, scrobbler):
 		super(RPCListener, self).__init__()
+		
 		self.cache = cache
 		self.scrobbler = scrobbler
 		self.apiclient = None

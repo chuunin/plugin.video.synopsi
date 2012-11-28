@@ -29,6 +29,8 @@ from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
+from addonutilities import *
+
 
 __addon__  = get_current_addon()
 __addonname__ = __addon__.getAddonInfo('name')

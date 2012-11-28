@@ -19,6 +19,8 @@ from addonservice import AddonService
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
 
+xbmc.log('python version ' + str(sys.version_info))
+
 def main():
 	apiclient1 = AppApiClient.getDefaultClient()
 	
@@ -36,15 +38,15 @@ def main():
 	except:
 		# first time
 		log('CACHE restore failed. If this is your first run, its ok')
-		cache.rebuild()
+		#~ cache.rebuild()
 
-	cache.list()
+	#~ cache.list()
 	
 	thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
 	s = Scrobbler(cache)
 	l = RPCListenerHandler(cache, s)
-	aos = AddonService()
+	aos = AddonService('localhost', 9190, apiclient1)
 	s.start()
 	l.start()
 	aos.start()
@@ -61,7 +63,7 @@ def main():
 		if xbmc.abortRequested:
 			log('service.py abortRequested')
 			aos.stop()
-			#~ break;
+			break;
 
 	log('library and scrobbler quit')
 	cache.save()

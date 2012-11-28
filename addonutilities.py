@@ -82,12 +82,8 @@ def get_local_recco2(movie_type):
 			log(dump(cached_title))
 			title['stv_title_hash'] = cached_title['stv_title_hash']
 			title['file'] = cached_title['file']
-			
-	stvList.list()
-	
-		
-	return recco	
 
+	return recco	
 
 def get_global_recco(movie_type):
 	resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaulLimit, reccoDefaultProps)

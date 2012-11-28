@@ -214,7 +214,7 @@ class Scrobbler(MyThread):
 		self.player = None
 
 	def log(self, msg):
-		log('Scrobbler: ' + msg)
+		self._log.debug('Scrobbler: ' + msg)
 
 	def run(self):
 		self.log('thread run start')
