@@ -127,7 +127,8 @@ class StvList(object):
 			if ident.get('imdb_id'):
 				ident['imdb_id'] = ident['imdb_id'][2:]
 
-			self.log('to identify: ' + dump(ident))	
+			#~ self.log('to identify: ' + dump(ident))	
+			self.log('to identify: ' + ident['file_name'])	
 
 			title = self.apiclient.titleIdentify(**ident)
 						
