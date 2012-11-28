@@ -46,7 +46,7 @@ class StvList(object):
 		self.clear()
 		
 		self.uuid = uuid
-		self.list()
+		#~ self.list()
 		
 	@classmethod
 	def getDefaultFilePath(cls):
