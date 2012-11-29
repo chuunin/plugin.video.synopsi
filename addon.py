@@ -116,7 +116,7 @@ def show_submenu(action_code, dirhandle, **kwargs):
 
 
 
-                                                                                                                                                                                                            
+																																																			
 #~ def show_video_dialog_byId(stv_id):
 	#~ stv_details = addonclient.get_title(stv_id, defaultDetailProps, defaultCastProps)
 	#~ show_video_dialog_data(stv_details)

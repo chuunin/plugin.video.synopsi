@@ -233,24 +233,24 @@ def open_select_movie_dialog(tpl_data):
 	del ui
 	return result
 	
-def show_video_dialog_byId(stv_id, apiClient):                                                                                                                                                                         
-	stv_details = apiClient.title(stv_id, detailProps, defaultCastProps)                                                                                                                                 
-	show_video_dialog_data(stv_details)                                                                                                                                                                  
+def show_video_dialog_byId(stv_id, apiClient):																																										 
+	stv_details = apiClient.title(stv_id, detailProps, defaultCastProps)																																 
+	show_video_dialog_data(stv_details)																																								  
 
 def show_video_dialog(json_data, apiClient):
-       # log('show video:' + dump(json_data))                                                                                                                                                               
-                                                                                                                                                                                                            
-       if json_data.get('type') == 'tvshow':                                                                                                                                                                
-               stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)                                                                                                                 
-       else:                                                                                                                                                                                                
-               stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)                                                                                                                
-                                                                                                                                                                                                            
-       show_video_dialog_data(stv_details, json_data, apiClient)                                                                                                                                                   
+	   # log('show video:' + dump(json_data))																																							   
+																																																			
+	   if json_data.get('type') == 'tvshow':																																								
+			   stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)																												 
+	   else:																																																
+			   stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)																												
+																																																			
+	   show_video_dialog_data(stv_details, json_data, apiClient)																																				   
 
 def show_video_dialog_data(stv_details, json_data={}, apiClient):
 	# add xbmc id if available
-	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):                                                                                                                                    
-		cacheItem = stvList.getByStvId(json_data['id'])                                                                                                                                              
+	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):																																	
+		cacheItem = stvList.getByStvId(json_data['id'])																																			  
 		json_data['xbmc_id'] = cacheItem['id']
 		json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
 
