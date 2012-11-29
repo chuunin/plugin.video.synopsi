@@ -31,6 +31,14 @@ from xbmcrpc import xbmc_rpc
 common = CommonFunctions
 common.plugin = "SynopsiTV"
 
+__addon__  = xbmcaddon.Addon()
+__addonname__ = __addon__.getAddonInfo('name')
+__cwd__	= __addon__.getAddonInfo('path')
+__author__  = __addon__.getAddonInfo('author')
+__version__   = __addon__.getAddonInfo('version')
+__profile__      = __addon__.getAddonInfo('profile')
+
+
 # test files
 movies = test.jsfile
 movie_response = { 'titles': movies }
@@ -45,7 +53,7 @@ class ActionCode:
 	LoginAndSettings = 90
 
 	TVShowEpisodes = 60
-	
+
 	VideoDialogShow = 900
 	VideoDialogShowById = 910
 
@@ -63,16 +71,6 @@ def uniunquote(uni):
 
 class ListEmptyException(BaseException):
 	pass
-
-def get_top_tvshows():
-	episodes = apiClient.unwatchedEpisodes()
-
-	# log('top tvshows')
-	# for title in episodes['top']:
-	#	 log(title['name'])
-
-	result = episodes['top']
-	return result
 
 def get_local_tvshows():
 	localtvshows = xbmc_rpc.get_all_tvshows()
@@ -102,7 +100,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 		for i in range(5):
 			win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
-	   
+
 		# set available labels
 		i = 1
 		for key, value in self.data['labels'].iteritems():
@@ -174,7 +172,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		self.controlId = controlId
 
 	def onAction(self, action):
-		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))		
+		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
 
@@ -186,6 +184,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 				dialog_ok('No results')
 			else:
 				data = { 'movies': results['search_result'] }
+				log(dump(data))
 				return open_select_movie_dialog(data)
 		else:
 			dialog_ok('Enter a title name to search for')
@@ -202,7 +201,9 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 	def onInit(self):
 		items = []
 		for item in self.data['movies']:
-			text = '%s (%d) %s' % (item['name'], item['year'], ', '.join(item['directors']))
+			if not item.get('year'):
+				item['year'] =  '-'
+			text = '%s (%s) %s' % (item['name'], item['year'], ', '.join(item['directors']))
 			li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
 			li.setProperty('id', str(item['id']))
 			items.append(li)
@@ -232,25 +233,23 @@ def open_select_movie_dialog(tpl_data):
 	result = ui.selectedMovie
 	del ui
 	return result
-	
-def show_video_dialog_byId(stv_id, apiClient):																																										 
-	stv_details = apiClient.title(stv_id, detailProps, defaultCastProps)																																 
-	show_video_dialog_data(stv_details)																																								  
 
-def show_video_dialog(json_data, apiClient):
-	   # log('show video:' + dump(json_data))																																							   
-																																																			
-	   if json_data.get('type') == 'tvshow':																																								
-			   stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)																												 
-	   else:																																																
-			   stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)																												
-																																																			
-	   show_video_dialog_data(stv_details, json_data, apiClient)																																				   
+def show_video_dialog_byId(stv_id, apiClient, stvList):
+	stv_details = apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
+	show_video_dialog_data(apiClient, stvList, stv_details)
 
-def show_video_dialog_data(stv_details, json_data={}, apiClient):
+def show_video_dialog(json_data, apiClient, stvList):
+	   if json_data.get('type') == 'tvshow':
+			stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
+	   else:
+			stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+
+	   show_video_dialog_data(apiClient, stvList, stv_details, json_data)
+
+def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 	# add xbmc id if available
-	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):																																	
-		cacheItem = stvList.getByStvId(json_data['id'])																																			  
+	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
+		cacheItem = stvList.getByStvId(json_data['id'])
 		json_data['xbmc_id'] = cacheItem['id']
 		json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
 
@@ -259,32 +258,32 @@ def show_video_dialog_data(stv_details, json_data={}, apiClient):
 		# get similar movies
 		t1_similars = apiClient.titleSimilar(stv_details['id'])
 		if t1_similars.has_key('titles'):
-			stv_details['similars'] = t1_similars['titles']			
+			stv_details['similars'] = t1_similars['titles']
 	elif stv_details['type'] == 'tvshow':
 		# append seasons
 		if stv_details.has_key('seasons'):
 			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data)
+	open_video_dialog(tpl_data, apiClient)
 
-	
+
 def video_dialog_template_fill(stv_details, json_data={}):
 
 	log('show video:' + dump(json_data))
 	log('stv_details video:' + dump(stv_details))
-	
+
 	# update empty stv_details with only nonempty values from xbmc
 	for k, v in json_data.iteritems():
 		if v and not stv_details.get(k):
 			stv_details[k] = v
 
 	tpl_data=stv_details
-	 
-	stv_labels = {}		
-	if tpl_data.get('directors'): 
+
+	stv_labels = {}
+	if tpl_data.get('directors'):
 		stv_labels['Director'] = ', '.join(tpl_data['directors'])
-	if tpl_data.get('cast'):	
+	if tpl_data.get('cast'):
 		stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], tpl_data['cast']))
 	if tpl_data.get('runtime'):
 		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
@@ -300,7 +299,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 			xbmclabels["Writer"] = ', '.join(d['writer'])
 		if d.get('runtime'):
 			xbmclabels["Runtime"] = d['runtime'] + ' min'
-		if d.get('premiered'):	
+		if d.get('premiered'):
 			xbmclabels["Release date"] = d['premiered']
 		if d.get('file'):
 			tpl_data['file'] = d.get('file')
@@ -308,29 +307,28 @@ def video_dialog_template_fill(stv_details, json_data={}):
 	labels = {}
 	labels.update(xbmclabels)
 	labels.update(stv_labels)
-	
+
 	# set unavail labels
 	for label in ['Director','Cast','Runtime','Release date']:
 		if not labels.has_key(label):
 			labels[label] = t_unavail
 
 	tpl_data['labels'] = labels
-	tpl_data['BottomListingLabel'] = type2listinglabel.get(tpl_data['type'], '')	
-	tpl_data['similars'] = similars
+	tpl_data['BottomListingLabel'] = type2listinglabel.get(tpl_data['type'], '')
 
 	return tpl_data
 
-def open_video_dialog(tpl_data):
+def open_video_dialog(tpl_data, apiClient):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient)
 		ui.doModal()
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		win.close()
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient)
 		ui.doModal()
 		del ui
 
@@ -374,8 +372,8 @@ def show_movie_list(item_list, dirhandle):
 	try:
 		if not item_list:
 			raise ListEmptyException
-		
-		lis = []	
+
+		lis = []
 		for movie in item_list:
 			# log(dump(movie))
 			lis.append(
@@ -394,8 +392,8 @@ def show_movie_list(item_list, dirhandle):
 		if dialog_check_login_correct():
 			xbmc.executebuiltin('Container.Refresh')
 		else:
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')		 
-  
+			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+
 	# xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
 
 
