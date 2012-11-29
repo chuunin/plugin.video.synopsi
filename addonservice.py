@@ -2,24 +2,32 @@
 import mythread
 import traceback
 import SocketServer
+import thread
 
 # application
 from addonutilities import *
+from utilities import *
 
 class ServiceTCPHandler(SocketServer.BaseRequestHandler):
 	def __init__(self, *args, **kwargs):
-		SocketServer.BaseRequestHandler.__init__(self, *args, **kwargs)		
-		self._log = self.server._log
-			
-	def handle(self):		
+		SocketServer.BaseRequestHandler.__init__(self, *args, **kwargs)
+
+	def handle(self):
 		# self.request is the TCP socket connected to the client
-		self.data = self.request.recv(1024).strip()		
-		
+
+		total_data = []
+		while True:
+			data = self.request.recv(1024)
+			if not data: break
+			total_data.append(data)
+
+		self.data = ''.join(total_data)
+
 		# parse data
 		try:
 			json_data = json.loads(self.data)
 		except:
-			self._log.debug('Invalid data "%s"' % str(self.data))
+			self.server._log.debug('Invalid data "%s"' % str(self.data))
 			return
 
 		try:
@@ -29,17 +37,21 @@ class ServiceTCPHandler(SocketServer.BaseRequestHandler):
 
 			method = getattr(self, methodName)
 			result = method(**arguments)
-			
+
 			# convert non-string result to json string
 			if not isinstance(result, str):
 				result = json.dumps(result)
-				
+			elif not result:
+				result = '{}'
+
+			self.server._log.debug('RESULT: ' + result)
+
 			self.request.sendall(result)
-			
+
 		except Exception as e:
 			# raise
-			self._log.error('ERROR CALLING METHOD "%s": %s' % (methodName, str(e)))
-			self._log.error('TRACEBACK / ' + traceback.format_exc())
+			self.server._log.error('ERROR CALLING METHOD "%s": %s' % (methodName, str(e)))
+			self.server._log.error('TRACEBACK / ' + traceback.format_exc())
 
 
 # handler methods
@@ -58,9 +70,20 @@ class AddonHandler(ServiceTCPHandler):
 		log('local_tvshows: ' + str(local_tvshows))
 		result = []
 		result += local_tvshows.values()
-		result += get_top_tvshows()
+		result += self.get_top_tvshows()
 
 		return result
+
+	def get_top_tvshows(self):
+		episodes = self.server.apiClient.unwatchedEpisodes()
+
+		# log('top tvshows')
+		# for title in episodes['top']:
+		#	 log(title['name'])
+
+		result = episodes['top']
+		return result
+
 
 	def get_local_recco(self, movie_type):
 		resRecco = self.server.apiClient.profileRecco(movie_type, True, reccoDefaulLimit, reccoDefaultProps)
@@ -74,7 +97,7 @@ class AddonHandler(ServiceTCPHandler):
 	def get_local_recco2(self, movie_type):
 		""" Updates the get_local_recco function result to include stv_title_hash """
 		recco = self.get_local_recco(movie_type)['titles']
-		
+
 		for title in recco:
 			if self.server.stvList.hasStvId(title['id']):
 				cached_title = self.server.stvList.getByStvId(title['id'])
@@ -82,7 +105,7 @@ class AddonHandler(ServiceTCPHandler):
 				title['stv_title_hash'] = cached_title['stv_title_hash']
 				title['file'] = cached_title['file']
 
-		return recco	
+		return recco
 
 	def get_unwatched_episodes(self):
 		episodes = self.server.apiClient.unwatchedEpisodes()
@@ -93,7 +116,7 @@ class AddonHandler(ServiceTCPHandler):
 
 		result = episodes['lineup']
 		return result
-		
+
 	def get_upcoming_episodes(self):
 		episodes = self.server.apiClient.unwatchedEpisodes()
 
@@ -119,14 +142,14 @@ class AddonHandler(ServiceTCPHandler):
 
 	def cache_getByStvId(self, stv_id):
 		return self.stvList.getByStvId(stv_id)
-		
-	def show_video_dialog(self, json_data):
-		show_video_dialog(json_data, self.server.apiClient)
-		
-	def show_video_dialog_byId(self, stv_id):
-		show_video_dialog_byId(stv_id, self.server.apiClient)
 
-class AddonService(mythread.MyThread):	
+	def show_video_dialog(self, json_data):
+		thread.start_new_thread(show_video_dialog, (json_data, self.server.apiClient, self.server.stvList))
+
+	def show_video_dialog_byId(self, stv_id):
+		thread.start_new_thread(show_video_dialog_byId, (stv_id, self.server.apiClient, self.server.stvList))
+
+class AddonService(mythread.MyThread):
 	def __init__(self, host, port, apiClient, stvList):
 		super(AddonService, self).__init__()
 		self.host = host		# Symbolic name meaning all available interfaces
@@ -135,11 +158,11 @@ class AddonService(mythread.MyThread):
 		self.server = SocketServer.TCPServer((self.host, self.port), AddonHandler)
 		self.server.apiClient = apiClient
 		self.server.stvList = stvList
-		
-		
+
+
 	def run(self):
 		self._log.debug('ADDON SERVICE / Thread start')
-		
+
 		# Create the server
 		self.server._log = self._log
 		self.server.serve_forever()
@@ -147,7 +170,5 @@ class AddonService(mythread.MyThread):
 		self._log.debug('ADDON SERVICE / Thread end')
 
 	def stop(self):
-		self._log.debug('ADDON SERVICE / Shutdown start')
 		self.server.shutdown()
-		self._log.debug('ADDON SERVICE / Shutdown end')
 
