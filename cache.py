@@ -69,7 +69,6 @@ class StvList(object):
 			# first time
 			log('CACHE restore failed. If this is your first run, its ok')
 
-		cache.list()
 		return cache
 
 	def serialize(self):

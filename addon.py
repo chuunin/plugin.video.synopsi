@@ -31,28 +31,81 @@ from cache import StvList
 from xbmcrpc import xbmc_rpc
 from addonutilities import *
 
+class AddonClient(object):
+	def __init__(self, pluginhandle):		
+		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.pluginhandle = pluginhandle
+
+	def execute(self, command, **arguments):
+		json_data = { 
+			'command': command,
+			'arguments': arguments
+		}
+
+		self.s.connect(('localhost', 9190))
+		xbmc.log('CLIENT / SEND / ' + dump(json_data))
+		self.s.sendall(json.dumps(json_data))
+		response = self.s.recv(16384)
+		#~ xbmc.log('CLIENT / RAW RESPONSE / ' + response)
+		self.s.close()		
+		response_json = json.loads(response)
+		#~ xbmc.log('CLIENT / JSON RESPONSE / ' + dump(response))
+		return response_json
+
+	def get_global_recco(self, movie_type):
+		return self.execute('get_global_recco', movie_type=movie_type)
+		
+
+
+def get_item_list(action_code, **kwargs):
+	log('get_item_list:' + str(action_code))
+	
+	if action_code==ActionCode.MovieRecco:
+		return addonclient.get_global_recco('movie')['titles']
+	elif action_code==ActionCode.TVShows:
+		return get_tvshows()
+	elif action_code==ActionCode.LocalMovieRecco:
+		return get_local_recco2('movie')
+	elif action_code==ActionCode.UnwatchedEpisodes:
+		return get_unwatched_episodes()
+	elif action_code==ActionCode.UpcomingEpisodes:
+		return get_upcoming_episodes()
+	elif action_code==ActionCode.TVShowEpisodes:
+		return get_tvshow_season(kwargs['stv_id'])
+
+def show_submenu(action_code, dirhandle, **kwargs):
+	try:
+		item_list = get_item_list(action_code, **kwargs)
+		show_movie_list(item_list, dirhandle)
+	except ListEmptyException:	
+		raise
+	except:
+		log(traceback.format_exc())
+		dialog_ok(t_listing_failed)
+		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')		 
+
+
+
+
 
 __addon__  = get_current_addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__	= __addon__.getAddonInfo('path')
 __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
+dirhandle = int(sys.argv[1])
 
 log('SYS ARGV:' + str(sys.argv)) 
 
 url_parsed = urlparse.urlparse(sys.argv[2])
 params = urlparse.parse_qs(url_parsed.query)
 
-# log('url_parsed:' + str(url_parsed))
-log('params:' + str(params))
-
 check_first_run()
 
 apiClient = AppApiClient.getDefaultClient()
 apiClient.login_state_announce = LoginState.AddonDialog
 stvList = StvList.getDefaultList(apiClient)
-
-# log(str(sys.argv))
+addonclient = AddonClient(dirhandle)
 
 param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
 p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
@@ -72,13 +125,11 @@ if p['type']:
 if p['data']:
 	p['data'] = uniunquote(p['data'])
 	p['json_data'] = json.loads(p['data'])
-   
 
-dirhandle = int(sys.argv[1])
-
-log('mode: %s type: %s' % (p['mode'], p['type']))	
-log('url: %s' % (p['url']))  
-log('data: %s' % (p['data']))	
+#~ log('params:' + str(params))   
+#~ log('mode: %s type: %s' % (p['mode'], p['type']))	
+#~ log('url: %s' % (p['url']))  
+#~ log('data: %s' % (p['data']))	
 
 if p['mode']==None:
 	show_categories()

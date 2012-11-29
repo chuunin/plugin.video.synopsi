@@ -18,9 +18,10 @@ import traceback
 import subprocess
 from datetime import datetime
 import CommonFunctions
+import socket
 
 # application
-import test
+from tests import test
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
 from cache import StvList
@@ -84,15 +85,6 @@ def get_local_recco2(movie_type):
 			title['file'] = cached_title['file']
 
 	return recco	
-
-def get_global_recco(movie_type):
-	resRecco =  apiClient.profileRecco(movie_type, False, reccoDefaulLimit, reccoDefaultProps)
-
-	# log('global recco for ' + movie_type)
-	# for title in resRecco['titles']:
-	#	log(title['name'])
-
-	return resRecco
 
 
 def get_unwatched_episodes():
@@ -162,23 +154,6 @@ def get_trending_movies():
 def get_trending_tvshows():
 	log('get_trending_tvshows')
 	return movies
-
-def get_item_list(action_code, **kwargs):
-	log('get_item_list:' + str(action_code))
-	
-	if action_code==ActionCode.MovieRecco:
-		return get_global_recco('movie')['titles']
-	elif action_code==ActionCode.TVShows:
-		return get_tvshows()
-	elif action_code==ActionCode.LocalMovieRecco:
-		return get_local_recco2('movie')
-	elif action_code==ActionCode.UnwatchedEpisodes:
-		return get_unwatched_episodes()
-	elif action_code==ActionCode.UpcomingEpisodes:
-		return get_upcoming_episodes()
-	elif action_code==ActionCode.TVShowEpisodes:
-		return get_tvshow_season(kwargs['stv_id'])
-
 
 def add_to_list(movieid, listid):
 	pass
@@ -313,16 +288,6 @@ def show_categories():
 	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "icon.png", 33)
 	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "icon.png", 1)
 
-def show_submenu(action_code, dirhandle, **kwargs):
-	try:
-		item_list = get_item_list(action_code, **kwargs)
-		show_movie_list(item_list, dirhandle)
-	except ListEmptyException:	
-		raise
-	except:
-		log(traceback.format_exc())
-		dialog_ok(t_listing_failed)
-		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')		 
 
 def show_movie_list(item_list, dirhandle):
 	errorMsg = None

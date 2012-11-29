@@ -19,8 +19,6 @@ from addonservice import AddonService
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
 
-xbmc.log('python version ' + str(sys.version_info))
-
 def main():
 	apiclient1 = AppApiClient.getDefaultClient()
 	
