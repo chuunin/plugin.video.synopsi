@@ -14,11 +14,11 @@ from apiclient import commonTitleProps
 from xbmcrpc import xbmc_rpc
 
 xbmc2stv_key_translation = {
-	'file_name': 'file', 
-	'os_title_hash': 'os_title_hash', 
-	'stv_title_hash': 'stv_title_hash', 
-	'total_time': 'runtime', 
-	'label': 'originaltitle', 
+	'file_name': 'file',
+	'os_title_hash': 'os_title_hash',
+	'stv_title_hash': 'stv_title_hash',
+	'total_time': 'runtime',
+	'label': 'originaltitle',
 	'imdb_id': 'imdbnumber'
 }
 
@@ -44,25 +44,25 @@ class StvList(object):
 		self.apiclient = apiclient
 		self.filePath = filePath or self.__class__.getDefaultFilePath()
 		self.clear()
-		
+
 		self.uuid = uuid
 		#~ self.list()
-		
+
 	@classmethod
 	def getDefaultFilePath(cls):
 		addon  = get_current_addon()
 		addon_id = addon.getAddonInfo('id')
 		data_path = xbmc.translatePath('special://masterprofile/addon_data/')
 		return os.path.join(data_path, addon_id, 'cache.dat')
-			
+
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
 		if not apiClient:
 			apiClient = AppApiClient.getDefaultClient()
 
-		iuid = get_install_id()	
-		cache = StvList(iuid, apiClient) 
+		iuid = get_install_id()
+		cache = StvList(iuid, apiClient)
 		try:
 			cache.load()
 		except:
@@ -102,12 +102,12 @@ class StvList(object):
 	def addorupdate(self, atype, aid):
 		if not atype in playable_types:
 			return
-			
+
 		# find out actual data about movie
 		movie = xbmc_rpc.get_details(atype, aid)
 		movie['type'] = atype
 		movie['id'] = aid
-		
+
 		# if not in cache, it's been probably added
 		if not self.hasTypeId(movie['type'], movie['id']):
 			# get stv hash
@@ -124,11 +124,11 @@ class StvList(object):
 			if ident.get('imdb_id'):
 				ident['imdb_id'] = ident['imdb_id'][2:]
 
-			#~ self.log('to identify: ' + dump(ident))	
-			self.log('to identify: ' + ident['file_name'])	
+			#~ self.log('to identify: ' + dump(ident))
+			self.log('to identify: ' + ident['file_name'])
 
 			title = self.apiclient.titleIdentify(**ident)
-						
+
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
 				self.log('identified: ' + title['name'])
@@ -143,8 +143,8 @@ class StvList(object):
 				self.log('Xbmc/Synopsi identification type mismatch: %s / %s in [%s]' % (movie['type'], title.get('type'), movie.get('file')))
 
 			# for episode, add tvshow
-			if movie['type'] == 'episode' and title.get('type') == 'episode':
-				self.log('episode:'+dump(title))
+			if title.has_key('id') and movie['type'] == 'episode' and title.get('type') == 'episode':
+				#~ self.log('episode:'+dump(title))
 				self.add_tvshow(movie['id'], title['tvshow_id'])
 
 		# it is already in cache, some property has changed (e.g. lastplayed time)
@@ -159,18 +159,18 @@ class StvList(object):
 	def put(self, item):
 		" Put a new record in the list "
 		typeIdStr = self._getKey(item['type'], item['id'])
-				
+
 		self.byType[item['type']][item['id']] = item
 		self.byTypeId[typeIdStr] = item
 		if item['type'] in playable_types:
 			self.byFilename[item['file']] = item
-			
+
 		if item.has_key('stvId'):
 			self.byStvId[item['stvId']] = item
 			typeIdStr += ' | stvId ' + str(item['stvId'])
-		
+
 		logstr = 'PUT / ' + typeIdStr + ' | ' + item['file']
-		
+
 		# if known by synopsi, add to list
 		if item.has_key('stvId'):
 			self.apiclient.libraryTitleAdd(item['stvId'])
@@ -201,10 +201,10 @@ class StvList(object):
 				self.apiclient.libraryTitleRemove(item['stvId'])
 				del self.byStvId[item['stvId']]
 
-			# suppose cache is consistent and remove only if one of indexes is available			
+			# suppose cache is consistent and remove only if one of indexes is available
 			if self.byTypeId.has_key(typeIdStr):
 				if self.byFilename.has_key(item['file']):
-					del self.byFilename[item['file']]			
+					del self.byFilename[item['file']]
 					del self.byTypeId[typeIdStr]
 					del self.byType[atype][aid]
 
@@ -213,7 +213,7 @@ class StvList(object):
 					del self.byStvId[item['stvId']]
 
 		except Exception as e:
-			self.log('REMOVE FAILED / ' + typeIdStr)	
+			self.log('REMOVE FAILED / ' + typeIdStr)
 
 
 	def hasTypeId(self, type, id):
@@ -224,7 +224,7 @@ class StvList(object):
 
 	def hasFilename(self, name):
 		return self.byFilename.has_key(name)
-		
+
 	def getByFilename(self, name):
 		return self.byFilename[name]
 
@@ -267,26 +267,26 @@ class StvList(object):
 		"""
 		Rebuild whole cache in case it is broken.
 		"""
-		
+
 		self.clear()
 		movies = xbmc_rpc.get_movies()
 		#~ movies = { 'movies': [] }
-		
+
 		for movie in movies.get('movies', []):
 			try:
 				self.addorupdate('movie', movie['movieid'])
 			except Exception as e:
 				self.log(unicode(e))
-		
+
 		tvshows = xbmc_rpc.get_all_tvshows()
-				
+
 		self.log('get_all_tvshows ' + dump(tvshows))
-		
+
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:
-				episodes = xbmc_rpc.get_episodes(show["tvshowid"])				
+				episodes = xbmc_rpc.get_episodes(show["tvshowid"])
 				self.log('episodes: ' + dump(episodes))
-				
+
 				if episodes['limits']['total'] > 0:
 					for episode in episodes["episodes"]:
 						try:
@@ -302,35 +302,35 @@ class StvList(object):
 		#~ addon = get_current_addon()
 		#~ addonpath = 	addon.getAddonInfo('path')
 		#~ path = os.path.join(addonpath, 'tests')
-		
+
 		self.clear()
 		movies = xbmc_rpc.get_movies()
-		
+
 		# generate testing json
 		#~ f = open(os.path.join(path, 'get_movies.json'), 'w')
 		#~ f.write(dump(movies))
 		#~ f.close()
-		
+
 		for movie in movies['movies']:
 			movie['id'] = movie["movieid"]
 			movie['type'] = "movie"
 			self.put(movie)
 
-		
+
 		tvshows = xbmc_rpc.get_all_tvshows()
-		
+
 		# generate testing json
 		#~ f = open(os.path.join(path, 'get_all_tvshows.json'), 'w')
 		#~ f.write(dump(tvshows))
 		#~ f.close()
-		
+
 		self.log('get_all_tvshows ' + dump(tvshows))
-		
+
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:
-				episodes = xbmc_rpc.get_episodes(show["tvshowid"])				
+				episodes = xbmc_rpc.get_episodes(show["tvshowid"])
 				self.log('episodes: ' + dump(episodes))
-				
+
 				if episodes['limits']['total'] > 0:
 					for episode in episodes["episodes"]:
 						episode['id'] = episode["episodeid"]

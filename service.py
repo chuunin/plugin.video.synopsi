@@ -21,14 +21,14 @@ __cwd__	= __addon__.getAddonInfo('path')
 
 def main():
 	apiclient1 = AppApiClient.getDefaultClient()
-	
+
 	# check first run
 	check_first_run()
 
 	# get or generate install-unique ID
 	iuid = get_install_id()
 
-	# try to restore cache  
+	# try to restore cache
 	cache = StvList(iuid, apiclient1)
 
 	try:
@@ -36,10 +36,10 @@ def main():
 	except:
 		# first time
 		log('CACHE restore failed. If this is your first run, its ok')
-		#~ cache.rebuild()
+		cache.rebuild()
 
 	#~ cache.list()
-	
+
 	thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
 	s = Scrobbler(cache)
@@ -48,7 +48,7 @@ def main():
 	s.start()
 	l.start()
 	aos.start()
-	
+
 	log('Entering service loop')
 	while True:
 		s.join(0.5)

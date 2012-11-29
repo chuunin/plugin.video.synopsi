@@ -21,8 +21,11 @@ CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
 
 
-__addon__    = xbmcaddon.Addon()
-__cwd__      = __addon__.getAddonInfo('path')
+__addon__  = xbmcaddon.Addon()
+__addonname__ = __addon__.getAddonInfo('name')
+__cwd__	= __addon__.getAddonInfo('path')
+__author__  = __addon__.getAddonInfo('author')
+__version__   = __addon__.getAddonInfo('version')
 __profile__      = __addon__.getAddonInfo('profile')
 __lockLoginScreen__ = threading.Lock()
 
@@ -56,7 +59,7 @@ def notification(text, name='SynopsiTV Plugin', time=5000):
     """
     Sends notification to XBMC.
     """
-    xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))  
+    xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))
 
 def get_current_addon():
 	global __addon__
@@ -68,7 +71,7 @@ def check_first_run():
 		log('SYNOPSI FIRST RUN')
 		# enable home screen recco
 		__addon__.openSettings()
-		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
+		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
 		xbmc.executebuiltin('ReloadSkin()')
 		__addon__.setSetting(id='FIRSTRUN', value="false")
 
@@ -129,7 +132,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 	# 1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
 	def __init__(self, *args, **kwargs):
 		xbmcgui.WindowXMLDialog.__init__( self )
- 
+
 	def onInit(self):
 		self.getString = __addon__.getLocalizedString
 		self.getControl(11).setLabel(self.getString(69601))
@@ -168,11 +171,11 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		super(XMLLoginDialog, self).__init__()
 		self.username = kwargs['username']
 		self.password = kwargs['password']
- 
+
 	def onInit(self):
 		self.getString = __addon__.getLocalizedString
 		c = self.getControl(10)
-		
+
 		self.getControl(10).setText(self.username)
 		self.getControl(11).setText(self.password)
 
@@ -231,7 +234,7 @@ def is_protected(path):
 
 def stv_hash(filepath):
 	"""
-	New synopsi hash. Inspired by sutitle hash using first 
+	New synopsi hash. Inspired by sutitle hash using first
 	and last 64 Kbytes and length in bytes.
 	"""
 
@@ -245,13 +248,13 @@ def stv_hash(filepath):
 		sha1.update(str(os.path.getsize(filepath)))
 	except (IOError) as e:
 		raise HashError('Unable to hash file [%s]' % filepath)
-	
+
 	return sha1.hexdigest()
 
 
 def old_stv_hash(filepath):
 	"""
-	Old synopsi hash. Using only first and last 256 bytes.   
+	Old synopsi hash. Using only first and last 256 bytes.
 	"""
 
 	sha1 = hashlib.sha1()
@@ -263,7 +266,7 @@ def old_stv_hash(filepath):
 			sha1.update(f.read(256))
 	except (IOError) as e:
 		return None
-	
+
 	return sha1.hexdigest()
 
 
@@ -272,35 +275,35 @@ def hash_opensubtitle(name):
 	OpenSubtitles hash.
 	"""
 	try:
-		longlongformat = 'q'  # long long 
-		bytesize = struct.calcsize(longlongformat) 
-		 
+		longlongformat = 'q'  # long long
+		bytesize = struct.calcsize(longlongformat)
+
 		_file = open(name, "rb")
-			  
-		filesize = os.path.getsize(name) 
+
+		filesize = os.path.getsize(name)
 		hash = filesize
-			  
+
 		if filesize < 65536 * 2:
 			return None
-			# return "SizeError" 
-			 
-		for x in range(65536 / bytesize): 
-			_buffer = _file.read(bytesize) 
-			(l_value,) = struct.unpack(longlongformat, _buffer)  
-			hash += l_value 
-			hash = hash & 0xFFFFFFFFFFFFFFFF #to remain as 64bit number  
+			# return "SizeError"
+
+		for x in range(65536 / bytesize):
+			_buffer = _file.read(bytesize)
+			(l_value,) = struct.unpack(longlongformat, _buffer)
+			hash += l_value
+			hash = hash & 0xFFFFFFFFFFFFFFFF #to remain as 64bit number
 
 		_file.seek(max(0, filesize - 65536), 0)
 		for x in range(65536 / bytesize):
-			_buffer = _file.read(bytesize) 
-			(l_value,)= struct.unpack(longlongformat, _buffer)  
-			hash += l_value 
-			hash = hash & 0xFFFFFFFFFFFFFFFF 
+			_buffer = _file.read(bytesize)
+			(l_value,)= struct.unpack(longlongformat, _buffer)
+			hash += l_value
+			hash = hash & 0xFFFFFFFFFFFFFFFF
 
 		_file.close()
-		returnedhash =  "%016x" % hash 
-		
-		return returnedhash 
+		returnedhash =  "%016x" % hash
+
+		return returnedhash
 
 	except(IOError):
 		raise HashError('Unable to hash file [%s]' % name)
@@ -320,7 +323,7 @@ def generate_iuid():
 	"""
 	Returns install-uniqe id. Has to be generated for every install.
 	"""
-	
+
 	return str(uuid.uuid1())
 
 
@@ -379,7 +382,7 @@ def get_api_port():
 
 def get_install_id():
 	global __addon__
-	
+
 	iuid = __addon__.getSetting(id='INSTALL_UID')
 	if not iuid:
 		iuid = generate_iuid()
@@ -404,7 +407,7 @@ def home_screen_fill(apiClient, cache):
 	# from test import jsfile
 	# movie_recco = jsfile
 	# episode_recco = jsfile
-	
+
 
 	# log('movie_recco:' + dump(movie_recco, indent=4))
 	# log('episode_recco:' + dump(episode_recco, indent=4))
@@ -421,7 +424,7 @@ def home_screen_fill(apiClient, cache):
 			lib_item = cache.getByStvId(m['id'])
 			log('movie %d %s' % (i, m['name']))
 			log('lib_item %s' % (str(lib_item)))
-			
+
 			WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
 			if lib_item:
 				WINDOW.setProperty("LatestMovie.{0}.Path".format(i), lib_item['file'])
@@ -466,14 +469,14 @@ def login_screen(apiClient):
 		if username!=d['username'] or password!=d['password']:
 			# store in settings
 			__addon__.setSetting('USER', value=d['username'])
-			__addon__.setSetting('PASS', value=d['password'])	
+			__addon__.setSetting('PASS', value=d['password'])
 			apiClient.setUserPass(d['username'], d['password'])
 
 		result=True
 	else:
 		log('dialog canceled')
 		result=False
-	
+
 	del ui
 
 	__lockLoginScreen__.release()
