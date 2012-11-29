@@ -29,8 +29,8 @@ __lockLoginScreen__ = threading.Lock()
 # constant
 homeReccoLimit = 5
 reccoDefaultProps = ['id', 'cover_medium', 'name']
-detailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
-tvshowDetailProps = detailProps + ['seasons']
+defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
+tvshowdefaultDetailProps = defaultDetailProps + ['seasons']
 defaultCastProps = ['name']
 reccoDefaulLimit = 29
 type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}

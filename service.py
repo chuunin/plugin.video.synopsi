@@ -44,7 +44,7 @@ def main():
 
 	s = Scrobbler(cache)
 	l = RPCListenerHandler(cache, s)
-	aos = AddonService('localhost', 9190, apiclient1)
+	aos = AddonService('localhost', 9190, apiclient1, cache)
 	s.start()
 	l.start()
 	aos.start()
