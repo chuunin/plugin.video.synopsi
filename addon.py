@@ -25,7 +25,6 @@ from datetime import datetime
 import CommonFunctions
 
 # application
-from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
@@ -54,8 +53,39 @@ class AddonClient(object):
 
 	def get_global_recco(self, movie_type):
 		return self.execute('get_global_recco', movie_type=movie_type)
-		
 
+	def get_tvshows(self):
+		return self.execute('get_tvshows')
+
+	def get_local_recco2(self, movie_type):
+		return self.execute('get_local_recco2', movie_type=movie_type)
+
+	def get_upcoming_episodes(self):
+		return self.execute('get_upcoming_episodes')
+		
+	def get_unwatched_episodes(self):			
+		return self.execute('get_unwatched_episodes')
+
+	def get_tvshow_season(self, tvshow_id):			
+		return self.execute('get_tvshow_season', tvshow_id=tvshow_id)
+		
+	def get_title(self, stv_id, **kwargs):
+		return self.execute('get_title', stv_id=stv_id, **kwargs)
+
+	def get_title_similars(self, stv_id):
+		return self.execute('get_title_similars', stv_id=stv_id)
+		
+	def get_tvshow(self, tvshow_id):
+		return self.execute('get_title', tvshow_id=tvshow_id)
+
+	def cache_getByStvId(self, stv_id):
+		return self.execute('cache_getByStvId', stv_id=stv_id)
+
+	def show_video_dialog(self, json_data):
+		return self.execute('show_video_dialog', json_data=json_data)
+
+	def show_video_dialog_byId(self, stv_id):
+		return self.execute('show_video_dialog_byId', stv_id=stv_id)
 
 def get_item_list(action_code, **kwargs):
 	log('get_item_list:' + str(action_code))
@@ -63,15 +93,15 @@ def get_item_list(action_code, **kwargs):
 	if action_code==ActionCode.MovieRecco:
 		return addonclient.get_global_recco('movie')['titles']
 	elif action_code==ActionCode.TVShows:
-		return get_tvshows()
+		return addonclient.get_tvshows()
 	elif action_code==ActionCode.LocalMovieRecco:
-		return get_local_recco2('movie')
+		return addonclient.get_local_recco2('movie')
 	elif action_code==ActionCode.UnwatchedEpisodes:
-		return get_unwatched_episodes()
+		return addonclient.get_unwatched_episodes()
 	elif action_code==ActionCode.UpcomingEpisodes:
-		return get_upcoming_episodes()
+		return addonclient.get_upcoming_episodes()
 	elif action_code==ActionCode.TVShowEpisodes:
-		return get_tvshow_season(kwargs['stv_id'])
+		return addonclient.get_tvshow_season(kwargs['stv_id'])
 
 def show_submenu(action_code, dirhandle, **kwargs):
 	try:
@@ -86,7 +116,44 @@ def show_submenu(action_code, dirhandle, **kwargs):
 
 
 
+                                                                                                                                                                                                            
+#~ def show_video_dialog_byId(stv_id):
+	#~ stv_details = addonclient.get_title(stv_id, defaultDetailProps, defaultCastProps)
+	#~ show_video_dialog_data(stv_details)
 
+#~ def show_video_dialog(json_data):
+	#~ # log('show video:' + dump(json_data))
+#~ 
+	#~ if json_data.get('type') == 'tvshow':
+		#~ stv_details = addonclient.get_tvshow(json_data['id'], cast_props=defaultCastProps)
+	#~ else:	show_video_dialog(p['json_data'])
+		#~ stv_details = addonclient.get_title(json_data['id'])
+#~ 
+	#~ show_video_dialog_data(stv_details, json_data)
+
+#~ def show_video_dialog_data(stv_details, json_data={}):
+#~ 
+	#~ # add xbmc id if available
+	#~ if json_data.has_key('id'):
+		#~ cacheItem = addonclient.cache_getByStvId(json_data['id'])
+		#~ if cacheItem:
+			#~ json_data['xbmc_id'] = cacheItem['id']
+			#~ json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
+#~ 
+	#~ # add similars or seasons (bottom covers list)
+	#~ if stv_details['type'] == 'movie':
+		#~ # get similar movies
+		#~ t1_similars = addonclient.get_title_similars(stv_details['id'])
+		#~ if t1_similars.has_key('titles'):
+			#~ stv_details['similars'] = t1_similars['titles']			
+	#~ elif stv_details['type'] == 'tvshow':
+		#~ # append seasons
+		#~ if stv_details.has_key('seasons'):
+			#~ stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
+#~ 
+	#~ tpl_data = video_dialog_template_fill(stv_details, json_data)
+	#~ open_video_dialog(tpl_data)
+		
 
 __addon__  = get_current_addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -102,8 +169,6 @@ params = urlparse.parse_qs(url_parsed.query)
 
 check_first_run()
 
-apiClient = AppApiClient.getDefaultClient()
-apiClient.login_state_announce = LoginState.AddonDialog
 stvList = StvList.getDefaultList(apiClient)
 addonclient = AddonClient(dirhandle)
 
@@ -158,7 +223,7 @@ elif p['mode']==ActionCode.UpcomingEpisodes:
 		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 		
 elif p['mode']==ActionCode.VideoDialogShow:
-	show_video_dialog(p['json_data'])
+	addonclient.show_video_dialog(p['json_data'])
 
 elif p['mode']==ActionCode.VideoDialogShowById:
 	try:
@@ -167,11 +232,12 @@ elif p['mode']==ActionCode.VideoDialogShowById:
 		log('ERROR / Wrong params')
 		sys.exit(0)
 
-	show_video_dialog_byId(stv_id)
+	addonclient.show_video_dialog_byId(stv_id)
 
 elif p['mode']==ActionCode.LoginAndSettings:
 	__addon__.openSettings()
 
+# debugging
 elif p['mode']==970:
 	xbmc.executebuiltin('CleanLibrary(video)')
 	xbmc.executebuiltin('UpdateLibrary(video)')

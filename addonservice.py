@@ -120,7 +120,11 @@ class AddonHandler(ServiceTCPHandler):
 	def cache_getByStvId(self, stv_id):
 		return self.stvList.getByStvId(stv_id)
 		
-
+	def show_video_dialog(self, json_data):
+		show_video_dialog(json_data, self.server.apiClient)
+		
+	def show_video_dialog_byId(self, stv_id):
+		show_video_dialog_byId(stv_id, self.server.apiClient)
 
 class AddonService(mythread.MyThread):	
 	def __init__(self, host, port, apiClient, stvList):

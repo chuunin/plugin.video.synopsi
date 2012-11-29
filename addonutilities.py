@@ -64,49 +64,6 @@ def uniunquote(uni):
 class ListEmptyException(BaseException):
 	pass
 
-def get_local_recco(movie_type):
-	resRecco =  apiClient.profileRecco(movie_type, True, reccoDefaulLimit, reccoDefaultProps)
-
-	# log('local recco for ' + movie_type)
-	# for title in resRecco['titles']:
-	#	log('resRecco:' + title['name'])
-
-	return resRecco
-
-def get_local_recco2(movie_type):
-	""" Updates the get_local_recco function result to include stv_title_hash """
-	recco = get_local_recco(movie_type)['titles']
-	
-	for title in recco:
-		if stvList.hasStvId(title['id']):
-			cached_title = stvList.getByStvId(title['id'])
-			log(dump(cached_title))
-			title['stv_title_hash'] = cached_title['stv_title_hash']
-			title['file'] = cached_title['file']
-
-	return recco	
-
-
-def get_unwatched_episodes():
-	episodes =  apiClient.unwatchedEpisodes()
-
-	# log('unwatched episodes')
-	# for title in episodes['lineup']:
-	#	 log(title['name'])
-
-	result = episodes['lineup']
-	return result
-	
-def get_upcoming_episodes():
-	episodes =  apiClient.unwatchedEpisodes()
-
-	# log('upcoming episodes')
-	# for title in episodes['upcoming']:
-	#	 log(title['name'])
-
-	result = episodes['upcoming']
-	return result
-
 def get_top_tvshows():
 	episodes = apiClient.unwatchedEpisodes()
 
@@ -117,46 +74,11 @@ def get_top_tvshows():
 	result = episodes['top']
 	return result
 
-def get_tvshows():
-	local_tvshows = stvList.getAllByType('tvshow')
-	log('local_tvshows: ' + str(local_tvshows))
-	result = []
-	result += local_tvshows.values()
-	result += get_top_tvshows()
-
-	return result
-
 def get_local_tvshows():
 	localtvshows = xbmc_rpc.get_all_tvshows()
 	log(dump(localtvshows))
 
 	return [ { 'name': item['label'], 'cover_medium': item['thumbnail'] } for item in localtvshows['tvshows'] ]
-
-def get_tvshow_season(tvshow_id):
-	season = apiClient.season(tvshow_id)
-	return season['episodes']
-
-def get_lists():
-	log('get_lists')
-	return movies
-
-
-def get_movies_in_list(listid):
-	log('get_movies_in_list')
-	return movies
-
-
-def get_trending_movies():
-	log('get_trending_movies')
-	return movies
-
-
-def get_trending_tvshows():
-	log('get_trending_tvshows')
-	return movies
-
-def add_to_list(movieid, listid):
-	pass
 
 def set_already_watched(stv_id, rating):
 	log('already watched %d rating %d' % (stv_id, rating))
@@ -169,6 +91,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 	def __init__(self, *args, **kwargs):
 		self.data = kwargs['data']
 		self.controlId = None
+		self.apiClient = kwargs['apiClient']
 
 	def onInit(self):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -242,9 +165,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			else:
 				show_video_dialog_byId(stv_id)
 		elif controlId == 13:
-			new_identity = user_title_search()
+			new_identity = self.user_title_search()
 			if new_identity and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
-				apiClient.title_identify_correct(new_identity['id'], self.data['stv_title_hash'])
+				self.apiClient.title_identify_correct(new_identity['id'], self.data['stv_title_hash'])
 
 
 	def onFocus(self, controlId):
@@ -254,6 +177,163 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))		
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
+
+	def user_title_search(self):
+		search_term = common.getUserInput("Title", "")
+		if search_term:
+			results = self.apiClient.search(search_term)
+			if len(results['search_result']) == 0:
+				dialog_ok('No results')
+			else:
+				data = { 'movies': results['search_result'] }
+				return open_select_movie_dialog(data)
+		else:
+			dialog_ok('Enter a title name to search for')
+
+		return
+
+class SelectMovieDialog(xbmcgui.WindowXMLDialog):
+	""" Dialog for choosing movie corrections """
+	def __init__(self, *args, **kwargs):
+		self.data = kwargs['data']
+		self.controlId = None
+		self.selectedMovie = None
+
+	def onInit(self):
+		items = []
+		for item in self.data['movies']:
+			text = '%s (%d) %s' % (item['name'], item['year'], ', '.join(item['directors']))
+			li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
+			li.setProperty('id', str(item['id']))
+			items.append(li)
+
+			self.getControl(59).addItems(items)
+
+	def onClick(self, controlId):
+		log('onClick: ' + str(controlId))
+		if self.controlId == 59:
+			sel_index = self.getControl(59).getSelectedPosition()
+			self.selectedMovie = self.data['movies'][sel_index]
+			self.close()
+
+
+	def onFocus(self, controlId):
+		self.controlId = controlId
+
+	def onAction(self, action):
+		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		if (action.getId() in CANCEL_DIALOG):
+			self.close()
+
+
+def open_select_movie_dialog(tpl_data):
+	ui = SelectMovieDialog("SelectMovie.xml", __cwd__, "Default", data=tpl_data)
+	ui.doModal()
+	result = ui.selectedMovie
+	del ui
+	return result
+	
+def show_video_dialog_byId(stv_id, apiClient):                                                                                                                                                                         
+	stv_details = apiClient.title(stv_id, detailProps, defaultCastProps)                                                                                                                                 
+	show_video_dialog_data(stv_details)                                                                                                                                                                  
+
+def show_video_dialog(json_data, apiClient):
+       # log('show video:' + dump(json_data))                                                                                                                                                               
+                                                                                                                                                                                                            
+       if json_data.get('type') == 'tvshow':                                                                                                                                                                
+               stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)                                                                                                                 
+       else:                                                                                                                                                                                                
+               stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)                                                                                                                
+                                                                                                                                                                                                            
+       show_video_dialog_data(stv_details, json_data, apiClient)                                                                                                                                                   
+
+def show_video_dialog_data(stv_details, json_data={}, apiClient):
+	# add xbmc id if available
+	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):                                                                                                                                    
+		cacheItem = stvList.getByStvId(json_data['id'])                                                                                                                                              
+		json_data['xbmc_id'] = cacheItem['id']
+		json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
+
+	# add similars or seasons (bottom covers list)
+	if stv_details['type'] == 'movie':
+		# get similar movies
+		t1_similars = apiClient.titleSimilar(stv_details['id'])
+		if t1_similars.has_key('titles'):
+			stv_details['similars'] = t1_similars['titles']			
+	elif stv_details['type'] == 'tvshow':
+		# append seasons
+		if stv_details.has_key('seasons'):
+			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
+
+	tpl_data = video_dialog_template_fill(stv_details, json_data)
+	open_video_dialog(tpl_data)
+
+	
+def video_dialog_template_fill(stv_details, json_data={}):
+
+	log('show video:' + dump(json_data))
+	log('stv_details video:' + dump(stv_details))
+	
+	# update empty stv_details with only nonempty values from xbmc
+	for k, v in json_data.iteritems():
+		if v and not stv_details.get(k):
+			stv_details[k] = v
+
+	tpl_data=stv_details
+	 
+	stv_labels = {}		
+	if tpl_data.get('directors'): 
+		stv_labels['Director'] = ', '.join(tpl_data['directors'])
+	if tpl_data.get('cast'):	
+		stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], tpl_data['cast']))
+	if tpl_data.get('runtime'):
+		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
+	if tpl_data.get('date'):
+		stv_labels['Release date'] = datetime.fromtimestamp(tpl_data['date']).strftime('%x')
+
+	xbmclabels = {}
+	if tpl_data.has_key('xbmc_movie_detail'):
+		d = tpl_data['xbmc_movie_detail']
+		if d.get('director'):
+			xbmclabels["Director"] = ', '.join(d['director'])
+		if d.get('writer'):
+			xbmclabels["Writer"] = ', '.join(d['writer'])
+		if d.get('runtime'):
+			xbmclabels["Runtime"] = d['runtime'] + ' min'
+		if d.get('premiered'):	
+			xbmclabels["Release date"] = d['premiered']
+		if d.get('file'):
+			tpl_data['file'] = d.get('file')
+
+	labels = {}
+	labels.update(xbmclabels)
+	labels.update(stv_labels)
+	
+	# set unavail labels
+	for label in ['Director','Cast','Runtime','Release date']:
+		if not labels.has_key(label):
+			labels[label] = t_unavail
+
+	tpl_data['labels'] = labels
+	tpl_data['BottomListingLabel'] = type2listinglabel.get(tpl_data['type'], '')	
+	tpl_data['similars'] = similars
+
+	return tpl_data
+
+def open_video_dialog(tpl_data):
+	try:
+		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+	except ValueError, e:
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
+		ui.doModal()
+		del ui
+	else:
+		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
+		win.close()
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
+		ui.doModal()
+		del ui
+
 
 
 def add_directory(name, url, mode, iconimage, atype):
@@ -319,151 +399,3 @@ def show_movie_list(item_list, dirhandle):
 	# xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
 
 
-def show_video_dialog_byId(stv_id):
-	stv_details = apiClient.title(stv_id, detailProps, defaultCastProps)
-	show_video_dialog_data(stv_details)
-
-def show_video_dialog(json_data):
-	# log('show video:' + dump(json_data))
-
-	if json_data.get('type') == 'tvshow':
-		stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
-	else:
-		stv_details = apiClient.title(json_data['id'], detailProps, defaultCastProps)
-
-	show_video_dialog_data(stv_details, json_data)
-
-def show_video_dialog_data(stv_details, json_data={}):
-	# add xbmc id if available
-	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
-		cacheItem = stvList.getByStvId(json_data['id'])
-		json_data['xbmc_id'] = cacheItem['id']
-		log('xbmc id:' + str(json_data['xbmc_id']))
-		json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
-
-	log('show video:' + dump(json_data))
-	log('stv_details video:' + dump(stv_details))
-	
-	# update empty stv_details with only nonempty values from xbmc
-	for k, v in json_data.iteritems():
-		if v and not stv_details.get(k):
-			stv_details[k] = v
-
-	tpl_data=stv_details
-	 
-	stv_labels = {}		
-	if tpl_data.get('directors'): 
-		stv_labels['Director'] = ', '.join(tpl_data['directors'])
-	if tpl_data.get('cast'):	
-		stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], tpl_data['cast']))
-	if tpl_data.get('runtime'):
-		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
-	if tpl_data.get('date'):
-		stv_labels['Release date'] = datetime.fromtimestamp(tpl_data['date']).strftime('%x')
-
-	xbmclabels = {}
-	if tpl_data.has_key('xbmc_movie_detail'):
-		d = tpl_data['xbmc_movie_detail']
-		if d.get('director'):
-			xbmclabels["Director"] = ', '.join(d['director'])
-		if d.get('writer'):
-			xbmclabels["Writer"] = ', '.join(d['writer'])
-		if d.get('runtime'):
-			xbmclabels["Runtime"] = d['runtime'] + ' min'
-		if d.get('premiered'):	
-			xbmclabels["Release date"] = d['premiered']
-		if d.get('file'):
-			tpl_data['file'] = d.get('file')
-
-	labels = {}
-	labels.update(xbmclabels)
-	labels.update(stv_labels)
-	
-	# set unavail labels
-	for label in ['Director','Cast','Runtime','Release date']:
-		if not labels.has_key(label):
-			labels[label] = t_unavail
-
-	tpl_data['labels'] = labels
-	tpl_data['BottomListingLabel'] = type2listinglabel.get(tpl_data['type'], '')	
-
-	if tpl_data['type'] == 'movie':
-		# get similar movies
-		similars = apiClient.titleSimilar(tpl_data['id'])
-		if similars.has_key('titles'):
-			tpl_data['similars'] = similars['titles']
-	elif tpl_data['type'] == 'tvshow':
-		# append seasons
-		if tpl_data.has_key('seasons'):
-			tpl_data['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
-
-	open_video_dialog(tpl_data)
-
-def open_video_dialog(tpl_data):
-	try:
-		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-	except ValueError, e:
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
-		ui.doModal()
-		del ui
-	else:
-		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
-		win.close()
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
-		ui.doModal()
-		del ui
-
-class SelectMovieDialog(xbmcgui.WindowXMLDialog):
-	""" Dialog for choosing movie corrections """
-	def __init__(self, *args, **kwargs):
-		self.data = kwargs['data']
-		self.controlId = None
-		self.selectedMovie = None
-
-	def onInit(self):
-		items = []
-		for item in self.data['movies']:
-			text = '%s (%d) %s' % (item['name'], item['year'], ', '.join(item['directors']))
-			li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
-			li.setProperty('id', str(item['id']))
-			items.append(li)
-
-			self.getControl(59).addItems(items)
-
-	def onClick(self, controlId):
-		log('onClick: ' + str(controlId))
-		if self.controlId == 59:
-			sel_index = self.getControl(59).getSelectedPosition()
-			self.selectedMovie = self.data['movies'][sel_index]
-			self.close()
-
-
-	def onFocus(self, controlId):
-		self.controlId = controlId
-
-	def onAction(self, action):
-		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
-		if (action.getId() in CANCEL_DIALOG):
-			self.close()
-
-def open_select_movie_dialog(tpl_data):
-	ui = SelectMovieDialog("SelectMovie.xml", __cwd__, "Default", data=tpl_data)
-	ui.doModal()
-	result = ui.selectedMovie
-	del ui
-	return result
-
-
-def user_title_search():
-	search_term = common.getUserInput("Title", "")
-	if search_term:
-		results = apiClient.search(search_term)
-		if len(results['search_result']) == 0:
-			dialog_ok('No results')
-		else:
-			data = { 'movies': results['search_result'] }
-			return open_select_movie_dialog(data)
-	else:
-		dialog_ok('Enter a title name to search for')
-
-	return
