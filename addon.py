@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 """
-Default file for SynopsiTV addon. See addon.xml 
+Default file for SynopsiTV addon. See addon.xml
 <extension point="xbmc.python.pluginsource" library="addon.py">
 """
 # xbmc
@@ -31,24 +31,42 @@ from xbmcrpc import xbmc_rpc
 from addonutilities import *
 
 class AddonClient(object):
-	def __init__(self, pluginhandle):		
+	def __init__(self, pluginhandle):
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.pluginhandle = pluginhandle
 
 	def execute(self, command, **arguments):
-		json_data = { 
-			'command': command,
-			'arguments': arguments
-		}
+		try:
+			json_data = {
+				'command': command,
+				'arguments': arguments
+			}
 
-		self.s.connect(('localhost', 9190))
-		xbmc.log('CLIENT / SEND / ' + dump(json_data))
-		self.s.sendall(json.dumps(json_data))
-		response = self.s.recv(16384)
-		#~ xbmc.log('CLIENT / RAW RESPONSE / ' + response)
-		self.s.close()		
-		response_json = json.loads(response)
-		#~ xbmc.log('CLIENT / JSON RESPONSE / ' + dump(response))
+			response = None
+
+			self.s.connect(('localhost', 9190))
+			xbmc.log('CLIENT / SEND / ' + dump(json_data))
+			self.s.sendall(json.dumps(json_data))
+
+			total_data=[]
+			while True:
+				data = self.s.recv(8192)
+				if not data: break
+				total_data.append(data)
+
+			response = ''.join(total_data)
+
+			xbmc.log('CLIENT / RAW RESPONSE / ' + str(response))
+			self.s.close()
+			response_json = json.loads(response)
+			#~ xbmc.log('CLIENT / JSON RESPONSE / ' + dump(response))
+
+		# TODO: some handling
+		except:
+			xbmc.log('CLIENT / ERROR / RESPONSE ' + str(response))
+			#~ raise
+			return {}
+
 		return response_json
 
 	def get_global_recco(self, movie_type):
@@ -62,19 +80,19 @@ class AddonClient(object):
 
 	def get_upcoming_episodes(self):
 		return self.execute('get_upcoming_episodes')
-		
-	def get_unwatched_episodes(self):			
+
+	def get_unwatched_episodes(self):
 		return self.execute('get_unwatched_episodes')
 
-	def get_tvshow_season(self, tvshow_id):			
+	def get_tvshow_season(self, tvshow_id):
 		return self.execute('get_tvshow_season', tvshow_id=tvshow_id)
-		
+
 	def get_title(self, stv_id, **kwargs):
 		return self.execute('get_title', stv_id=stv_id, **kwargs)
 
 	def get_title_similars(self, stv_id):
 		return self.execute('get_title_similars', stv_id=stv_id)
-		
+
 	def get_tvshow(self, tvshow_id):
 		return self.execute('get_title', tvshow_id=tvshow_id)
 
@@ -89,7 +107,7 @@ class AddonClient(object):
 
 def get_item_list(action_code, **kwargs):
 	log('get_item_list:' + str(action_code))
-	
+
 	if action_code==ActionCode.MovieRecco:
 		return addonclient.get_global_recco('movie')['titles']
 	elif action_code==ActionCode.TVShows:
@@ -107,69 +125,23 @@ def show_submenu(action_code, dirhandle, **kwargs):
 	try:
 		item_list = get_item_list(action_code, **kwargs)
 		show_movie_list(item_list, dirhandle)
-	except ListEmptyException:	
+	except ListEmptyException:
 		raise
 	except:
 		log(traceback.format_exc())
 		dialog_ok(t_listing_failed)
-		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')		 
+		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 
 
-
-																																																			
-#~ def show_video_dialog_byId(stv_id):
-	#~ stv_details = addonclient.get_title(stv_id, defaultDetailProps, defaultCastProps)
-	#~ show_video_dialog_data(stv_details)
-
-#~ def show_video_dialog(json_data):
-	#~ # log('show video:' + dump(json_data))
-#~ 
-	#~ if json_data.get('type') == 'tvshow':
-		#~ stv_details = addonclient.get_tvshow(json_data['id'], cast_props=defaultCastProps)
-	#~ else:	show_video_dialog(p['json_data'])
-		#~ stv_details = addonclient.get_title(json_data['id'])
-#~ 
-	#~ show_video_dialog_data(stv_details, json_data)
-
-#~ def show_video_dialog_data(stv_details, json_data={}):
-#~ 
-	#~ # add xbmc id if available
-	#~ if json_data.has_key('id'):
-		#~ cacheItem = addonclient.cache_getByStvId(json_data['id'])
-		#~ if cacheItem:
-			#~ json_data['xbmc_id'] = cacheItem['id']
-			#~ json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
-#~ 
-	#~ # add similars or seasons (bottom covers list)
-	#~ if stv_details['type'] == 'movie':
-		#~ # get similar movies
-		#~ t1_similars = addonclient.get_title_similars(stv_details['id'])
-		#~ if t1_similars.has_key('titles'):
-			#~ stv_details['similars'] = t1_similars['titles']			
-	#~ elif stv_details['type'] == 'tvshow':
-		#~ # append seasons
-		#~ if stv_details.has_key('seasons'):
-			#~ stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
-#~ 
-	#~ tpl_data = video_dialog_template_fill(stv_details, json_data)
-	#~ open_video_dialog(tpl_data)
-		
-
-__addon__  = get_current_addon()
-__addonname__ = __addon__.getAddonInfo('name')
-__cwd__	= __addon__.getAddonInfo('path')
-__author__  = __addon__.getAddonInfo('author')
-__version__   = __addon__.getAddonInfo('version')
 dirhandle = int(sys.argv[1])
 
-log('SYS ARGV:' + str(sys.argv)) 
+log('SYS ARGV:' + str(sys.argv))
 
 url_parsed = urlparse.urlparse(sys.argv[2])
 params = urlparse.parse_qs(url_parsed.query)
 
 check_first_run()
 
-stvList = StvList.getDefaultList(apiClient)
 addonclient = AddonClient(dirhandle)
 
 param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
@@ -191,10 +163,10 @@ if p['data']:
 	p['data'] = uniunquote(p['data'])
 	p['json_data'] = json.loads(p['data'])
 
-#~ log('params:' + str(params))   
-#~ log('mode: %s type: %s' % (p['mode'], p['type']))	
-#~ log('url: %s' % (p['url']))  
-#~ log('data: %s' % (p['data']))	
+#~ log('params:' + str(params))
+#~ log('mode: %s type: %s' % (p['mode'], p['type']))
+#~ log('url: %s' % (p['url']))
+#~ log('data: %s' % (p['data']))
 
 if p['mode']==None:
 	show_categories()
@@ -221,7 +193,7 @@ elif p['mode']==ActionCode.UpcomingEpisodes:
 	except ListEmptyException:
 		dialog_ok(t_noupcoming)
 		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-		
+
 elif p['mode']==ActionCode.VideoDialogShow:
 	addonclient.show_video_dialog(p['json_data'])
 
@@ -243,13 +215,13 @@ elif p['mode']==970:
 	xbmc.executebuiltin('UpdateLibrary(video)')
 
 elif p['mode']==971:
-	stvList.list()	
-	
+	stvList.list()
+
 elif p['mode']==972:
 	search = apiClient.search('Code')
 	data = { 'movies': search['search_result']}
-	open_select_movie_dialog(data)   
-	
+	open_select_movie_dialog(data)
+
 
 elif p['mode']==999:
 	xbmcplugin.endOfDirectory(dirhandle)
@@ -266,4 +238,4 @@ elif p['mode']==999:
 		}
 	}
 	show_video_dialog(jdata)
-	
+
