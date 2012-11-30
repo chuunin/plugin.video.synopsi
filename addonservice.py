@@ -122,9 +122,6 @@ class AddonHandler(ServiceTCPHandler):
 	def get_tvshow(self, stv_id, **kwargs):
 		return self.server.apiClient.tvshow(stv_id, **kwargs)
 
-	def cache_getByStvId(self, stv_id):
-		return self.stvList.getByStvId(stv_id)
-
 	def show_video_dialog(self, json_data):
 		thread.start_new_thread(show_video_dialog, (json_data, self.server.apiClient, self.server.stvList))
 
@@ -134,6 +131,26 @@ class AddonHandler(ServiceTCPHandler):
 	def open_settings(self):
 		__addon__ = get_current_addon()
 		thread.start_new_thread(__addon__.openSettings, ())
+
+	def debug_1(self):
+		self.server.stvList.clear()
+		episode = {
+			'tvshow_id': 14335,
+			'type': 'episode',
+			'id': 22835,
+			'name': 'Something Blue',
+			'file': '/media/sdb1/blah blah.avi'
+		}
+
+		self.server.stvList.put(episode)
+		self.server.stvList.add_tvshow(1, 14335)
+
+		self.server.stvList.list()
+
+	def debug_2(self):
+		search = self.server.apiClient.search('Code')
+		data = { 'movies': search['search_result']}
+		open_select_movie_dialog(data)
 
 
 class AddonServer(SocketServer.TCPServer):

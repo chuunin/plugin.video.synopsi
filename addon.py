@@ -99,9 +99,6 @@ class AddonClient(object):
 	def get_tvshow(self, tvshow_id):
 		return self.execute('get_title', tvshow_id=tvshow_id)
 
-	def cache_getByStvId(self, stv_id):
-		return self.execute('cache_getByStvId', stv_id=stv_id)
-
 	def show_video_dialog(self, json_data):
 		return self.execute('show_video_dialog', json_data=json_data)
 
@@ -110,6 +107,12 @@ class AddonClient(object):
 
 	def open_settings(self):
 		return self.execute('open_settings')
+
+	def debug_1(self):
+		return self.execute('debug_1')
+
+	def debug_2(self):
+		return self.execute('debug_2')
 
 def get_item_list(action_code, **kwargs):
 	log('get_item_list:' + str(action_code))
@@ -223,27 +226,7 @@ elif p['mode']==970:
 	xbmc.executebuiltin('UpdateLibrary(video)')
 
 elif p['mode']==971:
-	stvList.list()
+	addonclient.debug_1()
 
 elif p['mode']==972:
-	search = apiClient.search('Code')
-	data = { 'movies': search['search_result']}
-	open_select_movie_dialog(data)
-
-
-elif p['mode']==999:
-	xbmcplugin.endOfDirectory(dirhandle)
-	jdata = {
-		'id': 1232,
-		'name': 'XBMC Skinning Tutorial',
-		'plot': 'Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum. Lorem Ipsum je fiktívny text, používaný pri návrhu tlačovín a typografie. Lorem Ipsum je štandardným výplňovým textom už od 16. storočia, keď neznámy tlačiar zobral sadzobnicu plnú tlačových znakov a pomiešal ich, aby tak vytvoril vzorkovú knihu. Prežil nielen päť storočí, ale aj skok do elektronickej sadzby, a pritom zostal v podstate nezmenený. Spopularizovaný bol v 60-tych rokoch 20.storočia, vydaním hárkov Letraset, ktoré obsahovali pasáže Lorem Ipsum, a neskôr aj publikačným softvérom ako Aldus PageMaker, ktorý obsahoval verzie Lorem Ipsum.',
-		'cover_large': 'https://s3.amazonaws.com/titles.synopsi.tv/01498059-267.jpg',
-		'xbmc_movie_detail': {
-			'director': 'Ratan Hatan',
-			'writer': 'Eugo Aianora',
-			'runtime': '102',
-			'premiered': '1. aug. 2012',
-		}
-	}
-	show_video_dialog(jdata)
-
+	addonclient.debug_2()
