@@ -10,6 +10,7 @@ import urlparse
 import hashlib
 import uuid
 import threading
+import traceback
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
@@ -399,8 +400,9 @@ def home_screen_fill(apiClient, cache):
 	# get recco movies and episodes
 	try:
 		movie_recco = apiClient.profileRecco('movie', True, homeReccoLimit)['titles']
-		episode_recco = get_unwatched_episodes()
-	except:
+		episode_recco = apiClient.get_unwatched_episodes()
+	except Exception as e:
+		log(traceback.format_exc())
 		notification('Movie reccomendation service failed')
 		return
 
