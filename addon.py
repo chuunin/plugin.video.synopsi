@@ -180,7 +180,7 @@ if p['mode']==None:
 	show_categories()
 	xbmcplugin.endOfDirectory(dirhandle)
 
-elif p['mode'] in [ActionCode.MovieRecco, ActionCode.TVShows, ActionCode.LocalMovieRecco, ActionCode.TVShowEpisodes]:
+elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes]:
 	params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
 	try:
 		show_submenu(p['mode'], dirhandle, **params)
