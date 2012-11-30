@@ -187,7 +187,7 @@
 					</control>
 					<control type="label">
 						<posx>120r</posx>
-						<posy>305</posy>	
+						<posy>305</posy>
 						<width>400</width>
 						<height>30</height>
 						<font>font13_title</font>
@@ -236,9 +236,9 @@
 						<height>200</height>
 						<aspectratio>stretch</aspectratio>
 						<texture>debug.png</texture>
-					</control>						
+					</control>
 -->
-						
+
 					<control id="59" type="list">
 						<description>Similar movie list</description>
 						<posx>0</posx>
@@ -350,10 +350,11 @@
 						<control id="13" type="button">
 							<include>ButtonInfoDialogsCommonValues</include>
 							<label>Correct</label>
+							<enable>false</enable>
 						</control>
 					</control>
 				</control>
-			</control>				
+			</control>
 		</control>
 		<include>Clock</include>
 	</controls>

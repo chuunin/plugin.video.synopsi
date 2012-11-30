@@ -113,7 +113,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		if self.data.has_key('file'):
 			win.setProperty("Movie.File", self.data['file'])
 			self.getControl(5).setEnabled(True)
-			self.getControl(5).setEnabled(True)
+			self.getControl(13).setEnabled(True)
 
 		win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
 
