@@ -45,8 +45,9 @@ movie_response = { 'titles': movies }
 
 class ActionCode:
 	MovieRecco = 10
+	LocalMovieRecco = 15
 	TVShows = 20
-	LocalMovieRecco = 30
+	LocalTVShows = 25
 	UnwatchedEpisodes = 40
 	UpcomingEpisodes = 50
 
@@ -108,9 +109,10 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			win.setProperty("Movie.Label.{0}.2".format(i), value)
 			i = i + 1
 
-		# enable file playing if available
+		# enable file playing and correction if available
 		if self.data.has_key('file'):
 			win.setProperty("Movie.File", self.data['file'])
+			self.getControl(5).setEnabled(True)
 			self.getControl(5).setEnabled(True)
 
 		win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
@@ -140,19 +142,24 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 	def onClick(self, controlId):
 		log('onClick: ' + str(controlId))
-		if controlId == 5: # play
+
+		# play
+		if controlId == 5:
 			self.close()
-		elif controlId == 6: # add to list
-			dialog = xbmcgui.Dialog()
-			ret = dialog.select('Choose list', ['Watch later', 'Action', 'Favorite'])
-		elif controlId == 10: # trailer
+
+		# trailer
+		elif controlId == 10:
 			self.close()
-		elif controlId == 11: # already watched
+
+		# already watched
+		elif controlId == 11:
 			rating = get_rating()
 			if rating < 4:
 				set_already_watched(self.data['id'], rating)
 			self.close()
 			xbmc.executebuiltin('Container.Refresh()')
+
+		# similars / tvshow seasons	cover
 		elif controlId == 59:
 			selected_item = self.getControl(59).getSelectedItem()
 			stv_id = int(selected_item.getProperty('id'))
@@ -161,11 +168,15 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 				self.close()
 				xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
 			else:
-				show_video_dialog_byId(stv_id)
+				show_video_dialog_byId(stv_id, self.apiClient, self.stvList)
+
+		# correct
 		elif controlId == 13:
 			new_identity = self.user_title_search()
 			if new_identity and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				self.apiClient.title_identify_correct(new_identity['id'], self.data['stv_title_hash'])
+				show_video_dialog_byId(new_identity['id'], self.apiClient, self.stvList)
+				xbmc.executebuiltin('Container.Refresh()')
 
 
 	def onFocus(self, controlId):
@@ -362,6 +373,7 @@ def show_categories():
 	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png", 1)
 	add_directory("TV Shows", "url", ActionCode.TVShows, "list.png", 1)
 	add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png", 2)
+	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png", 1)
 	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "icon.png", 3)
 	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "icon.png", 33)
 	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "icon.png", 1)

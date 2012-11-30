@@ -8,20 +8,14 @@ import thread
 from addonutilities import *
 from utilities import *
 
-class ServiceTCPHandler(SocketServer.BaseRequestHandler):
+class ServiceTCPHandler(SocketServer.StreamRequestHandler):
 	def __init__(self, *args, **kwargs):
-		SocketServer.BaseRequestHandler.__init__(self, *args, **kwargs)
+		SocketServer.StreamRequestHandler.__init__(self, *args, **kwargs)
 
 	def handle(self):
 		# self.request is the TCP socket connected to the client
 
-		total_data = []
-		while True:
-			data = self.request.recv(1024)
-			if not data: break
-			total_data.append(data)
-
-		self.data = ''.join(total_data)
+		self.data = self.rfile.readline()
 
 		# parse data
 		try:
@@ -46,7 +40,7 @@ class ServiceTCPHandler(SocketServer.BaseRequestHandler):
 
 			self.server._log.debug('RESULT: ' + result)
 
-			self.request.sendall(result)
+			self.wfile.write(result)
 
 		except Exception as e:
 			# raise
@@ -66,13 +60,15 @@ class AddonHandler(ServiceTCPHandler):
 		return resRecco
 
 	def get_tvshows(self):
-		local_tvshows = self.server.stvList.getAllByType('tvshow')
-		log('local_tvshows: ' + str(local_tvshows))
 		result = []
-		result += local_tvshows.values()
+		result += self.get_local_tvshows()
 		result += self.get_top_tvshows()
 
 		return result
+
+	def get_local_tvshows(self):
+		local_tvshows = self.server.stvList.getAllByType('tvshow')
+		return local_tvshows.values()
 
 	def get_top_tvshows(self):
 		episodes = self.server.apiClient.unwatchedEpisodes()
@@ -148,6 +144,9 @@ class AddonHandler(ServiceTCPHandler):
 
 	def show_video_dialog_byId(self, stv_id):
 		thread.start_new_thread(show_video_dialog_byId, (stv_id, self.server.apiClient, self.server.stvList))
+
+	def open_settings(self):
+		__addon__.openSettings()
 
 class AddonService(mythread.MyThread):
 	def __init__(self, host, port, apiClient, stvList):

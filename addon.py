@@ -46,7 +46,7 @@ class AddonClient(object):
 
 			self.s.connect(('localhost', 9190))
 			xbmc.log('CLIENT / SEND / ' + dump(json_data))
-			self.s.sendall(json.dumps(json_data))
+			self.s.sendall(json.dumps(json_data) + "\n")
 
 			total_data=[]
 			while True:
@@ -56,7 +56,7 @@ class AddonClient(object):
 
 			response = ''.join(total_data)
 
-			xbmc.log('CLIENT / RAW RESPONSE / ' + str(response))
+			#~ xbmc.log('CLIENT / RAW RESPONSE / ' + str(response))
 			self.s.close()
 			response_json = json.loads(response)
 			#~ xbmc.log('CLIENT / JSON RESPONSE / ' + dump(response))
@@ -72,8 +72,11 @@ class AddonClient(object):
 	def get_global_recco(self, movie_type):
 		return self.execute('get_global_recco', movie_type=movie_type)
 
-	def get_tvshows(self):
-		return self.execute('get_tvshows')
+	def get_top_tvshows(self):
+		return self.execute('get_top_tvshows')
+
+	def get_local_tvshows(self):
+		return self.execute('get_local_tvshows')
 
 	def get_local_recco2(self, movie_type):
 		return self.execute('get_local_recco2', movie_type=movie_type)
@@ -105,15 +108,20 @@ class AddonClient(object):
 	def show_video_dialog_byId(self, stv_id):
 		return self.execute('show_video_dialog_byId', stv_id=stv_id)
 
+	def open_settings(self):
+		return self.execute('open_settings')
+
 def get_item_list(action_code, **kwargs):
 	log('get_item_list:' + str(action_code))
 
 	if action_code==ActionCode.MovieRecco:
 		return addonclient.get_global_recco('movie')['titles']
-	elif action_code==ActionCode.TVShows:
-		return addonclient.get_tvshows()
 	elif action_code==ActionCode.LocalMovieRecco:
 		return addonclient.get_local_recco2('movie')
+	elif action_code==ActionCode.TVShows:
+		return addonclient.get_top_tvshows()
+	elif action_code==ActionCode.LocalTVShows:
+		return addonclient.get_local_tvshows()
 	elif action_code==ActionCode.UnwatchedEpisodes:
 		return addonclient.get_unwatched_episodes()
 	elif action_code==ActionCode.UpcomingEpisodes:
@@ -207,7 +215,7 @@ elif p['mode']==ActionCode.VideoDialogShowById:
 	addonclient.show_video_dialog_byId(stv_id)
 
 elif p['mode']==ActionCode.LoginAndSettings:
-	__addon__.openSettings()
+	addonclient.open_settings()
 
 # debugging
 elif p['mode']==970:
