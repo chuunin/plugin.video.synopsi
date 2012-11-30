@@ -37,16 +37,30 @@
 				<control type="label">
 					<description>header label</description>
 					<posx>210</posx>
-					<posy>40</posy>
+					<posy>10</posy>
 					<width>1030</width>
 					<height>30</height>
 					<font>font24_title</font>
 					<label>$INFO[Window.Property(Movie.Title)]</label>
-					<!-- <label>Sherlock Holmes: A Game of Shadows (2011)</label>-->
 					<align>center</align>
 					<aligny>center</aligny>
 					<textcolor>white</textcolor>
 					<shadowcolor>black</shadowcolor>
+				</control>
+				<control id="101" type="label">
+					<description>file label</description>
+					<posx>510</posx>
+					<posy>50</posy>
+					<width>700</width>
+					<height>30</height>
+					<font>font24</font>
+					<label>$INFO[Window.Property(Movie.FileInfo)]</label>
+					<align>left</align>
+					<aligny>center</aligny>
+					<textcolor>gray</textcolor>
+					<shadowcolor>black</shadowcolor>
+					<visible>Control.HasFocus(13)</visible>
+					<scroll>Control.HasFocus(13)</scroll>
 				</control>
 				<control type="group">
 					<posy>90</posy>

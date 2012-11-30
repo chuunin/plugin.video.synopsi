@@ -108,6 +108,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		# enable file playing and correction if available
 		if self.data.has_key('file'):
 			win.setProperty("Movie.File", self.data['file'])
+			win.setProperty("Movie.FileInfo", '%s in [%s]' % (os.path.basename(self.data['file']), os.path.dirname(self.data['file'])))
 			self.getControl(5).setEnabled(True)
 			self.getControl(13).setEnabled(True)
 
