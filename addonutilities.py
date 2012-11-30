@@ -169,10 +169,11 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 		# correct
 		elif controlId == 13:
-			new_identity = self.user_title_search()
-			if new_identity and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
-				self.apiClient.title_identify_correct(new_identity['id'], self.data['stv_title_hash'])
-				show_video_dialog_byId(new_identity['id'], self.apiClient, self.stvList)
+			new_title = self.user_title_search()
+			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
+				self.apiClient.title_identify_correct(new_title['id'], self.data['stv_title_hash'])
+				self.stvList.correct_title(self.data, new_title)
+				show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
 				xbmc.executebuiltin('Container.Refresh()')
 
 
