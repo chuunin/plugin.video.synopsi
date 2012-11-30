@@ -144,13 +144,13 @@ class AddonHandler(ServiceTCPHandler):
 
 		self.server.stvList.put(episode)
 		self.server.stvList.add_tvshow(1, 14335)
-
 		self.server.stvList.list()
 
 	def debug_2(self):
-		search = self.server.apiClient.search('Code')
-		data = { 'movies': search['search_result']}
-		open_select_movie_dialog(data)
+		self.server.stvList.list()
+
+	def debug_3(self):
+		log(dump(self.server.stvList.byStvId))
 
 
 class AddonServer(SocketServer.TCPServer):

@@ -123,6 +123,9 @@ class AddonClient(object):
 	def debug_2(self):
 		return self.execute('debug_2')
 
+	def debug_3(self):
+		return self.execute('debug_3')
+
 def get_item_list(action_code, **kwargs):
 	log('get_item_list:' + str(action_code))
 
@@ -224,3 +227,8 @@ elif p['mode']==971:
 
 elif p['mode']==972:
 	addonclient.debug_2()
+
+elif p['mode']==973:
+	addonclient.debug_3()
+
+
