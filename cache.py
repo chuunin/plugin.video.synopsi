@@ -215,12 +215,14 @@ class StvList(object):
 		except Exception as e:
 			self.log('REMOVE FAILED / ' + typeIdStr)
 
+	def correct_title(self, old_title, new_title):
+		self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
 
-	def hasTypeId(self, type, id):
-		return self.byTypeId.has_key(self._getKey(type, id))
+	def hasTypeId(self, atype, aid):
+		return self.byTypeId.has_key(self._getKey(atype, aid))
 
-	def getByTypeId(self, type, id):
-		return self.byTypeId[self._getKey(type, id)]
+	def getByTypeId(self, atype, aid):
+		return self.byTypeId[self._getKey(atype, aid)]
 
 	def hasFilename(self, name):
 		return self.byFilename.has_key(name)
@@ -348,6 +350,6 @@ class StvList(object):
 		self.deserialize(f.read())
 		f.close()
 
-	def _getKey(self, type, id):
-		return str(type) + '--' + str(id)
+	def _getKey(self, atype, aid):
+		return str(atype) + '--' + str(aid)
 
