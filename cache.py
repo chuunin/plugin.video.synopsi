@@ -216,7 +216,8 @@ class StvList(object):
 			self.log('REMOVE FAILED / ' + typeIdStr)
 
 	def correct_title(self, old_title, new_title):
-		self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
+		#~ self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
+		pass
 
 	def hasTypeId(self, atype, aid):
 		return self.byTypeId.has_key(self._getKey(atype, aid))
