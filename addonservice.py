@@ -97,31 +97,17 @@ class AddonHandler(ServiceTCPHandler):
 		for title in recco:
 			if self.server.stvList.hasStvId(title['id']):
 				cached_title = self.server.stvList.getByStvId(title['id'])
-				log(dump(cached_title))
+				log('found in cache:' + dump(cached_title))
 				title['stv_title_hash'] = cached_title['stv_title_hash']
 				title['file'] = cached_title['file']
 
 		return recco
 
 	def get_unwatched_episodes(self):
-		episodes = self.server.apiClient.unwatchedEpisodes()
-
-		# log('unwatched episodes')
-		# for title in episodes['lineup']:
-		#	 log(title['name'])
-
-		result = episodes['lineup']
-		return result
+		return self.server.apiClient.get_unwatched_episodes()
 
 	def get_upcoming_episodes(self):
-		episodes = self.server.apiClient.unwatchedEpisodes()
-
-		# log('upcoming episodes')
-		# for title in episodes['upcoming']:
-		#	 log(title['name'])
-
-		result = episodes['upcoming']
-		return result
+		return self.server.apiClient.get_upcoming_episodes()
 
 	def get_tvshow_season(self, tvshow_id):
 		season = self.server.apiClient.season(tvshow_id)
@@ -146,7 +132,15 @@ class AddonHandler(ServiceTCPHandler):
 		thread.start_new_thread(show_video_dialog_byId, (stv_id, self.server.apiClient, self.server.stvList))
 
 	def open_settings(self):
-		__addon__.openSettings()
+		__addon__ = get_current_addon()
+		thread.start_new_thread(__addon__.openSettings, ())
+
+
+class AddonServer(SocketServer.TCPServer):
+	allow_reuse_address = True
+	def __init__(self, host, port):
+		SocketServer.TCPServer.__init__(self, (host, port), AddonHandler)
+
 
 class AddonService(mythread.MyThread):
 	def __init__(self, host, port, apiClient, stvList):
@@ -154,7 +148,7 @@ class AddonService(mythread.MyThread):
 		self.host = host		# Symbolic name meaning all available interfaces
 		self.port = port		# Arbitrary non-privileged port
 
-		self.server = SocketServer.TCPServer((self.host, self.port), AddonHandler)
+		self.server = AddonServer(self.host, self.port)
 		self.server.apiClient = apiClient
 		self.server.stvList = stvList
 

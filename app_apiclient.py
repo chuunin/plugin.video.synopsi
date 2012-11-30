@@ -32,7 +32,7 @@ class AppApiClient(ApiClient):
 				self.reloadUserPass()
 				ApiClient.getAccessToken(self)
 				if self.login_state_announce==LoginState.Notify:
-					notification('Logged in as %s' % self.username)		
+					notification('Logged in as %s' % self.username)
 
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
@@ -44,7 +44,7 @@ class AppApiClient(ApiClient):
 					else:
 						if not dialog_check_login_correct():
 							self._rejected_to_correct = True
-							
+
 					finished = True
 
 				elif self.login_state_announce==LoginState.AddonDialog:
@@ -61,3 +61,25 @@ class AppApiClient(ApiClient):
 
 		#~ log(threading.current_thread().name + ' getAccessToken END')
 		self._lock_access_token.release()
+
+	# convienent functions
+	def get_unwatched_episodes(self):
+		episodes = self.unwatchedEpisodes()
+
+		# log('unwatched episodes')
+		# for title in episodes['lineup']:
+		#	 log(title['name'])
+
+		result = episodes['lineup']
+		return result
+
+	def get_upcoming_episodes(self):
+		episodes = self.unwatchedEpisodes()
+
+		# log('upcoming episodes')
+		# for title in episodes['upcoming']:
+		#	 log(title['name'])
+
+		result = episodes['upcoming']
+		return result
+
