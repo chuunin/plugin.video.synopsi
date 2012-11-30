@@ -169,7 +169,7 @@ class StvList(object):
 			self.byStvId[item['stvId']] = item
 			typeIdStr += ' | stvId ' + str(item['stvId'])
 
-		logstr = 'PUT / ' + typeIdStr + ' | ' + item['file']
+		logstr = 'PUT / ' + typeIdStr + ' | ' + item.get('file', '')
 
 		# if known by synopsi, add to list
 		if item.has_key('stvId'):
