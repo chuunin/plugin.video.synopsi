@@ -21,7 +21,6 @@ import CommonFunctions
 import socket
 
 # application
-from tests import test
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
 from cache import StvList
@@ -38,10 +37,6 @@ __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __profile__      = __addon__.getAddonInfo('profile')
 
-
-# test files
-movies = test.jsfile
-movie_response = { 'titles': movies }
 
 class ActionCode:
 	MovieRecco = 10
@@ -91,6 +86,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		self.data = kwargs['data']
 		self.controlId = None
 		self.apiClient = kwargs['apiClient']
+		self.stvList = kwargs['stvList']
 
 	def onInit(self):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -276,7 +272,7 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data, apiClient)
+	open_video_dialog(tpl_data, apiClient, stvList)
 
 
 def video_dialog_template_fill(stv_details, json_data={}):
@@ -329,17 +325,17 @@ def video_dialog_template_fill(stv_details, json_data={}):
 
 	return tpl_data
 
-def open_video_dialog(tpl_data, apiClient):
+def open_video_dialog(tpl_data, apiClient, stvList):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient)
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient, stvList=stvList)
 		ui.doModal()
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		win.close()
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient)
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient, stvList=stvList)
 		ui.doModal()
 		del ui
 
