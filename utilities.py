@@ -11,6 +11,7 @@ import hashlib
 import uuid
 import threading
 import traceback
+import re
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
@@ -363,10 +364,8 @@ def get_api_port():
 	If nothing is changed return default 9090.
 	"""
 
-	path = os.path.join('special://profile', 'userdata', 'advancedsettings.xml')
+	path = os.path.join('special://profile', 'advancedsettings.xml')
 	path = xbmc.translatePath(path)
-
-	value = 9090
 
 	if os.path.isfile(path):
 		try:
@@ -375,9 +374,9 @@ def get_api_port():
 				if "tcpport" in temp:
 					port = re.compile('<tcpport>(.+?)</tcpport>').findall(temp)
 					if len(port) > 0:
-						value = port[0]
+						value = int(port[0])
 		except (IOError, IndexError):
-			pass
+			value = 9090
 
 	return value
 
