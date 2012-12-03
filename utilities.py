@@ -25,7 +25,7 @@ CANCEL_DIALOG2 = (61467, )
 
 __addon__  = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
-__cwd__	= __addon__.getAddonInfo('path')
+__addonpath__	= __addon__.getAddonInfo('path')
 __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __profile__      = __addon__.getAddonInfo('profile')
@@ -125,6 +125,36 @@ def clear_setting_cache():
 	settingsPath = xbmc.translatePath(os.path.join(__profile__, 'settings.xml'))
 	if os.path.exists(settingsPath):
 		os.remove(settingsPath)
+
+def get_settings_file_version():
+	path = os.path.join(__addonpath__, 'resources', 'settings.xml')
+
+	value = None
+	try:
+		with open(path, 'r') as _file:
+			temp = _file.read()
+			if "SETTINGS_VERSION" in temp:
+				version = re.compile('\<setting id="SETTINGS_VERSION" option="hidden" type="number" visible="false" default="(\d+)" /\>').findall(temp)
+				value = int(version[0])
+	except (IOError, IndexError):
+		pass
+
+	return value
+
+def setting_cache_append_string(string):
+	settingsPath = xbmc.translatePath(os.path.join(__profile__, 'settings.xml'))
+
+	# load file
+	with open(settingsPath) as f:
+		lines = f.read().splitlines()
+
+	lines.insert(-1, string)
+
+	# save file	
+	with open(settingsPath, 'w') as f:
+		f.write(os.linesep.join(lines))
+
+	log('appended string')
 
 class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 	"""
@@ -458,7 +488,7 @@ def login_screen(apiClient):
 	log('string type: ' + str(type(username)))
 	log('string type: ' + str(type(password)))
 
-	ui = XMLLoginDialog("LoginDialog.xml", __cwd__, "Default", username=username, password=password)
+	ui = XMLLoginDialog("LoginDialog.xml", __addonpath__, "Default", username=username, password=password)
 	ui.doModal()
 	# ui.show()
 
@@ -489,7 +519,7 @@ def get_rating():
 	Get rating from user:
 	1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
 	"""
-	ui = XMLRatingDialog("SynopsiDialog.xml", __cwd__, "Default")
+	ui = XMLRatingDialog("SynopsiDialog.xml", __addonpath__, "Default")
 	ui.doModal()
 	_response = ui.response
 	del ui

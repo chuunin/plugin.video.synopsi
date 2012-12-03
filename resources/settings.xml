@@ -2,6 +2,8 @@
 
 <settings>
     <category label="69500">
+        <setting id="SETTINGS_VERSION" option="hidden" type="number" visible="false" default="1" />
+        
         <!--Login-->
         <setting id="USER" label="69501" type="text" default=""/>
     	<setting id="PASS" label="69502" option="hidden" type="text" enable="!eq(-1,)" default=""/>
