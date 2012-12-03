@@ -115,7 +115,7 @@ class StvList(object):
 			movie['stv_title_hash'] = stv_hash(path)
 			movie['os_title_hash'] = hash_opensubtitle(path)
 
-			# try to get synopsi id
+
 			# TODO: stv_subtitle_hash - hash of the subtitle file if present
 			ident = {}
 			self._translate_xbmc2stv_keys(ident, movie)
@@ -124,6 +124,7 @@ class StvList(object):
 			if ident.get('imdb_id'):
 				ident['imdb_id'] = ident['imdb_id'][2:]
 
+			# try to get synopsi id
 			#~ self.log('to identify: ' + dump(ident))
 			self.log('to identify: ' + ident['file_name'])
 
@@ -208,16 +209,19 @@ class StvList(object):
 					del self.byTypeId[typeIdStr]
 					del self.byType[atype][aid]
 
-				if item.has_key('stvId'):
-					self.apiclient.libraryTitleRemove(item['stvId'])
-					del self.byStvId[item['stvId']]
-
 		except Exception as e:
+			raise
 			self.log('REMOVE FAILED / ' + typeIdStr)
 
 	def correct_title(self, old_title, new_title):
-		#~ self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
-		pass
+		" Removes old title and adds new one with the same data, except stvId and type taken from new_title "
+		old_item = self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
+		new_item = dict(old_item)
+		new_item['stvId'] = new_title['id']
+		new_item['type'] = new_title['type']		
+		self.remove(old_title['type'], old_title['xbmc_id'])
+		self.put(new_item)
+		return new_item
 
 	def hasTypeId(self, atype, aid):
 		return self.byTypeId.has_key(self._getKey(atype, aid))
@@ -250,6 +254,11 @@ class StvList(object):
 		self.log('LIST /')
 		for rec in self.byTypeId.values():
 			self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + dump(rec))
+
+	def dump(self):
+		self.log(dump(self.byTypeId))
+		self.log(dump(self.byStvId))
+		self.log(dump(self.byFilename))
 
 	def listByFilename(self):
 		if len(self.byFilename) == 0:

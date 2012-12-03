@@ -48,7 +48,7 @@ class CacheTest(TestCase):
 		episode1 = { 'type': u'episode', 'id': 2, 'file': 'episode.s02e22.avi' }
 		cache.put(episode1)
 		
-		movie2 = { 'type': u'movie', 'id': 3, 'file': 'xxx' }
+		movie2 = { 'type': u'movie', 'id': 3, 'file': 'xxx', 'stvId': 9876543 }
 		cache.put(movie2)
 		
 	def test_get_path(self):
@@ -59,6 +59,23 @@ class CacheTest(TestCase):
 		#print cache.get_path(movie)
 		self.assertEqual(cache.get_path(movie), '/Volumes/FLOAT/Film/cache ceske titulky/Cache - CD1.avi')
 
+	def test_correction(self):
+		NEW_STV_ID = 1234567
+		FILENAME = 'asodfhaoherfoahdfs.avi'
+		
+		movie2 = { 'type': u'movie', 'id': 3, 'file': FILENAME, 'stvId': 9876543 }
+		cache.put(movie2)
+		
+		old_title = { 'type': 'movie', 'xbmc_id': 3 }
+		new_title = { 'type': 'movie', 'id': NEW_STV_ID }
+
+		new_item = cache.correct_title(old_title, new_title)
+
+		self.assertEqual(cache.byTypeId['movie--3']['stvId'], NEW_STV_ID)
+		self.assertEqual(cache.byStvId[NEW_STV_ID]['file'], FILENAME)
+		self.assertEqual(cache.byFilename[FILENAME], new_item)
+		
+		
 
 if __name__ == '__main__':
 	test_item1 = {
