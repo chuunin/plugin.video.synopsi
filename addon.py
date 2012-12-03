@@ -43,6 +43,8 @@ class AddonClient(object):
 	def __init__(self, pluginhandle):
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.pluginhandle = pluginhandle
+		addon = get_current_addon()
+		self.service_port = int(addon.getSetting('ADDON_SERVICE_PORT'))
 
 	def execute(self, command, **arguments):
 		try:
@@ -53,7 +55,7 @@ class AddonClient(object):
 
 			response = None
 
-			self.s.connect(('localhost', 9190))
+			self.s.connect(('localhost', self.service_port))
 			xbmc.log('CLIENT / SEND / ' + dump(json_data))
 			self.s.sendall(json.dumps(json_data) + "\n")
 

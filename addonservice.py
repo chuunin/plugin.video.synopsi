@@ -156,8 +156,20 @@ class AddonHandler(ServiceTCPHandler):
 class AddonServer(SocketServer.TCPServer):
 	allow_reuse_address = True
 	def __init__(self, host, port):
-		SocketServer.TCPServer.__init__(self, (host, port), AddonHandler)
+		tport = port
+		while True:
+			try:
+				log('trying port %d' % tport)
+				SocketServer.TCPServer.__init__(self, (host, tport), AddonHandler)
+				break
+			except:
+				tport += 1
+				if tport > 65500:
+					raise
+				
 
+		addon = get_current_addon()
+		addon.setSetting('ADDON_SERVICE_PORT', str(tport))
 
 class AddonService(mythread.MyThread):
 	def __init__(self, host, port, apiClient, stvList):

@@ -19,6 +19,8 @@ from addonservice import AddonService
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
 
+DEFAULT_SERVICE_PORT=9091
+
 def main():
 	apiclient1 = AppApiClient.getDefaultClient()
 
@@ -44,7 +46,7 @@ def main():
 
 	s = Scrobbler(cache)
 	l = RPCListenerHandler(cache, s)
-	aos = AddonService('localhost', 9190, apiclient1, cache)
+	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, apiclient1, cache)
 	s.start()
 	l.start()
 	aos.start()
