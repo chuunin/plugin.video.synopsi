@@ -1,5 +1,5 @@
 # xbmc
-import xbmc
+import xbmc, xbmcvfs
 
 # python standart lib
 import logging
@@ -19,7 +19,7 @@ class Loggable(object):
 		logdir = self.get_log_dir()
 
 		if not os.path.exists(logdir):
-			os.mkdir(logdir)
+			xbmcvfs.mkdir(logdir)
 
 		fh = logging.handlers.RotatingFileHandler(os.path.join('log', self.name + '.log'), mode='w', backupCount=2)
 		self._log.addHandler(fh)
