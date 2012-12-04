@@ -57,7 +57,7 @@ class AddonHandler(ServiceTCPHandler):
 		# for title in resRecco['titles']:
 		#	log(title['name'])
 
-		return resRecco
+		return resRecco.get('titles', [])
 
 	def get_tvshows(self):
 		result = []
@@ -166,7 +166,7 @@ class AddonServer(SocketServer.TCPServer):
 				tport += 1
 				if tport > 65500:
 					raise
-				
+
 
 		addon = get_current_addon()
 		addon.setSetting('ADDON_SERVICE_PORT', str(tport))

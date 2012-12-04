@@ -132,7 +132,7 @@ def get_item_list(action_code, **kwargs):
 	log('get_item_list:' + str(action_code))
 
 	if action_code==ActionCode.MovieRecco:
-		return addonclient.get_global_recco('movie')['titles']
+		return addonclient.get_global_recco('movie')
 	elif action_code==ActionCode.LocalMovieRecco:
 		return addonclient.get_local_recco2('movie')
 	elif action_code==ActionCode.TVShows:
