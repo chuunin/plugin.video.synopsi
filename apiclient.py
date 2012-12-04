@@ -346,7 +346,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-# list dependent
+# library dependent
 	def libraryTitleAdd(self, titleId):
 		req = {
 			'methodPath': 'library/title/%d/add/' % titleId,
@@ -370,6 +370,20 @@ class ApiClient(loggable.Loggable):
 		}
 
 		return self.execute(req)
+
+	def library(self, title_property=None):
+		req = {
+			'methodPath': 'library/%s/' % self.device_id,
+			'method': 'get',
+			'data': {
+			}
+		}
+
+		if title_property:
+			req['data']['title_property[]'] = ','.join(title_property)
+
+		return self.execute(req)
+
 
 	def title(self, titleId, props=watchableTitleProps, cast_props=None, cast_limit=None):
 		" Get title from library "
@@ -456,6 +470,4 @@ class ApiClient(loggable.Loggable):
 		}
 
 		return self.execute(req)
-
-
 

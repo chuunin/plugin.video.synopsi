@@ -25,7 +25,7 @@ def pprint(data):
 
 
 class ApiTest(TestCase):
-	def test_auth(self):		
+	def test_auth(self):
 		client.getAccessToken()
 		self.assertIsInstance(client, ApiClient)
 		return client
@@ -34,11 +34,11 @@ class ApiTest(TestCase):
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
 		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
-		
+
 		self.assertRaises(AuthenticationError, client.getAccessToken)
 		self.assertTrue(client.isAuthenticated()==False)
 
-	def test_unwatched_episodes(self):		
+	def test_unwatched_episodes(self):
 		data = client.unwatchedEpisodes()
 
 		self.assertTrue(data.has_key('lineup'))
@@ -46,11 +46,11 @@ class ApiTest(TestCase):
 		self.assertTrue(data.has_key('top'))
 		self.assertTrue(data.has_key('upcoming'))
 
-	def test_title_identify(self):	
+	def test_title_identify(self):
 		ident = {
-			"file_name": "/Volumes/FLOAT/Film/_videne/Night_On_Earth/Night_On_Earth.avi", 
-			"stv_title_hash": "1defa7f69476e9ffca7b8ceb8c251275afc31ade", 
-			"os_title_hash": "486d1f7112f9749d", 
+			"file_name": "/Volumes/FLOAT/Film/_videne/Night_On_Earth/Night_On_Earth.avi",
+			"stv_title_hash": "1defa7f69476e9ffca7b8ceb8c251275afc31ade",
+			"os_title_hash": "486d1f7112f9749d",
 			"imdb_id": "0102536",
 			'title_property[]': ','.join(['name', 'cover_medium'])
 		}
@@ -60,24 +60,24 @@ class ApiTest(TestCase):
 		self.assertTrue(stv_title.has_key('type'))
 
 		ident2 = {
-			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi', 
-			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db', 
-			'os_title_hash': '484e59acbfaf64e5', 
-			'imdb_id': ''		
+			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
+			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db',
+			'os_title_hash': '484e59acbfaf64e5',
+			'imdb_id': ''
 		}
 
 		stv_title = client.titleIdentify(**ident2)
 		self.assertTrue(stv_title.has_key('type'))
 
 
-	def test_library_add(self):		
+	def test_library_add(self):
 		client.getAccessToken()
 
 		ident = {
-			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi', 
-			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db', 
-			'os_title_hash': '484e59acbfaf64e5', 
-			'imdb_id': '0472198'		
+			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
+			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db',
+			'os_title_hash': '484e59acbfaf64e5',
+			'imdb_id': '0472198'
 		}
 
 		data = client.titleIdentify(**ident)
@@ -88,23 +88,23 @@ class ApiTest(TestCase):
 
 		exampleEvents = [
 			{
-			    "event": "start", 
-			    "timestamp": '2012-10-08 16:54:34', 
+			    "event": "start",
+			    "timestamp": '2012-10-08 16:54:34',
 			    "position": 1222
-			}, 
+			},
 			{
-			    "event": "pause", 
-			    "timestamp": '2012-10-08 16:54:40', 
+			    "event": "pause",
+			    "timestamp": '2012-10-08 16:54:40',
 			    "position": 1359
-			}, 
+			},
 			{
-			    "event": "resume", 
-			    "timestamp": '2012-10-08 16:55:10', 
+			    "event": "resume",
+			    "timestamp": '2012-10-08 16:55:10',
 			    "position": 1359
-			}, 
+			},
 			{
-			    "event": "stop", 
-			    "timestamp": '2012-10-08 16:55:15', 
+			    "event": "stop",
+			    "timestamp": '2012-10-08 16:55:15',
 			    "position": 1460
 			},
 		]
@@ -112,7 +112,7 @@ class ApiTest(TestCase):
 		#exampleEvents = []
 
 		watched_data = {
-			'rating': 1, 
+			'rating': 1,
 			'player_events': json.dumps(exampleEvents)
 		}
 
@@ -121,7 +121,7 @@ class ApiTest(TestCase):
 		data = client.libraryTitleRemove(stv_title_id)
 
 	def test_profile_recco(self):
-		
+
 
 		props = [ 'year', 'cover_small' ]
 		data = client.profileRecco('movie', False, 5, props)
@@ -131,7 +131,7 @@ class ApiTest(TestCase):
 		self.assertTrue(len(data['titles']) > 0)
 
 	def test_profile_recco_local(self):
-		
+
 
 		props = [ 'year', 'cover_small' ]
 		data = client.profileRecco('movie', True, 5, props)
@@ -141,29 +141,29 @@ class ApiTest(TestCase):
 		self.assertTrue(len(data['titles']) > 0)
 
 
-	def test_title_similar(self):	
+	def test_title_similar(self):
 		# 1947362 "Ben-Hur (1959)"
 		data_similar = client.titleSimilar(1947362)
 		#print data_similar
 
-	def test_title(self):		
+	def test_title(self):
 		title = client.title(1947362, cast_props=['name'])
-		
+
 		self.assertTrue(title.has_key('cover_full'))
 		self.assertTrue(title.has_key('cast'))
 		self.assertTrue(title['cast'][0]['name']=='Charlton Heston')
 
-	def test_tvshow(self):		
+	def test_tvshow(self):
 		title = client.tvshow(14335, cast_props=['name'], season_props=['id','season_number'], season_limit=3)
-		
-		# print dump(title)		
+
+		# print dump(title)
 
 		self.assertTrue(title.has_key('cover_full'))
 		self.assertTrue(title.get('type')=='tvshow')
 		self.assertTrue(title.get('year')==2005)
 		self.assertTrue(title['cast'][0]['name']=='Josh Radnor')
 
-	def test_season(self):		
+	def test_season(self):
 		title = client.season(14376)
 
 		# print dump(title)
@@ -194,8 +194,11 @@ class ApiTest(TestCase):
 		# print dump(result)
 		self.assertTrue(result['status']=='ok')
 
+	def test_library(self):
+		result = client.library(['date', 'genres', 'cover_small'])
+		print dump(result)
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
 	c = connection
 	client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
 
