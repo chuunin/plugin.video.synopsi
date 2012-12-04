@@ -19,7 +19,7 @@ from addonservice import AddonService
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
 
-DEFAULT_SERVICE_PORT=9091
+DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
 	apiclient1 = AppApiClient.getDefaultClient()
@@ -67,7 +67,6 @@ def main():
 
 	log('library and scrobbler quit')
 	cache.save()
-
 
 if __name__ == "__main__":
 	main()
