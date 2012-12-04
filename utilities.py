@@ -462,7 +462,7 @@ def home_screen_fill(apiClient, cache):
 		# recco could return less than 5 items
 		if i < len(episode_recco):
 			e = episode_recco[i]
-			lib_item = cache.getByStvId(m['id'])
+			lib_item = cache.getByStvId(e['id'])
 			log('episode %d %s' % (i, e['name']))
 			log('lib_item %s' % (str(lib_item)))
 			WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
