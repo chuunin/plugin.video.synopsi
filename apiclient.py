@@ -27,7 +27,7 @@ watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
 smallListProps = ['id', 'cover_medium', 'name', 'watched']
 allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
-defaultSeasonProps = ['id', 'cover_medium', 'season_number'] 						
+defaultSeasonProps = ['id', 'cover_medium', 'season_number']
 defaultSeasonProps2 = ['id', 'episodes']
 defaultSearchProps = commonTitleProps
 
@@ -51,9 +51,9 @@ class ApiClient(loggable.Loggable):
 		self.apiUrl = self.baseUrl + rel_api_url
 		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
-		self.device_id = device_id  
+		self.device_id = device_id
 		#~ self._log = logging.getLogger()
-		
+
 		# xbmc.log('Log handler count %d ' % len(self._log.handlers))
 
 		if len(self._log.handlers)==0:
@@ -65,7 +65,7 @@ class ApiClient(loggable.Loggable):
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
 		# self._log.error('APIURL:' + self.apiUrl)
-		# self._log.error('BASEURL:' + self.baseUrl)		
+		# self._log.error('BASEURL:' + self.baseUrl)
 
 	@classmethod
 	def getDefaultClient(cls):
@@ -75,7 +75,7 @@ class ApiClient(loggable.Loggable):
 		__addon__  = get_current_addon()
 
 		iuid = get_install_id()
-		
+
 		# get or generate install-unique ID
 		ApiClient._instance = cls(
 			__addon__.getSetting('BASE_URL'),
@@ -108,7 +108,7 @@ class ApiClient(loggable.Loggable):
 			except:
 				# if network failure
 				connected = False
-				
+
 		return connected
 
 	def doRequest(self, req, cacheable=True):
@@ -147,11 +147,11 @@ class ApiClient(loggable.Loggable):
 		try:
 
 			req = Request(
-					self.baseUrl + 'oauth2/token/', 
-					data=urlencode(data), 
-					headers=self.authHeaders, 
+					self.baseUrl + 'oauth2/token/',
+					data=urlencode(data),
+					headers=self.authHeaders,
 					origin_req_host=self.originReqHost)
-						
+
 			# self._log.debug('request REQ HOST:' + str(req.get_origin_req_host()))
 			# self._log.debug('request URL:' + str(req.get_full_url()))
 			# self._log.debug('request HEADERS:' + str(req.headers.items()))
@@ -189,7 +189,7 @@ class ApiClient(loggable.Loggable):
 
 	def updateAccessTokenTimeout(self):
 		self.accessTokenSessionStart = datetime.datetime.now()
-		
+
 	def isAuthenticated(self):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
@@ -221,7 +221,7 @@ class ApiClient(loggable.Loggable):
 
 		# append data to post
 		if method == 'post':
-			post = requestData['data']		
+			post = requestData['data']
 			post['bearer_token'] = self.accessToken
 			data = urlencode(post)
 
@@ -238,14 +238,14 @@ class ApiClient(loggable.Loggable):
 			self._log.debug('URL:' + url)
 			self._log.debug('get:' + str(get))
 		if data:
-			self._log.debug('data:' + str(data))	
+			self._log.debug('data:' + str(data))
 
 		try:
 			response_json = self.doRequest(
 				Request(
 					url,
 					data = data,
-					headers = self.authHeaders, 
+					headers = self.authHeaders,
 					origin_req_host = self.originReqHost
 				),
 				False
@@ -260,7 +260,7 @@ class ApiClient(loggable.Loggable):
 			self._log.error('APICLIENT:' + str(e))
 			self._log.error('APICLIENT:' + str(e.reason))
 			response_json = {}
-	
+
 		else:
 			self.updateAccessTokenTimeout()
 
@@ -285,9 +285,9 @@ class ApiClient(loggable.Loggable):
 
 	def titleIdentify(self, props=defaultIdentifyProps, **data):
 		""" Try to match synopsi title by various data """
-		# filter-out empty data	
-		data = dict((k, v) for k, v in data.iteritems() if v)	
-				
+		# filter-out empty data
+		data = dict((k, v) for k, v in data.iteritems() if v)
+
 		data['device_id'] = self.device_id
 		data['title_property[]'] = ','.join(props)
 		req = {
@@ -324,7 +324,7 @@ class ApiClient(loggable.Loggable):
 			'method': 'post',
 			'data': data
 		}
-		
+
 		return self.execute(req)
 
 # conditionally dependent
@@ -355,7 +355,7 @@ class ApiClient(loggable.Loggable):
 			{
 				'device_id': self.device_id
 			}
-		}	
+		}
 
 		return self.execute(req)
 
@@ -376,7 +376,7 @@ class ApiClient(loggable.Loggable):
 
 		if cast_props:
 			props += ['cast']
-		
+
 		req = {
 			'methodPath': '/title/%d/' % titleId,
 			'method': 'get',
@@ -398,7 +398,7 @@ class ApiClient(loggable.Loggable):
 
 		if cast_props:
 			props += ['cast']
-		
+
 		req = {
 			'methodPath': '/tvshow/%d/' % titleId,
 			'method': 'get',
@@ -434,14 +434,6 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def libraryListCreate(self, list_uid):
-		req = {
-			'methodPath': 'library/list/%s/create/' % list_uid,
-			'method': 'get',
-		}
-
-		return self.execute(req)
-
 	def unwatchedEpisodes(self, props=watchableTitleProps):
 		req = {
 			'methodPath': 'profile/unwatched_episodes/',
@@ -464,5 +456,6 @@ class ApiClient(loggable.Loggable):
 		}
 
 		return self.execute(req)
+
 
 
