@@ -16,7 +16,7 @@ ABORT_REQUESTED = False
 class RPCListener(MyThread):
 	def __init__(self, cache, scrobbler):
 		super(RPCListener, self).__init__()
-		
+
 		self.cache = cache
 		self.scrobbler = scrobbler
 		self.apiclient = None
@@ -25,15 +25,16 @@ class RPCListener(MyThread):
 		self.connected = False
 		sleepTime = 100
 		t = time.time()
+		port = get_api_port()
 		while sleepTime<500 and (not self.connected or ABORT_REQUESTED or xbmc.abortRequested):
 			try:
-				self.sock.connect(("localhost", get_api_port()))  #   TODO: non default api port (get_api_port)
+				self.sock.connect(("localhost", port))
 			except Exception, exc:
 				log('%0.2f %s' % (time.time() - t, str(exc)))
 				xbmc.sleep(int(sleepTime))
 				sleepTime *= 1.5
 			else:
-				self._log.info('Connected to 9090')
+				self._log.info('Connected to %d' % port)
 				self.connected = True
 
 		self.sock.setblocking(True)
@@ -82,7 +83,7 @@ class RPCListener(MyThread):
 			return
 
 		self._log.debug(str(data))
-		
+
 		#   Try to call that method
 		try:
 			method(data)
@@ -102,7 +103,7 @@ class RPCListenerHandler(RPCListener):
 
 	def _xbmc_time2sec(self, time):
 		return time["hours"] * 3600 + time["minutes"] * 60 + time["seconds"] + time["milliseconds"] / 1000
-		
+
 	#   NOT USED NOW
 	def playerEvent(self, data):
 		self.self._log.debug(dump(data))

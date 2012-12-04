@@ -15,6 +15,7 @@ import re
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
+import xml.etree.ElementTree as ET
 
 #application
 from xbmcrpc import xbmc_rpc
@@ -150,7 +151,7 @@ def setting_cache_append_string(string):
 
 	lines.insert(-1, string)
 
-	# save file	
+	# save file
 	with open(settingsPath, 'w') as f:
 		f.write(os.linesep.join(lines))
 
@@ -387,7 +388,6 @@ def get_hash_array(path):
 							})
 	return hash_array
 
-
 def get_api_port():
 	"""
 	This function returns TCP port to which is changed XBMC RPC API.
@@ -397,16 +397,13 @@ def get_api_port():
 	path = os.path.join('special://profile', 'advancedsettings.xml')
 	path = xbmc.translatePath(path)
 
-	if os.path.isfile(path):
-		try:
-			with open(path, 'r') as _file:
-				temp = _file.read()
-				if "tcpport" in temp:
-					port = re.compile('<tcpport>(.+?)</tcpport>').findall(temp)
-					if len(port) > 0:
-						value = int(port[0])
-		except (IOError, IndexError):
-			value = 9090
+	try:
+		tree = ET.parse(path)
+		root = tree.getroot()
+		nodes = root.findall('.//tcpport')
+		value = int(nodes[0].text)
+	except:
+		value = 9090
 
 	return value
 
