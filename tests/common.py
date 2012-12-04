@@ -12,3 +12,9 @@ connection = {
 	'password': 'aaa',
 	'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd',
 }
+
+dev_conn = {
+	'base_url': 'https://dev-papi.synopsi.tv',
+	'key': '7d20df0bc4e4337e6bfdac68585251da',
+	'secret': '3556dae61fedb674fe30f46603f1c756b224b4fc6fb6e40b639a3c38c9eea9b8'
+}
