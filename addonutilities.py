@@ -74,10 +74,6 @@ def get_local_tvshows():
 
 	return [ { 'name': item['label'], 'cover_medium': item['thumbnail'] } for item in localtvshows['tvshows'] ]
 
-def set_already_watched(stv_id, rating):
-	log('already watched %d rating %d' % (stv_id, rating))
-	apiClient.titleWatched(stv_id, rating=rating)
-
 class VideoDialog(xbmcgui.WindowXMLDialog):
 	"""
 	Dialog about video information.
@@ -152,7 +148,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		elif controlId == 11:
 			rating = get_rating()
 			if rating < 4:
-				set_already_watched(self.data['id'], rating)
+				self.apiClient.titleWatched(self.data['id'], rating=rating)
 			self.close()
 			xbmc.executebuiltin('Container.Refresh()')
 
