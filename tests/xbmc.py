@@ -29,6 +29,8 @@ def executebuiltin(builtin):
 	else:
 		print "Executed Builtin:", builtin
 
+def translatePath(path):
+	return 'data/'
 
 class Player(MyThread):
 	def __init__(self):
