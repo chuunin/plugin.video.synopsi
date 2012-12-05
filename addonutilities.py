@@ -241,6 +241,7 @@ def open_select_movie_dialog(tpl_data):
 
 def show_video_dialog_byId(stv_id, apiClient, stvList):
 	stv_details = apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
+	stvList.updateTitle(stv_details)
 	show_video_dialog_data(apiClient, stvList, stv_details)
 
 def show_video_dialog(json_data, apiClient, stvList):

@@ -218,7 +218,7 @@ class StvList(object):
 		old_item = self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
 		new_item = dict(old_item)
 		new_item['stvId'] = new_title['id']
-		new_item['type'] = new_title['type']		
+		new_item['type'] = new_title['type']
 		self.remove(old_title['type'], old_title['xbmc_id'])
 		self.put(new_item)
 		return new_item
@@ -342,7 +342,6 @@ class StvList(object):
 			for show in tvshows['tvshows']:
 				episodes = xbmc_rpc.get_episodes(show["tvshowid"])
 				self.log('episodes: ' + dump(episodes))
-
 				if episodes['limits']['total'] > 0:
 					for episode in episodes["episodes"]:
 						episode['id'] = episode["episodeid"]
@@ -362,4 +361,12 @@ class StvList(object):
 
 	def _getKey(self, atype, aid):
 		return str(atype) + '--' + str(aid)
+
+	def updateTitle(self, title):
+		" Update title values from cache, using 'id' as 'stvId', updating stv_title_hash, file "
+		if self.hasStvId(title['id']):
+			cached_title = self.getByStvId(title['id'])
+			title['stv_title_hash'] = cached_title['stv_title_hash']
+			title['file'] = cached_title['file']
+			title['xbmc_id'] = cached_title['id']
 

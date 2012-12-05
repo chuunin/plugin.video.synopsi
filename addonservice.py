@@ -95,11 +95,7 @@ class AddonHandler(ServiceTCPHandler):
 		recco = self.get_local_recco(movie_type)['titles']
 
 		for title in recco:
-			if self.server.stvList.hasStvId(title['id']):
-				cached_title = self.server.stvList.getByStvId(title['id'])
-				log('found in cache:' + dump(cached_title))
-				title['stv_title_hash'] = cached_title['stv_title_hash']
-				title['file'] = cached_title['file']
+			self.server.stvList.updateTitle(title)
 
 		return recco
 
