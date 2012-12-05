@@ -159,7 +159,6 @@ class AddonServer(SocketServer.TCPServer):
 		tport = port
 		while True:
 			try:
-				log('trying port %d' % tport)
 				SocketServer.TCPServer.__init__(self, (host, tport), AddonHandler)
 				break
 			except:
