@@ -51,13 +51,13 @@ def main():
 	l.start()
 	aos.start()
 
-	log('Entering service loop')
+	log('Service loop START')
 	while True:
 		s.join(0.5)
 		l.join(0.5)
 
 		if not l.isAlive() and not s.isAlive() and not s.isAlive():
-			log('Service loop end. Both threads are dead')
+			log('All threads are dead. Exiting loop')
 			break
 
 		if xbmc.abortRequested:
@@ -65,7 +65,7 @@ def main():
 			aos.stop()
 			break;
 
-	log('library and scrobbler quit')
+	log('Service loop END')
 	cache.save()
 
 if __name__ == "__main__":
