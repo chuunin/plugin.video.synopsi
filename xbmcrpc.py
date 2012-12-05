@@ -4,11 +4,16 @@ import xbmc, xbmcgui, xbmcaddon
 # python standart lib
 import json
 
+# application
+from utilities import *
+from loggable import Loggable
+
 defaultProperties = ['file', 'imdbnumber', "lastplayed", "playcount"]
 
-class xbmcRPCclient(object):
-	
+class xbmcRPCclient(Loggable):
+
 	def __init__(self, logLevel = 0):
+		super(xbmcRPCclient, self).__init__()
 		self.__logLevel = logLevel
 
 	def execute(self, methodName, params):
@@ -19,20 +24,20 @@ class xbmcRPCclient(object):
 			'id': 1
 		}
 
-		if self.__logLevel:
-			log('xbmc RPC request: ' + dump(req))
+
+		self._log.debug('xbmc RPC request: ' + dump(req))
 
 		response = xbmc.executeJSONRPC(json.dumps(req))
-		
+
 		json_response = json.loads(response)
 
-		if self.__logLevel:
-			log('xbmc RPC response: ' + dump(json_response))
+
+		self._log.debug('xbmc RPC response: ' + dump(json_response))
 
 		if json_response.has_key('error') and json_response['error']:
-			log('xbmc RPC ERROR: ' + json_response['error']['message'])
-			log('xbmc RPC request: ' + dump(req))
-			log('xbmc RPC response: ' + dump(json_response))
+			self._log.debug('xbmc RPC ERROR: ' + json_response['error']['message'])
+			self._log.debug('xbmc RPC request: ' + dump(req))
+			self._log.debug('xbmc RPC response: ' + dump(json_response))
 			raise Exception(json_response['error']['message'])
 
 		return json_response['result']
@@ -45,15 +50,15 @@ class xbmcRPCclient(object):
 		data = {
 			'properties': defaultProperties
 		}
-		
+
 		if start or end:
 			data['limits'] = {}
 			if start:
 				data['limits']['start'] = start
 			if end:
 				data['limits']['end'] = end
-			
-			
+
+
 		response = self.execute('VideoLibrary.GetMovies', data)
 
 		return response
@@ -154,32 +159,32 @@ class xbmcRPCclient(object):
 		Get dict of movie_id details.
 		"""
 		properties = defaultProperties
-		#	"title", 
-		#   "genre", 
-		#   "year", 
-		#   "rating", 
-		#   "plot", 
-		#   "studio", 
-		#   "mpaa", 
-		#   "cast", 
-		#   "playcount", 
-		#   "episode", 
-		#   "imdbnumber", 
-		#   "premiered", 
-		#   "votes", 
-		#   "lastplayed", 
-		#   "fanart", 
-		#   "thumbnail", 
-		#   "file", 
-		#   "originaltitle", 
-		#   "sorttitle", 
+		#	"title",
+		#   "genre",
+		#   "year",
+		#   "rating",
+		#   "plot",
+		#   "studio",
+		#   "mpaa",
+		#   "cast",
+		#   "playcount",
+		#   "episode",
+		#   "imdbnumber",
+		#   "premiered",
+		#   "votes",
+		#   "lastplayed",
+		#   "fanart",
+		#   "thumbnail",
+		#   "file",
+		#   "originaltitle",
+		#   "sorttitle",
 		#   "episodeguide"
 
 		response = self.execute(
 			'VideoLibrary.GetTVShowDetails',
 			{
 				'properties': properties,
-				'tvshowid': movie_id 
+				'tvshowid': movie_id
 			}
 		)
 
@@ -202,7 +207,7 @@ class xbmcRPCclient(object):
 		return response['episodedetails']
 
 	def get_details(self, atype, aid, all_prop=False):
-		if atype == "movie":                
+		if atype == "movie":
 			movie = self.get_movie_details(aid, all_prop)
 		elif atype == "episode":
 			movie = self.get_episode_details(aid)
