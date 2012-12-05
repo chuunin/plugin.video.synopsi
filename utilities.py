@@ -17,8 +17,6 @@ from urllib import urlencode
 from urllib2 import Request, urlopen
 import xml.etree.ElementTree as ET
 
-#application
-from xbmcrpc import xbmc_rpc
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
