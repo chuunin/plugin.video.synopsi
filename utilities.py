@@ -68,15 +68,29 @@ def get_current_addon():
 	global __addon__
 	return __addon__
 
+def addon_getSetting(aid, adef=None):
+	addon = get_current_addon()
+	try:
+		res = addon.getSetting(aid)
+	except:
+		res = adef
+
+	return res
+
 def check_first_run():
 	# on first run
 	if __addon__.getSetting('FIRSTRUN') == 'true':
 		log('SYNOPSI FIRST RUN')
+
 		# enable home screen recco
 		__addon__.openSettings()
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
 		xbmc.executebuiltin('ReloadSkin()')
-		__addon__.setSetting(id='FIRSTRUN', value="false")
+		__addon__.setSetting('FIRSTRUN', "false")
+
+	if addon_getSetting('ADDON_SERVICE_FIRSTRUN') != "false":
+		dialog_need_restart()
+
 
 def dialog_text(msg, max_line_length=20, max_lines=3):
 	line_end = [0]
@@ -534,5 +548,10 @@ def dialog_login_fail_yesno():
 	dialog = xbmcgui.Dialog()
 	result = dialog.yesno("SynopsiTV", "Authentication failed", "Would you like to open settings and correct your login info?")
 	return result
+
+def dialog_need_restart():
+	dialog = xbmcgui.Dialog()
+	dialog.ok("SynopsiTV", "Please restart XBMC to start SynopsiTV service")
+
 
 
