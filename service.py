@@ -19,6 +19,8 @@ from addonservice import AddonService
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
 
+__addon__.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
+
 DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
@@ -38,7 +40,7 @@ def main():
 	except:
 		# first time
 		log('CACHE restore failed. If this is your first run, its ok')
-		cache.rebuild()
+		thread.start_new_thread(cache.rebuild, ())
 
 	#~ cache.list()
 
