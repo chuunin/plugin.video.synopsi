@@ -24,6 +24,9 @@ def pprint(data):
 
 
 class CacheTest(TestCase):
+	def setUp(self):
+		cache.clear()
+
 	def test_save_load(self):
 
 		cache.put(test_item1)
@@ -97,6 +100,13 @@ class CacheTest(TestCase):
 			cache.put(test_item1)
 			cache.put(test_item2)
 
+	def test_get_items(self):
+		cache.clear()
+		cache.put(test_item1)
+		cache.put(test_item3)
+		i = cache.getItems()
+		self.assertEquals(i[0]['stv_title_hash'], 'ba7c6a7bc6a7b6c')
+		self.assertEquals(i[0]['file'], '/var/log/virtual.ext')
 
 if __name__ == '__main__':
 	test_item1 = {
@@ -113,6 +123,14 @@ if __name__ == '__main__':
 		'file': '/var/log/002.avi',
 		'stvId': 10009,
 		'stv_title_hash': 'ba7c6a7bc6a7b6cb8ac8bc',
+	}
+
+	test_item3 = {
+		'type': 'episode',
+		'id': 10,
+		'file': '/var/log/tvshow/003.avi',
+		'stvId': 10011,
+		'stv_title_hash': 'c34t66627bc6a7b6cb8ac8bc',
 	}
 
 	c = connection

@@ -227,7 +227,7 @@ class StvList(object):
 		new_item['stvId'] = new_title['id']
 		new_item['type'] = new_title['type']
 
-		self.log('correcting %s to %s, new stvId: %d' % (old_item['label'], new_item['label'], new_item['stvId']))
+		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_item.get('label'), str(new_item['stvId'])))
 
 		self.dump()
 		self.remove(old_title['type'], old_title['xbmc_id'])
@@ -286,6 +286,9 @@ class StvList(object):
 		self.byTypeId = {}
 		self.byFilename = {}
 		self.byStvId = {}
+
+	def getItems(self):
+		return self.byTypeId.values()
 
 	def rebuild(self):
 		"""
@@ -381,5 +384,5 @@ class StvList(object):
 			title['stv_title_hash'] = cached_title['stv_title_hash']
 			title['file'] = cached_title['file']
 			title['xbmc_id'] = cached_title['id']
-			self.log('updating title %s with xbmc_id: %d file: %s' % (title['name'], title['xbmc_id'], title['file']))
+			self.log('updating title %s with xbmc_id: %d file: %s' % (title.get('name'), title['xbmc_id'], title['file']))
 
