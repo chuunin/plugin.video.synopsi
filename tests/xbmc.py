@@ -17,7 +17,7 @@ def log(string):
 
 
 def executeJSONRPC(js):
-	print "XBMC recieved: ", js.strip()
+	print "XBMC received: ", js.strip()
 	return "{}"
 
 
