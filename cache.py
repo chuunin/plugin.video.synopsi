@@ -24,6 +24,9 @@ xbmc2stv_key_translation = {
 
 playable_types = ['movie', 'episode']
 
+class DuplicateStvIdException(Exception):
+	pass
+
 class StvList(object):
 	"""
 	Library cache.
@@ -161,6 +164,10 @@ class StvList(object):
 		" Put a new record in the list "
 		typeIdStr = self._getKey(item['type'], item['id'])
 
+		# check if an item with this stvId is not already there
+		if item.has_key('stvId') and self.byStvId.has_key(item['stvId']):
+			raise DuplicateStvIdException('Title with stv_id=%d is already in library' % item['stvId'])
+
 		self.byType[item['type']][item['id']] = item
 		self.byTypeId[typeIdStr] = item
 		if item['type'] in playable_types:
@@ -219,8 +226,13 @@ class StvList(object):
 		new_item = dict(old_item)
 		new_item['stvId'] = new_title['id']
 		new_item['type'] = new_title['type']
+
+		self.log('correcting %s to %s, new stvId: %d' % (old_item['label'], new_item['label'], new_item['stvId']))
+
+		self.dump()
 		self.remove(old_title['type'], old_title['xbmc_id'])
 		self.put(new_item)
+		self.dump()
 		return new_item
 
 	def hasTypeId(self, atype, aid):
@@ -257,8 +269,8 @@ class StvList(object):
 
 	def dump(self):
 		self.log(dump(self.byTypeId))
-		self.log(dump(self.byStvId))
-		self.log(dump(self.byFilename))
+		#~ self.log(dump(self.byStvId))
+		#~ self.log(dump(self.byFilename))
 
 	def listByFilename(self):
 		if len(self.byFilename) == 0:
@@ -369,4 +381,5 @@ class StvList(object):
 			title['stv_title_hash'] = cached_title['stv_title_hash']
 			title['file'] = cached_title['file']
 			title['xbmc_id'] = cached_title['id']
+			self.log('updating title %s with xbmc_id: %d file: %s' % (title['name'], title['xbmc_id'], title['file']))
 

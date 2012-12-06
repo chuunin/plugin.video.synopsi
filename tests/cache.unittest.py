@@ -11,7 +11,7 @@ from common import connection
 sys.path.insert(0, os.path.abspath('..'))
 from utilities import *
 from apiclient import *
-from cache import StvList
+from cache import StvList, DuplicateStvIdException
 
 def pprint(data):
 	global logger
@@ -92,6 +92,11 @@ class CacheTest(TestCase):
 		self.assertEquals(title_01['stv_title_hash'], test_item1['stv_title_hash'])
 		self.assertEquals(title_01['id'], test_item1['stvId'])
 
+	def test_disallow_duplicate_stvid(self):
+		with self.assertRaises(DuplicateStvIdException):
+			cache.put(test_item1)
+			cache.put(test_item2)
+
 
 if __name__ == '__main__':
 	test_item1 = {
@@ -100,6 +105,14 @@ if __name__ == '__main__':
 		'file': '/var/log/virtual.ext',
 		'stvId': 10009,
 		'stv_title_hash': 'ba7c6a7bc6a7b6c',
+	}
+
+	test_item2 = {
+		'type': 'movie',
+		'id': 11,
+		'file': '/var/log/002.avi',
+		'stvId': 10009,
+		'stv_title_hash': 'ba7c6a7bc6a7b6cb8ac8bc',
 	}
 
 	c = connection
