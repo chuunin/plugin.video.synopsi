@@ -217,8 +217,8 @@ class StvList(object):
 					del self.byType[atype][aid]
 
 		except Exception as e:
-			raise
 			self.log('REMOVE FAILED / ' + typeIdStr)
+			raise
 
 	def correct_title(self, old_title, new_title):
 		" Removes old title and adds new one with the same data, except stvId and type taken from new_title "
