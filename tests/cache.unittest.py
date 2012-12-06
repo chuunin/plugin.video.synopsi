@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # python standart lib
 import os, sys
 from unittest import *
@@ -30,6 +31,7 @@ class CacheTest(TestCase):
 	def test_save_load(self):
 
 		cache.put(test_item1)
+		cache.put(test_item3)
 		cache.save()
 
 		cache.load()
@@ -39,6 +41,10 @@ class CacheTest(TestCase):
 		# check if the items are correctly referenced
 		self.assertEqual(id(cache.getByTypeId('movie', '10')), id(cache.getByFilename('/var/log/virtual.ext')))
 		self.assertEqual(id(cache.getByTypeId('movie', '10')), id(cache.getByStvId(10009)))
+
+		# check the items encoding
+		self.assertEqual(cache.getByTypeId('episode', '10')['file'], u'/var/log/tvshow/Čučoriedky žužlavé.avi')
+
 
 
 	def test_addorupdate_stack(self):
@@ -128,7 +134,7 @@ if __name__ == '__main__':
 	test_item3 = {
 		'type': 'episode',
 		'id': 10,
-		'file': '/var/log/tvshow/003.avi',
+		'file': u'/var/log/tvshow/Čučoriedky žužlavé.avi',
 		'stvId': 10011,
 		'stv_title_hash': 'c34t66627bc6a7b6cb8ac8bc',
 	}
