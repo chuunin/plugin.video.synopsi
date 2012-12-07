@@ -35,14 +35,14 @@ class AppApiClient(ApiClient):
 	def checkUserPass(self):
 		if self.reloadUserPass():
 			self.clearAccessToken()
-			self._log.debug('User credentials changed')
 			return True
 
 		return False
 
 	def isAuthenticated(self):
 		" Returns true if user is authenticated. This method adds to its parent method a check if user credentials have changed "
-		return self.checkUserPass() and ApiClient.isAuthenticated(self)
+		self.checkUserPass()
+		return ApiClient.isAuthenticated(self)
 
 	def getAccessToken(self):
 		if not self._lock_access_token.acquire(False):
