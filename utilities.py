@@ -16,7 +16,7 @@ from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
 import xml.etree.ElementTree as ET
-
+import time
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
@@ -439,51 +439,47 @@ def home_screen_fill(apiClient, cache):
 	try:
 		movie_recco = apiClient.profileRecco('movie', True, homeReccoLimit)['titles']
 		episode_recco = apiClient.get_unwatched_episodes()
+
+		#~ log('movie_recco:' + dump(movie_recco))
+		#~ log('episode_recco:' + dump(episode_recco))
+		log('movie_recco count:' + str(len(movie_recco)))
+		log('episode_recco count:' + str(len(episode_recco)))
+
+		MOVIES_COUNT = 5	# count of template display slots
+		WINDOW = xbmcgui.Window( 10000 )
+
+		for i in range(0, MOVIES_COUNT):
+			# recco could return less than 5 items
+			if i < len(movie_recco):
+				m = movie_recco[i]
+				lib_item = cache.getByStvId(m['id'])
+				log('movie %d %s' % (i, m['name']))
+				log('lib_item %s' % (str(lib_item)))
+
+				WINDOW.setProperty("LatestMovie.{0}.Title".format(i+1), m['name'] + 'xxx')
+				if lib_item:
+					WINDOW.setProperty("LatestMovie.{0}.Path".format(i+1), lib_item['file'])
+				WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i+1), m['cover_thumbnail'])
+				WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i+1), m['cover_large'])
+
+			# recco could return less than 5 items
+			if i < len(episode_recco):
+				e = episode_recco[i]
+				lib_item = cache.getByStvId(e['id'])
+				log('episode %d %s' % (i, e['name']))
+				log('lib_item %s' % (str(lib_item)))
+				WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i+1), e['name'])
+				WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i+1), e['name'])
+				WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i+1), str(i))
+				if lib_item:
+					WINDOW.setProperty("LatestEpisode.{0}.Path".format(i+1), e['cover_large'])
+				WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i+1), e['cover_large'])
+				WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i+1), e['cover_thumbnail'])
+
 	except Exception as e:
 		log(traceback.format_exc())
 		notification('Movie reccomendation service failed')
 		return
-
-	# from test import jsfile
-	# movie_recco = jsfile
-	# episode_recco = jsfile
-
-
-	# log('movie_recco:' + dump(movie_recco, indent=4))
-	# log('episode_recco:' + dump(episode_recco, indent=4))
-	log('movie_recco count:' + str(len(movie_recco)))
-	log('episode_recco count:' + str(len(episode_recco)))
-
-	MOVIES_COUNT = 5	# count of template display slots
-	WINDOW = xbmcgui.Window( 10000 )
-
-	for i in range(1, MOVIES_COUNT+1):
-		# recco could return less than 5 items
-		if i < len(movie_recco):
-			m = movie_recco[i]
-			lib_item = cache.getByStvId(m['id'])
-			log('movie %d %s' % (i, m['name']))
-			log('lib_item %s' % (str(lib_item)))
-
-			WINDOW.setProperty("LatestMovie.{0}.Title".format(i), m['name'])
-			if lib_item:
-				WINDOW.setProperty("LatestMovie.{0}.Path".format(i), lib_item['file'])
-			WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i), m['cover_thumbnail'])
-			WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i), m['cover_large'])
-
-		# recco could return less than 5 items
-		if i < len(episode_recco):
-			e = episode_recco[i]
-			lib_item = cache.getByStvId(e['id'])
-			log('episode %d %s' % (i, e['name']))
-			log('lib_item %s' % (str(lib_item)))
-			WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i), e['name'])
-			WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i), e['name'])
-			WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i), str(i))
-			if lib_item:
-				WINDOW.setProperty("LatestEpisode.{0}.Path".format(i), e['cover_large'])
-			WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i), e['cover_large'])
-			WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i), e['cover_thumbnail'])
 
 
 def login_screen(apiClient):
