@@ -1,4 +1,7 @@
+# xbmc
 import xbmc, xbmcgui, xbmcaddon
+
+# python standart lib
 import logging
 import json
 import sys
@@ -6,8 +9,11 @@ import datetime
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen, HTTPError, URLError
-from utilities import *
 import httplib
+
+# application
+from utilities import *
+import loggable
 
 RATING_CODE = {
 	1: 'like',
@@ -15,8 +21,15 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
-defaultTitleProps = [ 'id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime' ]
-						
+commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
+defaultIdentifyProps = commonTitleProps + ['tvshow_id']
+watchableTitleProps = commonTitleProps + ['watched']
+defaultTVShowProps = commonTitleProps + ['seasons']
+smallListProps = ['id', 'cover_medium', 'name', 'watched']
+allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
+defaultSeasonProps = ['id', 'cover_medium', 'season_number']
+defaultSeasonProps2 = ['id', 'episodes']
+defaultSearchProps = commonTitleProps
 
 class NotConnectedException(Exception):
 	pass
@@ -24,35 +37,35 @@ class NotConnectedException(Exception):
 class AuthenticationError(Exception):
 	pass
 
-class ApiClient(object):
+class ApiClient(loggable.Loggable):
 	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
+		super(ApiClient, self).__init__()
 		self.baseUrl = base_url
 		self.key = key
 		self.secret = secret
 		self.username = username
 		self.password = password
 		self.accessToken = None
-		self.refreshToken = None
+		#~ self.refreshToken = None
 		self.apiUrl = self.baseUrl + rel_api_url
 		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
-		self.device_id = device_id  
-		self._logger = logging.getLogger()
-		
-		# xbmc.log('Log handler count %d ' % len(self._logger.handlers))
+		self.device_id = device_id
+		#~ self._log = logging.getLogger()
 
-		if len(self._logger.handlers)==0:
-			self._logger.addHandler(logging.StreamHandler(sys.stdout))
+		# xbmc.log('Log handler count %d ' % len(self._log.handlers))
 
-		self._logger.setLevel(debugLvl)
-		self._logger.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
+		if len(self._log.handlers)==0:
+			self._log.addHandler(logging.StreamHandler(sys.stdout))
+
+		#~ self._log.setLevel(debugLvl)
+		self._log.debug('apiclient __init__ (%s, %s)' % (self.username, self.password))
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
-		# self._logger.error('APIURL:' + self.apiUrl)
-		# self._logger.error('BASEURL:' + self.baseUrl)		
-		
+		# self._log.error('APIURL:' + self.apiUrl)
+		# self._log.error('BASEURL:' + self.baseUrl)
 
 	@classmethod
 	def getDefaultClient(cls):
@@ -62,7 +75,7 @@ class ApiClient(object):
 		__addon__  = get_current_addon()
 
 		iuid = get_install_id()
-		
+
 		# get or generate install-unique ID
 		ApiClient._instance = cls(
 			__addon__.getSetting('BASE_URL'),
@@ -95,14 +108,14 @@ class ApiClient(object):
 			except:
 				# if network failure
 				connected = False
-				
+
 		return connected
 
 	def doRequest(self, req, cacheable=True):
 		if not self.isAuthenticated():
 			access = self.getAccessToken()
 			if not access:
-				self._logger.error('Could not get the auth token')
+				self._log.error('Could not get the auth token')
 				return False
 
 		# put the cacheable request into queue
@@ -127,51 +140,72 @@ class ApiClient(object):
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
-		# self._logger.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
-		# self._logger.debug('apiclient getaccesstoken %s' % str(data))
+		# self._log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
+		# self._log.debug('apiclient getaccesstoken %s' % str(data))
 
 		# get token
 		try:
 
 			req = Request(
-					self.baseUrl + 'oauth2/token/', 
-					data=urlencode(data), 
-					headers=self.authHeaders, 
+					self.baseUrl + 'oauth2/token/',
+					data=urlencode(data),
+					headers=self.authHeaders,
 					origin_req_host=self.originReqHost)
-						
-			# self._logger.debug('request REQ HOST:' + str(req.get_origin_req_host()))
-			# self._logger.debug('request URL:' + str(req.get_full_url()))
-			# self._logger.debug('request HEADERS:' + str(req.headers.items()))
-			# self._logger.debug('request DATA:' + str(req.get_data()))
+
+			# self._log.debug('request REQ HOST:' + str(req.get_origin_req_host()))
+			# self._log.debug('request URL:' + str(req.get_full_url()))
+			# self._log.debug('request HEADERS:' + str(req.headers.items()))
+			# self._log.debug('request DATA:' + str(req.get_data()))
 
 			response = urlopen(req)
 
-			# self._logger.debug('request RESPONSE:' + str(response))
+			# self._log.debug('request RESPONSE:' + str(response))
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			self._logger.error('%d %s' % (e.code, e))
-			self._logger.error(e.read())
+			response = json.loads(e.read())
+			if "User authentication failed" in response['error_description']:
+				self._log.info('%d %s' % (e.code, response['error_description']))
+			else:
+				self._log.error('%d %s' % (e.code, e))
+				self._log.error(e.read())
+
 			raise AuthenticationError()
 
 		except URLError as e:
-			self._logger.error(str(e))
-			self._logger.error(e.reason)
+			self._log.error(str(e))
+			self._log.error(e.reason)
 			raise AuthenticationError()
 
 		except Exception as e:
-		 	self._logger.error('ANOTHER EXCEPTION:' + str(e))
+		 	self._log.error('OTHER EXCEPTION:' + str(e))
 			raise AuthenticationError()
 
 
+		self.updateAccessTokenTimeout()
 		self.accessToken = response_json['access_token']
+		#~ self.refreshToken = response_json['refresh_token']
+		self._log.debug('new access token: ' + self.accessToken)
+		return True
+
+	def updateAccessTokenTimeout(self):
 		self.accessTokenSessionStart = datetime.datetime.now()
-		self.refreshToken = response_json['refresh_token']
-		self._logger.debug('new access token: ' + self.accessToken)
 
 	def isAuthenticated(self):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
+
+	def _unicode_input(self, data):
+		safe_data = {}
+		for k, v in data.iteritems():
+			if isinstance(v, unicode):
+				safe_data[k] = unicode(v).encode('utf-8')
+			elif isinstance(v, dict):
+				safe_data[k] = self._unicode_input(v)
+			else:
+				safe_data[k] = v
+
+		return safe_data
 
 	def execute(self, requestData, cacheable=True):
 		if not self.isAuthenticated():
@@ -183,10 +217,12 @@ class ApiClient(object):
 
 		if not requestData.has_key('data'):
 			requestData['data'] = {}
+		else:
+			requestData['data'] = self._unicode_input(requestData['data'])
 
 		# append data to post
 		if method == 'post':
-			post = requestData['data']		
+			post = requestData['data']
 			post['bearer_token'] = self.accessToken
 			data = urlencode(post)
 
@@ -196,37 +232,38 @@ class ApiClient(object):
 			get['bearer_token'] = self.accessToken
 			url += '?' + urlencode(get)
 			data = None
-			self._logger.debug('URL:' + url)
 
 		if 'post' in locals():
-			self._logger.debug('post:' + str(post))
+			self._log.debug('post:' + str(post))
 		if 'get' in locals():
-			self._logger.debug('get:' + str(get))		
-
-		self._logger.debug('data:' + str(data))	
+			self._log.debug('URL:' + url)
+			self._log.debug('get:' + str(get))
+		if data:
+			self._log.debug('data:' + str(data))
 
 		try:
 			response_json = self.doRequest(
 				Request(
 					url,
 					data = data,
-					headers = self.authHeaders, 
+					headers = self.authHeaders,
 					origin_req_host = self.originReqHost
 				),
 				False
 			)
 
 		except HTTPError as e:
-			self._logger.error('APICLIENT:' + url)
-			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + e.read())
-			response_json = {}
+			response_json = json.loads(e.read())
+			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, str(e), response_json))
 
 		except URLError as e:
-			self._logger.error('APICLIENT:' + url)
-			self._logger.error('APICLIENT:' + str(e))
-			self._logger.error('APICLIENT:' + str(e.reason))
+			self._log.error('APICLIENT:' + url)
+			self._log.error('APICLIENT:' + str(e))
+			self._log.error('APICLIENT:' + str(e.reason))
 			response_json = {}
+
+		else:
+			self.updateAccessTokenTimeout()
 
 		return response_json
 
@@ -247,9 +284,13 @@ class ApiClient(object):
 
 		self.execute(req)
 
-	def titleIdentify(self, **data):
+	def titleIdentify(self, props=defaultIdentifyProps, **data):
 		""" Try to match synopsi title by various data """
+		# filter-out empty data
+		data = dict((k, v) for k, v in data.iteritems() if v)
+
 		data['device_id'] = self.device_id
+		data['title_property[]'] = ','.join(props)
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'get',
@@ -258,7 +299,7 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def titleSimilar(self, titleId, props=defaultTitleProps):
+	def titleSimilar(self, titleId, props=smallListProps):
 		req = {
 			'methodPath': 'title/%d/similar/' % titleId,
 			'method': 'get',
@@ -269,8 +310,26 @@ class ApiClient(object):
 
 		return self.execute(req)
 
+	def title_identify_correct(self, titleId, stv_title_hash, stv_subtitle_hash=None):
+		data = {
+			'title_id': titleId,
+			'stv_title_hash': stv_title_hash,
+			'device_id': self.device_id
+		}
+
+		if stv_subtitle_hash:
+			data['stv_subtitle_hash'] = stv_subtitle_hash
+
+		req = {
+			'methodPath': '/title/identify/mark_pair/',
+			'method': 'post',
+			'data': data
+		}
+
+		return self.execute(req)
+
 # conditionally dependent
-	def profileRecco(self, atype, local=False, props=defaultTitleProps):
+	def profileRecco(self, atype, local=False, limit=None, props=watchableTitleProps):
 		req = {
 			'methodPath': 'profile/recco/',
 			'method': 'get',
@@ -283,9 +342,12 @@ class ApiClient(object):
 		if local:
 			req['data']['device_id'] = self.device_id
 
+		if limit:
+			req['data']['limit'] = limit
+
 		return self.execute(req)
 
-# list dependent
+# library dependent
 	def libraryTitleAdd(self, titleId):
 		req = {
 			'methodPath': 'library/title/%d/add/' % titleId,
@@ -294,7 +356,7 @@ class ApiClient(object):
 			{
 				'device_id': self.device_id
 			}
-		}	
+		}
 
 		return self.execute(req)
 
@@ -310,8 +372,26 @@ class ApiClient(object):
 
 		return self.execute(req)
 
-	def title(self, titleId, props=defaultTitleProps):
+	def library(self, title_property=None):
+		req = {
+			'methodPath': 'library/%s/' % self.device_id,
+			'method': 'get',
+			'data': {
+			}
+		}
+
+		if title_property:
+			req['data']['title_property[]'] = ','.join(title_property)
+
+		return self.execute(req)
+
+
+	def title(self, titleId, props=watchableTitleProps, cast_props=None, cast_limit=None):
 		" Get title from library "
+
+		if cast_props:
+			props += ['cast']
+
 		req = {
 			'methodPath': '/title/%d/' % titleId,
 			'method': 'get',
@@ -320,17 +400,56 @@ class ApiClient(object):
 			}
 		}
 
+		if 'cast' in props:
+			if cast_limit:
+				req['data']['cast_limit'] = cast_limit
+			if cast_props:
+				req['data']['cast_property[]'] = ','.join(cast_props)
+
 		return self.execute(req)
 
-	def libraryListCreate(self, list_uid):
+	def tvshow(self, titleId, props=defaultTVShowProps, cast_props=None, cast_limit=None, season_props=defaultSeasonProps, season_limit=None):
+		" Get title from library "
+
+		if cast_props:
+			props += ['cast']
+
 		req = {
-			'methodPath': 'library/list/%s/create/' % list_uid,
+			'methodPath': '/tvshow/%d/' % titleId,
 			'method': 'get',
+			'data': {
+				'title_property[]': ','.join(props),
+				'season_property[]': ','.join(season_props)
+			}
+		}
+
+		if 'cast' in props:
+			if cast_limit:
+				req['data']['cast_limit'] = cast_limit
+			if cast_props:
+				req['data']['cast_property[]'] = ','.join(cast_props)
+
+		if 'seasons' in props:
+			if season_limit:
+				req['data']['season_limit'] = season_limit
+			if season_props:
+				req['data']['season_property[]'] = ','.join(season_props)
+
+		return self.execute(req)
+
+	def season(self, tvshow_id, props=defaultSeasonProps2, episode_props=smallListProps):
+		req = {
+			'methodPath': 'season/%d/' % int(tvshow_id),
+			'method': 'get',
+			'data': {
+				'title_property[]': ','.join(props),
+				'episode_property[]': ','.join(episode_props)
+			}
 		}
 
 		return self.execute(req)
 
-	def unwatchedEpisodes(self, props=defaultTitleProps):
+	def unwatchedEpisodes(self, props=watchableTitleProps):
 		req = {
 			'methodPath': 'profile/unwatched_episodes/',
 			'method': 'get',
@@ -341,4 +460,15 @@ class ApiClient(object):
 
 		return self.execute(req)
 
+	def search(self, term, props=defaultSearchProps):
+		req = {
+			'methodPath': 'search/',
+			'method': 'get',
+			'data': {
+				'name': term,
+				'title_property[]': ','.join(props)
+			}
+		}
+
+		return self.execute(req)
 

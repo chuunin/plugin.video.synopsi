@@ -1,11 +1,9 @@
-try:
-    import xbmc, xbmcgui, xbmcaddon
-except ImportError:
-    from tests import xbmc, xbmcgui, xbmcaddon
-import threading
+import xbmc, xbmcgui, xbmcaddon
+from mythread import MyThread
 import time
 import socket
 import json
+import re
 import traceback
 from app_apiclient import AppApiClient
 from utilities import *
@@ -15,130 +13,132 @@ from cache import *
 ABORT_REQUESTED = False
 
 
-class RPCListener(threading.Thread):
-    def __init__(self, cache):
-        super(RPCListener, self).__init__()
-        self.cache = cache
-        self.apiclient = None
+class RPCListener(MyThread):
+	def __init__(self, cache, scrobbler):
+		super(RPCListener, self).__init__()
 
-        self.sock = socket.socket()
-        self.sock.settimeout(5)
-        self.connected = False
-        sleepTime = 100
-        t = time.time()
-        while sleepTime<500 and (not self.connected or ABORT_REQUESTED or xbmc.abortRequested):
-            try:
-                self.sock.connect(("localhost", 9090))  #   TODO: non default api port (get_api_port)
-            except Exception, exc:
-                xbmc.log('%0.2f %s' % (time.time() - t, str(exc)))
-                xbmc.sleep(int(sleepTime))
-                sleepTime *= 1.5
-            else:
-                xbmc.log('Connected to 9090')
-                self.connected = True
+		self.cache = cache
+		self.scrobbler = scrobbler
+		self.apiclient = None
+		self.sock = socket.socket()
+		self.sock.settimeout(5)
+		self.connected = False
+		sleepTime = 100
+		t = time.time()
+		port = get_api_port()
+		while sleepTime<500 and (not self.connected or ABORT_REQUESTED or xbmc.abortRequested):
+			try:
+				self.sock.connect(("localhost", port))
+			except Exception, exc:
+				log('%0.2f %s' % (time.time() - t, str(exc)))
+				xbmc.sleep(int(sleepTime))
+				sleepTime *= 1.5
+			else:
+				self._log.info('Connected to %d' % port)
+				self.connected = True
 
-        self.sock.setblocking(True)
+		self.sock.setblocking(True)
 
-    def process(self, data):
-        pass
+	def process(self, data):
+		pass
 
-    def run(self):
-        global ABORT_REQUESTED
+	def run(self):
+		global ABORT_REQUESTED
 
-        if not self.connected:
-            return False
+		if not self.connected:
+			self._log.error('RPC Listener cannot run, there is not connection to xbmc')
+			return False
 
-        self.apiclient = AppApiClient.getDefaultClient()
+		self.apiclient = AppApiClient.getDefaultClient()
 
-        while True:
-            data = self.sock.recv(1024)
-            # xbmc.log('SynopsiTV: {0}'.format(str(data)))
-            try:
-                data_json = json.loads(str(data))
-                method = data_json.get("method")
-            except ValueError, e:
-                xbmc.log('RPC ERROR:' + str(e))
-                continue
+		while True:
+			data = self.sock.recv(8192)
+			data = data.replace('}{', '},{')
+			datapack='[%s]' % data
+			# self._log.debug('SynopsiTV: {0}'.format(str(data)))
+			try:
+				data_json = json.loads(datapack)
+			except ValueError, e:
+				self._log.error('RPC ERROR:' + str(e))
+				self._log.error('RPC ERROR DATA:' + str(data))
+				continue
 
-            if method == "System.OnQuit":
-                ABORT_REQUESTED = True
-                break
-            else:
-                self.process(data_json)
+			for request in data_json:
+				method = request.get("method")
 
-        self.sock.close()
-        xbmc.log('Library thread end')
+				if method == "System.OnQuit":
+					ABORT_REQUESTED = True
+					break
+				else:
+					self.process(request)
 
-    def process(self, data):
-        methodName = data['method'].replace('.', '_')
-        method = getattr(self, methodName, None)
-        if method == None:
-            xbmc.log('Unknown method: ' + methodName)
-            return
+		self.sock.close()
+		self._log.info('Library thread end')
 
-        xbmc.log('calling: ' + methodName)
-        xbmc.log(str(data))
-        
-        #   Try to call that method
-        try:
-            method(data)
-        except:
-            xbmc.log('Error in method "' + methodName + '"')
-            xbmc.log(traceback.format_exc())
+	def process(self, data):
+		methodName = data['method'].replace('.', '_')
+		method = getattr(self, methodName, None)
+		if method == None:
+			self._log.warn('Unknown method: ' + methodName)
+			return
 
-        #   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
+		self._log.debug(str(data))
+
+		#   Try to call that method
+		try:
+			method(data)
+		except:
+			self._log.error('Error in method "' + methodName + '"')
+			self._log.error(traceback.format_exc())
+
+		#   http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v4
 
 
 class RPCListenerHandler(RPCListener):
-    """
-    RPCListenerHandler defines event handler methods that are autotically called from parent class's RPCListener
-    """
-    def __init__(self, cache):
-        super(RPCListenerHandler, self).__init__(cache)
-        self.playerEvents = []
+	"""
+	RPCListenerHandler defines event handler methods that are autotically called from parent class's RPCListener
+	"""
+	def __init__(self, cache, scrobbler):
+		super(RPCListenerHandler, self).__init__(cache, scrobbler)
 
-    #   NOT USED NOW
-    def playerEvent(self, data):
-        self.log(json.dumps(data, indent=4))
+	def _xbmc_time2sec(self, time):
+		return time["hours"] * 3600 + time["minutes"] * 60 + time["seconds"] + time["milliseconds"] / 1000
 
-    def log(self, msg):
-        xbmc.log('Library: ' + msg)
+	#   NOT USED NOW
+	def playerEvent(self, data):
+		self.self._log.debug(dump(data))
 
-    def addorupdate(self, atype, aid):
-        self.cache.addorupdate(atype, aid)
+	def VideoLibrary_OnUpdate(self, data):
+		i = data['params']['data']['item']
+		self.cache.addorupdate(i['type'], i['id'])
 
-    def remove(self, atype, aid):
-        self.cache.remove(atype, aid)
+	def VideoLibrary_OnRemove(self, data):
+		d = data['params']['data']
+		self.cache.remove(d['type'], d['id'])
 
-    def VideoLibrary_OnUpdate(self, data):
-        self.addorupdate(data['params']['data']['item']['type'], data['params']['data']['item']['id'])
+	def Player_OnPlay(self, data):
+		self.playerEvent(data)
 
-    def VideoLibrary_OnRemove(self, data):
-        self.remove(data['params']['data']['type'], data['params']['data']['id'])
+	def Player_OnStop(self, data):
+		self.playerEvent(data)
 
-    def Player_OnPlay(self, data):
-        self.playerEvent(data)
+	def Player_OnSeek(self, data):
+		position = self._xbmc_time2sec(data['params']['data']['player']['time'])
+		self.scrobbler.player.playerEventSeek(position)
 
-    def Player_OnStop(self, data):
-        self.playerEvent(data)
+	def Player_OnPause(self, data):
+		self.playerEvent(data)
+		pass
 
-    def Player_OnSeek(self, data):
-        self.playerEvent(data)
-        pass
+	def Player_OnResume(self, data):
+		self.playerEvent(data)
+		pass
 
-    def Player_OnPause(self, data):
-        self.playerEvent(data)
-        pass
+	def GUI_OnScreenSaverActivated(self, data):
+		self.playerEvent(data)
+		pass
 
-    def Player_OnResume(self, data):
-        self.playerEvent(data)
-        pass
-
-    def GUI_OnScreenSaverActivated(self, data):
-        self.playerEvent(data)
-        pass
-
-    def GUI_OnScreenSaverDeactivated(self, data):
-        self.playerEvent(data)
-        pass
+	def GUI_OnScreenSaverDeactivated(self, data):
+		self.playerEvent(data)
+		pass
 

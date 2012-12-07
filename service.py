@@ -2,65 +2,72 @@
 This is default file of SynopsiTV service. See addon.xml
 <extension point="xbmc.service" library="service.py" start="login|startup">
 """
+# xbmc
+import xbmc, xbmcgui, xbmcaddon
+
+# python standart lib
+import thread
+
+# application
 from scrobbler import Scrobbler
 from library import RPCListenerHandler
 from cache import *
-from utilities import home_screen_fill, login_screen
-import xbmc, xbmcgui, xbmcaddon
+from utilities import home_screen_fill, login_screen, log
 from app_apiclient import AppApiClient
-import thread
+from addonservice import AddonService
 
 __addon__  = get_current_addon()
-__cwd__    = __addon__.getAddonInfo('path')
+__cwd__	= __addon__.getAddonInfo('path')
+
+__addon__.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
+
+DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
-    apiclient1 = AppApiClient.getDefaultClient()
-    
-    # on first run
-    if __addon__.getSetting('FIRSTRUN') == 'true':
-        # enable home screen recco
-        __addon__.openSettings()
-        xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')    
-        xbmc.executebuiltin('ReloadSkin()')
-        __addon__.setSetting(id='FIRSTRUN', value="false")
+	apiclient1 = AppApiClient.getDefaultClient()
 
-    # get or generate install-unique ID
-    iuid = get_install_id()
+	# check first run
+	check_first_run()
 
-    # try to restore cache  
-    cache = StvList(iuid, apiclient1)
+	# get or generate install-unique ID
+	iuid = get_install_id()
 
-    try:
-        cache.load(os.path.join(__cwd__, 'resources', 'cache.dat'))
-    except:
-        # first time
-        xbmc.log('CACHE restore failed. If this is your first run, its ok')
+	# try to restore cache
+	cache = StvList(iuid, apiclient1)
 
-    cache.list()
+	try:
+		cache.load()
+	except:
+		# first time
+		log('CACHE restore failed. If this is your first run, its ok')
+		thread.start_new_thread(cache.rebuild, ())
 
-    thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
-    s = Scrobbler(cache)
-    l = RPCListenerHandler(cache)
-    s.start()
-    l.start()
+	thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
-    xbmc.log('Entering service loop')
-    while True:
-        s.join(0.5)
-        l.join(0.5)
+	s = Scrobbler(cache)
+	l = RPCListenerHandler(cache, s)
+	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, apiclient1, cache)
+	s.start()
+	l.start()
+	aos.start()
 
-        if not l.isAlive() and not s.isAlive():
-            xbmc.log('Service loop end. Both threads are dead')
-            break
+	log('Service loop START')
+	while True:
+		s.join(0.5)
+		l.join(0.5)
 
-        if False and xbmc.abortRequested:
-            xbmc.log('service.py abortRequested')
-            break;
+		if not l.isAlive() and not s.isAlive() and not s.isAlive():
+			log('All threads are dead. Exiting loop')
+			break
 
-    xbmc.log('library and scrobbler quit')
-    cache.save(os.path.join(__cwd__, 'resources', 'cache.dat'))
+		if xbmc.abortRequested:
+			log('service.py abortRequested')
+			aos.stop()
+			break;
 
+	log('Service loop END')
+	cache.save()
 
 if __name__ == "__main__":
-    main()
+	main()

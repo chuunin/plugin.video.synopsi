@@ -66,28 +66,27 @@
 			<label>So, how did you like this movie?</label>
 			<font>font13</font>
 		</control>
-		<control id="11" type="button">
-			<description>Amazing button</description>
-			<posx>95</posx>
+		<control id="15" type="button">
+			<description>Terrible button</description>
+			<posx>65</posx>
 			<posy>175</posy>
-			<width>200</width>
+			<width>150</width>
 			<height>40</height>
-			<label>Amazing</label>
-			<!-- <label>$LOCALIZE[SCRIPT69604]</label> -->
+			<label>Terrible</label>
 			<font>font12_title</font>
 			<textcolor>white</textcolor>
 			<focusedcolor>white</focusedcolor>
 			<align>center</align>
-			<onleft>15</onleft>
-			<onright>10</onright>
-			<onup>11</onup>
-			<ondown>11</ondown>
+			<onleft>10</onleft>
+			<onright>11</onright>
+			<onup>15</onup>
+			<ondown>15</ondown>
 		</control>
 		<control id="10" type="button">
 			<description>ok button</description>
-			<posx>305</posx>
+			<posx>225</posx>
 			<posy>175</posy>
-			<width>100</width>
+			<width>150</width>
 			<height>40</height>
 			<label>OK</label>
 			<font>font12_title</font>
@@ -99,21 +98,22 @@
 			<onup>10</onup>
 			<ondown>10</ondown>
 		</control>
-		<control id="15" type="button">
-			<description>Terrible button</description>
-			<posx>415</posx>
+		<control id="11" type="button">
+			<description>Amazing button</description>
+			<posx>385</posx>
 			<posy>175</posy>
-			<width>100</width>
+			<width>150</width>
 			<height>40</height>
-			<label>Terrible</label>
+			<label>Amazing</label>
+			<!-- <label>$LOCALIZE[SCRIPT69604]</label> -->
 			<font>font12_title</font>
 			<textcolor>white</textcolor>
 			<focusedcolor>white</focusedcolor>
 			<align>center</align>
-			<onleft>10</onleft>
-			<onright>11</onright>
-			<onup>15</onup>
-			<ondown>15</ondown>
+			<onleft>15</onleft>
+			<onright>10</onright>
+			<onup>11</onup>
+			<ondown>11</ondown>
 		</control>
 	</controls>
 </window>

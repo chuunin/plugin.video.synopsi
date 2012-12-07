@@ -1,5 +1,5 @@
 <window id="2003">
-	<defaultcontrol always="true">6</defaultcontrol>
+	<defaultcontrol always="true">9000</defaultcontrol>
 	<!-- <allowoverlay>no</allowoverlay>-->
 	<controls>
 		<control type="group">
@@ -37,16 +37,30 @@
 				<control type="label">
 					<description>header label</description>
 					<posx>210</posx>
-					<posy>40</posy>
+					<posy>10</posy>
 					<width>1030</width>
 					<height>30</height>
 					<font>font24_title</font>
 					<label>$INFO[Window.Property(Movie.Title)]</label>
-					<!-- <label>Sherlock Holmes: A Game of Shadows (2011)</label>-->
 					<align>center</align>
 					<aligny>center</aligny>
 					<textcolor>white</textcolor>
 					<shadowcolor>black</shadowcolor>
+				</control>
+				<control id="101" type="label">
+					<description>file label</description>
+					<posx>510</posx>
+					<posy>50</posy>
+					<width>700</width>
+					<height>30</height>
+					<font>font24</font>
+					<label>$INFO[Window.Property(Movie.FileInfo)]</label>
+					<align>left</align>
+					<aligny>center</aligny>
+					<textcolor>gray</textcolor>
+					<shadowcolor>black</shadowcolor>
+					<visible>Control.HasFocus(13)</visible>
+					<scroll>Control.HasFocus(13)</scroll>
 				</control>
 				<control type="group">
 					<posy>90</posy>
@@ -79,9 +93,8 @@
 						<height>130</height>
 						<onleft>49</onleft>
 						<onright>49</onright>
-						<onup>9000</onup>
-						<!-- <ondown>61</ondown>-->
-						<ondown>59</ondown>
+						<onup>49</onup>
+						<ondown>61</ondown>
 						<pagecontrol>-</pagecontrol>
 						<scrolltime>200</scrolltime>
 						<itemlayout height="30">
@@ -146,8 +159,6 @@
 								<info>ListItem.Label2</info>
 							</control>
 						</focusedlayout>
-						<!-- <content><item><label>$LOCALIZE[20376]:</label><label2>$INFO[ListItem.OriginalTitle]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.OriginalTitle) + !stringcompare(ListItem.OriginalTitle,Listitem.Title)</visible></item><item><label>$LOCALIZE[20339]:</label><label2>$INFO[ListItem.Director]</label2><onclick>SendClick(2003,13)</onclick><visible>!IsEmpty(ListItem.Director)</visible></item><item><label>$LOCALIZE[20417]:</label><label2>$INFO[ListItem.Writer]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Writer)</visible></item><item><label>$LOCALIZE[572]:</label><label2>$INFO[ListItem.Studio]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Studio)</visible></item><item><label>$LOCALIZE[515]:</label><label2>$INFO[ListItem.Genre]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Genre)</visible></item><item><label>$LOCALIZE[562]:</label><label2>$INFO[ListItem.Year]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Year)</visible></item><item><label>$LOCALIZE[2050]:</label><label2>$INFO[ListItem.Duration] $LOCALIZE[12391]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Duration)</visible></item><item><label>$LOCALIZE[563]:</label><label2>$INFO[ListItem.RatingAndVotes]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.RatingAndVotes)</visible></item><item><label>$LOCALIZE[202]:</label><label2>$INFO[ListItem.TagLine]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.TagLine)</visible></item><item><label>$LOCALIZE[203]:</label><label2>$INFO[ListItem.PlotOutline]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.PlotOutline)</visible></item><item><label>$LOCALIZE[20074]:</label><label2>$INFO[ListItem.mpaa]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.mpaa)</visible></item><item><label>$LOCALIZE[15311]</label><label2>$INFO[ListItem.FilenameAndPath]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.FilenameAndPath)</visible></item></content>-->
-						<!-- <content><item><label>alallalal:</label><label2>Lalalal</label2><onclick>-</onclick></item><item><label>$LOCALIZE[20339]:</label><label2>$INFO[ListItem.Director]</label2><onclick>SendClick(2003,13)</onclick><visible>!IsEmpty(ListItem.Director)</visible></item><item><label>$LOCALIZE[20417]:</label><label2>$INFO[ListItem.Writer]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Writer)</visible></item><item><label>$LOCALIZE[572]:</label><label2>$INFO[ListItem.Studio]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Studio)</visible></item><item><label>$LOCALIZE[515]:</label><label2>$INFO[ListItem.Genre]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Genre)</visible></item><item><label>$LOCALIZE[562]:</label><label2>$INFO[ListItem.Year]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Year)</visible></item><item><label>$LOCALIZE[2050]:</label><label2>$INFO[ListItem.Duration] $LOCALIZE[12391]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.Duration)</visible></item><item><label>$LOCALIZE[563]:</label><label2>$INFO[ListItem.RatingAndVotes]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.RatingAndVotes)</visible></item><item><label>$LOCALIZE[202]:</label><label2>$INFO[ListItem.TagLine]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.TagLine)</visible></item><item><label>$LOCALIZE[203]:</label><label2>$INFO[ListItem.PlotOutline]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.PlotOutline)</visible></item><item><label>$LOCALIZE[20074]:</label><label2>$INFO[ListItem.mpaa]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.mpaa)</visible></item><item><label>$LOCALIZE[15311]</label><label2>$INFO[ListItem.FilenameAndPath]</label2><onclick>-</onclick><visible>!IsEmpty(ListItem.FilenameAndPath)</visible></item></content>-->
 						<content>
 							<item>
 								<label>$INFO[Window.Property(Movie.Label.1.1)]</label>
@@ -169,27 +180,13 @@
 								<label2>$INFO[Window.Property(Movie.Label.4.2)]</label2>
 								<onclick>-</onclick>
 							</item>
-							<!-- <item><label>$INFO[Window.Property(Movie.Label.5.1)]</label><label2>$INFO[Window.Property(Movie.Label.5.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.6.1)]</label><label2>$INFO[Window.Property(Movie.Label.6.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.7.1)]</label><label2>$INFO[Window.Property(Movie.Label.7.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.8.1)]</label><label2>$INFO[Window.Property(Movie.Label.8.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.9.1)]</label><label2>$INFO[Window.Property(Movie.Label.9.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.10.1)]</label><label2>$INFO[Window.Property(Movie.Label.10.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.11.1)]</label><label2>$INFO[Window.Property(Movie.Label.11.2)]</label2><onclick>-</onclick></item><item><label>$INFO[Window.Property(Movie.Label.12.1)]</label><label2>$INFO[Window.Property(Movie.Label.12.2)]</label2><onclick>-</onclick></item>-->
 						</content>
-					</control>
-					<control type="label">
-						<posx>455</posx>
-						<posy>140</posy>	
-						<width>160</width>
-						<height>30</height>
-						<font>font13</font>
-						<textcolor>blue</textcolor>
-						<scroll>true</scroll>
-						<align>right</align>
-						<aligny>center</aligny>
-						<label>$LOCALIZE[207]</label>
-						<!-- <visible>Control.IsVisible(400)</visible>-->
 					</control>
 
 					<control id="400" type="textbox">
 						<description>Plot</description>
 						<posx>305</posx>
-						<posy>170</posy>
+						<posy>150</posy>
 						<width>720</width>
 						<height>138</height>
 						<font>font12</font>
@@ -204,7 +201,7 @@
 					</control>
 					<control type="label">
 						<posx>120r</posx>
-						<posy>305</posy>	
+						<posy>305</posy>
 						<width>400</width>
 						<height>30</height>
 						<font>font13_title</font>
@@ -225,84 +222,69 @@
 						<font>-</font>
 						<onleft>61</onleft>
 						<onright>61</onright>
+						<onup>49</onup>
 						<ondown>9000</ondown>
-						<!-- <onup>49</onup>-->
-						<onup>59</onup>
 						<textcolor>-</textcolor>
 						<showonepage>true</showonepage>
 					</control>
 
 					<control type="label" id="559">
-						<posx>145</posx>
+						<posx>0</posx>
 						<posy>385</posy>
 						<width>160</width>
 						<height>30</height>
-						<label>Similar movies</label>
+						<label>$INFO[Window.Property(BottomListingLabel)]</label>
 						<font>font13</font>
-						<align>right</align>
+						<align>left</align>
 						<aligny>center</aligny>
 						<textcolor>blue</textcolor>
 						<selectedcolor>white</selectedcolor>
 					</control>
+
+<!--
+					<control type="image">
+						<description>debug image</description>
+						<posx>0</posx>
+						<posy>415</posy>
+						<width>1080</width>
+						<height>200</height>
+						<aspectratio>stretch</aspectratio>
+						<texture>debug.png</texture>
+					</control>
+-->
+
 					<control id="59" type="list">
 						<description>Similar movie list</description>
-						<backgroundcolor>0xff00ff00</backgroundcolor>
-						<posx>-5</posx>
+						<posx>0</posx>
 						<posy>415</posy>
-						<width>700</width>
+						<width>1080</width>
 						<height>200</height>
 						<onleft>59</onleft>
 						<onright>59</onright>
-						<onup>49</onup>
-						<ondown>61</ondown>
+						<onup>9000</onup>
+						<ondown>59</ondown>
 						<scrolltime>200</scrolltime>
 						<orientation>horizontal</orientation>
 						<viewtype label="535">list</viewtype>
 						<pagecontrol>-</pagecontrol>
 						<scrolltime>0</scrolltime>
 						<orientation>Horizontal</orientation>
-						<itemlayout height="200" width="140">
-							
+						<itemlayout height="200" width="175">
 							<control type="image">
 								<posx>0</posx>
 								<posy>0</posy>
-								<width>120</width>
+								<width>175</width>
 								<height>180</height>
 								<info>ListItem.Icon</info>
 								<bordersize>5</bordersize>
-								<visible>Control.HasFocus(59)</visible>
 								<texture background="true">$INFO[ListItem.Icon]</texture>
 							</control>
-							<control type="image">
-								<posx>0</posx>
-								<posy>0</posy>
-								<width>120</width>
-								<height>180</height>
-								<info>ListItem.Icon</info>
-								<texture background="true">$INFO[ListItem.Icon]</texture>
-								<bordersize>5</bordersize>
-								<visible>!Control.HasFocus(59)</visible>
-							</control>
 							<control type="label">
-								<posx>60</posx>
+								<posx>90</posx>
 								<posy>180</posy>
-								<width>120</width>
+								<width>165</width>
 								<height>20</height>
 								<info>ListItem.Label</info>
-								<visible>!Control.HasFocus(59)</visible>
-								<font>font13</font>
-								<align>center</align>
-								<aligny>center</aligny>
-								<textcolor>white</textcolor>
-								<selectedcolor>white</selectedcolor>
-							</control>
-							<control type="label">
-								<posx>60</posx>
-								<posy>180</posy>
-								<width>120</width>
-								<height>20</height>
-								<info>ListItem.Label</info>
-								<visible>Control.HasFocus(59)</visible>
 								<font>font13</font>
 								<align>center</align>
 								<aligny>center</aligny>
@@ -310,11 +292,11 @@
 								<selectedcolor>white</selectedcolor>
 							</control>
 						</itemlayout>
-						<focusedlayout height="200" width="140">
+						<focusedlayout height="200" width="175">
 							<control type="image">
 								<posx>0</posx>
 								<posy>0</posy>
-								<width>120</width>
+								<width>175</width>
 								<height>180</height>
 								<info>ListItem.Icon</info>
 								<texture background="true">$INFO[ListItem.Icon]</texture>
@@ -324,7 +306,7 @@
 							<control type="image">
 								<posx>0</posx>
 								<posy>0</posy>
-								<width>120</width>
+								<width>175</width>
 								<height>180</height>
 								<visible>Control.HasFocus(59)</visible>
 								<bordersize>5</bordersize>
@@ -334,25 +316,11 @@
 								<texture background="true">$INFO[ListItem.Icon]</texture>
 							</control>
 							<control type="label">
-								<posx>60</posx>
+								<posx>90</posx>
 								<posy>180</posy>
-								<width>120</width>
+								<width>165</width>
 								<height>20</height>
 								<info>ListItem.Label</info>
-								<visible>Control.HasFocus(59)</visible>
-								<font>font13</font>
-								<align>center</align>
-								<aligny>center</aligny>
-								<textcolor>white</textcolor>
-								<selectedcolor>white</selectedcolor>
-							</control>
-							<control type="label">
-								<posx>60</posx>
-								<posy>180</posy>
-								<width>120</width>
-								<height>20</height>
-								<info>ListItem.Label</info>
-								<visible>!Control.HasFocus(59)</visible>
 								<font>font13</font>
 								<align>center</align>
 								<aligny>center</aligny>
@@ -360,74 +328,45 @@
 								<selectedcolor>white</selectedcolor>
 							</control>
 						</focusedlayout>
-						<content>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.1.Label)]</label>
-								<onclick>Action(666)</onclick>
-								<icon>$INFO[Window.Property(Movie.Similar.1.Cover)]</icon>
-								<!-- <icon>https://s3.amazonaws.com/uploads.hipchat.com/11868/35105/j2ica998m06nhg0/default.png</icon> -->
-								<onclick>RunScript(plugin.video.synopsi, 0, ?url=stack%3A%2F%2FC%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD1%5Cpaddo-jedgar-a.avi+%2C++++++++++C%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD2%5Cpaddo-jedgar-b.avi&mode=2&name=The+Time+Machine&data=%7B%22cover_full%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-960.jpg%22%2C+%22genres%22%3A+%5B%22Sci-Fi%22%2C+%22Adventure%22%2C+%22Action%22%5D%2C+%22name%22%3A+%22The+Time+Machine%22%2C+%22cover_thumbnail%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22url%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22image%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22plot%22%3A+%22Based+on+the+classic+sci-fi+novel+by+H.G.+Wells%2C+scientist+and+inventor%2C+Alexander+Hartdegen%2C+is+determined+to+prove+that+time+travel+is+possible.+His+determination+is+turned+to+desperation+by+a+personal+tragedy+that+now+drives+him+to+want+to+change+the+past.+Testing+his+theories%26hellip%3B%22%2C+%22slug%22%3A+%22the-time-machine-2002%22%2C+%22id%22%3A+136558%2C+%22released%22%3A+false%2C+%22cover_large%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-267.jpg%22%2C+%22link%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22year%22%3A+2002%2C+%22cover_small%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-134.jpg%22%2C+%22type%22%3A+%22movie%22%2C+%22cover_medium%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-223.jpg%22%2C+%22trailer%22%3A+%22https%3A%2F%2Fwww.youtube.com%2Fembed%2FZJuHV3BXGm0%22%7D)</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.2.Label)]</label>
-								<onclick>RunScript(plugin.video.synopsi, 0, ?url=stack%3A%2F%2FC%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD1%5Cpaddo-jedgar-a.avi+%2C++++++++++C%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD2%5Cpaddo-jedgar-b.avi&mode=2&name=The+Time+Machine&data=%7B%22cover_full%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-960.jpg%22%2C+%22genres%22%3A+%5B%22Sci-Fi%22%2C+%22Adventure%22%2C+%22Action%22%5D%2C+%22name%22%3A+%22The+Time+Machine%22%2C+%22cover_thumbnail%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22url%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22image%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22plot%22%3A+%22Based+on+the+classic+sci-fi+novel+by+H.G.+Wells%2C+scientist+and+inventor%2C+Alexander+Hartdegen%2C+is+determined+to+prove+that+time+travel+is+possible.+His+determination+is+turned+to+desperation+by+a+personal+tragedy+that+now+drives+him+to+want+to+change+the+past.+Testing+his+theories%26hellip%3B%22%2C+%22slug%22%3A+%22the-time-machine-2002%22%2C+%22id%22%3A+136558%2C+%22released%22%3A+false%2C+%22cover_large%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-267.jpg%22%2C+%22link%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22year%22%3A+2002%2C+%22cover_small%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-134.jpg%22%2C+%22type%22%3A+%22movie%22%2C+%22cover_medium%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-223.jpg%22%2C+%22trailer%22%3A+%22https%3A%2F%2Fwww.youtube.com%2Fembed%2FZJuHV3BXGm0%22%7D)</onclick>
-								<icon>$INFO[Window.Property(Movie.Similar.2.Cover)]</icon>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.3.Label)]</label>
-								<!-- <icon>https://s3.amazonaws.com/titles.synopsi.tv/00103915-267.jpg</icon> -->
-								<icon>$INFO[Window.Property(Movie.Similar.3.Cover)]</icon>
-								<onclick>RunScript(plugin.video.synopsi, 0, ?url=stack%3A%2F%2FC%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD1%5Cpaddo-jedgar-a.avi+%2C++++++++++C%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD2%5Cpaddo-jedgar-b.avi&mode=2&name=The+Time+Machine&data=%7B%22cover_full%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-960.jpg%22%2C+%22genres%22%3A+%5B%22Sci-Fi%22%2C+%22Adventure%22%2C+%22Action%22%5D%2C+%22name%22%3A+%22The+Time+Machine%22%2C+%22cover_thumbnail%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22url%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22image%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22plot%22%3A+%22Based+on+the+classic+sci-fi+novel+by+H.G.+Wells%2C+scientist+and+inventor%2C+Alexander+Hartdegen%2C+is+determined+to+prove+that+time+travel+is+possible.+His+determination+is+turned+to+desperation+by+a+personal+tragedy+that+now+drives+him+to+want+to+change+the+past.+Testing+his+theories%26hellip%3B%22%2C+%22slug%22%3A+%22the-time-machine-2002%22%2C+%22id%22%3A+136558%2C+%22released%22%3A+false%2C+%22cover_large%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-267.jpg%22%2C+%22link%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22year%22%3A+2002%2C+%22cover_small%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-134.jpg%22%2C+%22type%22%3A+%22movie%22%2C+%22cover_medium%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-223.jpg%22%2C+%22trailer%22%3A+%22https%3A%2F%2Fwww.youtube.com%2Fembed%2FZJuHV3BXGm0%22%7D)</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.4.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.4.Cover)]</icon>
-								<onclick>RunScript(plugin.video.synopsi, 0, ?url=stack%3A%2F%2FC%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD1%5Cpaddo-jedgar-a.avi+%2C++++++++++C%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD2%5Cpaddo-jedgar-b.avi&mode=2&name=The+Time+Machine&data=%7B%22cover_full%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-960.jpg%22%2C+%22genres%22%3A+%5B%22Sci-Fi%22%2C+%22Adventure%22%2C+%22Action%22%5D%2C+%22name%22%3A+%22The+Time+Machine%22%2C+%22cover_thumbnail%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22url%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22image%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22plot%22%3A+%22Based+on+the+classic+sci-fi+novel+by+H.G.+Wells%2C+scientist+and+inventor%2C+Alexander+Hartdegen%2C+is+determined+to+prove+that+time+travel+is+possible.+His+determination+is+turned+to+desperation+by+a+personal+tragedy+that+now+drives+him+to+want+to+change+the+past.+Testing+his+theories%26hellip%3B%22%2C+%22slug%22%3A+%22the-time-machine-2002%22%2C+%22id%22%3A+136558%2C+%22released%22%3A+false%2C+%22cover_large%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-267.jpg%22%2C+%22link%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22year%22%3A+2002%2C+%22cover_small%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-134.jpg%22%2C+%22type%22%3A+%22movie%22%2C+%22cover_medium%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-223.jpg%22%2C+%22trailer%22%3A+%22https%3A%2F%2Fwww.youtube.com%2Fembed%2FZJuHV3BXGm0%22%7D)</onclick>
-							</item>
-							<item>
-								<label>$INFO[Window.Property(Movie.Similar.5.Label)]</label>
-								<icon>$INFO[Window.Property(Movie.Similar.5.Cover)]</icon>
-								<onclick>RunScript(plugin.video.synopsi, 0, ?url=stack%3A%2F%2FC%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD1%5Cpaddo-jedgar-a.avi+%2C++++++++++C%3A%5CUsers%5CTommy%5CVideos%5CMovies%5CJ+Edgar.2011.DVDRip+XviD-PADDO%5CCD2%5Cpaddo-jedgar-b.avi&mode=2&name=The+Time+Machine&data=%7B%22cover_full%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-960.jpg%22%2C+%22genres%22%3A+%5B%22Sci-Fi%22%2C+%22Adventure%22%2C+%22Action%22%5D%2C+%22name%22%3A+%22The+Time+Machine%22%2C+%22cover_thumbnail%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22url%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22image%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-075.jpg%22%2C+%22plot%22%3A+%22Based+on+the+classic+sci-fi+novel+by+H.G.+Wells%2C+scientist+and+inventor%2C+Alexander+Hartdegen%2C+is+determined+to+prove+that+time+travel+is+possible.+His+determination+is+turned+to+desperation+by+a+personal+tragedy+that+now+drives+him+to+want+to+change+the+past.+Testing+his+theories%26hellip%3B%22%2C+%22slug%22%3A+%22the-time-machine-2002%22%2C+%22id%22%3A+136558%2C+%22released%22%3A+false%2C+%22cover_large%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-267.jpg%22%2C+%22link%22%3A+%22%2Fmovies%2F136558%2Fthe-time-machine-2002%2F%22%2C+%22year%22%3A+2002%2C+%22cover_small%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-134.jpg%22%2C+%22type%22%3A+%22movie%22%2C+%22cover_medium%22%3A+%22https%3A%2F%2Fs3.amazonaws.com%2Ftitles.synopsi.tv%2F00136558-223.jpg%22%2C+%22trailer%22%3A+%22https%3A%2F%2Fwww.youtube.com%2Fembed%2FZJuHV3BXGm0%22%7D)</onclick>
-							</item>
-							<!-- <item><label>$INFO[Window.Property(Movie.Label.3.1)]</label><label2>$INFO[Window.Property(Movie.Label.3.2)]</label2><onclick>-</onclick></item>-->
-						</content>
 					</control>
-					<!-- <control type="image"><posx>290</posx><posy>380</posy><width>740</width><height>4</height><aspectratio>stretch</aspectratio><texture>separator.png</texture></control>-->
-				</control>
-				<!-- <control type="image"><description>Actor image</description><posx>210</posx><posy>480</posy><width>160</width><height>160</height><texture>$INFO[Container(50).Listitem.Icon]</texture><aspectratio>keep</aspectratio><visible>Control.IsVisible(50)</visible></control><control id="50" type="panel"><posx>380</posx><posy>520</posy><width>860</width><height>120</height><onleft>9000</onleft><onright>61</onright><onup>61</onup><ondown>9000</ondown><viewtype label="">list</viewtype><pagecontrol>61</pagecontrol><scrolltime>200</scrolltime><orientation>vertical</orientation><itemlayout height="40" width="430"><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><texture border="5">button-nofocus.png</texture></control><control type="label"><posx>10</posx><posy>0</posy><width>410</width><height>40</height><font>font12</font><align>left</align><aligny>center</aligny><selectedcolor>white</selectedcolor><info>ListItem.Label</info></control></itemlayout><focusedlayout height="40" width="430"><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><visible>!Control.HasFocus(50)</visible><texture border="5">button-nofocus.png</texture></control><control type="image"><posx>0</posx><posy>0</posy><width>430</width><height>40</height><visible>Control.HasFocus(50)</visible><texture border="5">button-focus2.png</texture></control><control type="label"><posx>10</posx><posy>0</posy><width>410</width><height>40</height><font>font12</font><align>left</align><aligny>center</aligny><selectedcolor>white</selectedcolor><info>ListItem.Label</info></control></focusedlayout></control>-->
-				<control id="9000" type="grouplist">
-					<posx>510</posx>
-					<posy>430</posy>
-					<width>550</width>
-					<height>40</height>
-					<itemgap>2</itemgap>
-					<!-- <align>center</align>-->
-					<align>left</align>
-					<orientation>horizontal</orientation>
-					<onleft>9000</onleft>
-					<onright>9000</onright>
-					<onup>61</onup>
-					<ondown>49</ondown>
-<!-- 					<control id="6" type="button">
-						<include>ButtonInfoDialogsCommonValues</include>
-						<label>Add to list</label>
-					</control> -->
-					<control id="5" type="button">
-						<include>ButtonInfoDialogsCommonValues</include>
-						<label>Play</label>
-						<onclick>PlayMedia($INFO[Window.Property(Movie.File)])</onclick>
-						<enable>false</enable>
+					<control id="9000" type="grouplist">
+						<posx>300</posx>
+						<posy>340</posy>
+						<width>740</width>
+						<height>40</height>
+						<itemgap>2</itemgap>
+						<!-- <align>center</align>-->
+						<align>left</align>
+						<orientation>horizontal</orientation>
+						<onleft>9000</onleft>
+						<onright>9000</onright>
+						<onup>61</onup>
+						<ondown>59</ondown>
+	<!-- 					<control id="6" type="button">
+							<include>ButtonInfoDialogsCommonValues</include>
+							<label>Add to list</label>
+						</control> -->
+						<control id="5" type="button">
+							<include>ButtonInfoDialogsCommonValues</include>
+							<label>Play</label>
+							<onclick>PlayMedia($INFO[Window.Property(Movie.File)])</onclick>
+							<enable>false</enable>
+						</control>
+						<control id="10" type="button">
+							<include>ButtonInfoDialogsCommonValues</include>
+							<label>Trailer</label>
+							<onclick>PlayMedia(plugin://plugin.video.youtube/?action=play_video&amp;videoid=$INFO[Window.Property(Movie.Trailer.Id)])</onclick>
+						</control>
+						<control id="11" type="button">
+							<include>ButtonInfoDialogsCommonValues</include>
+							<label>Watched</label>
+						</control>
+						<control id="13" type="button">
+							<include>ButtonInfoDialogsCommonValues</include>
+							<label>Correct</label>
+							<enable>false</enable>
+						</control>
 					</control>
-					<control id="10" type="button">
-						<include>ButtonInfoDialogsCommonValues</include>
-						<label>Trailer</label>
-						<onclick>PlayMedia(plugin://plugin.video.youtube/?action=play_video&amp;videoid=$INFO[Window.Property(Movie.Trailer.Id)])</onclick>
-					</control>
-					<control id="11" type="button">
-						<include>ButtonInfoDialogsCommonValues</include>
-						<label>Watched</label>
-					</control>
-					<!-- <control type="button" id="12"><description>Get Fanart</description><include>ButtonInfoDialogsCommonValues</include><label>20413</label></control><control type="button" id="11"><description>Play Trailer</description><include>ButtonInfoDialogsCommonValues</include><label>20410</label><visible>!IsEmpty(ListItem.Trailer) + !Skin.HasSetting(WindowedTrailer)</visible></control><control type="button" id="15"><description>Play Trailer Windowed</description><include>ButtonInfoDialogsCommonValues</include><label>20410</label><onclick>PlayMedia($INFO[ListItem.Trailer],1)</onclick><visible>!IsEmpty(ListItem.Trailer) + Skin.HasSetting(WindowedTrailer)</visible></control><control type="button" id="100"><description>Fetch TvTunes stuff</description><include>ButtonInfoDialogsCommonValues</include><label>31127</label><onclick>XBMC.RunScript(script.tvtunes,mode=solo&amp;tvpath=$INFO[ListItem.FilenameAndPath]&amp;tvname=$INFO[ListItem.TVShowTitle])</onclick><visible>Skin.HasSetting(ActivateTvTunes) + System.HasAddon(script.tvtunes) + Container.Content(TVShows)</visible></control>-->
 				</control>
 			</control>
 		</control>

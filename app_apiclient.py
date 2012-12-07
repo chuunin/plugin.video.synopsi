@@ -28,46 +28,88 @@ class AppApiClient(ApiClient):
 
 		return changed
 
-	def getAccessToken(self):
-		if not self._lock_access_token.acquire(False):
-			xbmc.log('getAccessToken lock NOT acquired')
-			return False
+	def clearAccessToken(self):
+		self.accessToken = None
+		self.accessTokenSessionStart = None
 
-		xbmc.log(threading.current_thread().name + ' getAccessToken START')
+	def checkUserPass(self):
+		if self.reloadUserPass():
+			self.clearAccessToken()
+			return True
+
+		return False
+
+	def isAuthenticated(self):
+		" Returns true if user is authenticated. This method adds to its parent method a check if user credentials have changed "
+		self.checkUserPass()
+		return ApiClient.isAuthenticated(self)
+
+	def getAccessToken(self):
+		if not self._lock_access_token.acquire():
+			self._log.debug('getAccessToken lock NOT acquired')
+			return False
+		else:
+			self._log.debug(threading.current_thread().name + ' getAccessToken LOCK ACQUIRED')
+
 		finished = False
 		while not finished:
-			# try to log in if user credentials changed
 			try:
-				if self.reloadUserPass():
-					ApiClient.getAccessToken(self)
+				# check to clear tokens if user credentials changed
+				self.checkUserPass()
 
-					if self.login_state_announce==LoginState.Notify:
-						notification('Logged in as %s' % self.username)		
+				# try to log in
+				ApiClient.getAccessToken(self)
+				if self.login_state_announce==LoginState.Notify:
+					notification('Logged in as %s' % self.username)
 
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
-				# this crashes
-				# finished = not login_screen(self)
 				if self.login_state_announce==LoginState.Notify:
 					if self._rejected_to_correct:
 						notification('Authentication failed. Correct your login/password in plugin settings')
+						res = False
+						finished = True
 					else:
 						if not dialog_check_login_correct():
 							self._rejected_to_correct = True
-							
-					finished = True
+							res = False
+							finished = True
 
 				elif self.login_state_announce==LoginState.AddonDialog:
 					raise
 
 			except Exception as e:
 				finished = True
-				xbmc.log('Another exception')
-				xbmc.log(str(e))
+				self._log.debug('Unknown exception')
+				self._log.debug(str(e))
+				res = False
 			else:
 				finished = True
-				xbmc.log('Login success')
+				self._log.debug('Login success')
+				res = True
 
-
-		xbmc.log(threading.current_thread().name + ' getAccessToken END')
+		self._log.debug(threading.current_thread().name + ' getAccessToken LOCK RELEASE')
 		self._lock_access_token.release()
+		return res
+
+	# convienent functions
+	def get_unwatched_episodes(self):
+		episodes = self.unwatchedEpisodes()
+
+		# self._log.debug('unwatched episodes')
+		# for title in episodes['lineup']:
+		#	 self._log.debug(title['name'])
+
+		result = episodes['lineup']
+		return result
+
+	def get_upcoming_episodes(self):
+		episodes = self.unwatchedEpisodes()
+
+		# self._log.debug('upcoming episodes')
+		# for title in episodes['upcoming']:
+		#	 self._log.debug(title['name'])
+
+		result = episodes['upcoming']
+		return result
+

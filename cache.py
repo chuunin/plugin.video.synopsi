@@ -1,247 +1,388 @@
+# xbmc
+import xbmc
+
+# python standart lib
 import base64
 import pickle
-import xbmc
 import json
+import traceback
+
+# application
 from utilities import *
 from app_apiclient import ApiClient
-
+from apiclient import commonTitleProps
+from xbmcrpc import xbmc_rpc
 
 xbmc2stv_key_translation = {
-    'file_name': 'file', 
-    'stv_title_hash': 'stv_hash', 
-    'os_title_hash': 'os_title_hash', 
-    'total_time': 'runtime', 
-    'label': 'originaltitle', 
-    'imdb_id': 'imdbnumber'
+	'file_name': 'file',
+	'os_title_hash': 'os_title_hash',
+	'stv_title_hash': 'stv_title_hash',
+	'total_time': 'runtime',
+	'label': 'originaltitle',
+	'imdb_id': 'imdbnumber'
 }
 
+playable_types = ['movie', 'episode']
+
+class DuplicateStvIdException(Exception):
+	pass
+
 class StvList(object):
-    """
-    Library cache.
-    Storing:
-    {
-        "_id" : xbmcid, # not unique
-        "_type": xbmctype, # "movie" or "episode"
-        "_hash": stvhash, # synopsi hash
-        "_file": file, # unique path to ONE file
-        "filepath": filepath, # path recieved from xbmc
-        # could be stack:// or stream etc.
-        "imdb": imdb,
-        "stv_id": synopsi_id_library
-    }
-    """
-    def __init__(self, uuid, apiclient):
-        super(StvList, self).__init__()
-        self.apiclient = apiclient
+	"""
+	Library cache.
+	Storing:
+	{
+		"_id" : xbmcid, # not unique
+		"_type": xbmctype, # "movie" or "episode"
+		"_hash": stvhash, # synopsi hash
+		"_file": file, # unique path to ONE file
+		"filepath": filepath, # path recieved from xbmc
+		# could be stack:// or stream etc.
+		"imdb": imdb,
+		"stv_id": synopsi_id_library
+	}
+	"""
+	def __init__(self, uuid, apiclient, filePath=None):
+		super(StvList, self).__init__()
+		self.apiclient = apiclient
+		self.filePath = filePath or self.__class__.getDefaultFilePath()
+		self.clear()
 
-        self.byTypeId = {}
-        self.byFilename = {}
-        self.byStvId = {}
+		self.uuid = uuid
+		#~ self.list()
 
-        self.uuid = uuid
-        self.list()
-
-
-    @classmethod
-    def getDefaultList(cls, apiClient=None):
-        addon  = get_current_addon()
-        if not apiClient:
-            apiClient = AppApiClient.getDefaultClient()
-
-        iuid = get_install_id()    
-        cache = StvList(iuid, apiClient) 
-        try:
-            cwd = addon.getAddonInfo('path')
-            cache.load(os.path.join(cwd, 'resources', 'cache.dat'))
-        except:
-            # first time
-            xbmc.log('CACHE restore failed. If this is your first run, its ok')
-
-        return cache
+	@classmethod
+	def getDefaultFilePath(cls):
+		addon  = get_current_addon()
+		addon_id = addon.getAddonInfo('id')
+		data_path = xbmc.translatePath('special://masterprofile/addon_data/')
+		return os.path.join(data_path, addon_id, 'cache.dat')
 
 
-    def serialize(self):
-        self.log(json.dumps([self.byTypeId, self.byFilename, self.byStvId]))
-        pickled_base64_cache = base64.b64encode(pickle.dumps([self.byTypeId, self.byFilename, self.byStvId]))
-        # self.log('PICKLED:' + pickled_base64_cache)
-        # self.log('UNPICKLED:' + str(pickle.loads(base64.b64decode(pickled_base64_cache))))
-        return pickled_base64_cache
+	@classmethod
+	def getDefaultList(cls, apiClient=None):
+		if not apiClient:
+			apiClient = AppApiClient.getDefaultClient()
 
-    def deserialize(self, _string):
-        unpickled_list = pickle.loads(base64.b64decode(_string))
-        # self.log('UNPICKLED:' + str(unpickled_list))
-        self.byTypeId = unpickled_list[0]
-        self.byFilename = unpickled_list[1]
-        self.byStvId = unpickled_list[2]
+		iuid = get_install_id()
+		cache = StvList(iuid, apiClient)
+		try:
+			cache.load()
+		except:
+			# first time
+			log('CACHE restore failed. If this is your first run, its ok')
 
-    def log(self, msg):
-        xbmc.log('CACHE / ' + str(msg))
+		return cache
 
-    def _translate_xbmc2stv_keys(self, a, b):
-        for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
-            if b.has_key(src_key):
-                a[dst_key] = b[src_key]
+	def serialize(self):
+		json_str = json.dumps(self.getItems())
 
-    def addorupdate(self, atype, aid):
-        # find out actual data about movie
-        movie = get_details(atype, aid)
-        movie['type'] = atype
-        movie['id'] = aid
+		return json_str
 
-        # if not in cache, it's been probably added
-        if not self.hasTypeId(movie['type'], movie['id']):
-            # get stv hash
-            movie['stv_hash'] = stv_hash(movie['file'])
-            movie['os_title_hash'] = hash_opensubtitle(movie['file'])
-            # try to get synopsi id
-            # for now, try only if there is 'imdbnumber'
+	def deserialize(self, _string):
+		json_obj = json.loads(_string)
+		return json_obj
 
-            # TODO: stv_subtitle_hash - hash of the subtitle file if presented
-            ident = {}
-            self._translate_xbmc2stv_keys(ident, movie)
-            # correct exceptions
-            if ident.get('imdb_id'):
-                ident['imdb_id'] = ident['imdb_id'][2:]
+	def log(self, msg):
+		log('CACHE / ' + msg)
 
-            # self.log('ident:' + json.dumps(ident, indent=4))    
+	def _translate_xbmc2stv_keys(self, a, b):
+		for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
+			if b.has_key(src_key):
+				a[dst_key] = b[src_key]
 
-            title = self.apiclient.titleIdentify(**ident)
-            if title.has_key('title_id'):
-                movie['stvId'] = title['title_id']
+	def get_path(self, movie):
+		if 'stack://' in movie['file']:
+			parts = movie['file'][8:].split(" , ")
+			return parts[0]
+		else:
+			return movie['file']
 
-            self.put(movie)
+	def addorupdate(self, atype, aid):
+		if not atype in playable_types:
+			return
 
-        # it is already in cache, some property has changed (e.g. lastplayed time)
-        else:
-            self.update(movie)
+		# find out actual data about movie
+		movie = xbmc_rpc.get_details(atype, aid)
+		movie['type'] = atype
+		movie['id'] = aid
+
+		# if not in cache, it's been probably added
+		if not self.hasTypeId(movie['type'], movie['id']):
+			# get stv hash
+			path = self.get_path(movie)
+			movie['stv_title_hash'] = stv_hash(path)
+			movie['os_title_hash'] = hash_opensubtitle(path)
 
 
-    def put(self, item):
-        " Put a new record in the list "
-        typeIdStr = self._getKey(item['type'], item['id'])
-        
-        self.byTypeId[typeIdStr] = item
-        self.byFilename[item['file']] = item
-        if item.has_key('stvId'):
-            self.byStvId[item['stvId']] = item
+			# TODO: stv_subtitle_hash - hash of the subtitle file if present
+			ident = {}
+			self._translate_xbmc2stv_keys(ident, movie)
 
-        stvIdStr = ' | stvId ' + str(item['stvId']) if item.has_key('stvId') else ''
-        logstr = 'PUT / ' + typeIdStr + stvIdStr + ' | ' + item['file']
-        
-        # if known by synopsi, add to list
-        if item.has_key('stvId'):
-            self.apiclient.libraryTitleAdd(item['stvId'])
+			# correct input
+			if ident.get('imdb_id'):
+				ident['imdb_id'] = ident['imdb_id'][2:]
 
-        self.log(logstr)
-        self.list()
+			# try to get synopsi id
+			#~ self.log('to identify: ' + dump(ident))
+			self.log('to identify: ' + ident['file_name'])
 
-    def update(self, item):
-        typeIdStr = self._getKey(item['type'], item['id'])
-        cacheItem = self.byTypeId[typeIdStr]
+			title = self.apiclient.titleIdentify(**ident)
 
-        updateStr = ''
+			if title.has_key('id'):
+				movie['stvId'] = title['id']
+				self.log('identified: ' + title['name'])
+			else:
+				self.log('File NOT identified %s' % movie['file'])
 
-        # update items
-        for key in item:
-            if not cacheItem.has_key(key) or not item[key] == cacheItem[key]:
-                updateStr += key + ': ' + str(getattr(cacheItem, key, None)) + ' -> ' + str(item[key]) + ' | '
-                cacheItem[key] = item[key]
 
-        self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
+			self.put(movie)
 
-    def remove(self, type, id):
-        typeIdStr = self._getKey(type, id)
-        try:
-            item = self.getByTypeId(type, id)
-            del self.byFilename[item['file']]
-            del self.byTypeId[typeIdStr]
+			# debug warning on movie type mismatch
+			if movie['type'] != title.get('type'):
+				self.log('Xbmc/Synopsi identification type mismatch: %s / %s in [%s]' % (movie['type'], title.get('type'), movie.get('file')))
 
-            if item.has_key('stvId'):
-                self.apiclient.libraryTitleRemove(item['stvId'])
-                del self.byStvId[item['stvId']]
-        except Exception as e:
-            self.log(e)
-            self.log('REMOVE FAILED / ' + typeIdStr)    
+			# for episode, add tvshow
+			if title.has_key('id') and movie['type'] == 'episode' and title.get('type') == 'episode':
+				#~ self.log('episode:'+dump(title))
+				self.add_tvshow(movie['id'], title['tvshow_id'])
 
-        self.log('REMOVE / ' + typeIdStr)
-        self.list()
+		# it is already in cache, some property has changed (e.g. lastplayed time)
+		else:
+			self.update(movie)
 
-    def hasTypeId(self, type, id):
-        return self.byTypeId.has_key(self._getKey(type, id))
+	def add_tvshow(self, xbmc_id, stvId):
+		stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
+		stv_title['id'] = xbmc_id
+		self.put(stv_title)
 
-    def getByTypeId(self, type, id):
-        return self.byTypeId[self._getKey(type, id)]
+	def put(self, item):
+		" Put a new record in the list "
+		typeIdStr = self._getKey(item['type'], item['id'])
 
-    def hasFilename(self, name):
-        return self.byFilename.has_key(name)
-        
-    def getByFilename(self, name):
-        return self.byFilename[name]
+		# check if an item with this stvId is not already there
+		if item.has_key('stvId') and self.byStvId.has_key(item['stvId']):
+			raise DuplicateStvIdException('Title with stv_id=%d is already in library' % item['stvId'])
 
-    def hasStvId(self, stv_id):
-        return self.byStvId.has_key(stv_id)
+		self.byType[item['type']][item['id']] = item
+		self.byTypeId[typeIdStr] = item
+		if item['type'] in playable_types:
+			self.byFilename[item['file']] = item
 
-    def getByStvId(self, stv_id):
-        if self.byStvId.has_key(stv_id):
-            return self.byStvId[stv_id]
+		if item.has_key('stvId'):
+			self.byStvId[item['stvId']] = item
+			typeIdStr += ' | stvId ' + str(item['stvId'])
 
-    def list(self):
-        self.log('ID / ' +  self.uuid)
-        if len(self.byTypeId) == 0:
-            self.log('EMPTY')
-            return
+		logstr = 'PUT / ' + typeIdStr + ' | ' + item.get('file', '')
 
-        self.log('LIST /')
-        for rec in self.byTypeId.values():
-            self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + json.dumps(rec))
+		# if known by synopsi, add to list
+		if item.has_key('stvId'):
+			self.apiclient.libraryTitleAdd(item['stvId'])
 
-    def listByFilename(self):
-        if len(self.byFilename) == 0:
-            self.log('EMPTY')
-            return
+		self.log(logstr)
 
-        self.log('LIST /')
-        for rec in self.byFilename.items():
-            self.log(rec[0] + '\t| ' + json.dumps(rec[1]))
+	def update(self, item):
+		typeIdStr = self._getKey(item['type'], item['id'])
+		cacheItem = self.byTypeId[typeIdStr]
 
-    def clear(self):
-        self.byFilename = {}
-        self.byTypeId = {}
+		updateStr = ''
 
-    def rebuild(self):
-        """
-        Rebuild whole cache in case it is broken.
-        """
-        
-        self.clear()
-        movies = get_all_movies()["movies"]
-        for movie in movies:
-            movie['id'] = movie["movieid"]
-            movie['type'] = "movie"
-            self.put(movie)
+		# update items
+		for key in item:
+			if not cacheItem.has_key(key) or not item[key] == cacheItem[key]:
+				updateStr += key + ': ' + str(getattr(cacheItem, key, None)) + ' -> ' + str(item[key]) + ' | '
+				cacheItem[key] = item[key]
 
-        resTvShows = get_all_tvshows()
-        if resTvShows.has_key("tvshows") > 0:
-            tv_shows = resTvShows
-            self.log(json.dumps(tv_shows))
-            # print tv_shows
-            for show in tv_shows:
-                for episode in get_episodes(show["tvshowid"])["result"]["episodes"]:
-                    self.create(_id = episode["episodeid"], _type = "episode", filepath = episode["file"])
-                    episode['id'] = episode["episodeid"]
-                    episode['type'] = "episode"
-                    self.put(episode)
+		self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
 
-    def save(self, path):
-        f = open(path, 'w')
-        f.write(self.serialize())
-        f.close()
+	def remove(self, atype, aid):
+		typeIdStr = self._getKey(atype, aid)
+		self.log('REMOVE / ' + typeIdStr)
+		try:
+			item = self.getByTypeId(atype, aid)
 
-    def load(self, path):
-        f = open(path, 'r')
-        self.deserialize(f.read())
-        f.close()
+			if item.has_key('stvId'):
+				self.apiclient.libraryTitleRemove(item['stvId'])
+				del self.byStvId[item['stvId']]
 
-    def _getKey(self, type, id):
-        return str(type) + '--' + str(id)
+			# suppose cache is consistent and remove only if one of indexes is available
+			if self.byTypeId.has_key(typeIdStr):
+				if self.byFilename.has_key(item['file']):
+					del self.byFilename[item['file']]
+					del self.byTypeId[typeIdStr]
+					del self.byType[atype][aid]
+
+		except Exception as e:
+			self.log('REMOVE FAILED / ' + typeIdStr)
+			raise
+
+	def correct_title(self, old_title, new_title):
+		" Removes old title and adds new one with the same data, except stvId and type taken from new_title "
+		old_item = self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
+		new_item = dict(old_item)
+		new_item['stvId'] = new_title['id']
+		new_item['type'] = new_title['type']
+
+		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_item.get('label'), str(new_item['stvId'])))
+
+		self.dump()
+		self.remove(old_title['type'], old_title['xbmc_id'])
+		self.put(new_item)
+		self.dump()
+		return new_item
+
+	def hasTypeId(self, atype, aid):
+		return self.byTypeId.has_key(self._getKey(atype, aid))
+
+	def getByTypeId(self, atype, aid):
+		return self.byTypeId[self._getKey(atype, aid)]
+
+	def hasFilename(self, name):
+		return self.byFilename.has_key(name)
+
+	def getByFilename(self, name):
+		return self.byFilename[name]
+
+	def hasStvId(self, stv_id):
+		return self.byStvId.has_key(stv_id)
+
+	def getByStvId(self, stv_id):
+		if self.byStvId.has_key(stv_id):
+			return self.byStvId[stv_id]
+
+	def getAllByType(self, atype):
+		return self.byType[atype]
+
+	def list(self):
+		self.log('ID / ' +  self.uuid)
+		if len(self.byTypeId) == 0:
+			self.log('EMPTY')
+			return
+
+		self.log('LIST /')
+		for rec in self.byTypeId.values():
+			self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + dump(rec))
+
+	def dump(self):
+		self.log(dump(self.byTypeId))
+		#~ self.log(dump(self.byStvId))
+		#~ self.log(dump(self.byFilename))
+
+	def listByFilename(self):
+		if len(self.byFilename) == 0:
+			self.log('EMPTY')
+			return
+
+		self.log('LIST /')
+		for rec in self.byFilename.items():
+			self.log(rec[0] + '\t| ' + dump(rec[1]))
+
+	def clear(self):
+		self.byType = { 'movie': {}, 'tvshow': {}, 'episode': {}, 'season': {}}
+		self.byTypeId = {}
+		self.byFilename = {}
+		self.byStvId = {}
+
+	def getItems(self):
+		return self.byTypeId.values()
+
+	def rebuild(self):
+		"""
+		Rebuild whole cache in case it is broken.
+		"""
+
+		self.clear()
+		movies = xbmc_rpc.get_movies()
+		#~ movies = { 'movies': [] }
+
+		for movie in movies.get('movies', []):
+			try:
+				self.addorupdate('movie', movie['movieid'])
+			except Exception as e:
+				self.log(unicode(e))
+
+		tvshows = xbmc_rpc.get_all_tvshows()
+
+		self.log('get_all_tvshows ' + dump(tvshows))
+
+		if tvshows['limits']['total'] > 0:
+			for show in tvshows['tvshows']:
+				episodes = xbmc_rpc.get_episodes(show["tvshowid"])
+				self.log('episodes: ' + dump(episodes))
+
+				if episodes['limits']['total'] > 0:
+					for episode in episodes["episodes"]:
+						try:
+							self.addorupdate('episode', episode['episodeid'])
+						except Exception as e:
+							self.log(unicode(e))
+
+
+	def rebuild_light(self):
+		"""
+		Rebuild whole cache in case it is broken.
+		"""
+		#~ addon = get_current_addon()
+		#~ addonpath = 	addon.getAddonInfo('path')
+		#~ path = os.path.join(addonpath, 'tests')
+
+		self.clear()
+		movies = xbmc_rpc.get_movies()
+
+		# generate testing json
+		#~ f = open(os.path.join(path, 'get_movies.json'), 'w')
+		#~ f.write(dump(movies))
+		#~ f.close()
+
+		for movie in movies['movies']:
+			movie['id'] = movie["movieid"]
+			movie['type'] = "movie"
+			self.put(movie)
+
+
+		tvshows = xbmc_rpc.get_all_tvshows()
+
+		# generate testing json
+		#~ f = open(os.path.join(path, 'get_all_tvshows.json'), 'w')
+		#~ f.write(dump(tvshows))
+		#~ f.close()
+
+		self.log('get_all_tvshows ' + dump(tvshows))
+
+		if tvshows['limits']['total'] > 0:
+			for show in tvshows['tvshows']:
+				episodes = xbmc_rpc.get_episodes(show["tvshowid"])
+				self.log('episodes: ' + dump(episodes))
+				if episodes['limits']['total'] > 0:
+					for episode in episodes["episodes"]:
+						episode['id'] = episode["episodeid"]
+						episode['type'] = "episode"
+						self.put(episode)
+
+	def save(self):
+		self.log('SAVING / ' + self.filePath)
+		f = open(self.filePath, 'w')
+		f.write(self.serialize())
+		f.close()
+
+	def load(self):
+		self.clear()
+		f = open(self.filePath, 'r')
+		json_obj = self.deserialize(f.read())
+		for item in json_obj:
+			self.put(item)
+
+		f.close()
+
+	def _getKey(self, atype, aid):
+		return str(atype) + '--' + str(aid)
+
+	def updateTitle(self, title):
+		" Update title values from cache, using 'id' as 'stvId', updating stv_title_hash, file "
+		if self.hasStvId(title['id']):
+			cached_title = self.getByStvId(title['id'])
+			title['stv_title_hash'] = cached_title['stv_title_hash']
+			title['file'] = cached_title['file']
+			title['xbmc_id'] = cached_title['id']
+			self.log('updating title %s with xbmc_id: %d file: %s' % (title.get('name'), title['xbmc_id'], title['file']))
 
