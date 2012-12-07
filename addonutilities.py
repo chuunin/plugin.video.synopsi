@@ -19,7 +19,7 @@ import subprocess
 from datetime import datetime
 import CommonFunctions
 import socket
-import dateutil
+import dateutil.parser
 
 # application
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
@@ -42,6 +42,7 @@ __profile__      = __addon__.getAddonInfo('profile')
 class ActionCode:
 	MovieRecco = 10
 	LocalMovieRecco = 15
+	LocalMovies = 16
 	TVShows = 20
 	LocalTVShows = 25
 	UnwatchedEpisodes = 40

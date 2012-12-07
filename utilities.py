@@ -20,7 +20,7 @@ import time
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
-
+HACK_SHOW_ALL_LOCAL_MOVIES = -1
 
 __addon__  = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')

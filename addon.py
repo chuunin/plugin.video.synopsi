@@ -110,6 +110,9 @@ class AddonClient(object):
 	def get_tvshow(self, tvshow_id):
 		return self.execute('get_title', tvshow_id=tvshow_id)
 
+	def get_local_movies(self):
+		return self.execute('get_local_movies')
+
 	def show_video_dialog(self, json_data):
 		return self.execute('show_video_dialog', json_data=json_data)
 
@@ -135,6 +138,8 @@ def get_item_list(action_code, **kwargs):
 		return addonclient.get_global_recco('movie')
 	elif action_code==ActionCode.LocalMovieRecco:
 		return addonclient.get_local_recco2('movie')
+	elif action_code==ActionCode.LocalMovies:
+		return addonclient.get_local_movies()
 	elif action_code==ActionCode.TVShows:
 		return addonclient.get_top_tvshows()
 	elif action_code==ActionCode.LocalTVShows:
@@ -167,32 +172,46 @@ addonclient = AddonClient(dirhandle)
 param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
 p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
-if p['url']:
-	p['url']=uniunquote(p['url'])
+try:
+	if p['url']:
+		p['url']=uniunquote(p['url'])
 
-if p['name']:
-	p['name']=uniunquote(p['name'])
+	if p['name']:
+		p['name']=uniunquote(p['name'])
 
-if p['mode']:
-	p['mode']=int(p['mode'])
+	if p['mode']:
+		p['mode']=int(p['mode'])
 
-if p['type']:
-	p['type']=int(p['type'])
+	if p['type']:
+		p['type']=int(p['type'])
 
-if p['data']:
-	p['data'] = uniunquote(p['data'])
-	p['json_data'] = json.loads(p['data'])
+	if p['data']:
+		p['data'] = uniunquote(p['data'])
+		p['json_data'] = json.loads(p['data'])
+
+	if p['stv_id']:
+		p['stv_id'] = int(p['stv_id'])
+
+except TypeError:
+	log('ERROR / Wrong params')
+	sys.exit(0)
+
 
 #~ log('params:' + str(params))
-#~ log('mode: %s type: %s' % (p['mode'], p['type']))
+log('mode: %s type: %s' % (p['mode'], p['type']))
 #~ log('url: %s' % (p['url']))
-#~ log('data: %s' % (p['data']))
+log('data: %s' % (p['data']))
 
+# hacks
+if p['mode'] == ActionCode.VideoDialogShow and p['json_data']['id'] == HACK_SHOW_ALL_LOCAL_MOVIES:
+	p['mode'] = None
+
+# routing
 if p['mode']==None:
 	show_categories()
 	xbmcplugin.endOfDirectory(dirhandle)
 
-elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes]:
+elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
 	params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
 	try:
 		show_submenu(p['mode'], dirhandle, **params)
@@ -208,13 +227,7 @@ elif p['mode']==ActionCode.VideoDialogShow:
 	addonclient.show_video_dialog(p['json_data'])
 
 elif p['mode']==ActionCode.VideoDialogShowById:
-	try:
-		stv_id = int(p['stv_id'])
-	except TypeError:
-		log('ERROR / Wrong params')
-		sys.exit(0)
-
-	addonclient.show_video_dialog_byId(stv_id)
+	addonclient.show_video_dialog_byId(p['stv_id'])
 
 elif p['mode']==ActionCode.LoginAndSettings:
 	addonclient.open_settings()

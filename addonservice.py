@@ -97,6 +97,8 @@ class AddonHandler(ServiceTCPHandler):
 		for title in recco:
 			self.server.stvList.updateTitle(title)
 
+		recco.append({ 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': 'show_all_button.png', 'name': ''})
+
 		return recco
 
 	def get_unwatched_episodes(self):
@@ -117,6 +119,9 @@ class AddonHandler(ServiceTCPHandler):
 
 	def get_tvshow(self, stv_id, **kwargs):
 		return self.server.apiClient.tvshow(stv_id, **kwargs)
+
+	def get_local_movies(self):
+		return self.server.apiClient.library(title_property=reccoDefaultProps)['titles']
 
 	def show_video_dialog(self, json_data):
 		thread.start_new_thread(show_video_dialog, (json_data, self.server.apiClient, self.server.stvList))
