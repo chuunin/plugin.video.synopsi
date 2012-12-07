@@ -90,7 +90,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		win.setProperty("Movie.Title", self.data["name"])
 		win.setProperty("Movie.Plot", self.data["plot"])
 		win.setProperty("Movie.Cover", self.data["cover_full"])
-		# win.setProperty("Movie.Cover", "default.png")
+		#~ win.setProperty("Movie.Cover", "http://www.synopsi.tv/title/100/cover/full/")
 
 		for i in range(5):
 			win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
@@ -267,7 +267,10 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
 		cacheItem = stvList.getByStvId(json_data['id'])
 		json_data['xbmc_id'] = cacheItem['id']
-		json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
+		try:
+			json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
+		except:
+			pass
 
 	# add similars or seasons (bottom covers list)
 	if stv_details['type'] == 'movie':
