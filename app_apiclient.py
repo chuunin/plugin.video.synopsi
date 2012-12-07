@@ -46,10 +46,10 @@ class AppApiClient(ApiClient):
 
 	def getAccessToken(self):
 		if not self._lock_access_token.acquire(False):
-			log('getAccessToken lock NOT acquired')
+			self._log.debug('getAccessToken lock NOT acquired')
 			return False
 
-		#~ log(threading.current_thread().name + ' getAccessToken START')
+		#~ self._log.debug(threading.current_thread().name + ' getAccessToken START')
 		finished = False
 		while not finished:
 			try:
@@ -79,16 +79,16 @@ class AppApiClient(ApiClient):
 
 			except Exception as e:
 				finished = True
-				log('Unknown exception')
-				log(str(e))
+				self._log.debug('Unknown exception')
+				self._log.debug(str(e))
 				res = False
 			else:
 				finished = True
-				log('Login success')
+				self._log.debug('Login success')
 				res = True
 
 
-		#~ log(threading.current_thread().name + ' getAccessToken END')
+		#~ self._log.debug(threading.current_thread().name + ' getAccessToken END')
 		self._lock_access_token.release()
 		return res
 
@@ -96,9 +96,9 @@ class AppApiClient(ApiClient):
 	def get_unwatched_episodes(self):
 		episodes = self.unwatchedEpisodes()
 
-		# log('unwatched episodes')
+		# self._log.debug('unwatched episodes')
 		# for title in episodes['lineup']:
-		#	 log(title['name'])
+		#	 self._log.debug(title['name'])
 
 		result = episodes['lineup']
 		return result
@@ -106,9 +106,9 @@ class AppApiClient(ApiClient):
 	def get_upcoming_episodes(self):
 		episodes = self.unwatchedEpisodes()
 
-		# log('upcoming episodes')
+		# self._log.debug('upcoming episodes')
 		# for title in episodes['upcoming']:
-		#	 log(title['name'])
+		#	 self._log.debug(title['name'])
 
 		result = episodes['upcoming']
 		return result
