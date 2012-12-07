@@ -538,7 +538,8 @@ def dialog_check_login_correct():
 	if dialog_login_fail_yesno():
 		addon = get_current_addon()
 		result = addon.openSettings()
-		return result
+		# openSettings do not return users click, so we return if user had the intention to correct credentials
+		return True
 	else:
 		return False
 
