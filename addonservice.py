@@ -77,7 +77,7 @@ class AddonHandler(ServiceTCPHandler):
 		# for title in episodes['top']:
 		#	 log(title['name'])
 
-		result = episodes['top']
+		result = episodes['top'][0:29]
 		return result
 
 
