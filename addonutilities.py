@@ -19,6 +19,7 @@ import subprocess
 from datetime import datetime
 import CommonFunctions
 import socket
+import dateutil
 
 # application
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
@@ -107,6 +108,12 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			win.setProperty("Movie.FileInfo", '%s in [%s]' % (os.path.basename(self.data['file']), os.path.dirname(self.data['file'])))
 			self.getControl(5).setEnabled(True)
 			self.getControl(13).setEnabled(True)
+
+		# disable watched button for non-released movies
+		date = dateutil.parser.parse(self.data['labels'].get('Release date'))
+		if date > datetime.today():
+			self.getControl(11).setEnabled(False)
+
 
 		win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
 
