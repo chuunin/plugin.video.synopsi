@@ -16,8 +16,21 @@ class AppApiClient(ApiClient):
 
 	def reloadUserPass(self):
 		__addon__ = get_current_addon()
-		self.username = __addon__.getSetting('USER')
-		self.password = __addon__.getSetting('PASS')
+		changed = False
+
+		if self.username != __addon__.getSetting('USER'):
+			self.username = __addon__.getSetting('USER')
+			changed = True
+
+		if self.password != __addon__.getSetting('PASS'):
+			self.password = __addon__.getSetting('PASS')
+			changed = True
+
+		return changed
+
+	def clearAccessToken(self):
+		self.accessToken = None
+		self.accessTokenSessionStart = None
 
 	def getAccessToken(self):
 		if not self._lock_access_token.acquire(False):
@@ -27,9 +40,12 @@ class AppApiClient(ApiClient):
 		#~ log(threading.current_thread().name + ' getAccessToken START')
 		finished = False
 		while not finished:
-			# try to log in
 			try:
-				self.reloadUserPass()
+				# clear tokens if user credentials changed
+				if self.reloadUserPass():
+					self.clearAccessToken()
+
+				# try to log in
 				ApiClient.getAccessToken(self)
 				if self.login_state_announce==LoginState.Notify:
 					notification('Logged in as %s' % self.username)
