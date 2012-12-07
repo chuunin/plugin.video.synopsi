@@ -10,7 +10,7 @@ connection = {
 	# 'rel_api_url': 'api/public/1.0/',
 	'username': 'martin.smid@gmail.com',
 	'password': 'aaa',
-	'device_id': '7caa970e-0e37-11e2-9462-7cc3a1719bfd',
+	'device_id': 'd2a8e78f-408a-11e2-9b7d-9927c8ae50bb',
 }
 
 dev_conn = {
