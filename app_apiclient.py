@@ -45,11 +45,12 @@ class AppApiClient(ApiClient):
 		return ApiClient.isAuthenticated(self)
 
 	def getAccessToken(self):
-		if not self._lock_access_token.acquire(False):
+		if not self._lock_access_token.acquire():
 			self._log.debug('getAccessToken lock NOT acquired')
 			return False
+		else:
+			self._log.debug(threading.current_thread().name + ' getAccessToken LOCK ACQUIRED')
 
-		#~ self._log.debug(threading.current_thread().name + ' getAccessToken START')
 		finished = False
 		while not finished:
 			try:
@@ -87,8 +88,7 @@ class AppApiClient(ApiClient):
 				self._log.debug('Login success')
 				res = True
 
-
-		#~ self._log.debug(threading.current_thread().name + ' getAccessToken END')
+		self._log.debug(threading.current_thread().name + ' getAccessToken LOCK RELEASE')
 		self._lock_access_token.release()
 		return res
 

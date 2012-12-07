@@ -42,7 +42,6 @@ def main():
 		log('CACHE restore failed. If this is your first run, its ok')
 		thread.start_new_thread(cache.rebuild, ())
 
-	#~ cache.list()
 
 	thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
