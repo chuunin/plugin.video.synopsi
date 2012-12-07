@@ -32,6 +32,18 @@ class AppApiClient(ApiClient):
 		self.accessToken = None
 		self.accessTokenSessionStart = None
 
+	def checkUserPass(self):
+		if self.reloadUserPass():
+			self.clearAccessToken()
+			self._log.debug('User credentials changed')
+			return True
+
+		return False
+
+	def isAuthenticated(self):
+		" Returns true if user is authenticated. This method adds to its parent method a check if user credentials have changed "
+		return self.checkUserPass() and ApiClient.isAuthenticated(self)
+
 	def getAccessToken(self):
 		if not self._lock_access_token.acquire(False):
 			log('getAccessToken lock NOT acquired')
@@ -41,9 +53,8 @@ class AppApiClient(ApiClient):
 		finished = False
 		while not finished:
 			try:
-				# clear tokens if user credentials changed
-				if self.reloadUserPass():
-					self.clearAccessToken()
+				# check to clear tokens if user credentials changed
+				self.checkUserPass()
 
 				# try to log in
 				ApiClient.getAccessToken(self)
@@ -52,16 +63,16 @@ class AppApiClient(ApiClient):
 
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
-				# this crashes
-				# finished = not login_screen(self)
 				if self.login_state_announce==LoginState.Notify:
 					if self._rejected_to_correct:
 						notification('Authentication failed. Correct your login/password in plugin settings')
+						res = False
+						finished = True
 					else:
 						if not dialog_check_login_correct():
 							self._rejected_to_correct = True
-
-					finished = True
+							res = False
+							finished = True
 
 				elif self.login_state_announce==LoginState.AddonDialog:
 					raise
@@ -70,13 +81,16 @@ class AppApiClient(ApiClient):
 				finished = True
 				log('Unknown exception')
 				log(str(e))
+				res = False
 			else:
 				finished = True
 				log('Login success')
+				res = True
 
 
 		#~ log(threading.current_thread().name + ' getAccessToken END')
 		self._lock_access_token.release()
+		return res
 
 	# convienent functions
 	def get_unwatched_episodes(self):
