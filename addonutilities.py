@@ -369,7 +369,7 @@ def show_categories():
 	"""
 	xbmc.executebuiltin("Container.SetViewMode(503)")
 	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png", 1)
-	add_directory("TV Shows", "url", ActionCode.TVShows, "list.png", 1)
+	add_directory("Popular TV Shows", "url", ActionCode.TVShows, "list.png", 1)
 	add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png", 2)
 	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png", 1)
 	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "icon.png", 3)
