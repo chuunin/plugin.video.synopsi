@@ -153,6 +153,12 @@ def get_item_list(action_code, **kwargs):
 
 def show_submenu(action_code, dirhandle, **kwargs):
 	item_list = get_item_list(action_code, **kwargs)
+
+	# hack HACK_SHOW_ALL_LOCAL_MOVIES
+	if action_code==ActionCode.LocalTVShows:
+		log('added button')
+		item_list.append({ 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': 'show_all_button.png', 'name': ''})
+			
 	show_movie_list(item_list, dirhandle)
 
 def exc_text_by_mode(mode):

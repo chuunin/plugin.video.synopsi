@@ -370,7 +370,10 @@ def add_movie(movie, url, mode, iconimage, movieid):
 	if movie.get('watched'):
 		li.setInfo( type="Video", infoLabels={ "playcount": 1 } )
 
-	new_li = (u, li, False)
+	# local movies button to show all movies
+	isFolder = movie.get('id') == HACK_SHOW_ALL_LOCAL_MOVIES
+	log('isfolder:' + str(isFolder))
+	new_li = (u, li, isFolder)
 
 	return new_li
 
