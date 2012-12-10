@@ -7,6 +7,7 @@ import xbmc, xbmcgui, xbmcaddon
 
 # python standart lib
 import thread
+import sys
 
 # application
 from scrobbler import Scrobbler
@@ -16,14 +17,17 @@ from utilities import home_screen_fill, login_screen, log
 from app_apiclient import AppApiClient
 from addonservice import AddonService
 
+
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
 
 __addon__.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
 
+
 DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
+	log('SYNOPSI SERVICE START (Python %s)' % str(sys.version))
 	apiclient1 = AppApiClient.getDefaultClient()
 
 	# check first run

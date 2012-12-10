@@ -21,7 +21,6 @@ import os.path
 import logging
 import traceback
 import subprocess
-from datetime import datetime
 import CommonFunctions
 
 # application

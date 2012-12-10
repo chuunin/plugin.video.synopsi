@@ -19,7 +19,6 @@ import subprocess
 from datetime import datetime
 import CommonFunctions
 import socket
-import dateutil.parser
 
 # application
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
@@ -111,8 +110,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			self.getControl(13).setEnabled(True)
 
 		# disable watched button for non-released movies
-		date = dateutil.parser.parse(self.data['labels'].get('Release date'))
-		if date > datetime.today():
+		if self.data['release_date'] > datetime.today():
 			self.getControl(11).setEnabled(False)
 
 
@@ -308,7 +306,8 @@ def video_dialog_template_fill(stv_details, json_data={}):
 	if tpl_data.get('runtime'):
 		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
 	if tpl_data.get('date'):
-		stv_labels['Release date'] = datetime.fromtimestamp(tpl_data['date']).strftime('%x')
+		tpl_data['release_date'] = datetime.fromtimestamp(tpl_data['date'])
+		stv_labels['Release date'] = tpl_data['release_date'].strftime('%x')
 
 	xbmclabels = {}
 	if tpl_data.has_key('xbmc_movie_detail'):
@@ -321,6 +320,12 @@ def video_dialog_template_fill(stv_details, json_data={}):
 			xbmclabels["Runtime"] = d['runtime'] + ' min'
 		if d.get('premiered'):
 			xbmclabels["Release date"] = d['premiered']
+			if not tpl_data.get('release_date'):
+				try:
+					tpl_data['release_date'] = datetime.strptime(d['premiered'], '%m/%d/%y')
+				except:
+					pass
+
 		if d.get('file'):
 			tpl_data['file'] = d.get('file')
 
