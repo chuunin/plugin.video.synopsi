@@ -156,7 +156,7 @@ class StvList(object):
 		stv_title['id'] = xbmc_id
 		self.put(stv_title)
 
-	def put(self, item):
+	def put(self, item, isLoading=False):
 		" Put a new record in the list "
 		typeIdStr = self._getKey(item['type'], item['id'])
 
@@ -175,8 +175,8 @@ class StvList(object):
 
 		logstr = 'PUT / ' + typeIdStr + ' | ' + item.get('file', '')
 
-		# if known by synopsi, add to list
-		if item.has_key('stvId'):
+		# if not loading cache and known by synopsi, add to list
+		if not isLoading and item.has_key('stvId'):
 			self.apiclient.libraryTitleAdd(item['stvId'])
 
 		self.log(logstr)
@@ -370,7 +370,7 @@ class StvList(object):
 		f = open(self.filePath, 'r')
 		json_obj = self.deserialize(f.read())
 		for item in json_obj:
-			self.put(item)
+			self.put(item, True)
 
 		f.close()
 
