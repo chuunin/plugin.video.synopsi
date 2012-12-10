@@ -52,7 +52,7 @@ class SynopsiPlayer(xbmc.Player):
 		self.log('playerEvent:' + eventName)
 
 		event = {
-			'event': eventName,			 
+			'event': eventName,
 			'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
 		}
 
@@ -64,12 +64,12 @@ class SynopsiPlayer(xbmc.Player):
 	def playerEventSeek(self, position):
 		self.log('playerEvent: seek %f' % position)
 		event = {
-			'event': 'seek',			 
+			'event': 'seek',
 			'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
 		}
 		event['position'] = position
 		self.playerEvents.append(event)
-		
+
 
 	def onPlayBackStarted(self):
 		self.log('onPlayBackStarted')
@@ -80,7 +80,7 @@ class SynopsiPlayer(xbmc.Player):
 				self.media_file = xbmc.Player().getPlayingFile()
 				self.last_played_file = self.media_file
 				self.subtitle_file = self.getSubtitles()
-		
+
 		# started new video playback
 		else:
 			if xbmc.Player().isPlayingVideo():
@@ -144,7 +144,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		self.cache = cache
 
 	def update_current_time(self):
-		""" This function updates the current_time. To avoid race condition, it will not update 
+		""" This function updates the current_time. To avoid race condition, it will not update
 			the current time, if get_time returns None, but the player is still playing a file
 			(acording to the self.playing variable). This indicates that the scrobbler update loop
 			tries to update time while we are in the onPlayBackStopped method and handlers """
@@ -159,41 +159,22 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
 	def ended(self):
 		self.playerEvent('end')
-		# ask for 'rating only if file is in library and 
-		if self.cache.hasFilename(self.last_played_file):
-			self.rate_file(self.last_played_file)
+
+		# rate file
+		self.rate_file(self.last_played_file)
 
 	def ended_without_rating(self):
 		self.playerEvent('end')
 
-	def stopped(self):  
+	def stopped(self):
 		self.playerEvent('stop')
-		self.log(dump(self.playerEvents))
-		# self.log('time:' + str(self.current_time))
-		# self.log('total time:' + str(self.total_time))
+		#~ self.log(dump(self.playerEvents))
 		percent = self.current_time / self.total_time
 		self.log('percent:' + str(self.current_time / self.total_time))
 
-		data = { 'player_events': json.dumps(self.playerEvents) }
-
-		# work only on files in library
-		if self.cache.hasFilename(self.last_played_file):
-			# ask for rating only if more than 70% of movie passed
-			if percent > 0.7:
-				rating = get_rating()
-				# if user rated the title
-				if rating < 4:
-					data['rating'] = rating
-		
-			detail = self.cache.getByFilename(self.last_played_file)
-
-			# get stv id
-			self.log('detail: ' + str(detail))
-			# only for identified by synopsi
-			if detail.has_key('stvId'):
-				self.apiclient.titleWatched(detail['stvId'], **data)
-
-		self.playerEvents = []
+		# ask for rating only if more than 70% of movie passed
+		if percent > 0.7:
+			self.rate_file(self.last_played_file)
 
 	def paused(self):
 		self.update_current_time()
@@ -202,6 +183,36 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 	def resumed(self):
 		self.update_current_time()
 		self.playerEvent('resume')
+
+	def rate_file(self, filename):
+		# work only on files in library
+		if not self.cache.hasFilename(filename):
+			return False
+
+		# get stv id
+		detail = self.cache.getByFilename(filename)
+
+		self.log('detail: ' + str(detail))
+
+		# only for identified by synopsi
+		if not detail.has_key('stvId'):
+			return False
+
+		# prepare the data
+		data = { 'player_events': json.dumps(self.playerEvents) }
+
+		rating = get_rating()
+		# if user rated the title
+		if rating < 4:
+			data['rating'] = rating
+
+		self.apiclient.titleWatched(detail['stvId'], **data)
+
+		# clear the player events
+		self.playerEvents = []
+
+
+
 
 class Scrobbler(MyThread):
 	"""
@@ -226,10 +237,10 @@ class Scrobbler(MyThread):
 		while not library.ABORT_REQUESTED and not xbmc.abortRequested:
 			self.player.update_current_time()
 			xbmc.sleep(500)
-		
+
 		dbg = ''
-		if library.ABORT_REQUESTED: dbg += "library.ABORT_REQUESTED " 
-		if xbmc.abortRequested: dbg += "xbmc.abortRequested " 
-		
+		if library.ABORT_REQUESTED: dbg += "library.ABORT_REQUESTED "
+		if xbmc.abortRequested: dbg += "xbmc.abortRequested "
+
 		self.log("thread run end " + dbg)
 
