@@ -111,10 +111,12 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			self.getControl(13).setEnabled(True)
 
 		# disable watched button for non-released movies
-		date = dateutil.parser.parse(self.data['labels'].get('Release date'))
-		if date > datetime.today():
-			self.getControl(11).setEnabled(False)
-
+		try:
+			date = dateutil.parser.parse(self.data['labels'].get('Release date'))
+			if date > datetime.today():
+				self.getControl(11).setEnabled(False)
+		except:
+			pass
 
 		win.setProperty('BottomListingLabel', self.data['BottomListingLabel'])
 
