@@ -31,6 +31,7 @@ __profile__      = __addon__.getAddonInfo('profile')
 __lockLoginScreen__ = threading.Lock()
 
 # constant
+BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
 homeReccoLimit = 5
 reccoDefaultProps = ['id', 'cover_medium', 'name']
 defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
@@ -38,6 +39,8 @@ tvshowdefaultDetailProps = defaultDetailProps + ['seasons']
 defaultCastProps = ['name']
 reccoDefaulLimit = 29
 type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
+
+
 
 # texts
 t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'

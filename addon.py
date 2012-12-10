@@ -152,6 +152,11 @@ def get_item_list(action_code, **kwargs):
 
 def show_submenu(action_code, dirhandle, **kwargs):
 	item_list = get_item_list(action_code, **kwargs)
+
+	# hack HACK_SHOW_ALL_LOCAL_MOVIES
+	if action_code==ActionCode.LocalMovieRecco:
+		item_list.append({ 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': ''})
+			
 	show_movie_list(item_list, dirhandle)
 
 def exc_text_by_mode(mode):
@@ -203,7 +208,7 @@ log('data: %s' % (p['data']))
 
 # hacks
 if p['mode'] == ActionCode.VideoDialogShow and p['json_data']['id'] == HACK_SHOW_ALL_LOCAL_MOVIES:
-	p['mode'] = None
+	p['mode'] = ActionCode.LocalMovies
 
 # routing
 if p['mode']==None:
