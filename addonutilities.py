@@ -374,7 +374,6 @@ def add_movie(movie, url, mode, iconimage, movieid):
 
 	# local movies button to show all movies
 	isFolder = movie.get('id') == HACK_SHOW_ALL_LOCAL_MOVIES
-	log('isfolder:' + str(isFolder))
 	new_li = (u, li, isFolder)
 
 	return new_li
