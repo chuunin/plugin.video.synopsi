@@ -134,7 +134,12 @@ def list_get(alist, index, default=''):
 
 def dialog_ok(msg):
 	lines = dialog_text(msg, 45)
-	xbmcgui.Dialog().ok(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
+	return xbmcgui.Dialog().ok(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
+
+def dialog_yesno(msg, **kwargs):
+	lines = dialog_text(msg, 45)
+	return xbmcgui.Dialog().yesno(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2), **kwargs)
+
 
 def clear_setting_cache():
 	"Clear cached addon setting. Usefull after update"
@@ -544,12 +549,17 @@ def dialog_check_login_correct():
 
 def dialog_login_fail_yesno():
 	dialog = xbmcgui.Dialog()
-	result = dialog.yesno("SynopsiTV", "Authentication failed", "Would you like to open settings and correct your login info?")
+	result = dialog.yesno(t_stv, "Authentication failed", "Would you like to open settings and correct your login info?")
 	return result
 
 def dialog_need_restart():
 	dialog = xbmcgui.Dialog()
-	dialog.ok("SynopsiTV", "Please restart XBMC to start SynopsiTV service")
+	yes = dialog_yesno("You need to restart your media center to start the SynopsiTV service. Restart now ?")
+	if yes:
+		xbmc.executebuiltin('RestartApp')
+		xbmc.executebuiltin('Quit')
+
+
 
 
 

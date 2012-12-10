@@ -41,13 +41,16 @@ def main():
 
 	try:
 		cache.load()
+		thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 	except:
 		# first time
-		log('CACHE restore failed. If this is your first run, its ok')
-		thread.start_new_thread(cache.rebuild, ())
+		log('CACHE restore failed. If this is your first run, its ok. Rebuilding cache')
+		def cache_rebuild_hp_update():
+			cache.rebuild()
+			home_screen_fill(apiclient1, cache)
 
+		thread.start_new_thread(cache_rebuild_hp_update, ())
 
-	thread.start_new_thread(home_screen_fill, (apiclient1, cache))
 
 	s = Scrobbler(cache)
 	l = RPCListenerHandler(cache, s)
