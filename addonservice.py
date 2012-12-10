@@ -119,7 +119,12 @@ class AddonHandler(ServiceTCPHandler):
 		return self.server.apiClient.tvshow(stv_id, **kwargs)
 
 	def get_local_movies(self):
-		return self.server.apiClient.library(title_property=reccoDefaultProps)['titles']
+		library = self.server.apiClient.library(title_property=reccoDefaultProps)['titles']
+
+		for title in library:
+			self.server.stvList.updateTitle(title)
+
+		return library
 
 	def show_video_dialog(self, json_data):
 		thread.start_new_thread(show_video_dialog, (json_data, self.server.apiClient, self.server.stvList))
