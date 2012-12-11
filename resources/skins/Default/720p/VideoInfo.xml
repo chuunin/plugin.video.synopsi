@@ -349,7 +349,7 @@
 						<control id="5" type="button">
 							<include>ButtonInfoDialogsCommonValues</include>
 							<label>Play</label>
-							<onclick>PlayMedia($INFO[Window.Property(Movie.File)])</onclick>
+							<onclick>PlayMedia($ESCINFO[Window.Property(Movie.File)])</onclick>
 							<enable>false</enable>
 						</control>
 						<control id="10" type="button">
