@@ -140,6 +140,24 @@ class ApiTest(TestCase):
 		self.assertTrue(data.has_key('titles'))
 		self.assertTrue(len(data['titles']) > 0)
 
+	def test_profile_recco_watched(self):
+		props = [ 'id', 'year', 'cover_small' ]
+		data = client.profileRecco('movie', False, 5, props)
+		all_ids = [ i['id'] for i in data['titles'] ]
+		print dump(all_ids)
+		self.assertTrue(data.has_key('recco_id'))
+		self.assertTrue(data.has_key('titles'))
+		self.assertTrue(len(data['titles']) > 0)
+
+		check_id = data['titles'][0]['id']
+		client.titleWatched(check_id, **{'rating': 1})
+
+		new_data = client.profileRecco('movie', False, 5, props)
+		all_ids = [ i['id'] for i in new_data['titles'] ]
+		print dump(all_ids)
+		self.assertFalse(check_id in all_ids)
+
+
 
 	def test_title_similar(self):
 		# 1947362 "Ben-Hur (1959)"
