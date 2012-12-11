@@ -35,8 +35,10 @@ class SynopsiPlayer(xbmc.Player):
 
 	playing = False
 	media_file = None
+	mediainfotag = None
 	last_played_file = None
 	playerEvents = []
+
 
 	def __init__(self):
 		super(SynopsiPlayer, self).__init__()
@@ -88,7 +90,8 @@ class SynopsiPlayer(xbmc.Player):
 				self.total_time = xbmc.Player().getTotalTime()
 				self.current_time = self.get_time()
 				self.started()
-				self.media_file = xbmc.Player().getPlayingFile()
+				self.media_file = self.getPlayingFile()
+				self.mediainfotag = self.getVideoInfoTag()
 				self.last_played_file = self.media_file
 				self.subtitle_file = self.getSubtitles()
 				self.log('subtitle_file:' + str(self.subtitle_file))
@@ -97,6 +100,10 @@ class SynopsiPlayer(xbmc.Player):
 
 	def onPlayBackEnded(self):
 		notification("onPlayBackEnded", "onPlayBackEnded")
+		# this is a race condition, the multi file switch takes various times to switch to second file
+		# possible solutions:
+		#	1. asynchronously check if file is playing after a longer time (500ms) and end() the file then
+		#	2. unknown
 		if self.playing:
 			try:
 				self.media_file = xbmc.Player().getPlayingFile()
@@ -106,6 +113,8 @@ class SynopsiPlayer(xbmc.Player):
 					self.playing = False
 					self.media_file = None
 					self.ended()
+				else:
+					log('Error: ' + str(e))
 
 	def onPlayBackStopped(self):
 		self.log('onPlayBackStopped')
@@ -134,6 +143,12 @@ class SynopsiPlayer(xbmc.Player):
 
 		return t
 
+	def get_media_info_tag(self):
+		try:
+			self.mediainfotag = self.getVideoInfoTag()
+		except:
+			pass
+
 
 class SynopsiPlayerDecor(SynopsiPlayer):
 	""" This class defines methods that are called from the bugfix and processing parent class"""
@@ -152,6 +167,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		if t or not self.playing:
 			self.current_time = t
 
+		#~ self.get_media_info_tag()
 
 	def started(self):
 		self.update_current_time()
