@@ -460,7 +460,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def search(self, term, props=defaultSearchProps):
+	def search(self, term, limit=None, props=defaultSearchProps):
 		req = {
 			'methodPath': 'search/',
 			'method': 'get',
@@ -470,5 +470,8 @@ class ApiClient(loggable.Loggable):
 			}
 		}
 
+		if limit:
+			req['data']['limit'] = limit
+			
 		return self.execute(req)
 

@@ -10,6 +10,7 @@ from common import connection
 
 # application
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('fakeenv'))
 from utilities import *
 from apiclient import *
 
@@ -203,9 +204,10 @@ class ApiTest(TestCase):
 		self.assertEquals(str(enc_data), r"{'key-one': 'Alfa - \xce\xb1', 'key-dict': {'key-nested': 'Gama - \xce\xb3'}}")
 
 	def test_search(self):
-		result = client.search('Adams aebler')
+		result = client.search('Adams aebler', 13)
 		# print dump(result)
 		self.assertTrue(result.has_key('search_result'))
+		self.assertTrue(len(result['search_result']) == 13)
 
 	def test_identify_correct(self):
 		result = client.title_identify_correct(1947362, '8b05ff1ad4865480e4705a42b413115db2bf94db')
