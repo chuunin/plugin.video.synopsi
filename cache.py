@@ -296,6 +296,8 @@ class StvList(object):
 		#~ movies = { 'movies': [] }
 
 		for movie in movies.get('movies', []):
+			if xbmc.abortRequested:
+				return
 			try:
 				self.addorupdate('movie', movie['movieid'])
 			except Exception as e:
@@ -307,11 +309,16 @@ class StvList(object):
 
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:
+				if xbmc.abortRequested:
+					return
+
 				episodes = xbmc_rpc.get_episodes(show["tvshowid"])
 				self.log('episodes: ' + dump(episodes))
 
 				if episodes['limits']['total'] > 0:
 					for episode in episodes["episodes"]:
+						if xbmc.abortRequested:
+							return
 						try:
 							self.addorupdate('episode', episode['episodeid'])
 						except Exception as e:
