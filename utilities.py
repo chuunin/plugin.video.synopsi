@@ -464,7 +464,7 @@ def home_screen_fill(apiClient, cache):
 				log('movie %d %s' % (i, m['name']))
 				log('lib_item %s' % (str(lib_item)))
 
-				WINDOW.setProperty("LatestMovie.{0}.Title".format(i+1), m['name'] + 'xxx')
+				WINDOW.setProperty("LatestMovie.{0}.Title".format(i+1), m['name'])
 				if lib_item:
 					WINDOW.setProperty("LatestMovie.{0}.Path".format(i+1), lib_item['file'])
 				WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i+1), m['cover_thumbnail'])
