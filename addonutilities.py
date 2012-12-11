@@ -191,7 +191,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		try:
 			search_term = common.getUserInput("Title", "")
 			if search_term:
-				results = self.apiClient.search(search_term)
+				results = self.apiClient.search(search_term, SEARCH_RESULT_LIMIT)
 				if len(results['search_result']) == 0:
 					dialog_ok('No results')
 				else:
