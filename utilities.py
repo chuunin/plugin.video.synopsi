@@ -557,9 +557,9 @@ def dialog_need_restart():
 	dialog = xbmcgui.Dialog()
 	yes = dialog_yesno("You need to restart your media center to start the SynopsiTV service. Restart now ?")
 	if yes:
-		xbmc.executebuiltin('RestartApp')
+		log('before quit')
 		xbmc.executebuiltin('Quit')
-
+		log('after quit')
 
 
 
