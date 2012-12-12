@@ -144,36 +144,52 @@ class StvList(object):
 
 			# for episode, add tvshow
 			if title.has_key('id') and movie['type'] == 'episode' and title.get('type') == 'episode':
-				#~ self.log('episode:'+dump(title))
-				self.add_tvshow(movie['id'], title['tvshow_id'])
+				self.log('xbmc episode:'+dump(movie))
+				self.add_tvshow(title['tvshow_id'], movie['tvshowid'])
 
 		# it is already in cache, some property has changed (e.g. lastplayed time)
 		else:
 			self.update(movie)
 
-	def add_tvshow(self, xbmc_id, stvId):
-		stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
-		stv_title['id'] = xbmc_id
-		self.put(stv_title)
+	def add_tvshow(self, stvId, xbmc_id):
+		" Adds a tvshow with stvId into cache, if it's not already there "
+		if not self.byStvId.has_key(stvId):
+			stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
+			# rename ids to
+			stv_title['stvId'] = stv_title['id']
+			stv_title['id'] = xbmc_id
+
+			# if tvshow not in cache yet
+			if not self.hasStvId(stv_title['stvId']):
+				self.log('tvshow stv id:' + str(stv_title['stvId']))
+				self.log('tvshow xbmc id:' + str(xbmc_id))
+				self.put(stv_title)
 
 	def put(self, item, isLoading=False):
 		" Put a new record in the list "
-		typeIdStr = self._getKey(item['type'], item['id'])
-
+		self.log('PUT ' + dump(item))
 		# check if an item with this stvId is not already there
-		if item.has_key('stvId') and self.byStvId.has_key(item['stvId']):
+		if item.has_key('stvId') and self.hasStvId(item['stvId']):
 			raise DuplicateStvIdException('Title with stv_id=%d is already in library' % item['stvId'])
 
-		self.byType[item['type']][item['id']] = item
-		self.byTypeId[typeIdStr] = item
-		if item['type'] in playable_types:
+		# update by type and id if possible
+		if item.has_key('type') and item.has_key('id'):
+			typeIdStr = self._getKey(item['type'], item['id'])
+			if self.hasTypeIdStr(typeIdStr):
+				raise DuplicateStvIdException('Title with type--xbmc_id=%s is already in library' % typeIdStr)
+			self.byType[item['type']][item['id']] = item
+			self.byTypeId[typeIdStr] = item
+
+		if item.get('type') in playable_types:
 			self.byFilename[item['file']] = item
 
 		if item.has_key('stvId'):
+			self.log('added stvId to index: ' + str(item['stvId']))
 			self.byStvId[item['stvId']] = item
-			typeIdStr += ' | stvId ' + str(item['stvId'])
 
-		logstr = 'PUT / ' + typeIdStr + ' | ' + item.get('file', '')
+		self.items.append(item)
+
+		logstr = 'PUT / ' + str(item.get('type')) + '--' + str(item.get('id')) + ' | ' + item.get('file', '')
 
 		# if not loading cache and known by synopsi, add to list
 		if not isLoading and item.has_key('stvId'):
@@ -232,7 +248,10 @@ class StvList(object):
 		return new_item
 
 	def hasTypeId(self, atype, aid):
-		return self.byTypeId.has_key(self._getKey(atype, aid))
+		return self.hasTypeIdStr(self._getKey(atype, aid))
+
+	def hasTypeIdStr(self, typeIdStr):
+		return self.byTypeId.has_key(typeIdStr)
 
 	def getByTypeId(self, atype, aid):
 		return self.byTypeId[self._getKey(atype, aid)]
@@ -255,13 +274,13 @@ class StvList(object):
 
 	def list(self):
 		self.log('ID / ' +  self.uuid)
-		if len(self.byTypeId) == 0:
+		if len(self.items) == 0:
 			self.log('EMPTY')
 			return
 
 		self.log('LIST /')
-		for rec in self.byTypeId.values():
-			self.log(self._getKey(rec['type'], rec['id']) + '\t| ' + dump(rec))
+		for rec in self.items:
+			self.log(dump(rec))
 
 	def dump(self):
 		self.log(dump(self.byTypeId))
@@ -278,13 +297,14 @@ class StvList(object):
 			self.log(rec[0] + '\t| ' + dump(rec[1]))
 
 	def clear(self):
+		self.items = []
 		self.byType = { 'movie': {}, 'tvshow': {}, 'episode': {}, 'season': {}}
 		self.byTypeId = {}
 		self.byFilename = {}
 		self.byStvId = {}
 
 	def getItems(self):
-		return self.byTypeId.values()
+		return self.items
 
 	def rebuild(self):
 		"""
@@ -301,7 +321,8 @@ class StvList(object):
 			try:
 				self.addorupdate('movie', movie['movieid'])
 			except Exception as e:
-				self.log(unicode(e))
+				#~ self.log(traceback.format_exc())
+				self.log(str(e))
 
 		tvshows = xbmc_rpc.get_all_tvshows()
 
@@ -322,7 +343,8 @@ class StvList(object):
 						try:
 							self.addorupdate('episode', episode['episodeid'])
 						except Exception as e:
-							self.log(unicode(e))
+							#~ self.log(traceback.format_exc())
+							self.log(str(e))
 
 
 	def rebuild_light(self):
