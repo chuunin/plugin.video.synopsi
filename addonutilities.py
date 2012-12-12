@@ -23,7 +23,7 @@ import socket
 # application
 from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
-from cache import StvList
+from cache import StvList, DuplicateStvIdException
 from xbmcrpc import xbmc_rpc
 
 
@@ -173,10 +173,13 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		elif controlId == 13:
 			new_title = self.user_title_search()
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
-				self.apiClient.title_identify_correct(new_title['id'], self.data['stv_title_hash'])
-				self.stvList.correct_title(self.data, new_title)
-				show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
-				xbmc.executebuiltin('Container.Refresh()')
+				try:
+					self.stvList.correct_title(self.data, new_title)
+					self.apiClient.title_identify_correct(new_title['id'], self.data['stv_title_hash'])
+					show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
+					xbmc.executebuiltin('Container.Refresh()')
+				except DuplicateStvIdException:
+					dialog_ok('This title is already in library. Cannot correct identity to this title')
 
 
 	def onFocus(self, controlId):
