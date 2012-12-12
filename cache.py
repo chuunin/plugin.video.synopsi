@@ -240,6 +240,10 @@ class StvList(object):
 		new_item['stvId'] = new_title['id']
 		new_item['type'] = new_title['type']
 
+		# check if the new id isn't already in library
+		if self.hasStvId(new_item['id']):
+			raise DuplicateStvIdException('Title with stv_id=%d is already in library' % item['id'])
+
 		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_item.get('label'), str(new_item['stvId'])))
 
 		self.dump()
