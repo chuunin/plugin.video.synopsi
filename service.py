@@ -64,7 +64,7 @@ def main():
 		s.join(0.5)
 		l.join(0.5)
 
-		if not l.isAlive() and not s.isAlive() and not s.isAlive():
+		if not l.isAlive() and not s.isAlive() and not aos.isAlive():
 			log('All threads are dead. Exiting loop')
 			break
 
