@@ -369,12 +369,14 @@ def add_directory(name, url, mode, iconimage, atype):
 	return ok
 
 
-def add_movie(movie, url, mode, iconimage):
+def add_movie(movie, mode, iconimage):
 	json_data = json.dumps(movie)
 	if not movie.has_key('type'):
-		log('type not sent')
+		log('add_movie type not set')
 
-	u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
+	log('add_movie: ' + dump(filtertitles(movie)))
+
+	u = sys.argv[0]+"?&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
 	li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	if movie.get('watched'):
 		li.setInfo( type="Video", infoLabels={ "playcount": 1 } )
@@ -409,7 +411,7 @@ def show_movie_list(item_list, dirhandle):
 		for movie in item_list:
 			# log(dump(movie))
 			lis.append(
-				add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'))
+				add_movie(movie, ActionCode.VideoDialogShow, movie.get('cover_medium'))
 			)
 
 		xbmcplugin.addDirectoryItems(dirhandle, lis)
