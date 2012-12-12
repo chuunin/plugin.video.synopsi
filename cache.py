@@ -119,14 +119,16 @@ class StvList(object):
 			ident = {}
 			self._translate_xbmc2stv_keys(ident, movie)
 
+			# give api a hint about type if possible
+			if movie['type'] in playable_types:
+				ident['type'] = movie['type']
+
 			# correct input
 			if ident.get('imdb_id'):
 				ident['imdb_id'] = ident['imdb_id'][2:]
 
 			# try to get synopsi id
-			#~ self.log('to identify: ' + dump(ident))
 			self.log('to identify: ' + ident['file_name'])
-
 			title = self.apiclient.titleIdentify(**ident)
 
 			if title.has_key('id'):
@@ -144,7 +146,7 @@ class StvList(object):
 
 			# for episode, add tvshow
 			if title.has_key('id') and movie['type'] == 'episode' and title.get('type') == 'episode':
-				self.log('xbmc episode:'+dump(movie))
+				self.log('xbmc episode:'+dump(filtertitles(movie)))
 				self.add_tvshow(title['tvshow_id'], movie['tvshowid'])
 
 		# it is already in cache, some property has changed (e.g. lastplayed time)
@@ -155,19 +157,18 @@ class StvList(object):
 		" Adds a tvshow with stvId into cache, if it's not already there "
 		if not self.byStvId.has_key(stvId):
 			stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
-			# rename ids to
-			stv_title['stvId'] = stv_title['id']
-			stv_title['id'] = xbmc_id
+
+			stv_title['xbmc_id'] = xbmc_id
 
 			# if tvshow not in cache yet
-			if not self.hasStvId(stv_title['stvId']):
-				self.log('tvshow stv id:' + str(stv_title['stvId']))
+			if not self.hasStvId(stv_title['id']):
+				self.log('tvshow stv id:' + str(stv_title['id']))
 				self.log('tvshow xbmc id:' + str(xbmc_id))
 				self.put(stv_title)
 
 	def put(self, item, isLoading=False):
 		" Put a new record in the list "
-		self.log('PUT ' + dump(item))
+		self.log('PUT ' + dump(filtertitles(item)))
 		# check if an item with this stvId is not already there
 		if item.has_key('stvId') and self.hasStvId(item['stvId']):
 			raise DuplicateStvIdException('Title with stv_id=%d is already in library' % item['stvId'])
@@ -280,7 +281,7 @@ class StvList(object):
 
 		self.log('LIST /')
 		for rec in self.items:
-			self.log(dump(rec))
+			self.log(dump(filtertitles(rec)))
 
 	def dump(self):
 		self.log(dump(self.byTypeId))
@@ -334,7 +335,7 @@ class StvList(object):
 					return
 
 				episodes = xbmc_rpc.get_episodes(show["tvshowid"])
-				self.log('episodes: ' + dump(episodes))
+				self.log('episodes: ' + dump(filtertitles(episodes)))
 
 				if episodes['limits']['total'] > 0:
 					for episode in episodes["episodes"]:
@@ -376,7 +377,7 @@ class StvList(object):
 		#~ f.write(dump(tvshows))
 		#~ f.close()
 
-		self.log('get_all_tvshows ' + dump(tvshows))
+		self.log('get_all_tvshows ' + dump(filtertitles(tvshows)))
 
 		if tvshows['limits']['total'] > 0:
 			for show in tvshows['tvshows']:

@@ -53,7 +53,8 @@ class ApiTest(TestCase):
 			"stv_title_hash": "1defa7f69476e9ffca7b8ceb8c251275afc31ade",
 			"os_title_hash": "486d1f7112f9749d",
 			"imdb_id": "0102536",
-			'title_property[]': ','.join(['name', 'cover_medium'])
+			'title_property[]': ','.join(['name', 'cover_medium']),
+			'type': 'movie'
 		}
 
 		stv_title = client.titleIdentify(**ident)
