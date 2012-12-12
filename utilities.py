@@ -15,6 +15,7 @@ import re
 from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
+from copy import copy
 import xml.etree.ElementTree as ET
 import time
 
@@ -41,6 +42,7 @@ defaultCastProps = ['name']
 reccoDefaulLimit = 29
 type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
 
+list_filter = reccoDefaultProps + ['type']
 
 
 # texts
@@ -56,6 +58,24 @@ class HashError(Exception):
 
 def dump(var):
 	return json.dumps(var, indent=4)
+
+def structfilter(var, filter_keys):
+	v = copy(var)
+	if isinstance(var, list):
+		for i in var:
+			v = structfilter(i, filter_keys)
+	elif isinstance(var, dict):
+		v = filterkeys(var, filter_keys)
+	else:
+		v = var
+
+	return v
+
+def filterkeys(var, keys):
+	return dict([(k,var[k]) for k in var.keys() if k in keys])
+
+def filtertitles(titles):
+	return structfilter(titles, list_filter)
 
 def log(msg):
 	xbmc.log(unicode(msg).encode('utf-8'))
