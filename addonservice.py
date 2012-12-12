@@ -68,6 +68,7 @@ class AddonHandler(ServiceTCPHandler):
 
 	def get_local_tvshows(self):
 		local_tvshows = self.server.stvList.getAllByType('tvshow')
+		log('local tvshows ' + dump(local_tvshows))
 		return local_tvshows.values()
 
 	def get_top_tvshows(self):
@@ -119,7 +120,14 @@ class AddonHandler(ServiceTCPHandler):
 		return self.server.apiClient.tvshow(stv_id, **kwargs)
 
 	def get_local_movies(self):
-		library = self.server.apiClient.library(title_property=reccoDefaultProps)['titles']
+		props = reccoDefaultProps + ['type']
+		library = self.server.apiClient.library(title_property=props)['titles']
+
+		# pass only movies through filter
+		def filter_movies(item):
+			return item['type']=='movie'
+
+		library = filter(filter_movies, library)
 
 		for title in library:
 			self.server.stvList.updateTitle(title)
