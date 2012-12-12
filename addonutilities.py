@@ -254,14 +254,15 @@ def show_video_dialog_byId(stv_id, apiClient, stvList):
 	show_video_dialog_data(apiClient, stvList, stv_details)
 
 def show_video_dialog(json_data, apiClient, stvList):
-	   if json_data.get('type') == 'tvshow':
+		if json_data.get('type') == 'tvshow':
 			stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
-	   else:
+		else:
 			stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
 
-	   show_video_dialog_data(apiClient, stvList, stv_details, json_data)
+		show_video_dialog_data(apiClient, stvList, stv_details, json_data)
 
 def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
+	log('stv_details:' + dump(stv_details))
 	# add xbmc id if available
 	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
 		cacheItem = stvList.getByStvId(json_data['id'])
@@ -368,8 +369,11 @@ def add_directory(name, url, mode, iconimage, atype):
 	return ok
 
 
-def add_movie(movie, url, mode, iconimage, movieid):
-	json_data = dump(movie)
+def add_movie(movie, url, mode, iconimage):
+	json_data = json.dumps(movie)
+	if not movie.has_key('type'):
+		log('type not sent')
+
 	u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
 	li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	if movie.get('watched'):
@@ -405,7 +409,7 @@ def show_movie_list(item_list, dirhandle):
 		for movie in item_list:
 			# log(dump(movie))
 			lis.append(
-				add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'), movie.get("id"))
+				add_movie(movie, "url", ActionCode.VideoDialogShow, movie.get('cover_medium'))
 			)
 
 		xbmcplugin.addDirectoryItems(dirhandle, lis)
