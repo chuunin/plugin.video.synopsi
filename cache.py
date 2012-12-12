@@ -284,7 +284,7 @@ class StvList(object):
 			self.log(dump(filtertitles(rec)))
 
 	def dump(self):
-		self.log(dump(self.byTypeId))
+		self.log(dump(filtertitles(self.byTypeId)))
 		#~ self.log(dump(self.byStvId))
 		#~ self.log(dump(self.byFilename))
 
