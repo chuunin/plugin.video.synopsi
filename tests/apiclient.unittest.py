@@ -218,17 +218,19 @@ class ApiTest(TestCase):
 	def test_identify_correct_library(self):
 
 		library = client.library(['id', 'type', 'name'])
+		lib_ids = [i['id'] for i in library['titles']]
 		#~ print dump(library)
+
+		self.assertTrue(1947362 not in lib_ids, "The test should start without this id")
 
 		# 52b6f00222cdb3631d9914aee6b662961e924aa5 - hash of my "three times" files
 		result = client.title_identify_correct(1947362, '52b6f00222cdb3631d9914aee6b662961e924aa5')
-		print dump(result)
+		#~ print dump(result)
 
 		library = client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
-		print lib_ids
-		self.assertTrue(1947362 in lib_ids)
-		self.assertTrue(638727 not in lib_ids)
+		self.assertTrue(1947362 in lib_ids, "The correction target id is not in library")
+		self.assertTrue(638727 not in lib_ids, "The corrected id is still in library")
 
 		# correct back to stv_id = 638727
 		result = client.title_identify_correct(638727, '52b6f00222cdb3631d9914aee6b662961e924aa5')
