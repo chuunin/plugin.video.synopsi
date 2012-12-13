@@ -212,14 +212,15 @@ class StvList(object):
 
 		self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
 
-	def remove(self, atype, aid):
+	def remove(self, atype, aid, online=True):
 		typeIdStr = self._getKey(atype, aid)
 		self.log('REMOVE / ' + typeIdStr)
 		try:
 			item = self.getByTypeId(atype, aid)
 
 			if item.has_key('stvId'):
-				self.apiclient.libraryTitleRemove(item['stvId'])
+				if online:
+					self.apiclient.libraryTitleRemove(item['stvId'])
 				del self.byStvId[item['stvId']]
 
 			# suppose cache is consistent and remove only if one of indexes is available
@@ -238,16 +239,22 @@ class StvList(object):
 		old_item = self.byTypeId[self._getKey(old_title['type'], old_title['xbmc_id'])]
 		new_item = dict(old_item)
 		new_item['stvId'] = new_title['id']
-		new_item['type'] = new_title['type']
+
+		# TODO: thinkabout
+		# delete the xbmc type-id if the types dont match ? or dont update the type !
+		if new_title['type'] != new_item['type']:
+			self.log('Correction target and source type differ. %s / %s' % (new_title['type'], new_item['type']))
+		#~ new_item['type'] = new_title['type']
 
 		# check if the new id isn't already in library
 		if self.hasStvId(new_item['stvId']):
-			raise DuplicateStvIdException('Title with stv_id=%d is already in library' % item['stvId'])
+			raise DuplicateStvIdException('Title with stv_id=%d is already in library' % new_item['stvId'])
 
-		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_item.get('label'), str(new_item['stvId'])))
+		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_title.get('label'), str(new_item['stvId'])))
 
 		self.dump()
-		self.remove(old_title['type'], old_title['xbmc_id'])
+		# offline remove item
+		self.remove(old_title['type'], old_title['xbmc_id'], False)
 		self.put(new_item)
 		self.dump()
 		return new_item
