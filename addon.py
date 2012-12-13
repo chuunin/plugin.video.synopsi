@@ -37,6 +37,11 @@ t_text_by_mode = {
 	ActionCode.LocalTVShows: t_nolocalrecco
 }
 
+class UnknownModeException(Exception):
+	pass
+
+class InputParamsException(Exception):
+	pass
 
 class AddonClient(object):
 	def __init__(self, pluginhandle):
@@ -156,98 +161,110 @@ def show_submenu(action_code, dirhandle, **kwargs):
 	# hack HACK_SHOW_ALL_LOCAL_MOVIES
 	if action_code==ActionCode.LocalMovieRecco:
 		item_list.append({ 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': ''})
-			
+
 	show_movie_list(item_list, dirhandle)
 
 def exc_text_by_mode(mode):
 	return t_text_by_mode.get(mode, t_listing_failed)
 
-dirhandle = int(sys.argv[1])
 
-log('SYS ARGV:' + str(sys.argv))
-
-url_parsed = urlparse.urlparse(sys.argv[2])
-params = urlparse.parse_qs(url_parsed.query)
-
-check_first_run()
-
-addonclient = AddonClient(dirhandle)
-
-param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
-p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
-
+# script start
 try:
-	if p['url']:
-		p['url']=uniunquote(p['url'])
+	dirhandle = int(sys.argv[1])
 
-	if p['name']:
-		p['name']=uniunquote(p['name'])
+	log('SYS ARGV:' + str(sys.argv))
 
-	if p['mode']:
-		p['mode']=int(p['mode'])
+	url_parsed = urlparse.urlparse(sys.argv[2])
+	params = urlparse.parse_qs(url_parsed.query)
 
-	if p['type']:
-		p['type']=int(p['type'])
+	check_first_run()
 
-	if p['data']:
-		p['data'] = uniunquote(p['data'])
-		p['json_data'] = json.loads(p['data'])
+	addonclient = AddonClient(dirhandle)
 
-	if p['stv_id']:
-		p['stv_id'] = int(p['stv_id'])
+	param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
+	p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
-except TypeError:
-	log('ERROR / Wrong params')
-	sys.exit(0)
+	try:
+		if p['url']:
+			p['url']=uniunquote(p['url'])
 
+		if p['name']:
+			p['name']=uniunquote(p['name'])
 
-#~ log('params:' + str(params))
-log('mode: %s type: %s' % (p['mode'], p['type']))
-#~ log('url: %s' % (p['url']))
-log('data: %s' % (p['data']))
+		if p['mode']:
+			p['mode']=int(p['mode'])
 
-# hacks
-if p['mode'] == ActionCode.VideoDialogShow and p['json_data']['id'] == HACK_SHOW_ALL_LOCAL_MOVIES:
-	p['mode'] = ActionCode.LocalMovies
+		if p['type']:
+			p['type']=int(p['type'])
 
-# routing
-if p['mode']==None:
-	show_categories()
+		if p['data']:
+			p['data'] = uniunquote(p['data'])
+			p['json_data'] = json.loads(p['data'])
+
+		if p['stv_id']:
+			p['stv_id'] = int(p['stv_id'])
+
+	except TypeError:
+		raise InputParamsException('Wrong params: ' + str(sys.argv))
+
+	#~ log('params:' + str(params))
+	log('mode: %s type: %s' % (p['mode'], p['type']))
+	#~ log('url: %s' % (p['url']))
+	log('data: %s' % (p['data']))
+
+	# hacks
+	if p['mode'] == ActionCode.VideoDialogShow and p['json_data']['id'] == HACK_SHOW_ALL_LOCAL_MOVIES:
+		p['mode'] = ActionCode.LocalMovies
+
+	# routing
+	if p['mode']==None:
+		show_categories()
+		xbmcplugin.endOfDirectory(dirhandle)
+
+	elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
+		params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
+		try:
+			show_submenu(p['mode'], dirhandle, **params)
+		except ListEmptyException:
+			dialog_ok(exc_text_by_mode(p['mode']))
+			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+		except:
+			log(traceback.format_exc())
+			dialog_ok(t_listing_failed)
+			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+
+	elif p['mode']==ActionCode.VideoDialogShow:
+		addonclient.show_video_dialog(p['json_data'])
+
+	elif p['mode']==ActionCode.VideoDialogShowById:
+		addonclient.show_video_dialog_byId(p['stv_id'])
+
+	elif p['mode']==ActionCode.LoginAndSettings:
+		addonclient.open_settings()
+
+	# debugging
+	elif p['mode']==970:
+		xbmc.executebuiltin('CleanLibrary(video)')
+		xbmc.executebuiltin('UpdateLibrary(video)')
+
+	elif p['mode']==971:
+		addonclient.debug_1()
+
+	elif p['mode']==972:
+		addonclient.debug_2()
+
+	elif p['mode']==973:
+		addonclient.debug_3()
+	else:
+		raise UnknownModeException('Unknown mode: %s' % p['mode'])
+
+except ShutdownRequestedException:
+	xbmc.executebuiltin('Quit')
+except:
+	log(traceback.format_exc())
+finally:
 	xbmcplugin.endOfDirectory(dirhandle)
 
-elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
-	params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
-	try:
-		show_submenu(p['mode'], dirhandle, **params)
-	except ListEmptyException:
-		dialog_ok(exc_text_by_mode(p['mode']))
-		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-	except:
-		log(traceback.format_exc())
-		dialog_ok(t_listing_failed)
-		xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 
-elif p['mode']==ActionCode.VideoDialogShow:
-	addonclient.show_video_dialog(p['json_data'])
-
-elif p['mode']==ActionCode.VideoDialogShowById:
-	addonclient.show_video_dialog_byId(p['stv_id'])
-
-elif p['mode']==ActionCode.LoginAndSettings:
-	addonclient.open_settings()
-
-# debugging
-elif p['mode']==970:
-	xbmc.executebuiltin('CleanLibrary(video)')
-	xbmc.executebuiltin('UpdateLibrary(video)')
-
-elif p['mode']==971:
-	addonclient.debug_1()
-
-elif p['mode']==972:
-	addonclient.debug_2()
-
-elif p['mode']==973:
-	addonclient.debug_3()
 
 
