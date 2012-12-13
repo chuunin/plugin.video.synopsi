@@ -202,7 +202,6 @@ class AddonService(mythread.MyThread):
 		#~ self.server.serve_forever()
 		while not self._stop:
 			self.server.handle_request()
-			self._log.debug('ADDON SERVICE / No requests. Loop ' + str(time.time()))
 
 		self._log.debug('ADDON SERVICE / Thread end')
 

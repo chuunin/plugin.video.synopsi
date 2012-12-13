@@ -8,6 +8,7 @@ import xbmc, xbmcgui, xbmcaddon
 # python standart lib
 import thread
 import sys
+import time
 
 # application
 from scrobbler import Scrobbler
@@ -61,8 +62,7 @@ def main():
 
 	log('Service loop START')
 	while True:
-		s.join(0.5)
-		l.join(0.5)
+		time.sleep(0.5)
 
 		if not l.isAlive() and not s.isAlive() and not aos.isAlive():
 			log('All threads are dead. Exiting loop')
