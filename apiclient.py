@@ -37,6 +37,9 @@ class NotConnectedException(Exception):
 class AuthenticationError(Exception):
 	pass
 
+class ApiCallError(Exception):
+	pass
+
 class ApiClient(loggable.Loggable):
 	_instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
@@ -265,6 +268,9 @@ class ApiClient(loggable.Loggable):
 		else:
 			self.updateAccessTokenTimeout()
 
+		if response_json.get('status') == 'error':
+			raise ApiCallError('ApiClient response: ' + json.dumps(response_json.get('errors')))
+
 		return response_json
 
 
@@ -472,6 +478,6 @@ class ApiClient(loggable.Loggable):
 
 		if limit:
 			req['data']['limit'] = limit
-			
+
 		return self.execute(req)
 
