@@ -217,13 +217,32 @@ class ApiTest(TestCase):
 
 	def test_identify_correct_library(self):
 		TITLE_CORRECTION_TARGET = 1947362
-		SOME_ID_IN_LIBRARY = 638727	# this should be the one with hash CORRECTION_FILE_HASH
+		#~ SOME_ID_IN_LIBRARY = 638727	# this should be the one with hash CORRECTION_FILE_HASH
 		CORRECTION_FILE_HASH = '52b6f00222cdb3631d9914aee6b662961e924aa5'	# hash of my "three times" file
-		client.libraryTitleAdd(SOME_ID_IN_LIBRARY)
+
+		# do the identification to put the hash into api
+		ident = {
+			"file_name": "three times.avi",
+			"stv_title_hash": CORRECTION_FILE_HASH,
+			"os_title_hash": "486d1f7112f9749d",
+			"imdb_id": "0102536",
+			'title_property[]': ','.join(['name', 'cover_medium']),
+			'type': 'movie'
+		}
+
+		stv_title = client.titleIdentify(**ident)
+		print dump(stv_title)
+
+		SOME_ID_IN_LIBRARY = stv_title['id']
 
 		library = client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
-		#~ print dump(library)
+
+		print lib_ids
+
+		if SOME_ID_IN_LIBRARY not in lib_ids:
+			print 'adding %d into library' % SOME_ID_IN_LIBRARY
+			client.libraryTitleAdd(SOME_ID_IN_LIBRARY)
 
 		self.assertTrue(TITLE_CORRECTION_TARGET not in lib_ids, "The test should start without this id")
 
