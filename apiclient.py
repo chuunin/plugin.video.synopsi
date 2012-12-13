@@ -310,11 +310,12 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def title_identify_correct(self, titleId, stv_title_hash, stv_subtitle_hash=None):
+	def title_identify_correct(self, titleId, stv_title_hash, stv_subtitle_hash=None, replace_library_item='true'):
 		data = {
 			'title_id': titleId,
 			'stv_title_hash': stv_title_hash,
-			'device_id': self.device_id
+			'device_id': self.device_id,
+			'replace_library_item': replace_library_item
 		}
 
 		if stv_subtitle_hash:
@@ -472,6 +473,6 @@ class ApiClient(loggable.Loggable):
 
 		if limit:
 			req['data']['limit'] = limit
-			
+
 		return self.execute(req)
 
