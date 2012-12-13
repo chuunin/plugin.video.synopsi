@@ -215,6 +215,31 @@ class ApiTest(TestCase):
 		# print dump(result)
 		self.assertTrue(result['status']=='ok')
 
+	def test_identify_correct_library(self):
+
+		library = client.library(['id', 'type', 'name'])
+		#~ print dump(library)
+
+		# 52b6f00222cdb3631d9914aee6b662961e924aa5 - hash of my "three times" files
+		result = client.title_identify_correct(1947362, '52b6f00222cdb3631d9914aee6b662961e924aa5')
+		print dump(result)
+
+		library = client.library(['id', 'type', 'name'])
+		lib_ids = [i['id'] for i in library['titles']]
+		print lib_ids
+		self.assertTrue(1947362 in lib_ids)
+		self.assertTrue(638727 not in lib_ids)
+
+		# correct back to stv_id = 638727
+		result = client.title_identify_correct(638727, '52b6f00222cdb3631d9914aee6b662961e924aa5')
+		print dump(result)
+
+		library = client.library(['id', 'type', 'name'])
+		lib_ids = [i['id'] for i in library['titles']]
+		self.assertTrue(1947362 not in lib_ids)
+		self.assertTrue(638727 in lib_ids)
+
+
 	def test_library(self):
 		result = client.library(['date', 'genres', 'cover_small'])
 		print dump(result)
