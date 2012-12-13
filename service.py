@@ -71,6 +71,9 @@ def main():
 		if xbmc.abortRequested:
 			log('service.py abortRequested')
 			aos.stop()
+			log('WAIT for AOS')
+			aos.join()
+			log('AOS quit')
 			break;
 
 	log('Service loop END')
