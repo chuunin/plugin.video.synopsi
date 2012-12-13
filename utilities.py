@@ -473,7 +473,7 @@ def home_screen_fill(apiClient, cache):
 		movie_recco = apiClient.profileRecco('movie', True, homeReccoLimit)['titles']
 		episode_recco = apiClient.get_unwatched_episodes()
 
-		#~ log('movie_recco:' + dump(movie_recco))
+		log('movie_recco:' + dump(movie_recco))
 		#~ log('episode_recco:' + dump(episode_recco))
 		log('movie_recco count:' + str(len(movie_recco)))
 		log('episode_recco count:' + str(len(episode_recco)))
@@ -492,8 +492,7 @@ def home_screen_fill(apiClient, cache):
 				WINDOW.setProperty("LatestMovie.{0}.Title".format(i+1), m['name'])
 				if lib_item:
 					WINDOW.setProperty("LatestMovie.{0}.Path".format(i+1), lib_item['file'])
-				WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i+1), m['cover_thumbnail'])
-				WINDOW.setProperty("LatestMovie.{0}.Fanart".format(i+1), m['cover_large'])
+				WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i+1), m['cover_large'])
 
 			# recco could return less than 5 items
 			if i < len(episode_recco):
@@ -507,7 +506,7 @@ def home_screen_fill(apiClient, cache):
 				if lib_item:
 					WINDOW.setProperty("LatestEpisode.{0}.Path".format(i+1), e['cover_large'])
 				WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i+1), e['cover_large'])
-				WINDOW.setProperty("LatestEpisode.{0}.Fanart".format(i+1), e['cover_thumbnail'])
+
 
 	except Exception as e:
 		log(traceback.format_exc())
