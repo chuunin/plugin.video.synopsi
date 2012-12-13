@@ -259,11 +259,13 @@ try:
 		raise UnknownModeException('Unknown mode: %s' % p['mode'])
 
 except ShutdownRequestedException:
+	xbmcplugin.endOfDirectory(dirhandle)
 	xbmc.executebuiltin('Quit')
 except:
-	log(traceback.format_exc())
-finally:
 	xbmcplugin.endOfDirectory(dirhandle)
+	log(traceback.format_exc())
+
+
 
 
 

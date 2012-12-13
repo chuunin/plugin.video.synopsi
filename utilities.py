@@ -473,7 +473,7 @@ def home_screen_fill(apiClient, cache):
 		movie_recco = apiClient.profileRecco('movie', True, homeReccoLimit)['titles']
 		episode_recco = apiClient.get_unwatched_episodes()
 
-		log('movie_recco:' + dump(movie_recco))
+		#~ log('movie_recco:' + dump(movie_recco))
 		#~ log('episode_recco:' + dump(episode_recco))
 		log('movie_recco count:' + str(len(movie_recco)))
 		log('episode_recco count:' + str(len(episode_recco)))
