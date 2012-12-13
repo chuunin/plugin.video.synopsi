@@ -178,7 +178,7 @@ class AddonServer(SocketServer.TCPServer):
 				if tport > 65500:
 					raise
 
-
+		self.timeout = 0.5
 		addon = get_current_addon()
 		addon.setSetting('ADDON_SERVICE_PORT', str(tport))
 
@@ -192,16 +192,21 @@ class AddonService(mythread.MyThread):
 		self.server.apiClient = apiClient
 		self.server.stvList = stvList
 
+		self._stop = False
 
 	def run(self):
 		self._log.debug('ADDON SERVICE / Thread start')
 
 		# Create the server
 		self.server._log = self._log
-		self.server.serve_forever()
+		#~ self.server.serve_forever()
+		while not self._stop:
+			self.server.handle_request()
 
 		self._log.debug('ADDON SERVICE / Thread end')
 
 	def stop(self):
-		self.server.shutdown()
+		self._stop = True
+		self._log.debug('ADDON SERVICE / Asked to stop')
+		#~ self.server.shutdown()
 

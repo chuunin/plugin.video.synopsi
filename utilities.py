@@ -56,6 +56,9 @@ t_unavail = 'N/A'
 class HashError(Exception):
 	pass
 
+class ShutdownRequestedException(Exception):
+	pass
+
 def dump(var):
 	return json.dumps(var, indent=4)
 
@@ -111,7 +114,8 @@ def check_first_run():
 		__addon__.setSetting('FIRSTRUN', "false")
 
 	if addon_getSetting('ADDON_SERVICE_FIRSTRUN') != "false":
-		dialog_need_restart()
+		if dialog_need_restart():
+			raise ShutdownRequestedException('User requested shutdown')
 
 
 def dialog_text(msg, max_line_length=20, max_lines=3):
@@ -576,10 +580,7 @@ def dialog_login_fail_yesno():
 def dialog_need_restart():
 	dialog = xbmcgui.Dialog()
 	yes = dialog_yesno("You need to restart your media center to start the SynopsiTV service. Restart now ?")
-	if yes:
-		log('before quit')
-		xbmc.executebuiltin('Quit')
-		log('after quit')
+	return yes
 
 
 

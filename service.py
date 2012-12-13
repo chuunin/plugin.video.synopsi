@@ -8,6 +8,7 @@ import xbmc, xbmcgui, xbmcaddon
 # python standart lib
 import thread
 import sys
+import time
 
 # application
 from scrobbler import Scrobbler
@@ -55,14 +56,15 @@ def main():
 	s = Scrobbler(cache)
 	l = RPCListenerHandler(cache, s)
 	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, apiclient1, cache)
-	s.start()
-	l.start()
-	aos.start()
+
+	threads = [s, l, aos]
+
+	for t in threads:
+		t.start()
 
 	log('Service loop START')
 	while True:
-		s.join(0.5)
-		l.join(0.5)
+		time.sleep(0.5)
 
 		if not l.isAlive() and not s.isAlive() and not aos.isAlive():
 			log('All threads are dead. Exiting loop')
@@ -70,8 +72,8 @@ def main():
 
 		if xbmc.abortRequested:
 			log('service.py abortRequested')
+			log('waiting for: ' + str(','.join([i.name for i in threads if i.isAlive()])))
 			aos.stop()
-			break;
 
 	log('Service loop END')
 	cache.save()

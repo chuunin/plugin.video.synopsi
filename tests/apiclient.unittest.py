@@ -216,30 +216,33 @@ class ApiTest(TestCase):
 		self.assertTrue(result['status']=='ok')
 
 	def test_identify_correct_library(self):
+		TITLE_CORRECTION_TARGET = 1947362
+		SOME_ID_IN_LIBRARY = 638727	# this should be the one with hash CORRECTION_FILE_HASH
+		CORRECTION_FILE_HASH = '52b6f00222cdb3631d9914aee6b662961e924aa5'	# hash of my "three times" file
+		client.libraryTitleAdd(SOME_ID_IN_LIBRARY)
 
 		library = client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
 		#~ print dump(library)
 
-		self.assertTrue(1947362 not in lib_ids, "The test should start without this id")
+		self.assertTrue(TITLE_CORRECTION_TARGET not in lib_ids, "The test should start without this id")
 
-		# 52b6f00222cdb3631d9914aee6b662961e924aa5 - hash of my "three times" files
-		result = client.title_identify_correct(1947362, '52b6f00222cdb3631d9914aee6b662961e924aa5')
-		#~ print dump(result)
-
-		library = client.library(['id', 'type', 'name'])
-		lib_ids = [i['id'] for i in library['titles']]
-		self.assertTrue(1947362 in lib_ids, "The correction target id is not in library")
-		self.assertTrue(638727 not in lib_ids, "The corrected id is still in library")
-
-		# correct back to stv_id = 638727
-		result = client.title_identify_correct(638727, '52b6f00222cdb3631d9914aee6b662961e924aa5')
+		result = client.title_identify_correct(TITLE_CORRECTION_TARGET, CORRECTION_FILE_HASH)
 		print dump(result)
 
 		library = client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
-		self.assertTrue(1947362 not in lib_ids)
-		self.assertTrue(638727 in lib_ids)
+		self.assertTrue(TITLE_CORRECTION_TARGET in lib_ids, "The correction target id is not in library")
+		self.assertTrue(SOME_ID_IN_LIBRARY not in lib_ids, "The corrected id is still in library")
+
+		# correct back to stv_id = SOME_ID_IN_LIBRARY
+		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
+		print dump(result)
+
+		library = client.library(['id', 'type', 'name'])
+		lib_ids = [i['id'] for i in library['titles']]
+		self.assertTrue(TITLE_CORRECTION_TARGET not in lib_ids)
+		self.assertTrue(SOME_ID_IN_LIBRARY in lib_ids)
 
 
 	def test_library(self):
