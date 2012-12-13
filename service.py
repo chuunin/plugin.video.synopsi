@@ -56,9 +56,11 @@ def main():
 	s = Scrobbler(cache)
 	l = RPCListenerHandler(cache, s)
 	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, apiclient1, cache)
-	s.start()
-	l.start()
-	aos.start()
+
+	threads = [s, l, aos]
+
+	for t in threads:
+		t.start()
 
 	log('Service loop START')
 	while True:
@@ -70,11 +72,8 @@ def main():
 
 		if xbmc.abortRequested:
 			log('service.py abortRequested')
+			log('waiting for: ' + str(','.join([i.name for i in threads if i.isAlive()])))
 			aos.stop()
-			log('WAIT for AOS')
-			aos.join()
-			log('AOS quit')
-			break;
 
 	log('Service loop END')
 	cache.save()
