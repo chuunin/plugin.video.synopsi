@@ -23,6 +23,7 @@ class RPCListener(MyThread):
 		self.sock = socket.socket()
 		self.sock.settimeout(5)
 		self.connected = False
+		self._stop = False
 		sleepTime = 100
 		t = time.time()
 		port = get_api_port()
@@ -51,7 +52,8 @@ class RPCListener(MyThread):
 
 		self.apiclient = AppApiClient.getDefaultClient()
 
-		while True:
+
+		while not self._stop:
 			data = self.sock.recv(8192)
 			data = data.replace('}{', '},{')
 			datapack='[%s]' % data
@@ -67,6 +69,7 @@ class RPCListener(MyThread):
 				method = request.get("method")
 
 				if method == "System.OnQuit":
+					self._stop = True
 					ABORT_REQUESTED = True
 					break
 				else:
