@@ -106,7 +106,7 @@ class RPCListenerHandler(RPCListener):
 
 	#   NOT USED NOW
 	def playerEvent(self, data):
-		self.self._log.debug(dump(data))
+		self._log.debug(dump(data))
 
 	def VideoLibrary_OnUpdate(self, data):
 		i = data['params']['data']['item']
