@@ -172,7 +172,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		# correct
 		elif controlId == 13:
 			new_title = self.user_title_search()
-			log('new_title:' + dump(new_title))
+			log('old_title:' + dump(filtertitles(self.data)))
+			log('new_title:' + dump(filtertitles(new_title)))
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
 					self.stvList.correct_title(self.data, new_title)
@@ -221,7 +222,12 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 		for item in self.data['movies']:
 			if not item.get('year'):
 				item['year'] =  '-'
-			text = '%s (%s)' % (item['name'], item['year'])
+
+			text = '%s (%s) ' % (item['name'], item['year'])
+
+			if item.get('type') == 'episode':
+				text = 'S%sE%s - ' % (item.get('season_number', '??'), item.get('episode_number', '??')) + text
+
 			li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
 			li.setProperty('id', str(item['id']))
 			items.append(li)

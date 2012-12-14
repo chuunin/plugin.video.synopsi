@@ -25,12 +25,12 @@ commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_sm
 defaultIdentifyProps = commonTitleProps + ['tvshow_id']
 watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
-smallListProps = ['id', 'cover_medium', 'name', 'watched']
+smallListProps = ['id', 'cover_medium', 'name', 'watched', 'type']
 defaultEpisodeProps = smallListProps + ['season_number', 'episode_number']
 allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
 defaultSeasonProps = ['id', 'cover_medium', 'season_number']
 defaultSeasonProps2 = ['id', 'episodes']
-defaultSearchProps = commonTitleProps
+defaultSearchProps = defaultEpisodeProps + ['year']
 
 class NotConnectedException(Exception):
 	pass
