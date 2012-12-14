@@ -172,13 +172,15 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		# correct
 		elif controlId == 13:
 			new_title = self.user_title_search()
+			log('new_title:' + dump(new_title))
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
 					self.stvList.correct_title(self.data, new_title)
 					self.apiClient.title_identify_correct(new_title['id'], self.data['stv_title_hash'])
 					show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
 					xbmc.executebuiltin('Container.Refresh()')
-				except DuplicateStvIdException:
+				except DuplicateStvIdException, e:
+					log(str(e))
 					dialog_ok('This title is already in library. Cannot correct identity to this title')
 
 
@@ -199,7 +201,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 					dialog_ok('No results')
 				else:
 					data = { 'movies': results['search_result'] }
-					log(dump(data))
 					return open_select_movie_dialog(data)
 			else:
 				dialog_ok('Enter a title name to search for')
@@ -220,7 +221,7 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 		for item in self.data['movies']:
 			if not item.get('year'):
 				item['year'] =  '-'
-			text = '%s (%s) %s' % (item['name'], item['year'], ', '.join(item['directors']))
+			text = '%s (%s)' % (item['name'], item['year'])
 			li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
 			li.setProperty('id', str(item['id']))
 			items.append(li)
