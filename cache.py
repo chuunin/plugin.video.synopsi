@@ -166,7 +166,7 @@ class StvList(object):
 				self.log('tvshow xbmc id:' + str(xbmc_id))
 				self.put(stv_title)
 
-	def put(self, item, isLoading=False):
+	def put(self, item, online=True):
 		" Put a new record in the list "
 		self.log('PUT ' + dump(filtertitles(item)))
 		# check if an item with this stvId is not already there
@@ -193,7 +193,7 @@ class StvList(object):
 		logstr = 'PUT / ' + str(item.get('type')) + '--' + str(item.get('id')) + ' | ' + item.get('file', '')
 
 		# if not loading cache and known by synopsi, add to list
-		if not isLoading and item.has_key('stvId'):
+		if online and item.has_key('stvId'):
 			self.apiclient.libraryTitleAdd(item['stvId'])
 
 		self.log(logstr)
@@ -412,7 +412,7 @@ class StvList(object):
 		json_obj = self.deserialize(f.read())
 		for item in json_obj:
 			try:
-				self.put(item, True)
+				self.put(item, False)
 			except DuplicateStvIdException, e:
 				self.log('LOAD / ' +str(e))
 
