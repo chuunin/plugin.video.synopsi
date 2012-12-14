@@ -194,10 +194,10 @@ class OfflineStvList(object):
 
 	def remove(self, atype, aid):
 		typeIdStr = self._getKey(atype, aid)
+
 		self.log('REMOVE / ' + typeIdStr)
 		try:
 			item = self.getByTypeId(atype, aid)
-
 			if item.has_key('stvId'):
 				del self.byStvId[item['stvId']]
 
@@ -396,9 +396,9 @@ class OfflineStvList(object):
 		json_obj = self.deserialize(f.read())
 		for item in json_obj:
 			try:
-				self.put(item)
+				OfflineStvList.put(item)
 			except DuplicateStvIdException, e:
-				self.log('LOAD / ' +str(e))
+				self.log('LOAD / ' + str(e))
 
 		f.close()
 
@@ -443,7 +443,10 @@ class OnlineStvList(OfflineStvList):
 
 	def remove(self, atype, aid):
 		OfflineStvList.remove(self, atype, aid)
-		self.apiclient.libraryTitleRemove(item['stvId'])
+		if self.hasTypeId(atype, aid):
+			item = self.getByTypeId(atype, aid)
+			if item.has_key('stvId'):
+				self.apiclient.libraryTitleRemove(item['stvId'])
 
 #	the final class name used in application, instead of rewriting classnames
 class StvList(OnlineStvList):
