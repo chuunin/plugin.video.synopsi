@@ -27,7 +27,7 @@ playable_types = ['movie', 'episode']
 class DuplicateStvIdException(Exception):
 	pass
 
-class StvList(object):
+class OfflineStvList(object):
 	"""
 	Library cache.
 	Storing:
@@ -42,12 +42,10 @@ class StvList(object):
 		"stv_id": synopsi_id_library
 	}
 	"""
-	def __init__(self, uuid, apiclient, filePath=None):
-		super(StvList, self).__init__()
-		self.apiclient = apiclient
+	def __init__(self, uuid, filePath=None):
+		super(OfflineStvList, self).__init__()
 		self.filePath = filePath or self.__class__.getDefaultFilePath()
 		self.clear()
-
 		self.uuid = uuid
 		#~ self.list()
 
@@ -57,22 +55,6 @@ class StvList(object):
 		addon_id = addon.getAddonInfo('id')
 		data_path = xbmc.translatePath('special://masterprofile/addon_data/')
 		return os.path.join(data_path, addon_id, 'cache.dat')
-
-
-	@classmethod
-	def getDefaultList(cls, apiClient=None):
-		if not apiClient:
-			apiClient = AppApiClient.getDefaultClient()
-
-		iuid = get_install_id()
-		cache = StvList(iuid, apiClient)
-		try:
-			cache.load()
-		except:
-			# first time
-			log('CACHE restore failed. If this is your first run, its ok')
-
-		return cache
 
 	def serialize(self):
 		json_str = json.dumps(self.getItems())
@@ -166,7 +148,7 @@ class StvList(object):
 				self.log('tvshow xbmc id:' + str(xbmc_id))
 				self.put(stv_title)
 
-	def put(self, item, online=True):
+	def put(self, item):
 		" Put a new record in the list "
 		self.log('PUT ' + dump(filtertitles(item)))
 		# check if an item with this stvId is not already there
@@ -181,9 +163,11 @@ class StvList(object):
 			self.byType[item['type']][item['id']] = item
 			self.byTypeId[typeIdStr] = item
 
+		# if the file is playable, index by file. throws exception if item does not have the file specified
 		if item.get('type') in playable_types:
 			self.byFilename[item['file']] = item
 
+		# if item is known to synopsi, index by stvId
 		if item.has_key('stvId'):
 			self.log('added stvId to index: ' + str(item['stvId']))
 			self.byStvId[item['stvId']] = item
@@ -191,10 +175,6 @@ class StvList(object):
 		self.items.append(item)
 
 		logstr = 'PUT / ' + str(item.get('type')) + '--' + str(item.get('id')) + ' | ' + item.get('file', '')
-
-		# if not loading cache and known by synopsi, add to list
-		if online and item.has_key('stvId'):
-			self.apiclient.libraryTitleAdd(item['stvId'])
 
 		self.log(logstr)
 
@@ -212,16 +192,16 @@ class StvList(object):
 
 		self.log('UPDATE / ' + typeIdStr + ' / ' + updateStr)
 
-	def remove(self, atype, aid, online=True):
+	def remove(self, atype, aid):
 		typeIdStr = self._getKey(atype, aid)
 		self.log('REMOVE / ' + typeIdStr)
 		try:
 			item = self.getByTypeId(atype, aid)
 
 			if item.has_key('stvId'):
-				if online:
-					self.apiclient.libraryTitleRemove(item['stvId'])
 				del self.byStvId[item['stvId']]
+
+			self.items.remove(item)
 
 			# suppose cache is consistent and remove only if one of indexes is available
 			if self.byTypeId.has_key(typeIdStr):
@@ -253,8 +233,9 @@ class StvList(object):
 		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_title.get('label'), str(new_item['stvId'])))
 
 		self.dump()
+
 		# offline remove item
-		self.remove(old_title['type'], old_title['xbmc_id'], False)
+		self.remove(old_title['type'], old_title['xbmc_id'])
 		self.put(new_item)
 		self.dump()
 		return new_item
@@ -280,6 +261,9 @@ class StvList(object):
 	def getByStvId(self, stv_id):
 		if self.byStvId.has_key(stv_id):
 			return self.byStvId[stv_id]
+
+	def hasItem(self, item):
+		return item in self.items
 
 	def getAllByType(self, atype):
 		return self.byType[atype]
@@ -412,7 +396,7 @@ class StvList(object):
 		json_obj = self.deserialize(f.read())
 		for item in json_obj:
 			try:
-				self.put(item, False)
+				self.put(item)
 			except DuplicateStvIdException, e:
 				self.log('LOAD / ' +str(e))
 
@@ -430,3 +414,37 @@ class StvList(object):
 			title['xbmc_id'] = cached_title['id']
 			self.log('updating title %s with xbmc_id: %d file: %s' % (title.get('name'), title['xbmc_id'], title['file']))
 
+
+class OnlineStvList(OfflineStvList):
+	def __init__(self, uuid, apiclient, filePath=None):
+		super(OnlineStvList, self).__init__(uuid, filePath)
+		self.apiclient = apiclient
+
+	@classmethod
+	def getDefaultList(cls, apiClient=None):
+		if not apiClient:
+			apiClient = AppApiClient.getDefaultClient()
+
+		iuid = get_install_id()
+		cache = cls(iuid, apiClient)
+		try:
+			cache.load()
+		except:
+			# first time
+			log('CACHE restore failed. If this is your first run, its ok')
+
+		return cache
+
+	def put(self, item):
+		OfflineStvList.put(self, item)
+		# if known by synopsi, add to list
+		if item.has_key('stvId'):
+			self.apiclient.libraryTitleAdd(item['stvId'])
+
+	def remove(self, atype, aid):
+		OfflineStvList.remove(self, atype, aid)
+		self.apiclient.libraryTitleRemove(item['stvId'])
+
+#	the final class name used in application, instead of rewriting classnames
+class StvList(OnlineStvList):
+	pass

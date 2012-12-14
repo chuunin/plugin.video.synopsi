@@ -12,7 +12,7 @@ from common import connection
 sys.path.insert(0, os.path.abspath('..'))
 from utilities import *
 from apiclient import *
-from cache import StvList, DuplicateStvIdException
+from cache import OfflineStvList, DuplicateStvIdException
 
 def pprint(data):
 	global logger
@@ -75,19 +75,42 @@ class CacheTest(TestCase):
 
 	def test_correction(self):
 		NEW_STV_ID = 1234567
+		OLD_STV_ID = 9876543
 		FILENAME = 'asodfhaoherfoahdfs.avi'
 
-		movie2 = { 'type': u'movie', 'id': 3, 'file': FILENAME, 'stvId': 9876543 }
-		cache.put(movie2)
+		test_item = { 'type': u'movie', 'id': 3, 'file': FILENAME, 'stvId': OLD_STV_ID }
+
+		movies = [
+			{ 'type': u'movie', 'id': 1, 'file': 'movie1.avi', 'stvId': 1111 }		,
+			{ 'type': u'movie', 'id': 2, 'file': 'movie2.avi', 'stvId': 1112 }      ,
+			test_item,
+			{ 'type': u'movie', 'id': 4, 'file': 'movie4.avi', 'stvId': 1113 }      ,
+			{ 'type': u'movie', 'id': 5, 'file': 'movie5.avi', 'stvId': 1114 }      ,
+			{ 'type': u'episode', 'id': 1, 'file': 'episode1.avi', 'stvId': 9991 }  ,
+			{ 'type': u'episode', 'id': 2, 'file': 'episode2.avi', 'stvId': 9992 }  ,
+			{ 'type': u'episode', 'id': 3, 'file': 'episode3.avi', 'stvId': 9993 }  ,
+			{ 'type': u'episode', 'id': 4, 'file': 'episode4.avi', 'stvId': 9994 } ]
+
+		for movie in movies:
+			cache.put(movie)
+
+		cache.list()
 
 		old_title = { 'type': 'movie', 'xbmc_id': 3 }
 		new_title = { 'type': 'movie', 'id': NEW_STV_ID }
 
 		new_item = cache.correct_title(old_title, new_title)
 
+		# check if old item is removed
+		self.assertTrue(not cache.hasStvId(OLD_STV_ID))
+		self.assertTrue(not cache.hasItem(test_item))
+
+		# check if new item is in the right place
 		self.assertEqual(cache.byTypeId['movie--3']['stvId'], NEW_STV_ID)
 		self.assertEqual(cache.byStvId[NEW_STV_ID]['file'], FILENAME)
 		self.assertEqual(cache.byFilename[FILENAME], new_item)
+
+		cache.list()
 
 	def test_update_title(self):
 		cache.put(test_item1)
@@ -140,10 +163,10 @@ if __name__ == '__main__':
 	}
 
 	c = connection
-	apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.ERROR, rel_api_url=c['rel_api_url'])
+	#~ apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.ERROR, rel_api_url=c['rel_api_url'])
 	cwd = os.path.join(os.getcwd(), 'cache.dat')
 
-	cache = StvList(c['device_id'], apiClient, cwd)
+	cache = OfflineStvList(c['device_id'], cwd)
 
 	logger = logging.getLogger()
 
