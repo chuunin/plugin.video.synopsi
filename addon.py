@@ -140,18 +140,25 @@ def get_item_list(action_code, **kwargs):
 
 	if action_code==ActionCode.MovieRecco:
 		return addonclient.get_global_recco('movie')
+
 	elif action_code==ActionCode.LocalMovieRecco:
 		return addonclient.get_local_recco2('movie')
+
 	elif action_code==ActionCode.LocalMovies:
 		return addonclient.get_local_movies()
+
 	elif action_code==ActionCode.TVShows:
 		return addonclient.get_top_tvshows()
+
 	elif action_code==ActionCode.LocalTVShows:
 		return addonclient.get_local_tvshows()
+
 	elif action_code==ActionCode.UnwatchedEpisodes:
 		return addonclient.get_unwatched_episodes()
+
 	elif action_code==ActionCode.UpcomingEpisodes:
 		return addonclient.get_upcoming_episodes()
+
 	elif action_code==ActionCode.TVShowEpisodes:
 		return addonclient.get_tvshow_season(kwargs['stv_id'])
 

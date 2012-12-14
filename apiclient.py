@@ -26,6 +26,7 @@ defaultIdentifyProps = commonTitleProps + ['tvshow_id']
 watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
 smallListProps = ['id', 'cover_medium', 'name', 'watched']
+defaultEpisodeProps = smallListProps + ['season_number', 'episode_number']
 allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
 defaultSeasonProps = ['id', 'cover_medium', 'season_number']
 defaultSeasonProps2 = ['id', 'episodes']
@@ -444,7 +445,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def season(self, tvshow_id, props=defaultSeasonProps2, episode_props=smallListProps):
+	def season(self, tvshow_id, props=defaultSeasonProps2, episode_props=defaultEpisodeProps):
 		req = {
 			'methodPath': 'season/%d/' % int(tvshow_id),
 			'method': 'get',

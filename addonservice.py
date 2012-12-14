@@ -108,6 +108,12 @@ class AddonHandler(ServiceTCPHandler):
 
 	def get_tvshow_season(self, tvshow_id):
 		season = self.server.apiClient.season(tvshow_id)
+
+		# fix names
+		for i in season['episodes']:
+			episident = 'S%sE%s' % (i['season_number'], i['episode_number'])
+			i['name'] = '%s - %s' % (episident, i['name'])
+
 		return season['episodes']
 
 	def get_title(self, stv_id, detailProps=defaultDetailProps, castProps=defaultCastProps):
