@@ -411,7 +411,10 @@ class StvList(object):
 		f = open(self.filePath, 'r')
 		json_obj = self.deserialize(f.read())
 		for item in json_obj:
-			self.put(item, True)
+			try:
+				self.put(item, True)
+			except DuplicateStvIdException, e:
+				self.log('LOAD / ' +str(e))
 
 		f.close()
 
