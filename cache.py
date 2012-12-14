@@ -396,7 +396,7 @@ class OfflineStvList(object):
 		json_obj = self.deserialize(f.read())
 		for item in json_obj:
 			try:
-				OfflineStvList.put(item)
+				OfflineStvList.put(self, item)
 			except DuplicateStvIdException, e:
 				self.log('LOAD / ' + str(e))
 
