@@ -217,9 +217,9 @@ class ApiTest(TestCase):
 
 	def test_identify_correct_library(self):
 		TITLE_CORRECTION_TARGET = 1947362
-		#~ SOME_ID_IN_LIBRARY = 638727	# this should be the one with hash CORRECTION_FILE_HASH
 		CORRECTION_FILE_HASH = '52b6f00222cdb3631d9914aee6b662961e924aa5'	# hash of my "three times" file
 
+		# prepare the library
 		# do the identification to put the hash into api
 		ident = {
 			"file_name": "three times.avi",
@@ -230,24 +230,37 @@ class ApiTest(TestCase):
 			'type': 'movie'
 		}
 
+		# let the service know about our hash. withou this it would not be possible to do correction
 		stv_title = client.titleIdentify(**ident)
-		print dump(stv_title)
 
-		SOME_ID_IN_LIBRARY = stv_title['id']
+		# make sure that this unreal id in library
+		SOME_ID_IN_LIBRARY = 100
+		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
+		self.assertTrue(result.get('status')=='ok')
 
 		library = client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
+		#~ print lib_ids
 
-		print lib_ids
-
+		# the id should already be there after correction, but we can let this code here
 		if SOME_ID_IN_LIBRARY not in lib_ids:
 			print 'adding %d into library' % SOME_ID_IN_LIBRARY
 			client.libraryTitleAdd(SOME_ID_IN_LIBRARY)
 
+		# remove the target id if it is in the library
+		if TITLE_CORRECTION_TARGET in lib_ids:
+			print 'removing %d from library' % TITLE_CORRECTION_TARGET
+			client.libraryTitleRemove(TITLE_CORRECTION_TARGET)
+
+		library = client.library(['id', 'type', 'name'])
+		lib_ids = [i['id'] for i in library['titles']]
+		#~ print lib_ids
+
 		self.assertTrue(TITLE_CORRECTION_TARGET not in lib_ids, "The test should start without this id")
 
+		# test the correction
 		result = client.title_identify_correct(TITLE_CORRECTION_TARGET, CORRECTION_FILE_HASH)
-		print dump(result)
+		self.assertTrue(result.get('status')=='ok')
 
 		library = client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
@@ -256,7 +269,7 @@ class ApiTest(TestCase):
 
 		# correct back to stv_id = SOME_ID_IN_LIBRARY
 		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
-		print dump(result)
+		self.assertTrue(result.get('status')=='ok')
 
 		library = client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
