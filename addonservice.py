@@ -85,9 +85,8 @@ class AddonHandler(ServiceTCPHandler):
 	def get_local_recco(self, movie_type):
 		resRecco = self.server.apiClient.profileRecco(movie_type, True, reccoDefaulLimit, reccoDefaultProps)
 
-		# log('local recco for ' + movie_type)
-		# for title in resRecco['titles']:
-		#	log('resRecco:' + title['name'])
+		for title in resRecco['titles']:
+			self.server.stvList.updateTitle(title)
 
 		return resRecco
 
@@ -113,6 +112,7 @@ class AddonHandler(ServiceTCPHandler):
 		for i in season['episodes']:
 			episident = 'S%sE%s' % (i['season_number'], i['episode_number'])
 			i['name'] = '%s - %s' % (episident, i['name'])
+			self.server.stvList.updateTitle(i)
 
 		return season['episodes']
 
