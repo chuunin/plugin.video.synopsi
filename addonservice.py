@@ -94,9 +94,6 @@ class AddonHandler(ServiceTCPHandler):
 		""" Updates the get_local_recco function result to include stv_title_hash """
 		recco = self.get_local_recco(movie_type)['titles']
 
-		for title in recco:
-			self.server.stvList.updateTitle(title)
-
 		return recco
 
 	def get_unwatched_episodes(self):
