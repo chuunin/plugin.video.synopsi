@@ -188,7 +188,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
 					self.stvList.correct_title(self.data, new_title)
-					self.apiClient.title_identify_correct(new_title['id'], self.data['stv_title_hash'])
 					show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
 					xbmc.executebuiltin('Container.Refresh()')
 				except DuplicateStvIdException, e:
@@ -304,18 +303,19 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 		if stv_details.has_key('seasons'):
 			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
 
-	# similar covers
-	for item in stv_details['similars']:
-		stvList.updateTitle(item)
+	# similar overlays
+	if stv_details.has_key('similars'):
+		for item in stv_details['similars']:
+			stvList.updateTitle(item)
 
-		oc = 0
-		if item.get('file'):
-			oc |= OverlayCode.OnYourDisk
-		if item.get('watched'):
-			oc |= OverlayCode.AlreadyWatched
+			oc = 0
+			if item.get('file'):
+				oc |= OverlayCode.OnYourDisk
+			if item.get('watched'):
+				oc |= OverlayCode.AlreadyWatched
 
-		if oc:
-			item['overlay'] = overlay_image[oc]
+			if oc:
+				item['overlay'] = overlay_image[oc]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
 	open_video_dialog(tpl_data, apiClient, stvList)
