@@ -55,6 +55,14 @@ class ActionCode:
 	VideoDialogShowById = 910
 
 
+class OverlayCode:
+	OnYourDisk = 1
+	AlreadyWatched = 2
+	AlreadyWatchedOnYourDisk = 3	#	this is just to know the code, it should be created by addition of the two
+
+
+overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
+
 
 def log(msg):
 	#logging.debug('ADDON: ' + str(msg))
@@ -122,6 +130,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		if self.data.has_key('similars'):
 			for item in self.data['similars']:
 				li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
+				if item.get('overlay'):
+					li.setProperty('Overlay', item['overlay'])
+
 				li.setProperty('id', str(item['id']))
 				items.append(li)
 
@@ -292,6 +303,19 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 		# append seasons
 		if stv_details.has_key('seasons'):
 			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium']} for i in stv_details['seasons'] ]
+
+	# similar covers
+	for item in stv_details['similars']:
+		stvList.updateTitle(item)
+
+		oc = 0
+		if item.get('file'):
+			oc |= OverlayCode.OnYourDisk
+		if item.get('watched'):
+			oc |= OverlayCode.AlreadyWatched
+
+		if oc:
+			item['overlay'] = overlay_image[oc]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
 	open_video_dialog(tpl_data, apiClient, stvList)

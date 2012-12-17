@@ -243,6 +243,18 @@
 
 <!--
 					<control type="image">
+						<description>Overlay</description>
+						<posx>150</posx>
+						<posy>150</posy>
+						<width>175</width>
+						<height>180</height>
+						<bordersize>5</bordersize>
+						<texture>CalibratePixelRatio.png</texture>
+					</control>
+-->
+
+<!--
+					<control type="image">
 						<description>debug image</description>
 						<posx>0</posx>
 						<posy>415</posy>
@@ -279,6 +291,15 @@
 								<bordersize>5</bordersize>
 								<texture background="true">$INFO[ListItem.Icon]</texture>
 							</control>
+							<control type="image">
+								<description>Overlay</description>
+								<posx>0</posx>
+								<posy>0</posy>
+								<width>175</width>
+								<height>180</height>
+								<bordersize>5</bordersize>
+								<texture>$INFO[ListItem.Property(Overlay)]</texture>
+							</control>
 							<control type="label">
 								<posx>90</posx>
 								<posy>180</posy>
@@ -298,16 +319,6 @@
 								<posy>0</posy>
 								<width>175</width>
 								<height>180</height>
-								<info>ListItem.Icon</info>
-								<texture background="true">$INFO[ListItem.Icon]</texture>
-								<bordersize>5</bordersize>
-								<visible>!Control.HasFocus(59)</visible>
-							</control>
-							<control type="image">
-								<posx>0</posx>
-								<posy>0</posy>
-								<width>175</width>
-								<height>180</height>
 								<visible>Control.HasFocus(59)</visible>
 								<bordersize>5</bordersize>
 								<bordertexture border="5">folder-focus.png</bordertexture>
@@ -315,6 +326,17 @@
 								<info>ListItem.Icon</info>
 								<texture background="true">$INFO[ListItem.Icon]</texture>
 							</control>
+
+							<control type="image">
+								<description>Overlay</description>
+								<posx>0</posx>
+								<posy>0</posy>
+								<width>175</width>
+								<height>180</height>
+								<bordersize>5</bordersize>
+								<texture>$INFO[ListItem.Property(Overlay)]</texture>
+							</control>
+
 							<control type="label">
 								<posx>90</posx>
 								<posy>180</posy>
