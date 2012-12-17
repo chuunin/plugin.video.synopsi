@@ -111,7 +111,7 @@ class OfflineStvList(object):
 
 			# try to get synopsi id
 			self.log('to identify: ' + ident['file_name'])
-			title = self.apiclient.titleIdentify(**ident)
+			title = self.apiClient.titleIdentify(**ident)
 
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
@@ -138,7 +138,7 @@ class OfflineStvList(object):
 	def add_tvshow(self, stvId, xbmc_id):
 		" Adds a tvshow with stvId into cache, if it's not already there "
 		if not self.byStvId.has_key(stvId):
-			stv_title = self.apiclient.tvshow(stvId, commonTitleProps)
+			stv_title = self.apiClient.tvshow(stvId, commonTitleProps)
 
 			stv_title['xbmc_id'] = xbmc_id
 
@@ -220,11 +220,14 @@ class OfflineStvList(object):
 		new_item = dict(old_item)
 		new_item['stvId'] = new_title['id']
 
+		self.log('correction source: ' + dump(filtertitles(old_item)))
+		self.log('correction target: ' + dump(filtertitles(new_item)))
+
 		# TODO: thinkabout
 		# delete the xbmc type-id if the types dont match ? or dont update the type !
 		if new_title['type'] != new_item['type']:
-			self.log('Correction target and source type differ. %s / %s' % (new_title['type'], new_item['type']))
-		#~ new_item['type'] = new_title['type']
+			self.warn('Correction target and source type differ. %s / %s' % (new_title['type'], new_item['type']))
+			#~ new_item['type'] = new_title['type']
 
 		# check if the new id isn't already in library
 		if self.hasStvId(new_item['stvId']):
@@ -232,12 +235,10 @@ class OfflineStvList(object):
 
 		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_title.get('label'), str(new_item['stvId'])))
 
-		self.dump()
-
 		# offline remove item
 		self.remove(old_title['type'], old_title['xbmc_id'])
 		self.put(new_item)
-		self.dump()
+
 		return new_item
 
 	def hasTypeId(self, atype, aid):
@@ -407,7 +408,7 @@ class OfflineStvList(object):
 
 	def updateTitle(self, title):
 		" Update title values from cache, using 'id' as 'stvId', updating stv_title_hash, file "
-		if self.hasStvId(title['id']):
+		if title.has_key('id') and self.hasStvId(title['id']):
 			cached_title = self.getByStvId(title['id'])
 			title['stv_title_hash'] = cached_title['stv_title_hash']
 			title['file'] = cached_title['file']
@@ -418,7 +419,7 @@ class OfflineStvList(object):
 class OnlineStvList(OfflineStvList):
 	def __init__(self, uuid, apiclient, filePath=None):
 		super(OnlineStvList, self).__init__(uuid, filePath)
-		self.apiclient = apiclient
+		self.apiClient = apiclient
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
@@ -439,14 +440,25 @@ class OnlineStvList(OfflineStvList):
 		OfflineStvList.put(self, item)
 		# if known by synopsi, add to list
 		if item.has_key('stvId'):
-			self.apiclient.libraryTitleAdd(item['stvId'])
+			self.apiClient.libraryTitleAdd(item['stvId'])
 
 	def remove(self, atype, aid):
 		OfflineStvList.remove(self, atype, aid)
 		if self.hasTypeId(atype, aid):
 			item = self.getByTypeId(atype, aid)
 			if item.has_key('stvId'):
-				self.apiclient.libraryTitleRemove(item['stvId'])
+				self.apiClient.libraryTitleRemove(item['stvId'])
+				self.log('REMOVED FROM LIBRARY ONLINE')
+
+	def correct_title(self, old_title, new_title):
+		self.updateTitle(old_title)
+		if not old_title.has_key('stv_title_hash'):
+			raise Exception('Corrected title is missing the "stv_title_hash" value')
+
+		new_item = OfflineStvList.correct_title(self, old_title, new_title)
+		self.apiClient.title_identify_correct(new_title['id'], old_title['stv_title_hash'])
+
+		return new_item
 
 #	the final class name used in application, instead of rewriting classnames
 class StvList(OnlineStvList):

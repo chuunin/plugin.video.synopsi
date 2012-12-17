@@ -42,7 +42,7 @@ defaultCastProps = ['name']
 reccoDefaulLimit = 29
 type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
 
-list_filter = reccoDefaultProps + ['type', 'stvId', 'xbmc_id']
+list_filter = reccoDefaultProps + ['type', 'id', 'stvId', 'xbmc_id', 'name', 'file']
 
 
 # texts

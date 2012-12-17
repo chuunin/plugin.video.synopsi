@@ -102,8 +102,8 @@ class CacheTest(TestCase):
 		new_item = cache.correct_title(old_title, new_title)
 
 		# check if old item is removed
-		self.assertTrue(not cache.hasStvId(OLD_STV_ID))
-		self.assertTrue(not cache.hasItem(test_item))
+		self.assertFalse(cache.hasStvId(OLD_STV_ID))
+		self.assertFalse(cache.hasItem(test_item))
 
 		# check if new item is in the right place
 		self.assertEqual(cache.byTypeId['movie--3']['stvId'], NEW_STV_ID)
