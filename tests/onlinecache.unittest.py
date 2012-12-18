@@ -13,6 +13,7 @@ from common import connection
 
 # application
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('fakeenv'))
 from utilities import *
 from apiclient import *
 from cache import OnlineStvList, DuplicateStvIdException
@@ -66,7 +67,7 @@ class OnlineCacheTest(TestCase):
 
 		c = dict(connection)
 		c['device_id'] = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
-
+		print 'device_id: ' + c['device_id']
 		apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.ERROR, rel_api_url=c['rel_api_url'])
 		cache = OnlineStvList(c['device_id'], apiClient, cwd)
 
@@ -102,8 +103,11 @@ class OnlineCacheTest(TestCase):
 		# let the service know about our hash. withou this it would not be possible to do correction
 		identified_title = apiClient.titleIdentify(**ident)
 
-		print dump(identified_title)
-		movies[0]['stvId'] = identified_title['id']
+		print 'IDENTIFIED: ' + dump(filtertitles(identified_title))
+
+		#	this should run only first time
+		if identified_title['id']!=OLD_STV_ID:
+			movies[0]['stvId'] = identified_title['id']
 
 		for movie in movies:
 			cache.put(movie)
@@ -111,7 +115,9 @@ class OnlineCacheTest(TestCase):
 		time.sleep(2)
 
 		# make sure the old id is in the library
-		apiClient.title_identify_correct(OLD_STV_ID, CORRECTION_FILE_HASH)
+		# this should run only first time
+		if identified_title['id']!=OLD_STV_ID:
+			apiClient.title_identify_correct(OLD_STV_ID, CORRECTION_FILE_HASH)
 
 		cache.list()
 
@@ -119,6 +125,9 @@ class OnlineCacheTest(TestCase):
 		new_title = { 'type': 'movie', 'id': NEW_STV_ID }
 
 		new_item = cache.correct_title(old_title, new_title)
+
+		# rollback correction on api
+		apiClient.title_identify_correct(OLD_STV_ID, CORRECTION_FILE_HASH)
 
 		# check if old item is removed
 		self.assertTrue(not cache.hasStvId(OLD_STV_ID))
@@ -129,7 +138,6 @@ class OnlineCacheTest(TestCase):
 		self.assertEqual(cache.byStvId[NEW_STV_ID]['file'], FILENAME)
 		self.assertEqual(cache.byFilename[FILENAME], new_item)
 
-		cache.list()
 
 	def test_disallow_duplicate_stvid(self):
 		with self.assertRaises(DuplicateStvIdException):

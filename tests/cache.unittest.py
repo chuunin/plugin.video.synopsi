@@ -10,6 +10,7 @@ from common import connection
 
 # application
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('fakeenv'))
 from utilities import *
 from apiclient import *
 from cache import OfflineStvList, DuplicateStvIdException

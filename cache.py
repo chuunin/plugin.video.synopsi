@@ -205,10 +205,10 @@ class OfflineStvList(object):
 
 			# suppose cache is consistent and remove only if one of indexes is available
 			if self.byTypeId.has_key(typeIdStr):
+				del self.byTypeId[typeIdStr]
+				del self.byType[atype][aid]
 				if self.byFilename.has_key(item['file']):
 					del self.byFilename[item['file']]
-					del self.byTypeId[typeIdStr]
-					del self.byType[atype][aid]
 
 		except Exception as e:
 			self.log('REMOVE FAILED / ' + typeIdStr)
@@ -236,8 +236,8 @@ class OfflineStvList(object):
 		self.log('correcting %s to %s, new stvId: %s' % (old_item.get('label'), new_title.get('label'), str(new_item['stvId'])))
 
 		# offline remove item
-		self.remove(old_title['type'], old_title['xbmc_id'])
-		self.put(new_item)
+		OfflineStvList.remove(self, old_title['type'], old_title['xbmc_id'])
+		OfflineStvList.put(self, new_item)
 
 		return new_item
 
@@ -443,12 +443,11 @@ class OnlineStvList(OfflineStvList):
 			self.apiClient.libraryTitleAdd(item['stvId'])
 
 	def remove(self, atype, aid):
-		OfflineStvList.remove(self, atype, aid)
 		if self.hasTypeId(atype, aid):
 			item = self.getByTypeId(atype, aid)
+			OfflineStvList.remove(self, atype, aid)
 			if item.has_key('stvId'):
 				self.apiClient.libraryTitleRemove(item['stvId'])
-				self.log('REMOVED FROM LIBRARY ONLINE')
 
 	def correct_title(self, old_title, new_title):
 		self.updateTitle(old_title)

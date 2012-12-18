@@ -56,7 +56,6 @@ class ApiClient(loggable.Loggable):
 		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
 		self.authHeaders = None
 		self.device_id = device_id
-		#~ self._log = logging.getLogger()
 
 		# xbmc.log('Log handler count %d ' % len(self._log.handlers))
 
@@ -317,7 +316,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def title_identify_correct(self, titleId, stv_title_hash, stv_subtitle_hash=None, replace_library_item='true'):
+	def title_identify_correct(self, titleId, stv_title_hash, stv_subtitle_hash=None, replace_library_item='true'):		
 		data = {
 			'title_id': titleId,
 			'stv_title_hash': stv_title_hash,

@@ -85,14 +85,15 @@ class AddonHandler(ServiceTCPHandler):
 	def get_local_recco(self, movie_type):
 		resRecco = self.server.apiClient.profileRecco(movie_type, True, reccoDefaulLimit, reccoDefaultProps)
 
-		for title in resRecco['titles']:
-			self.server.stvList.updateTitle(title)
-
 		return resRecco
 
 	def get_local_recco2(self, movie_type):
 		""" Updates the get_local_recco function result to include stv_title_hash """
 		recco = self.get_local_recco(movie_type)['titles']
+
+		log('local recco: ' + dump(recco))
+		for title in recco:
+			self.server.stvList.updateTitle(title)
 
 		return recco
 

@@ -259,6 +259,12 @@ class ApiTest(TestCase):
 		self.assertTrue(TITLE_CORRECTION_TARGET not in lib_ids, "The test should start without this id")
 
 		# test the correction
+
+		#	get recco
+		recco = client.profileRecco('movie', True)
+		lib_ids = [i['id'] for i in library['titles']]
+		print 'recco:' + dump(lib_ids)
+		
 		result = client.title_identify_correct(TITLE_CORRECTION_TARGET, CORRECTION_FILE_HASH)
 		self.assertTrue(result.get('status')=='ok')
 
@@ -266,6 +272,12 @@ class ApiTest(TestCase):
 		lib_ids = [i['id'] for i in library['titles']]
 		self.assertTrue(TITLE_CORRECTION_TARGET in lib_ids, "The correction target id is not in library")
 		self.assertTrue(SOME_ID_IN_LIBRARY not in lib_ids, "The corrected id is still in library")
+
+
+		recco = client.profileRecco('movie', True)
+		lib_ids = [i['id'] for i in library['titles']]
+		print 'recco:' + dump(lib_ids)
+
 
 		# correct back to stv_id = SOME_ID_IN_LIBRARY
 		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
@@ -276,6 +288,8 @@ class ApiTest(TestCase):
 		self.assertTrue(TITLE_CORRECTION_TARGET not in lib_ids)
 		self.assertTrue(SOME_ID_IN_LIBRARY in lib_ids)
 
+
+		
 
 	def test_library(self):
 		result = client.library(['date', 'genres', 'cover_small'])
