@@ -230,10 +230,10 @@ class ApiTest(TestCase):
 			'type': 'movie'
 		}
 
-		# let the service know about our hash. withou this it would not be possible to do correction
+		# let the service know about our hash. without this it would not be possible to do correction
 		stv_title = client.titleIdentify(**ident)
 
-		# make sure that this unreal id in library
+		# make sure that this unreal id is in library
 		SOME_ID_IN_LIBRARY = 100
 		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
 		self.assertTrue(result.get('status')=='ok')
@@ -262,9 +262,9 @@ class ApiTest(TestCase):
 
 		#	get recco
 		recco = client.profileRecco('movie', True)
-		lib_ids = [i['id'] for i in library['titles']]
+		lib_ids = [i['id'] for i in recco['titles']]
 		print 'recco:' + dump(lib_ids)
-		
+
 		result = client.title_identify_correct(TITLE_CORRECTION_TARGET, CORRECTION_FILE_HASH)
 		self.assertTrue(result.get('status')=='ok')
 
@@ -275,7 +275,7 @@ class ApiTest(TestCase):
 
 
 		recco = client.profileRecco('movie', True)
-		lib_ids = [i['id'] for i in library['titles']]
+		lib_ids = [i['id'] for i in recco['titles']]
 		print 'recco:' + dump(lib_ids)
 
 
@@ -289,7 +289,35 @@ class ApiTest(TestCase):
 		self.assertTrue(SOME_ID_IN_LIBRARY in lib_ids)
 
 
-		
+	def test_correction_recco(self):
+		TITLE_CORRECTION_TARGET = 1947362
+		CORRECTION_FILE_HASH = '52b6f00222cdb3631d9914aee6b662961e924aa5'	# hash of my "three times" file
+
+		# prepare the library
+		# do the identification to put the hash into api
+		ident = {
+			"file_name": "three times.avi",
+			"stv_title_hash": CORRECTION_FILE_HASH,
+			"os_title_hash": "486d1f7112f9749d",
+			"imdb_id": "0102536",
+			'title_property[]': ','.join(['name', 'cover_medium']),
+			'type': 'movie'
+		}
+
+		# let the service know about our hash. withou this it would not be possible to do correction
+		stv_title = client.titleIdentify(**ident)
+
+		# make sure that this unreal id in library
+		SOME_ID_IN_LIBRARY = 100
+		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
+		self.assertTrue(result.get('status')=='ok')
+
+		# remove the target id if it is in the library
+		if TITLE_CORRECTION_TARGET in lib_ids:
+			print 'removing %d from library' % TITLE_CORRECTION_TARGET
+			client.libraryTitleRemove(TITLE_CORRECTION_TARGET)
+
+
 
 	def test_library(self):
 		result = client.library(['date', 'genres', 'cover_small'])
