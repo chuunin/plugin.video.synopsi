@@ -154,7 +154,7 @@ class OnlineCacheTest(TestCase):
 		print 'CORRECTION_TARGET: %d' % CORRECTION_TARGET
 
 		#~ test_item = { 'type': u'movie', 'id': 3, 'file': FILENAME, 'stvId': CORRECTION_SOURCE }
-		test_item2 = { 'type': u'movie', 'id': 2, 'file': 'movie2.avi', 'stvId': 74112, 'name': 'noname1' }
+		test_item2 = { 'type': u'movie', 'id': 2, 'file': FILENAME, 'stvId': 74112, 'name': 'noname1' }
 
 		movies = [
 			{ 'type': u'movie', 'id': 1, 'file': 'movie1.avi', 'stvId': 69907 }	,
@@ -186,7 +186,7 @@ class OnlineCacheTest(TestCase):
 			cache.put(movie)
 
 		# wait
-		time.sleep(3)
+		#~ time.sleep(3)
 
 		recco = apiClient.profileRecco('movie', True)
 		lib_ids = [i['id'] for i in recco['titles']]
@@ -209,7 +209,7 @@ class OnlineCacheTest(TestCase):
 		new_item = cache.correct_title(old_title, new_title)
 
 		# wait
-		time.sleep(3)
+		#~ time.sleep(3)
 
 		# get recco
 		recco = apiClient.profileRecco('movie', True)
@@ -226,10 +226,10 @@ class OnlineCacheTest(TestCase):
 
 		# check if old item is removed in local cache
 		self.assertTrue(not cache.hasStvId(CORRECTION_SOURCE))
-		self.assertTrue(not cache.hasItem(test_item))
+		self.assertTrue(not cache.hasItem(test_item2))
 
 		# check if new item is in the right place
-		self.assertEqual(cache.byTypeId['movie--3']['stvId'], CORRECTION_TARGET)
+		self.assertEqual(cache.byTypeId['movie--2']['stvId'], CORRECTION_TARGET)
 		self.assertEqual(cache.byStvId[CORRECTION_TARGET]['file'], FILENAME)
 		self.assertEqual(cache.byFilename[FILENAME], new_item)
 

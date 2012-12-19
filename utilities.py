@@ -167,7 +167,7 @@ def dialog_yesno(msg, **kwargs):
 
 
 def clear_setting_cache():
-	"Clear cached addon setting. Usefull after update"
+	"Clear cached addon setting. Useful after update"
 	settingsPath = xbmc.translatePath(os.path.join(__profile__, 'settings.xml'))
 	if os.path.exists(settingsPath):
 		os.remove(settingsPath)
