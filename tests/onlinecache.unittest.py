@@ -30,6 +30,7 @@ def pprint(data):
 
 class OnlineCacheTest(TestCase):
 	def setUp(self):
+		print '=' * 50
 		cache.clear()
 
 	def test_save_load(self):
@@ -66,18 +67,18 @@ class OnlineCacheTest(TestCase):
 		# prepare apiClient with new library
 
 		c = dict(connection)
-		c['device_id'] = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
+		c['device_id'] = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(16))
 		print 'device_id: ' + c['device_id']
 		apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.ERROR, rel_api_url=c['rel_api_url'])
 		cache = OnlineStvList(c['device_id'], apiClient, cwd)
 
 
-		NEW_STV_ID = 654591
-		OLD_STV_ID = 16813
+		CORRECTION_TARGET = 654591
+		CORRECTION_SOURCE = 16813
 
 		FILENAME = 'asodfhaoherfoahdfs.avi'
 
-		test_item = { 'type': u'movie', 'id': 3, 'file': FILENAME, 'stvId': OLD_STV_ID }
+		test_item = { 'type': u'movie', 'id': 3, 'file': FILENAME, 'stvId': CORRECTION_SOURCE }
 
 		movies = [
 			{ 'type': u'movie', 'id': 1, 'file': 'movie1.avi', 'stvId': 1483669 }	,
@@ -105,44 +106,133 @@ class OnlineCacheTest(TestCase):
 
 		print 'IDENTIFIED: ' + dump(filtertitles(identified_title))
 
+		#	if the identified title is not our correction source
 		#	this should run only first time
-		if identified_title['id']!=OLD_STV_ID:
-			movies[0]['stvId'] = identified_title['id']
+		if identified_title['id'] != CORRECTION_SOURCE:
+			apiClient.title_identify_correct(CORRECTION_SOURCE, CORRECTION_FILE_HASH, replace_library_item=False)
 
+		# put the correction source title into library + some random items
 		for movie in movies:
 			cache.put(movie)
 
-		time.sleep(2)
-
-		# make sure the old id is in the library
-		# this should run only first time
-		if identified_title['id']!=OLD_STV_ID:
-			apiClient.title_identify_correct(OLD_STV_ID, CORRECTION_FILE_HASH)
-
-		cache.list()
-
 		old_title = { 'type': 'movie', 'xbmc_id': 3, 'stv_title_hash': CORRECTION_FILE_HASH }
-		new_title = { 'type': 'movie', 'id': NEW_STV_ID }
+		new_title = { 'type': 'movie', 'id': CORRECTION_TARGET }
 
+		# this the correction test
 		new_item = cache.correct_title(old_title, new_title)
 
 		# rollback correction on api
-		apiClient.title_identify_correct(OLD_STV_ID, CORRECTION_FILE_HASH)
+		apiClient.title_identify_correct(CORRECTION_SOURCE, CORRECTION_FILE_HASH)
 
 		# check if old item is removed
-		self.assertTrue(not cache.hasStvId(OLD_STV_ID))
+		self.assertTrue(not cache.hasStvId(CORRECTION_SOURCE))
 		self.assertTrue(not cache.hasItem(test_item))
 
 		# check if new item is in the right place
-		self.assertEqual(cache.byTypeId['movie--3']['stvId'], NEW_STV_ID)
-		self.assertEqual(cache.byStvId[NEW_STV_ID]['file'], FILENAME)
+		self.assertEqual(cache.byTypeId['movie--3']['stvId'], CORRECTION_TARGET)
+		self.assertEqual(cache.byStvId[CORRECTION_TARGET]['file'], FILENAME)
 		self.assertEqual(cache.byFilename[FILENAME], new_item)
 
 
-	def test_disallow_duplicate_stvid(self):
-		with self.assertRaises(DuplicateStvIdException):
-			cache.put(test_item1)
-			cache.put(test_item2)
+	def test_correction_recco(self):
+		CORRECTION_FILE_HASH = 'abcdefgh1234567890'
+		FILENAME = 'asodfhaoherfoahdfs.avi'
+
+		# prepare apiClient with new library
+		c = dict(connection)
+		c['device_id'] = ''.join(random.choice(string.ascii_lowercase + string.digits) for x in range(16))
+		#~ print 'device_id: ' + c['device_id']
+		apiClient = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.ERROR, rel_api_url=c['rel_api_url'])
+		cache = OnlineStvList(c['device_id'], apiClient, cwd)
+
+		# choose CORRECTION_TARGET from global_recco, in order to appear in local recco
+		glob_recco = apiClient.profileRecco('movie')
+		lib_ids = [i['id'] for i in glob_recco['titles']]
+		#~ print 'global_recco:' + dump(lib_ids)
+
+		CORRECTION_TARGET = lib_ids[0]
+		print 'CORRECTION_TARGET: %d' % CORRECTION_TARGET
+
+		#~ test_item = { 'type': u'movie', 'id': 3, 'file': FILENAME, 'stvId': CORRECTION_SOURCE }
+		test_item2 = { 'type': u'movie', 'id': 2, 'file': 'movie2.avi', 'stvId': 74112, 'name': 'noname1' }
+
+		movies = [
+			{ 'type': u'movie', 'id': 1, 'file': 'movie1.avi', 'stvId': 69907 }	,
+			test_item2,
+			#~ test_item,
+			{ 'type': u'movie', 'id': 4, 'file': 'movie4.avi', 'stvId': 279256, 'name': 'noname2' },
+			{ 'type': u'episode', 'id': 1, 'file': 'episode1.avi', 'stvId': 1910795, 'name': 'noname3' }  ,
+			{ 'type': u'episode', 'id': 2, 'file': 'episode2.avi', 'stvId': 807111, 'name': 'noname4'} ,
+			{ 'type': u'episode', 'id': 3, 'file': 'episode3.avi', 'stvId': 2444806, 'name': 'noname5' } ]
+
+		# prepare the library
+		# do the identification to put the hash into api
+		ident = {
+			"file_name": "three times.avi",
+			"stv_title_hash": CORRECTION_FILE_HASH,
+			"os_title_hash": "486d1f7112f9749d",
+			"imdb_id": "0102536",
+			'title_property[]': ','.join(['name', 'cover_medium']),
+			'type': 'movie'
+		}
+
+		# let the service know about our hash. withou this it would not be possible to do correction
+		identified_title = apiClient.titleIdentify(**ident)
+
+		print 'IDENTIFIED: ' + dump(filtertitles(identified_title))
+
+		# put files from global recco into library
+		for movie in movies:
+			cache.put(movie)
+
+		# wait
+		time.sleep(3)
+
+		recco = apiClient.profileRecco('movie', True)
+		lib_ids = [i['id'] for i in recco['titles']]
+		print 'recco before:' + dump(lib_ids)
+
+		# pick the first item from recco as correction source
+		CORRECTION_SOURCE = lib_ids[0]
+		print 'CORRECTION_SOURCE: %d' % CORRECTION_SOURCE
+
+		#	make sure that our CORRECTION_SOURCE is remembered in API as CORRECTION_FILE_HASH
+		#	this should run only first time, next time the identified title should be the one from recco
+		if identified_title['id'] != CORRECTION_SOURCE:
+			apiClient.title_identify_correct(CORRECTION_SOURCE, CORRECTION_FILE_HASH, replace_library_item=False)
+
+		# old title is test_item2
+		old_title = { 'type': 'movie', 'xbmc_id': 2, 'stv_title_hash': CORRECTION_FILE_HASH }
+		new_title = { 'type': 'movie', 'id': CORRECTION_TARGET }
+
+		# do the correction
+		new_item = cache.correct_title(old_title, new_title)
+
+		# wait
+		time.sleep(3)
+
+		# get recco
+		recco = apiClient.profileRecco('movie', True)
+		lib_ids = [i['id'] for i in recco['titles']]
+		print 'recco after:' + dump(lib_ids)
+
+		# rollback correction on api
+		apiClient.title_identify_correct(CORRECTION_SOURCE, CORRECTION_FILE_HASH)
+
+		# -- test evaluation --
+		# check if recco changed
+		self.assertTrue(CORRECTION_TARGET in lib_ids)
+		self.assertFalse(CORRECTION_SOURCE in lib_ids)
+
+		# check if old item is removed in local cache
+		self.assertTrue(not cache.hasStvId(CORRECTION_SOURCE))
+		self.assertTrue(not cache.hasItem(test_item))
+
+		# check if new item is in the right place
+		self.assertEqual(cache.byTypeId['movie--3']['stvId'], CORRECTION_TARGET)
+		self.assertEqual(cache.byStvId[CORRECTION_TARGET]['file'], FILENAME)
+		self.assertEqual(cache.byFilename[FILENAME], new_item)
+
 
 	def test_get_items(self):
 		cache.clear()
