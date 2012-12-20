@@ -28,6 +28,7 @@ from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
 from addonutilities import *
+import dialog
 
 # constant
 t_text_by_mode = {
@@ -255,10 +256,46 @@ try:
 		xbmc.executebuiltin('UpdateLibrary(video)')
 
 	elif p['mode']==971:
-		addonclient.debug_1()
+		#~ addonclient.debug_1()
+
+		#~ winid = common.getUserInput("Title", "")
+		#~ xbmc.executebuiltin('ActivateWindow(' + winid + ')')
+
+		#~ xbmc.executebuiltin('ActivateWindow(/home/smid/projects/XBMC/resources/skins/Default/720p/MyVideoNav.xml)')
+		#~ xbmc.executebuiltin('ActivateWindow(9525)')
+
+
+		# fill in custom listing dialog/window
+		items = [
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00136558-223.jpg",
+            "id": 136558,
+            "name": "The Time Machine"
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/02514500-223.jpg",
+            "id": 2514500,
+            "name": "Inglourious Basterds"
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
+            "id": 72215,
+            "name": "I, Robot"
+        } ]
+
+		dialog.open_list_dialog({ 'items': items })
 
 	elif p['mode']==972:
-		addonclient.debug_2()
+		#~ addonclient.debug_2()
+		#~ wid = xbmcgui.getCurrentWindowDialogId()
+		#~ print 'wid:' + str(wid)
+		#~ win = xbmcgui.WindowDialog(wid)
+		#~ item_list = win.getControl(50)
+		#~ for i in xrange(item_list.size()):
+			#~ item = item_list.getListItem()
+			#~ print i, item
+		pass
+
 
 	elif p['mode']==973:
 		addonclient.debug_3()
