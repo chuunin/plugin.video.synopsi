@@ -224,6 +224,9 @@ try:
 	if p['mode'] == ActionCode.VideoDialogShow and p['json_data']['id'] == HACK_SHOW_ALL_LOCAL_MOVIES:
 		p['mode'] = ActionCode.LocalMovies
 
+	# debug
+	p['mode']=971
+
 	# routing
 	if p['mode']==None:
 		show_categories()
@@ -264,23 +267,26 @@ try:
 		#~ xbmc.executebuiltin('ActivateWindow(/home/smid/projects/XBMC/resources/skins/Default/720p/MyVideoNav.xml)')
 		#~ xbmc.executebuiltin('ActivateWindow(9525)')
 
-
+		xbmcplugin.endOfDirectory(dirhandle)
 		# fill in custom listing dialog/window
 		items = [
         {
             "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00136558-223.jpg",
             "id": 136558,
-            "name": "The Time Machine"
+            "name": "The Time Machine",
+            'custom_overlay': 'already-watched-stack.png'
         },
         {
             "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/02514500-223.jpg",
             "id": 2514500,
-            "name": "Inglourious Basterds"
+            "name": "Inglourious Basterds",
+            'custom_overlay': 'ondisk-stack.png'
         },
         {
             "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
             "id": 72215,
-            "name": "I, Robot"
+            "name": "I, Robot",
+            'custom_overlay': 'ondisk-AND-already-watched-stack.png'
         } ]
 
 		dialog.open_list_dialog({ 'items': items })

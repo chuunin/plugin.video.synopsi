@@ -22,12 +22,15 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		for item in self.data['items']:
 			li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
 			li.setProperty('id', str(item['id']))
-			li.setProperty('CustomOverlay', 'already-watched-stack.png')
+			li.setProperty('CustomOverlay', item['custom_overlay'])
 			items.append(li)
 
 		xbmc.executebuiltin("Container.SetViewMode(500)")
-
-		self.getControl(500).addItems(items)
+		try:
+			self.getControl(500).addItems(items)
+		except:
+			log('Adding items failed')
+			
 
 	def onFocus(self, controlId):
 		self.controlId = controlId
