@@ -116,7 +116,8 @@ def check_first_run():
 	if addon_getSetting('ADDON_SERVICE_FIRSTRUN') != "false":
 		if dialog_need_restart():
 			raise ShutdownRequestedException('User requested shutdown')
-
+		else:
+			raise Exception('Addon service is not running')
 
 def dialog_text(msg, max_line_length=20, max_lines=3):
 	line_end = [0]
