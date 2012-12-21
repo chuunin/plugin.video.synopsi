@@ -49,6 +49,8 @@ list_filter = reccoDefaultProps + ['type', 'id', 'stvId', 'xbmc_id', 'name', 'fi
 t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
 t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
 t_nolocalrecco = 'There are no items in this list. Either you have no items in your library or they have not been recognized by Synopsi'
+t_needrestart = 'To start the SynopsiTV service, please turn off your media center then turn it back on again. Do this now?'
+
 t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 t_unavail = 'N/A'
@@ -579,7 +581,7 @@ def dialog_login_fail_yesno():
 
 def dialog_need_restart():
 	dialog = xbmcgui.Dialog()
-	yes = dialog_yesno("You need to restart your media center to start the SynopsiTV service. Restart now ?")
+	yes = dialog_yesno(t_needrestart)
 	return yes
 
 

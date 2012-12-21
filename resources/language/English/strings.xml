@@ -3,7 +3,7 @@
     <string id="69500">Login</string>
     <string id="69501">Username</string>
     <string id="69502">Password</string>
-
+	<string id="69503">Email</string>
     <string id="69504">Login</string>
 
     <!--Settings-->
@@ -17,7 +17,7 @@
 
 
     <!-- Dialog --->
-    <string id="69600">So, how did you like this movie?</string>
+    <string id="69600">So, how did you like it?</string>
     <string id="69601">Amazing</string>
     <string id="69602">OK</string>
     <string id="69603">Terrible</string>
