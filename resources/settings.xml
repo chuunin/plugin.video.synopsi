@@ -14,10 +14,10 @@
         <setting id="KEY" option="hidden" type="text" visible="false" default="76ccb5ec8ecddf15c29c5decac35f9"/>
         <setting id="SECRET" option="hidden" type="text" visible="false" default="261029dbbdd5dd481da6564fa1054e"/> -->
 
-        <setting id="BASE_URL" option="hidden" type="text" visible="false" default="https://test-papi.synopsi.tv/" />
+        <setting id="BASE_URL" option="hidden" type="text" visible="false" default="https://api.synopsi.tv" />
         <setting id="REL_API_URL" option="hidden" type="text" visible="false" default="1.0/" />
-        <setting id="KEY" option="hidden" type="text" visible="false" default="e20e8f465f42e96d8340e81bfc48c757"/>
-        <setting id="SECRET" option="hidden" type="text" visible="false" default="72ab379c50650f7aec044b14db306430a55f09a2da1eb8e40b297a54b30e4b4f"/>
+        <setting id="KEY" option="hidden" type="text" visible="false" default="59c53964b1013defcff0155f6e4d54a4" />
+        <setting id="SECRET" option="hidden" type="text" visible="false" default="487615d20b22cdce510fd3476ed84d924e2b0c45ce7c49dc621764e05fae0904" />
 
         <setting id="ADDON_SERVICE_PORT" option="hidden" type="number" visible="false" default="9091" />
 
