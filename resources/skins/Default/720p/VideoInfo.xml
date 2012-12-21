@@ -397,7 +397,7 @@
 						</control>
 						<control id="13" type="button">
 							<include>ButtonInfoDialogsCommonValues</include>
-							<label>Correct</label>
+							<label>Edit</label>
 							<enable>false</enable>
 						</control>
 					</control>

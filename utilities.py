@@ -46,7 +46,7 @@ list_filter = reccoDefaultProps + ['type', 'id', 'stvId', 'xbmc_id', 'name', 'fi
 
 
 # texts
-t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
+t_noupcoming = 'There are no upcoming episodes from your tracked TV shows.'
 t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
 t_nolocalrecco = 'There are no items in this list. Either you have no items in your library or they have not been recognized by Synopsi'
 t_needrestart = 'To start the SynopsiTV service, please turn off your media center then turn it back on again. Do this now?'
