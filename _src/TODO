@@ -1,0 +1,10 @@
+n	'dict' object has no attribute 'append' line: 163
+x	zobrazenie season SxxExx + nazov
+x	paskovanie vo VideoInfo dialogu
+x	korekcie
+n?	shutdown error - dummy thread #4 (server.shutdown), unable to solve
+x	play epizody v listingu seasnu nefunguje
+-	paskovanie v listingoch
+-	CD1/CD2 rating uprostred filmu
+x	bug: similars v epizodach
+-	icon vs thhumbnail v listingoch
