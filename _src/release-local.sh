@@ -1,8 +1,18 @@
 PROJECT_FOLDER=$1
 
-: ${PROJECT_FOLDER:="XBMC"}
+INCLUDED_IN="`dirname \"$0\"`"
+INCLUDED_IN="`( cd \"$INCLUDED_IN\" && pwd )`"
+INCLUDED_IN="`dirname \"$INCLUDED_IN\"`"
+BASE_NAME="`basename \"$INCLUDED_IN\"`"
+TARGET_DIR="`dirname \"$INCLUDED_IN\"`"
 
-rm ${PROJECT_FOLDER}-local.zip
+echo $INCLUDED_IN, $BASE_NAME
+
+: ${PROJECT_FOLDER:="$INCLUDED_IN"}
+
+cd $INCLUDED_IN
+
+rm ${PROJECT_FOLDER}-local-*.zip
 zip -x ${PROJECT_FOLDER}/_src/\* ${PROJECT_FOLDER}/tests/\* \*.pyc -Z store -r ${PROJECT_FOLDER}-local.zip ${PROJECT_FOLDER}/*
 RANDSTR=`tr -dc "0-9" < /dev/urandom | head -c 3`
 
