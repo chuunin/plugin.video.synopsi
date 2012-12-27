@@ -164,9 +164,9 @@ def dialog_ok(msg):
 	lines = dialog_text(msg, 45)
 	return xbmcgui.Dialog().ok(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
 
-def dialog_yesno(msg, **kwargs):
+def dialog_yesno(msg):
 	lines = dialog_text(msg, 45)
-	return xbmcgui.Dialog().yesno(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2), **kwargs)
+	return xbmcgui.Dialog().yesno(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
 
 
 def clear_setting_cache():
