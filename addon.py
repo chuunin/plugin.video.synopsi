@@ -225,7 +225,8 @@ try:
 		p['mode'] = ActionCode.LocalMovies
 
 	# debug
-	p['mode']=971
+	if p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
+		p['mode']=971
 
 	# routing
 	if p['mode']==None:
@@ -266,8 +267,13 @@ try:
 
 		#~ xbmc.executebuiltin('ActivateWindow(/home/smid/projects/XBMC/resources/skins/Default/720p/MyVideoNav.xml)')
 		#~ xbmc.executebuiltin('ActivateWindow(9525)')
-
+		
 		xbmcplugin.endOfDirectory(dirhandle)
+		
+		
+		#~ xbmc.executebuiltin('RunScript(plugin.video.synopsi, 0, mode=910&stv_id=2514500)')
+		#~ sys.exit(0)
+		
 		# fill in custom listing dialog/window
 		items = [
         {
@@ -312,8 +318,8 @@ except ShutdownRequestedException:
 	xbmcplugin.endOfDirectory(dirhandle)
 	xbmc.executebuiltin('Quit')
 except:
-	xbmcplugin.endOfDirectory(dirhandle)
 	log(traceback.format_exc())
+	xbmcplugin.endOfDirectory(dirhandle)
 
 
 

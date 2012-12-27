@@ -3,7 +3,7 @@
 	<allowoverlay>no</allowoverlay>
 	<views>50,51,500,550,551,560,501,508,504,503,505,511</views>
 	<onload condition="Skin.HasSetting(ActivateTvTunes) + System.HasAddon(script.tvtunes)">XBMC.RunScript(script.tvtunes,backend=True&amp;loop=False)</onload>
-	
+
 
 	<controls>
 		<include>CommonVideoBackground</include>
@@ -83,10 +83,7 @@
 							<aspectratio>keep</aspectratio>
 							<bordersize>5</bordersize>
 							<texture background="true">$INFO[ListItem.Property(CustomOverlay)]</texture>
-<!--
-							<visible>Container.Content(Episodes)</visible>
--->
-						</control>						
+						</control>
 					</itemlayout>
 					<focusedlayout height="186" width="216">
 						<control type="image">
@@ -130,22 +127,16 @@
 							<aspectratio>keep</aspectratio>
 							<texture>$INFO[ListItem.Overlay]</texture>
 						</control>
-						
+
 						<control type="image">
 							<posx>1</posx>
 							<posy>0</posy>
 							<width>214</width>
 							<height>160</height>
 							<aspectratio>keep</aspectratio>
-<!--
-							<bordertexture border="5">button-nofocus.png</bordertexture>
--->
 							<bordersize>5</bordersize>
 							<texture background="true">$INFO[ListItem.Property(CustomOverlay)]</texture>
-<!--
-							<visible>Container.Content(Episodes)</visible>
--->
-						</control>						
+						</control>
 					</focusedlayout>
 				</control>
 				<control type="scrollbar" id="60">
@@ -410,15 +401,17 @@
 		</control>
 		<include>WindowTitleHomeButton</include>
 		<include>Clock</include>
-					<control type="image">
-						<description>debug image</description>
-						<posx>0</posx>
-						<posy>415</posy>
-						<width>1080</width>
-						<height>200</height>
-						<aspectratio>stretch</aspectratio>
-						<texture>debug.png</texture>
-					</control>
+
+		<control type="image">
+			<description>debug image</description>
+			<posx>0</posx>
+			<posy>415</posy>
+			<width>1080</width>
+			<height>200</height>
+			<aspectratio>stretch</aspectratio>
+			<texture>debug.png</texture>
+			<visible>False</visible>
+		</control>
 
 	</controls>
 </window>

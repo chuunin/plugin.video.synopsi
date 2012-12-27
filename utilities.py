@@ -57,6 +57,24 @@ t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 t_unavail = 'N/A'
 
+
+class ActionCode:
+	MovieRecco = 10
+	LocalMovieRecco = 15
+	LocalMovies = 16
+	TVShows = 20
+	LocalTVShows = 25
+	UnwatchedEpisodes = 40
+	UpcomingEpisodes = 50
+
+	LoginAndSettings = 90
+
+	TVShowEpisodes = 60
+
+	VideoDialogShow = 900
+	VideoDialogShowById = 910
+
+
 class HashError(Exception):
 	pass
 
