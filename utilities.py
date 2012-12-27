@@ -105,6 +105,7 @@ def addon_getSetting(aid, adef=None):
 	return res
 
 def check_first_run():
+	reloadSkin = False
 	# on first run
 	if __addon__.getSetting('FIRSTRUN') == 'true':
 		log('SYNOPSI FIRST RUN')
@@ -112,13 +113,15 @@ def check_first_run():
 		# enable home screen recco
 		__addon__.openSettings()
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
-		xbmc.executebuiltin('ReloadSkin()')
+		reloadSkin = True			
 		__addon__.setSetting('FIRSTRUN', "false")
 
 	if addon_getSetting('ADDON_SERVICE_FIRSTRUN') != "false":
 		if dialog_need_restart():
 			raise ShutdownRequestedException('User requested shutdown')
 		else:
+			if reloadSkin:
+				xbmc.executebuiltin('ReloadSkin()')		
 			raise Exception('Addon service is not running')
 
 def dialog_text(msg, max_line_length=20, max_lines=3):
