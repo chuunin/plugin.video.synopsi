@@ -5,6 +5,6 @@ x	korekcie
 n?	shutdown error - dummy thread #4 (server.shutdown), unable to solve
 x	play epizody v listingu seasnu nefunguje
 -	paskovanie v listingoch
-x	CD1/CD2 rating uprostred filmu
+x	fix: stack:// multi-file unwanted rating/checkin in the middle
 x	bug: similars v epizodach
 -	icon vs thhumbnail v listingoch
