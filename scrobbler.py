@@ -50,7 +50,7 @@ class SynopsiPlayer(xbmc.Player):
 	def log(self, msg):
 		log('SynopsiPlayer: ' + msg)
 
-	def playerEvent(self, eventName):
+	def playerEvent(self, eventName, position=None):
 		self.log('playerEvent:' + eventName)
 
 		event = {
@@ -58,7 +58,9 @@ class SynopsiPlayer(xbmc.Player):
 			'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
 		}
 
-		if self.playing:
+		if position:
+			event['position'] = position
+		elif self.playing:
 			event['position'] = int(self.current_time)
 
 		self.playerEvents.append(event)
@@ -78,7 +80,6 @@ class SynopsiPlayer(xbmc.Player):
 		# this is just next file of a movie
 		if self.playing:
 			if self.media_file != xbmc.Player().getPlayingFile():
-				self.ended_without_rating()
 				self.media_file = xbmc.Player().getPlayingFile()
 				self.last_played_file = self.media_file
 				self.subtitle_file = self.getSubtitles()
@@ -94,28 +95,23 @@ class SynopsiPlayer(xbmc.Player):
 				self.mediainfotag = self.getVideoInfoTag()
 				self.last_played_file = self.media_file
 				self.subtitle_file = self.getSubtitles()
-				self.log('subtitle_file:' + str(self.subtitle_file))
 
-		self.log('playing:' + str(self.playing))
 
 	def onPlayBackEnded(self):
 		notification("onPlayBackEnded", "onPlayBackEnded")
-		# this is a race condition, the multi file switch takes various times to switch to second file
+		# the multi file switch takes various times to switch to second file
 		# possible solutions:
-		#	1. asynchronously check if file is playing after a longer time (500ms) and end() the file then
-		#	2. unknown
-		if self.playing:
-			try:
-				self.media_file = xbmc.Player().getPlayingFile()
-			except Exception, e:
-				# TODO: Handle if API will change
-				if "XBMC is not playing any file" in e:
-					self.playing = False
-					self.media_file = None
-					self.ended()
-				else:
-					log('Error: ' + str(e))
-
+		#	1. asynchronously check if file is playing after a longer time (500ms - 1500ms) and end() the file then (this is a race condition)
+		#	2. count parts of file and (if there is no seeking back), end() on the last part
+		# >	3. use progress percent counted from self.total_time
+		
+		# this will avoid entering the if branch in the middle of the multi-file
+		percent = self.current_time / self.total_time
+		if percent > 0.9 and self.playing:
+			self.ended()
+			self.playing = False
+			self.media_file = None
+					
 	def onPlayBackStopped(self):
 		self.log('onPlayBackStopped')
 		if self.playing:
@@ -131,9 +127,6 @@ class SynopsiPlayer(xbmc.Player):
 	def onPlayBackResumed(self):
 		if self.playing:
 			self.resumed()
-		else:
-			self.log('resumed not playing?')
-
 
 	def get_time(self, default=None):
 		try:
@@ -174,7 +167,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		self.playerEvent('start')
 
 	def ended(self):
-		self.playerEvent('end')
+		self.playerEvent('end', self.total_time)
 
 		# rate file
 		self.rate_file(self.last_played_file)
