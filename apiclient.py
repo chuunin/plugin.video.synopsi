@@ -53,7 +53,7 @@ class ApiClient(loggable.Loggable):
 		self.accessToken = None
 		#~ self.refreshToken = None
 		self.apiUrl = self.baseUrl + rel_api_url
-		self.originReqHost = originReqHost or 'test.papi.synopsi.tv'		# TODO: what is this
+		self.originReqHost = originReqHost
 		self.authHeaders = None
 		self.device_id = device_id
 
