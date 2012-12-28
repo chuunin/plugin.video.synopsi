@@ -223,8 +223,8 @@ class OfflineStvList(object):
 		self.log('correction source: ' + dump(filtertitles(old_item)))
 		self.log('correction target: ' + dump(filtertitles(new_item)))
 
-		# TODO: thinkabout
-		# delete the xbmc type-id if the types dont match ? or dont update the type !
+		# TODO: how to handle corrections between episode/movie types ?!
+		# delete the xbmc type-id if the types dont match or dont update the type !
 		if new_title['type'] != new_item['type']:
 			self.warn('Correction target and source type differ. %s / %s' % (new_title['type'], new_item['type']))
 			#~ new_item['type'] = new_title['type']
