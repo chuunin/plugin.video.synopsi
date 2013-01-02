@@ -82,7 +82,7 @@
 							<height>160</height>
 							<aspectratio>keep</aspectratio>
 							<bordersize>5</bordersize>
-							<texture background="true">$INFO[ListItem.Property(CustomOverlay)]</texture>
+							<texture background="false">$INFO[ListItem.Property(CustomOverlay)]</texture>
 						</control>
 					</itemlayout>
 					<focusedlayout height="186" width="216">
@@ -135,7 +135,7 @@
 							<height>160</height>
 							<aspectratio>keep</aspectratio>
 							<bordersize>5</bordersize>
-							<texture background="true">$INFO[ListItem.Property(CustomOverlay)]</texture>
+							<texture background="false">$INFO[ListItem.Property(CustomOverlay)]</texture>
 						</control>
 					</focusedlayout>
 				</control>
@@ -165,7 +165,7 @@
 			<include>MusicVideoInfoListView</include> <!-- view id = 511 -->
 			<include>AddonInfoListView1</include> <!-- view id = 550 -->
 			<include>AddonInfoThumbView1</include> <!-- view id = 551 -->
-			<include>LiveTVView1</include>  view id = 560
+			<include>LiveTVView1</include>  <!-- view id = 560 -->
 		</control>
 		<include>CommonPageCount</include>
 		<include>CommonNowPlaying</include>

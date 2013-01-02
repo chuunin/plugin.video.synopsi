@@ -4,14 +4,20 @@ import xbmcgui
 
 # application
 from utilities import *
-
+from app_apiclient import AppApiClient
+from cache import StvList
+from addonutilities import show_video_dialog_byId
 
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
 
 __addon__  = get_current_addon()
-__cwd__	= __addon__.getAddonInfo('path')
+__addonpath__	= __addon__.getAddonInfo('path')
 
+__apiclient__ = AppApiClient.getDefaultClient()
+__stvList__ = StvList.getDefaultList()
+
+itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': -2}
 
 class ListDialog(xbmcgui.WindowXMLDialog):
 	""" Dialog for choosing movie corrections """
@@ -22,12 +28,9 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 
 	def onInit(self):
 		items = []
+		items.append(self._getListItem(itemFolderBack))
 		for item in self.data['items']:
-			itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
-			li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
-			li.setProperty('id', str(item['id']))
-			li.setProperty('path', str(itemPath))
-			li.setProperty('CustomOverlay', item['custom_overlay'])
+			li = self._getListItem(item)
 			items.append(li)
 
 		xbmc.executebuiltin("Container.SetViewMode(%d)" % LIST_ITEM_CONTROL_ID)
@@ -36,6 +39,15 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		except:
 			log('Adding items failed')
 
+	def _getListItem(self, item):
+		#~ itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
+		li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
+		li.setProperty('id', str(item['id']))
+		#~ li.setProperty('path', str(itemPath))
+		if item.get('custom_overlay'):
+			li.setProperty('CustomOverlay', item['custom_overlay'])
+		
+		return li
 
 	def onFocus(self, controlId):
 		self.controlId = controlId
@@ -44,25 +56,23 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		# if user clicked/entered an item
 		if self.controlId == LIST_ITEM_CONTROL_ID and action in ACTIONS_CLICK:
-			item = self.getControl(LIST_ITEM_CONTROL_ID).getSelectedItem()
-			#~ xbmc.executebuiltin('RunScript(plugin.video.synopsi, 0, %s)' % item.getProperty('path'))
-			log('clicked params:' + str(item.getProperty('path')))
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?%s)' % item.getProperty('path'))
+			item = self.getControl(LIST_ITEM_CONTROL_ID).getSelectedItem()			
+			show_video_dialog_byId(int(item.getProperty('id')), __apiclient__, __stvList__)
 
 
 def open_list_dialog(tpl_data):
-	print 'cwd: ' + __cwd__
+	print 'cwd: ' + __addonpath__
 	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
 	path = ''
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
-		ui = ListDialog(path + "custom_MyVideoNav.xml", __cwd__, "Default", data=tpl_data)
+		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		win.close()
-		ui = ListDialog(path + "custom_MyVideoNav.xml", __cwd__, "Default", data=tpl_data)
+		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui

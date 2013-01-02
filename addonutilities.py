@@ -21,7 +21,7 @@ import CommonFunctions
 import socket
 
 # application
-from app_apiclient import AppApiClient, LoginState, AuthenticationError
+from app_apiclient import AuthenticationError
 from utilities import *
 from cache import StvList, DuplicateStvIdException
 from xbmcrpc import xbmc_rpc
@@ -360,7 +360,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 
 	return tpl_data
 
-def open_video_dialog(tpl_data, apiClient, stvList):
+def open_video_dialog(tpl_data, apiClient, stvList, close=False):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
@@ -369,7 +369,8 @@ def open_video_dialog(tpl_data, apiClient, stvList):
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
-		win.close()
+		if close:
+			win.close()
 		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient, stvList=stvList)
 		ui.doModal()
 		del ui

@@ -9,7 +9,7 @@ import traceback
 
 # application
 from utilities import *
-from app_apiclient import ApiClient
+from app_apiclient import AppApiClient, ApiClient
 from apiclient import commonTitleProps
 from xbmcrpc import xbmc_rpc
 

@@ -293,11 +293,27 @@ try:
             "id": 72215,
             "name": "I, Robot",
             'custom_overlay': 'ondisk-AND-already-watched-stack.png'
-        } ]
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
+            "id": 72215,
+            "name": "I, Robot 2",
+            'custom_overlay': 'ondisk-AND-already-watched-stack.png'
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
+            "id": 72215,
+            "name": "I, Robot 3",
+            'custom_overlay': 'already-watched-stack.png'
+        }
+        ]
 
 		dialog.open_list_dialog({ 'items': items })
+	
 
 	elif p['mode']==972:
+		#~ xbmc.executebuiltin('ActivateWindow(MyVideoNav,plugin://plugin.video.synopsi,return)')
+		
 		#~ addonclient.debug_2()
 		#~ wid = xbmcgui.getCurrentWindowDialogId()
 		#~ print 'wid:' + str(wid)
