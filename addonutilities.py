@@ -338,6 +338,8 @@ def video_dialog_template_fill(stv_details, json_data={}):
 		stv_labels['Director'] = ', '.join(tpl_data['directors'])
 	if tpl_data.get('cast'):
 		stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], tpl_data['cast']))
+	if tpl_data.get('writers'):
+		stv_labels['Writer'] = ', '.join(tpl_data['writers'])
 	if tpl_data.get('runtime'):
 		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
 	if tpl_data.get('date'):
@@ -350,7 +352,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 		if d.get('director'):
 			xbmclabels["Director"] = ', '.join(d['director'])
 		if d.get('writer'):
-			xbmclabels["Writer"] = ', '.join(d['writer'])
+			xbmclabels["Writer"] = d['writer']
 		if d.get('runtime'):
 			xbmclabels["Runtime"] = d['runtime'] + ' min'
 		if d.get('premiered'):
