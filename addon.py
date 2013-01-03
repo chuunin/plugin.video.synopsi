@@ -189,7 +189,7 @@ try:
 
 	addonclient = AddonClient(dirhandle)
 
-	param_vars = ['url', 'mode', 'data', 'stv_id']
+	param_vars = ['url', 'mode', 'type', 'data', 'stv_id']
 	p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
 	try:
@@ -198,6 +198,9 @@ try:
 
 		if p['mode']:
 			p['mode']=int(p['mode'])
+
+		if p['type']:
+			p['type']=int(p['type'])
 
 		if p['data']:
 			p['data'] = uniunquote(p['data'])
@@ -210,7 +213,7 @@ try:
 		raise InputParamsException('Wrong params: ' + str(sys.argv))
 
 	#~ log('params:' + str(params))
-	log('mode: %s' % (p['mode']))
+	log('mode: %s type: %s' % (p['mode'], p['type']))
 	#~ log('url: %s' % (p['url']))
 	log('data: %s' % (p['data']))
 
