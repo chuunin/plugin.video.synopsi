@@ -189,15 +189,12 @@ try:
 
 	addonclient = AddonClient(dirhandle)
 
-	param_vars = ['url', 'name', 'mode', 'type', 'data', 'stv_id']
+	param_vars = ['url', 'mode', 'type', 'data', 'stv_id']
 	p = dict([(k, params.get(k, [None])[0]) for k in param_vars])
 
 	try:
 		if p['url']:
 			p['url']=uniunquote(p['url'])
-
-		if p['name']:
-			p['name']=uniunquote(p['name'])
 
 		if p['mode']:
 			p['mode']=int(p['mode'])
@@ -268,7 +265,7 @@ try:
 		#~ xbmc.executebuiltin('ActivateWindow(/home/smid/projects/XBMC/resources/skins/Default/720p/MyVideoNav.xml)')
 		#~ xbmc.executebuiltin('ActivateWindow(9525)')
 		
-		xbmcplugin.endOfDirectory(dirhandle)
+		#~ xbmcplugin.endOfDirectory(dirhandle)
 		
 		
 		#~ xbmc.executebuiltin('RunScript(plugin.video.synopsi, 0, mode=910&stv_id=2514500)')
