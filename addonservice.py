@@ -142,7 +142,7 @@ class AddonHandler(ServiceTCPHandler):
 		thread.start_new_thread(show_video_dialog, (json_data, self.server.apiClient, self.server.stvList))
 
 	def show_video_dialog_byId(self, stv_id):
-		thread.start_new_thread(show_video_dialog_byId, (stv_id, self.server.apiClient, self.server.stvList))
+		thread.start_new_thread(show_video_dialog_byId, (stv_id))
 
 	def open_settings(self):
 		__addon__ = get_current_addon()

@@ -21,7 +21,7 @@ import CommonFunctions
 import socket
 
 # application
-from app_apiclient import AuthenticationError
+from app_apiclient import AppApiClient, AuthenticationError
 from utilities import *
 from cache import StvList, DuplicateStvIdException
 from xbmcrpc import xbmc_rpc
@@ -250,7 +250,13 @@ def open_select_movie_dialog(tpl_data):
 	del ui
 	return result
 
-def show_video_dialog_byId(stv_id, apiClient, stvList):
+def show_video_dialog_byId(stv_id, apiClient=None, stvList=None):
+	if not apiClient:
+		apiClient = AppApiClient.getDefaultClient()
+	
+	if not stvList:
+		stvList = StvList.getDefaultList()
+			
 	stv_details = apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
 	stvList.updateTitle(stv_details)
 	show_video_dialog_data(apiClient, stvList, stv_details)
@@ -378,11 +384,10 @@ def open_video_dialog(tpl_data, apiClient, stvList, close=False):
 
 
 def add_directory(name, url, mode, iconimage, atype):
-	u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
-	ok = True
+	u = sys.argv[0]+"?mode="+str(mode)+"&type="+str(atype)
 	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	# liz.setInfo(type="Video", infoLabels={"Title": name} )
-	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
+	ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
 	return ok
 
 
