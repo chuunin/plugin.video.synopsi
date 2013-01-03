@@ -26,7 +26,6 @@ from utilities import *
 from cache import StvList, DuplicateStvIdException
 from xbmcrpc import xbmc_rpc
 
-
 common = CommonFunctions
 common.plugin = "SynopsiTV"
 
@@ -269,7 +268,7 @@ def show_video_dialog(json_data, apiClient, stvList):
 
 		show_video_dialog_data(apiClient, stvList, stv_details, json_data)
 
-def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
+def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}, close=False):
 	log('stv_details:' + dump(stv_details))
 	# add xbmc id if available
 	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
@@ -306,7 +305,7 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 				item['overlay'] = overlay_image[oc]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data, apiClient, stvList)
+	open_video_dialog(tpl_data, apiClient, stvList, close)
 
 
 def video_dialog_template_fill(stv_details, json_data={}):
@@ -421,35 +420,4 @@ def show_categories():
 	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "list.png")
 	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "list.png")
 	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "list.png")
-
-
-def show_movie_list(item_list, dirhandle):
-	errorMsg = None
-	try:
-		if not item_list:
-			raise ListEmptyException
-
-		lis = []
-		for movie in item_list:
-			# log(dump(movie))
-			lis.append(
-				add_movie(movie, ActionCode.VideoDialogShow, movie.get('cover_medium'))
-			)
-
-		xbmcplugin.addDirectoryItems(dirhandle, lis)
-
-	except AuthenticationError:
-		errorMsg = True
-	finally:
-		xbmcplugin.endOfDirectory(dirhandle)
-		xbmc.executebuiltin("Container.SetViewMode(500)")
-
-	if errorMsg:
-		if dialog_check_login_correct():
-			xbmc.executebuiltin('Container.Refresh')
-		else:
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-
-	# xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
-
 

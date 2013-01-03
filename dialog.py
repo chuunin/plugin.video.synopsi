@@ -84,3 +84,28 @@ def open_list_dialog(tpl_data, close=False):
 		ui = ListDialog(path + "MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
+
+def show_movie_list(item_list, dirhandle):
+	errorMsg = None
+	try:
+		if not item_list:
+			raise ListEmptyException
+
+		open_list_dialog({ 'items': item_list })
+
+	except AuthenticationError:
+		errorMsg = True
+	finally:
+		#~ xbmcplugin.endOfDirectory(dirhandle)
+		xbmc.executebuiltin("Container.SetViewMode(500)")
+
+	if errorMsg:
+		if dialog_check_login_correct():
+			xbmc.executebuiltin('Container.Refresh')
+		else:
+			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+
+	# xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
+
+
+

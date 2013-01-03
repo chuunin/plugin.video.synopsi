@@ -170,7 +170,7 @@ def show_submenu(action_code, dirhandle, **kwargs):
 	if action_code==ActionCode.LocalMovieRecco:
 		item_list.append({ 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': ''})
 
-	show_movie_list(item_list, dirhandle)
+	dialog.show_movie_list(item_list, dirhandle)
 
 def exc_text_by_mode(mode):
 	return t_text_by_mode.get(mode, t_listing_failed)
@@ -222,8 +222,8 @@ try:
 		p['mode'] = ActionCode.LocalMovies
 
 	# debug
-	if p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
-		p['mode']=971
+	#~ if p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
+		#~ p['mode']=971
 
 	# routing
 	if p['mode']==None:
@@ -305,7 +305,7 @@ try:
         }
         ]
 
-		dialog.open_list_dialog({ 'items': items })
+		dialog.open_list_dialog({ 'items': items }, close=True)
 	
 
 	elif p['mode']==972:
