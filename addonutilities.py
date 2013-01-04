@@ -396,9 +396,8 @@ def open_video_dialog(tpl_data, apiClient, stvList):
 
 
 
-def add_directory(name, url, mode, iconimage, atype):
-	u = sys.argv[0]+"?url="+uniquote(url)+"&mode="+str(mode)+"&name="+uniquote(name)+"&type="+str(atype)
-	ok = True
+def add_directory(name, url, mode, iconimage):
+	u = sys.argv[0]+"?mode="+str(mode)
 	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	# liz.setInfo(type="Video", infoLabels={"Title": name} )
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
@@ -428,13 +427,13 @@ def show_categories():
 	Shows initial categories on home screen.
 	"""
 	xbmc.executebuiltin("Container.SetViewMode(503)")
-	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png", 1)
-	add_directory("Popular TV Shows", "url", ActionCode.TVShows, "list.png", 1)
-	add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png", 2)
-	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png", 1)
-	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "icon.png", 3)
-	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "icon.png", 33)
-	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "icon.png", 1)
+	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png")
+	add_directory("Popular TV Shows", "url", ActionCode.TVShows, "list.png")
+	add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png")
+	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png")
+	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "list.png")
+	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "list.png")
+	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "list.png")
 
 
 def show_movie_list(item_list, dirhandle):
