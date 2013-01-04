@@ -4,7 +4,7 @@ import xbmcgui
 
 # application
 from utilities import *
-from addonutilities import show_video_dialog_byId
+from addonutilities import show_video_dialog_byId, OverlayCode, overlay_image
 
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
@@ -31,7 +31,9 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 
 		xbmc.executebuiltin("Container.SetViewMode(%d)" % LIST_ITEM_CONTROL_ID)
 		try:
-			self.getControl(LIST_ITEM_CONTROL_ID).addItems(items)
+			listControl = self.getControl(LIST_ITEM_CONTROL_ID)
+			listControl.addItems(items)
+			self.setFocus(listControl)
 		except:
 			log('Adding items failed')
 
@@ -40,10 +42,24 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
 		li.setProperty('id', str(item['id']))
 		#~ li.setProperty('path', str(itemPath))
+			
+		# prefer already set custom_overlay, if N/A set custom overlay
 		if item.get('custom_overlay'):
 			li.setProperty('CustomOverlay', item['custom_overlay'])
-		
+		else:
+			oc = self._getItemOverlayCode(item)
+			li.setProperty('CustomOverlay', overlay_image[oc])
+			
 		return li
+
+	def _getItemOverlayCode(self, item):
+		overlayCode = OverlayCode.Empty
+		if item.get('file'):
+			overlayCode += OverlayCode.OnYourDisk
+		if item.get('watched'):
+			overlayCode += OverlayCode.AlreadyWatched
+			
+		return overlayCode
 
 	def onFocus(self, controlId):
 		self.controlId = controlId
@@ -65,6 +81,7 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 	def close(self):
 		xbmc.executebuiltin("Container.SetViewMode(503)")
 		xbmcgui.WindowXMLDialog.close(self)
+		xbmc.executebuiltin("Container.SetViewMode(503)")
 
 def open_list_dialog(tpl_data, close=False):
 	log('open_list_dialog cwd: ' + __addonpath__)
@@ -74,10 +91,12 @@ def open_list_dialog(tpl_data, close=False):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
+		log('V1')
 		ui = ListDialog(path + "MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	else:
+		log('V2')
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		if close:
 			win.close()
@@ -96,8 +115,10 @@ def show_movie_list(item_list, dirhandle):
 	except AuthenticationError:
 		errorMsg = True
 	finally:
+		pass
+		#~ log('A1')
 		#~ xbmcplugin.endOfDirectory(dirhandle)
-		xbmc.executebuiltin("Container.SetViewMode(500)")
+		#~ xbmc.executebuiltin("Container.SetViewMode(500)")
 
 	if errorMsg:
 		if dialog_check_login_correct():

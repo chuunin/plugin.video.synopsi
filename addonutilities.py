@@ -37,13 +37,12 @@ __version__   = __addon__.getAddonInfo('version')
 __profile__      = __addon__.getAddonInfo('profile')
 
 class OverlayCode:
+	Empty = 0
 	OnYourDisk = 1
 	AlreadyWatched = 2
 	AlreadyWatchedOnYourDisk = 3	#	this is just to know the code, it should be created by addition of the two
 
-
 overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
-
 
 def log(msg):
 	#logging.debug('ADDON: ' + str(msg))
