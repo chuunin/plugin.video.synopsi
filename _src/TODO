@@ -7,6 +7,10 @@ x	play epizody v listingu seasnu nefunguje
 -	paskovanie v listingoch
 x	fix: stack:// multi-file unwanted rating/checkin in the middle
 x	bug: similars v epizodach
--	icon vs thhumbnail v listingoch
+-	icon vs thumbnail v listingoch
 x	512kB hash (synopsi hash)
 -	cache
+-	stv_subtitle_hash - hash of the subtitle file if present
+-	corrections between episode/movie types
+-	window opening response
+-	frodo version
