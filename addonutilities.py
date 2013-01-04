@@ -205,7 +205,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 	def user_title_search(self):
 		try:
-			search_term = common.getUserInput("Title", "")
+			search_term = common.getUserInput(t_correct_search_title, "")
 			if search_term:
 				results = self.apiClient.search(search_term, SEARCH_RESULT_LIMIT)
 				if len(results['search_result']) == 0:
@@ -214,7 +214,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 					data = { 'movies': results['search_result'] }
 					return open_select_movie_dialog(data)
 			else:
-				dialog_ok('Enter a title name to search for')
+				dialog_ok(t_enter_title_to_search)
 		except:
 			dialog_ok('Search failed. Unknown error.')
 
