@@ -97,14 +97,7 @@ class SynopsiPlayer(xbmc.Player):
 				self.subtitle_file = self.getSubtitles()
 
 
-	def onPlayBackEnded(self):
-		notification("onPlayBackEnded", "onPlayBackEnded")
-		# the multi file switch takes various times to switch to second file
-		# possible solutions:
-		#	1. asynchronously check if file is playing after a longer time (500ms - 1500ms) and end() the file then (this is a race condition)
-		#	2. count parts of file and (if there is no seeking back), end() on the last part
-		# >	3. use progress percent counted from self.total_time
-		
+	def onPlayBackEnded(self):		
 		# this will avoid entering the if branch in the middle of the multi-file
 		percent = self.current_time / self.total_time
 		if percent > 0.9 and self.playing:
