@@ -8,3 +8,5 @@ x	play epizody v listingu seasnu nefunguje
 x	fix: stack:// multi-file unwanted rating/checkin in the middle
 x	bug: similars v epizodach
 -	icon vs thhumbnail v listingoch
+x	512kB hash (synopsi hash)
+-	cache

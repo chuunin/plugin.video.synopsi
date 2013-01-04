@@ -319,17 +319,15 @@ def is_protected(path):
 def stv_hash(filepath):
 	"""
 	New synopsi hash. Inspired by sutitle hash using first
-	and last 64 Kbytes and length in bytes.
+	and last 512 Kbytes and length in bytes.
 	"""
 
 	sha1 = hashlib.sha1()
 
 	try:
 		with open(filepath, 'rb') as f:
-			sha1.update(f.read(65536))
-			f.seek(-65536, 2)
-			sha1.update(f.read(65536))
-		sha1.update(str(os.path.getsize(filepath)))
+			f.seek(524288, 0)
+			sha1.update(f.read(524288))
 	except (IOError) as e:
 		raise HashError('Unable to hash file [%s]' % filepath)
 

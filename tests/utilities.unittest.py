@@ -9,6 +9,7 @@ from common import connection
 
 # application
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('fakeenv'))
 from utilities import *
 from apiclient import *
 from cache import StvList
@@ -21,7 +22,7 @@ class UtilitiesTest(TestCase):
 			movie['os_title_hash'] = hash_opensubtitle(path)
 			return movie
 		
-		print gethash('/home/smid/Videos/TVShows/How.I.Met.Your.Mother/anything.s02e10.avi')
+		print gethash(hash_path)
 
 
 if __name__ == '__main__':
@@ -31,8 +32,8 @@ if __name__ == '__main__':
 		'file': '/var/log/virtual.ext',
 		'stvId': 10009
 	}		
-		
-		
+
+	hash_path = '/media/sdb1/Movies/Jeff.Who.Lives.at.Home.2011.LIMITED.DVDRip.XviD-AMIABLE/Jeff.Who.Lives.at.Home.2011.LIMITED.DVDRip.XviD-AMIABLE.avi'		
 
 	logger = logging.getLogger()
 
