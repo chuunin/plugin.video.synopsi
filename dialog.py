@@ -5,6 +5,7 @@ import xbmcgui
 # application
 from utilities import *
 from addonutilities import show_video_dialog_byId, OverlayCode, overlay_image
+from app_apiclient import AuthenticationError
 
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
@@ -85,14 +86,15 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 
 def open_list_dialog(tpl_data, close=False):
 	log('open_list_dialog cwd: ' + __addonpath__)
-	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
 	
+	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
 	path = ''
+	
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
 		log('V1')
-		ui = ListDialog(path + "MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
+		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	else:
@@ -100,7 +102,7 @@ def open_list_dialog(tpl_data, close=False):
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		if close:
 			win.close()
-		ui = ListDialog(path + "MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
+		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 

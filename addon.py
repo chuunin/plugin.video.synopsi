@@ -277,19 +277,20 @@ try:
             "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00136558-223.jpg",
             "id": 136558,
             "name": "The Time Machine",
-            'custom_overlay': 'already-watched-stack.png'
+            'file': 'volaco'
         },
         {
             "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/02514500-223.jpg",
             "id": 2514500,
             "name": "Inglourious Basterds",
-            'custom_overlay': 'ondisk-stack.png'
+            'watched': 'yes'
         },
         {
             "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
             "id": 72215,
             "name": "I, Robot",
-            'custom_overlay': 'ondisk-AND-already-watched-stack.png'
+            'watched': 'yes',
+            'file': 'volaco'
         },
         {
             "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
