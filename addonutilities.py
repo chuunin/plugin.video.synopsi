@@ -161,7 +161,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 				#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
 				
 			else:
-				show_video_dialog_byId(stv_id, self.apiClient, self.stvList)
+				show_video_dialog_byId(stv_id, close=True)
 
 		# correct
 		elif controlId == 13:
@@ -171,7 +171,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
 					self.stvList.correct_title(self.data, new_title)
-					show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
+					show_video_dialog_byId(new_title['id'])
 					#~ TODO: refresh current window content
 					#~ xbmc.executebuiltin('Container.Refresh()')					
 				except DuplicateStvIdException, e:
@@ -252,7 +252,7 @@ def open_select_movie_dialog(tpl_data):
 	del ui
 	return result
 
-def show_video_dialog_byId(stv_id, apiClient=None, stvList=None):
+def show_video_dialog_byId(stv_id, apiClient=None, stvList=None, close=False):
 	if not apiClient:
 		apiClient = AppApiClient.getDefaultClient()
 	
@@ -261,9 +261,9 @@ def show_video_dialog_byId(stv_id, apiClient=None, stvList=None):
 			
 	stv_details = apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
 	stvList.updateTitle(stv_details)
-	show_video_dialog_data(apiClient, stvList, stv_details)
+	show_video_dialog_data(apiClient, stvList, stv_details, close=close)
 
-def show_video_dialog(json_data, apiClient=None, stvList=None):
+def show_video_dialog(json_data, apiClient=None, stvList=None, close=False):
 	if not apiClient:
 		apiClient = AppApiClient.getDefaultClient()
 	
@@ -275,7 +275,7 @@ def show_video_dialog(json_data, apiClient=None, stvList=None):
 	else:
 		stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
 
-	show_video_dialog_data(apiClient, stvList, stv_details, json_data)
+	show_video_dialog_data(apiClient, stvList, stv_details, json_data, close)
 
 def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}, close=False):
 	log('stv_details:' + dump(stv_details))

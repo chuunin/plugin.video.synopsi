@@ -77,7 +77,7 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 			if stv_id == GO_BACK:
 				self.close()
 			else:
-				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id})
+				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id}, close=False)
 
 	def close(self):
 		xbmcgui.WindowXMLDialog.close(self)
