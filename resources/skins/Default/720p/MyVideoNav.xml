@@ -1,29 +1,20 @@
 <window id="3090">
 	<defaultcontrol always="true">500</defaultcontrol>
-	<allowoverlay>no</allowoverlay>
+	<allowoverlay>yes</allowoverlay>
 	<views>500</views>
 	<onload condition="Skin.HasSetting(ActivateTvTunes) + System.HasAddon(script.tvtunes)">XBMC.RunScript(script.tvtunes,backend=True&amp;loop=False)</onload>
 
 	<controls>
-<!--
 		<include>CommonVideoBackground</include>
 		<include>CommonMediaPlayingBackground</include>
 		<include>ContentPanelBackgrounds</include>
--->
 		<control type="group">
 			<include>Window_OpenClose_Animation</include>
-<!--
-			<include>CommonRootView</include> <!-- view id = 50 -->
-
-<!--
-			<include>FullWidthList</include> <!-- view id = 51 -->
-
-<!--		<include>xThumbnailView</include> <!-- view id = 500 -->
-
+<!--		<include>CommonRootView</include> <!-- view id = 50 -->
+<!--		<include>FullWidthList</include> <!-- view id = 51 -->
+<!--		<include>ThumbnailView</include> <!-- view id = 500 -->
 			<control type="group">
-<!--
 				<visible>Control.IsVisible(500)</visible>
--->
 				<include>VisibleFadeEffect</include>
 				<control type="panel" id="500">
 					<posx>90</posx>
