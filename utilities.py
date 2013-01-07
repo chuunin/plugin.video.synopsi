@@ -1,5 +1,5 @@
 # xbmc
-import xbmc, xbmcgui, xbmcaddon
+import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 
 # python standart lib
 import json
@@ -18,6 +18,7 @@ from urllib2 import Request, urlopen
 from copy import copy
 import xml.etree.ElementTree as ET
 import time
+import sys
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
@@ -597,11 +598,52 @@ def dialog_login_fail_yesno():
 	result = dialog.yesno(t_stv, "Authentication failed", "Would you like to open settings and correct your login info?")
 	return result
 
+
 def dialog_need_restart():
 	dialog = xbmcgui.Dialog()
 	yes = dialog_yesno(t_needrestart)
 	return yes
 
+
+def add_directory(name, url, mode, iconimage):
+	u = sys.argv[0]+"?mode="+str(mode)
+	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+	# liz.setInfo(type="Video", infoLabels={"Title": name} )
+	ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
+	return ok
+
+
+def add_movie(movie, mode, iconimage):
+	json_data = json.dumps(movie)
+	if not movie.has_key('type'):
+		log('add_movie type not set')
+
+	log('add_movie: ' + dump(filtertitles(movie)))
+
+	u = sys.argv[0]+"?&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
+	li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+	if movie.get('watched'):
+		li.setInfo( type="Video", infoLabels={ "playcount": 1 } )
+
+	# local movies button to show all movies
+	isFolder = movie.get('id') == HACK_SHOW_ALL_LOCAL_MOVIES
+	new_li = (u, li, isFolder)
+
+	return new_li
+
+
+def show_categories():
+	"""
+	Shows initial categories on home screen.
+	"""
+	xbmc.executebuiltin("Container.SetViewMode(503)")
+	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png")
+	add_directory("Popular TV Shows", "url", ActionCode.TVShows, "list.png")
+	add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png")
+	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png")
+	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "list.png")
+	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "list.png")
+	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "list.png")
 
 
 

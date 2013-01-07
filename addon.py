@@ -22,12 +22,12 @@ import logging
 import traceback
 import subprocess
 import CommonFunctions
+import socket
 
 # application
 from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
-from addonutilities import *
 import dialog
 
 # constant
