@@ -35,7 +35,7 @@ __lockLoginScreen__ = threading.Lock()
 # constant
 BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
 homeReccoLimit = 5
-reccoDefaultProps = ['id', 'cover_medium', 'name']
+reccoDefaultProps = ['id', 'cover_medium', 'name', 'type']
 defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 tvshowdefaultDetailProps = defaultDetailProps + ['seasons']
 defaultCastProps = ['name']

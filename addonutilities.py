@@ -263,13 +263,19 @@ def show_video_dialog_byId(stv_id, apiClient=None, stvList=None):
 	stvList.updateTitle(stv_details)
 	show_video_dialog_data(apiClient, stvList, stv_details)
 
-def show_video_dialog(json_data, apiClient, stvList):
-		if json_data.get('type') == 'tvshow':
-			stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
-		else:
-			stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+def show_video_dialog(json_data, apiClient=None, stvList=None):
+	if not apiClient:
+		apiClient = AppApiClient.getDefaultClient()
+	
+	if not stvList:
+		stvList = StvList.getDefaultList()
 
-		show_video_dialog_data(apiClient, stvList, stv_details, json_data)
+	if json_data.get('type') == 'tvshow':
+		stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
+	else:
+		stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+
+	show_video_dialog_data(apiClient, stvList, stv_details, json_data)
 
 def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}, close=False):
 	log('stv_details:' + dump(stv_details))

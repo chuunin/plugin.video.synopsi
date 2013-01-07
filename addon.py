@@ -38,6 +38,8 @@ t_text_by_mode = {
 	ActionCode.LocalTVShows: t_nolocalrecco
 }
 
+item_show_all_movies_hack = { 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': '', 'type': 'HACK'}
+
 class UnknownModeException(Exception):
 	pass
 
@@ -165,11 +167,11 @@ def get_item_list(action_code, **kwargs):
 
 def show_submenu(action_code, dirhandle, **kwargs):
 	item_list = get_item_list(action_code, **kwargs)
-
+	
 	# hack HACK_SHOW_ALL_LOCAL_MOVIES
 	if action_code==ActionCode.LocalMovieRecco:
-		item_list.append({ 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': ''})
-
+		item_list.append(item_show_all_movies_hack)
+		
 	dialog.show_movie_list(item_list, dirhandle)
 
 def exc_text_by_mode(mode):

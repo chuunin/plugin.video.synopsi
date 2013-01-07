@@ -4,7 +4,7 @@ import xbmcgui
 
 # application
 from utilities import *
-from addonutilities import show_video_dialog_byId, OverlayCode, overlay_image
+from addonutilities import show_video_dialog, show_video_dialog_byId, OverlayCode, overlay_image, ListEmptyException
 from app_apiclient import AuthenticationError
 
 ACTIONS_CLICK = [7, 100]
@@ -14,7 +14,7 @@ GO_BACK = -2
 __addon__  = get_current_addon()
 __addonpath__	= __addon__.getAddonInfo('path')
 
-itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': -2}
+itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': -2, 'type': 'HACK'}
 
 class ListDialog(xbmcgui.WindowXMLDialog):
 	""" Dialog for choosing movie corrections """
@@ -41,7 +41,8 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		#~ itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
 		li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
 		li.setProperty('id', str(item['id']))
-		#~ li.setProperty('path', str(itemPath))
+		li.setProperty('type', str(item['type']))
+		#~ li.setProperty('path', str(itemPath))		
 			
 		# prefer already set custom_overlay, if N/A set custom overlay
 		if item.get('custom_overlay'):
@@ -76,7 +77,7 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 			if stv_id == GO_BACK:
 				self.close()
 			else:
-				show_video_dialog_byId(stv_id)
+				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id})
 
 	def close(self):
 		xbmcgui.WindowXMLDialog.close(self)
@@ -118,9 +119,11 @@ def show_movie_list(item_list, dirhandle):
 		if dialog_check_login_correct():
 			#~ xbmc.executebuiltin('Container.Refresh')
 			#~ TODO: retry list loading
+			pass
 		else:
 			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 			#~ TODO: test: exit with closed window
+			pass
 
 
 
