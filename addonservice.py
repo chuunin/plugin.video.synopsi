@@ -5,7 +5,6 @@ import SocketServer
 import thread
 
 # application
-from addonutilities import *
 from utilities import *
 
 class ServiceTCPHandler(SocketServer.StreamRequestHandler):
@@ -59,13 +58,6 @@ class AddonHandler(ServiceTCPHandler):
 
 		return resRecco.get('titles', [])
 
-	def get_tvshows(self):
-		result = []
-		result += self.get_local_tvshows()
-		result += self.get_top_tvshows()
-
-		return result
-
 	def get_local_tvshows(self):
 		local_tvshows = self.server.stvList.getAllByType('tvshow')
 		log('local tvshows ' + dump(local_tvshows))
@@ -103,8 +95,8 @@ class AddonHandler(ServiceTCPHandler):
 	def get_upcoming_episodes(self):
 		return self.server.apiClient.get_upcoming_episodes()
 
-	def get_tvshow_season(self, tvshow_id):
-		season = self.server.apiClient.season(tvshow_id)
+	def get_tvshow_season(self, season_id):
+		season = self.server.apiClient.season(season_id)
 
 		# fix names
 		for i in season['episodes']:

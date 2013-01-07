@@ -58,6 +58,16 @@ t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 t_unavail = 'N/A'
 
+overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
+
+
+#	enums
+class OverlayCode:
+	Empty = 0
+	OnYourDisk = 1
+	AlreadyWatched = 2
+	AlreadyWatchedOnYourDisk = 3	#	this is just to know the code, it should be created by addition of the two
+
 
 class ActionCode:
 	MovieRecco = 10
@@ -76,11 +86,16 @@ class ActionCode:
 	VideoDialogShowById = 910
 
 
+# exceptions
 class HashError(Exception):
 	pass
 
 class ShutdownRequestedException(Exception):
 	pass
+
+class ListEmptyException(BaseException):
+	pass
+
 
 def dump(var):
 	return json.dumps(var, indent=4)
@@ -96,6 +111,13 @@ def structfilter(var, filter_keys):
 		v = var
 
 	return v
+
+def uniquote(s):
+	return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
+
+def uniunquote(uni):
+	return urllib.unquote_plus(uni.decode('utf-8'))
+
 
 def filterkeys(var, keys):
 	return dict([(k,var[k]) for k in var.keys() if k in keys])
