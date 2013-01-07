@@ -147,7 +147,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			if rating < 4:
 				self.apiClient.titleWatched(self.data['id'], rating=rating)
 			self.close()
-			xbmc.executebuiltin('Container.Refresh()')
+			#~ TODO: reload the container view
+			#~ xbmc.executebuiltin('Container.Refresh()')
 
 		# similars / tvshow seasons	cover
 		elif controlId == 59:
@@ -156,7 +157,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 			if self.data['type'] == 'tvshow':
 				self.close()
-				xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
+				#~ TODO: show tvshow episodes
+				#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
+				
 			else:
 				show_video_dialog_byId(stv_id, self.apiClient, self.stvList)
 
@@ -169,7 +172,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 				try:
 					self.stvList.correct_title(self.data, new_title)
 					show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
-					xbmc.executebuiltin('Container.Refresh()')
+					#~ TODO: refresh current window content
+					#~ xbmc.executebuiltin('Container.Refresh()')					
 				except DuplicateStvIdException, e:
 					log(str(e))
 					dialog_ok('This title is already in library. Cannot correct identity to this title')

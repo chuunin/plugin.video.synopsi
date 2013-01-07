@@ -236,11 +236,13 @@ try:
 			show_submenu(p['mode'], dirhandle, **params)
 		except ListEmptyException:
 			dialog_ok(exc_text_by_mode(p['mode']))
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+			#~ TODO: close window if open & show main plugin menu
+			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 		except:
 			log(traceback.format_exc())
 			dialog_ok(t_listing_failed)
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+			#~ TODO: close window if open & show main plugin menu
+			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 
 	elif p['mode']==ActionCode.VideoDialogShow:
 		addonclient.show_video_dialog(p['json_data'])

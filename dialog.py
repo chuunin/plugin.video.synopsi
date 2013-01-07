@@ -116,11 +116,11 @@ def show_movie_list(item_list, dirhandle):
 
 	if errorMsg:
 		if dialog_check_login_correct():
-			xbmc.executebuiltin('Container.Refresh')
+			#~ xbmc.executebuiltin('Container.Refresh')
+			#~ TODO: retry list loading
 		else:
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-
-	# xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
+			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+			#~ TODO: test: exit with closed window
 
 
 
