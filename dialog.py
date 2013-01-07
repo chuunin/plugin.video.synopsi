@@ -80,11 +80,11 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 				show_video_dialog_byId(stv_id)
 
 	def close(self):
-		xbmc.executebuiltin("Container.SetViewMode(503)")
+		#~ xbmc.executebuiltin("Container.SetViewMode(503)")
 		xbmcgui.WindowXMLDialog.close(self)
-		xbmc.executebuiltin("Container.SetViewMode(503)")
+		#~ xbmc.executebuiltin("Container.SetViewMode(503)")
 
-def open_list_dialog(tpl_data, close=False):
+def open_list_dialog(tpl_data, close=True):
 	log('open_list_dialog cwd: ' + __addonpath__)
 	
 	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
