@@ -4,7 +4,7 @@ x	paskovanie vo VideoInfo dialogu
 x	korekcie
 n?	shutdown error - dummy thread #4 (server.shutdown), unable to solve
 x	play epizody v listingu seasnu nefunguje
--	paskovanie v listingoch
+n	paskovanie v listingoch
 x	fix: stack:// multi-file unwanted rating/checkin in the middle
 x	bug: similars v epizodach
 -	icon vs thumbnail v listingoch

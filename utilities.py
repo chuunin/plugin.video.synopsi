@@ -320,8 +320,7 @@ def is_protected(path):
 
 def stv_hash(filepath):
 	"""
-	New synopsi hash. Inspired by sutitle hash using first
-	and last 512 Kbytes and length in bytes.
+	New synopsi hash. Hashing the sedond 512 kB of a file using SHA1.
 	"""
 
 	sha1 = hashlib.sha1()
