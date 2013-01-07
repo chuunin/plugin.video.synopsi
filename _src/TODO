@@ -7,6 +7,8 @@ x	play epizody v listingu seasnu nefunguje
 -	paskovanie v listingoch
 	-	handle ListEmptyExceptions
 	-	handle HACK_SHOW_ALL_LOCAL_MOVIES
+	-	handle AuthenticationError
+	-	remove obsolete Container.* calls
 -	CD1/CD2 rating uprostred filmu
 x	bug: similars v epizodach
 -	icon vs thhumbnail v listingoch

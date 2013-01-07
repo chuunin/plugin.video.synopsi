@@ -30,7 +30,6 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 			li = self._getListItem(item)
 			items.append(li)
 
-		xbmc.executebuiltin("Container.SetViewMode(%d)" % LIST_ITEM_CONTROL_ID)
 		try:
 			listControl = self.getControl(LIST_ITEM_CONTROL_ID)
 			listControl.addItems(items)
@@ -80,9 +79,7 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 				show_video_dialog_byId(stv_id)
 
 	def close(self):
-		#~ xbmc.executebuiltin("Container.SetViewMode(503)")
 		xbmcgui.WindowXMLDialog.close(self)
-		#~ xbmc.executebuiltin("Container.SetViewMode(503)")
 
 def open_list_dialog(tpl_data, close=True):
 	log('open_list_dialog cwd: ' + __addonpath__)
@@ -93,12 +90,10 @@ def open_list_dialog(tpl_data, close=True):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
-		log('V1')
 		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	else:
-		log('V2')
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		if close:
 			win.close()
@@ -118,9 +113,6 @@ def show_movie_list(item_list, dirhandle):
 		errorMsg = True
 	finally:
 		pass
-		#~ log('A1')
-		#~ xbmcplugin.endOfDirectory(dirhandle)
-		#~ xbmc.executebuiltin("Container.SetViewMode(500)")
 
 	if errorMsg:
 		if dialog_check_login_correct():
