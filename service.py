@@ -17,11 +17,13 @@ from cache import *
 from utilities import home_screen_fill, login_screen, log
 from app_apiclient import AppApiClient
 from addonservice import AddonService
+import top
+import threading
 
+threading.current_thread().name = 'service.py'
 
 __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
-
 __addon__.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
 
 
@@ -30,6 +32,7 @@ DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 def main():
 	log('SYNOPSI SERVICE START (Python %s)' % str(sys.version))
 	apiclient1 = AppApiClient.getDefaultClient()
+	top.apiClient = apiclient1
 
 	# check first run
 	check_first_run()
@@ -39,7 +42,8 @@ def main():
 
 	# try to restore cache
 	cache = StvList(iuid, apiclient1)
-
+	top.stvList = cache
+	log('top set')	
 	try:
 		cache.load()
 		thread.start_new_thread(home_screen_fill, (apiclient1, cache))

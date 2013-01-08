@@ -11,7 +11,7 @@ import json
 
 # application
 from utilities import *
-from app_apiclient import AppApiClient
+import top
 
 
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
@@ -45,7 +45,7 @@ class SynopsiPlayer(xbmc.Player):
 		self.log('INIT')
 		self.current_time = 0
 
-		self.apiclient = AppApiClient.getDefaultClient()
+		self.apiclient = top.apiClient
 
 	def log(self, msg):
 		log('SynopsiPlayer: ' + msg)

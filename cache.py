@@ -9,7 +9,7 @@ import traceback
 
 # application
 from utilities import *
-from app_apiclient import AppApiClient, ApiClient
+#~ from app_apiclient import AppApiClient, ApiClient
 from apiclient import commonTitleProps
 from xbmcrpc import xbmc_rpc
 
@@ -423,8 +423,8 @@ class OnlineStvList(OfflineStvList):
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
-		if not apiClient:
-			apiClient = AppApiClient.getDefaultClient()
+		#~ if not apiClient:
+			#~ apiClient = AppApiClient.getDefaultClient()
 
 		iuid = get_install_id()
 		cache = cls(iuid, apiClient)
@@ -459,6 +459,12 @@ class OnlineStvList(OfflineStvList):
 
 		return new_item
 
+class AppStvList(OnlineStvList):
+	def get_local_tvshows(self):
+		local_tvshows = self.getAllByType('tvshow')
+		log('local tvshows ' + dump(local_tvshows))
+		return local_tvshows.values()
+
 #	the final class name used in application, instead of rewriting classnames
-class StvList(OnlineStvList):
+class StvList(AppStvList):
 	pass

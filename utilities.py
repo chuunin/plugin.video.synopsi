@@ -20,11 +20,6 @@ import xml.etree.ElementTree as ET
 import time
 import sys
 
-CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
-CANCEL_DIALOG2 = (61467, )
-HACK_SHOW_ALL_LOCAL_MOVIES = -1
-SEARCH_RESULT_LIMIT = 15
-
 __addon__  = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __addonpath__	= __addon__.getAddonInfo('path')
@@ -35,6 +30,11 @@ __lockLoginScreen__ = threading.Lock()
 
 # constant
 BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
+CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
+CANCEL_DIALOG2 = (61467, )
+HACK_SHOW_ALL_LOCAL_MOVIES = -1
+SEARCH_RESULT_LIMIT = 15
+
 homeReccoLimit = 5
 reccoDefaultProps = ['id', 'cover_medium', 'name', 'type']
 defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
@@ -45,6 +45,7 @@ type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
 
 list_filter = reccoDefaultProps + ['type', 'id', 'stvId', 'xbmc_id', 'name', 'file']
 
+item_show_all_movies_hack = { 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': '', 'type': 'HACK'}
 
 # texts
 t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
@@ -126,7 +127,8 @@ def filtertitles(titles):
 	return structfilter(titles, list_filter)
 
 def log(msg):
-	xbmc.log(unicode(msg).encode('utf-8'))
+	#~ xbmc.log(unicode(msg).encode('utf-8'))
+	xbmc.log(threading.current_thread().name + ' ' + unicode(msg).encode('utf-8'))
 
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """

@@ -17,6 +17,7 @@ import socket
 from utilities import *
 from app_apiclient import AuthenticationError, AppApiClient, AuthenticationError
 from cache import StvList, DuplicateStvIdException
+import top
 
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
@@ -121,7 +122,7 @@ def open_list_dialog(tpl_data, close=True):
 		ui.doModal()
 		del ui
 
-def show_movie_list(item_list, dirhandle):
+def show_movie_list(item_list):
 	errorMsg = None
 	try:
 		if not item_list:
@@ -145,7 +146,9 @@ def show_movie_list(item_list, dirhandle):
 			pass
 
 def show_tvshows_episodes(stv_id):
-	items = get_tvshow_season(stv_id)
+	#~ apiClient = AppApiClient.getDefaultClient()
+	apiClient = top.apiClient
+	items = apiClient.get_tvshow_season(stv_id)
 	open_list_dialog({'items': items })
 
 
@@ -475,4 +478,12 @@ def open_video_dialog(tpl_data, apiClient, stvList, close=False):
 		ui.doModal()
 		del ui
 	
+def show_submenu(action_code, **kwargs):
+	item_list = top.apiClient.get_item_list(action_code=action_code, **kwargs)
+	
+	# hack HACK_SHOW_ALL_LOCAL_MOVIES
+	if action_code==ActionCode.LocalMovieRecco:
+		item_list.append(item_show_all_movies_hack)
+		
+	show_movie_list(item_list)
 

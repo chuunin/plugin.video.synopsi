@@ -23,12 +23,14 @@ import traceback
 import subprocess
 import CommonFunctions
 import socket
+import threading
 
 # application
 from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
-import dialog
+
+threading.current_thread().name = 'addon.py'
 
 # constant
 t_text_by_mode = {
@@ -37,8 +39,6 @@ t_text_by_mode = {
 	ActionCode.LocalMovieRecco: t_nolocalrecco,
 	ActionCode.LocalTVShows: t_nolocalrecco
 }
-
-item_show_all_movies_hack = { 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': '', 'type': 'HACK'}
 
 class UnknownModeException(Exception):
 	pass
@@ -120,6 +120,9 @@ class AddonClient(object):
 	def get_local_movies(self):
 		return self.execute('get_local_movies')
 
+	def show_submenu(self, mode, **params):		
+		return self.execute('show_submenu', action_code=mode, **params)
+
 	def show_video_dialog(self, json_data):
 		return self.execute('show_video_dialog', json_data=json_data)
 
@@ -137,42 +140,6 @@ class AddonClient(object):
 
 	def debug_3(self):
 		return self.execute('debug_3')
-
-def get_item_list(action_code, **kwargs):
-	log('get_item_list:' + str(action_code))
-
-	if action_code==ActionCode.MovieRecco:
-		return addonclient.get_global_recco('movie')
-
-	elif action_code==ActionCode.LocalMovieRecco:
-		return addonclient.get_local_recco2('movie')
-
-	elif action_code==ActionCode.LocalMovies:
-		return addonclient.get_local_movies()
-
-	elif action_code==ActionCode.TVShows:
-		return addonclient.get_top_tvshows()
-
-	elif action_code==ActionCode.LocalTVShows:
-		return addonclient.get_local_tvshows()
-
-	elif action_code==ActionCode.UnwatchedEpisodes:
-		return addonclient.get_unwatched_episodes()
-
-	elif action_code==ActionCode.UpcomingEpisodes:
-		return addonclient.get_upcoming_episodes()
-
-	elif action_code==ActionCode.TVShowEpisodes:
-		return addonclient.get_tvshow_season(kwargs['stv_id'])
-
-def show_submenu(action_code, dirhandle, **kwargs):
-	item_list = get_item_list(action_code, **kwargs)
-	
-	# hack HACK_SHOW_ALL_LOCAL_MOVIES
-	if action_code==ActionCode.LocalMovieRecco:
-		item_list.append(item_show_all_movies_hack)
-		
-	dialog.show_movie_list(item_list, dirhandle)
 
 def exc_text_by_mode(mode):
 	return t_text_by_mode.get(mode, t_listing_failed)
@@ -235,7 +202,7 @@ try:
 	elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
 		params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
 		try:
-			show_submenu(p['mode'], dirhandle, **params)
+			addonclient.show_submenu(p['mode'], **params)
 		except ListEmptyException:
 			dialog_ok(exc_text_by_mode(p['mode']))
 			#~ TODO: close window if open & show main plugin menu
