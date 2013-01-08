@@ -18,10 +18,9 @@ from utilities import *
 from app_apiclient import AuthenticationError, AppApiClient, AuthenticationError
 from cache import StvList, DuplicateStvIdException
 
-
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
-GO_BACK = -2
+HACK_GO_BACK = -2
 
 common = CommonFunctions
 common.plugin = "SynopsiTV"
@@ -34,7 +33,7 @@ __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __profile__      = __addon__.getAddonInfo('profile')
 
-itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': -2, 'type': 'HACK'}
+itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': HACK_GO_BACK, 'type': 'HACK'}
 
 class ListDialog(xbmcgui.WindowXMLDialog):
 	""" Dialog for choosing movie corrections """
@@ -94,7 +93,7 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		elif self.controlId == LIST_ITEM_CONTROL_ID and action in ACTIONS_CLICK:
 			item = self.getControl(LIST_ITEM_CONTROL_ID).getSelectedItem()			
 			stv_id = int(item.getProperty('id'))
-			if stv_id == GO_BACK:
+			if stv_id == HACK_GO_BACK:
 				self.close()
 			else:
 				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id}, close=False)
