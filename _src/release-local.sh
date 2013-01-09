@@ -8,11 +8,12 @@ TARGET_DIR="`dirname \"$INCLUDED_IN\"`"
 
 echo $INCLUDED_IN, $BASE_NAME
 
-: ${PROJECT_FOLDER:="$INCLUDED_IN"}
+: ${PROJECT_FOLDER:="$BASE_NAME"}
 
-cd $INCLUDED_IN
+cd $TARGET_DIR
+pwd
 
-rm ${PROJECT_FOLDER}-local-*.zip
+rm ${PROJECT_FOLDER}-local*.zip
 zip -x ${PROJECT_FOLDER}/_src/\* ${PROJECT_FOLDER}/tests/\* \*.pyc -Z store -r ${PROJECT_FOLDER}-local.zip ${PROJECT_FOLDER}/*
 RANDSTR=`tr -dc "0-9" < /dev/urandom | head -c 3`
 
