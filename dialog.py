@@ -257,6 +257,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
 					self.stvList.correct_title(self.data, new_title)
+					self.close()
 					show_video_dialog_byId(new_title['id'])
 					#~ TODO: refresh current window content
 					#~ xbmc.executebuiltin('Container.Refresh()')					
