@@ -94,8 +94,11 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		elif self.controlId == LIST_ITEM_CONTROL_ID and action in ACTIONS_CLICK:
 			item = self.getControl(LIST_ITEM_CONTROL_ID).getSelectedItem()			
 			stv_id = int(item.getProperty('id'))
+
 			if stv_id == HACK_GO_BACK:
 				self.close()
+			elif stv_id == HACK_SHOW_ALL_LOCAL_MOVIES:
+				show_submenu(ActionCode.LocalMovies)
 			else:
 				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id}, close=False)
 
@@ -125,11 +128,7 @@ def open_list_dialog(tpl_data, close=True):
 def show_movie_list(item_list):
 	errorMsg = None
 	try:
-		if not item_list:
-			raise ListEmptyException
-
 		open_list_dialog({ 'items': item_list })
-
 	except AuthenticationError:
 		errorMsg = True
 	finally:
@@ -480,6 +479,10 @@ def open_video_dialog(tpl_data, apiClient, stvList, close=False):
 	
 def show_submenu(action_code, **kwargs):
 	item_list = top.apiClient.get_item_list(action_code=action_code, **kwargs)
+
+	if not item_list:
+		dialog_ok(exc_text_by_mode(action_code))
+		return
 	
 	# hack HACK_SHOW_ALL_LOCAL_MOVIES
 	if action_code==ActionCode.LocalMovieRecco:

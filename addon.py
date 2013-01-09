@@ -32,14 +32,6 @@ from xbmcrpc import xbmc_rpc
 
 threading.current_thread().name = 'addon.py'
 
-# constant
-t_text_by_mode = {
-	ActionCode.UnwatchedEpisodes: t_nounwatched,
-	ActionCode.UpcomingEpisodes: t_noupcoming,
-	ActionCode.LocalMovieRecco: t_nolocalrecco,
-	ActionCode.LocalTVShows: t_nolocalrecco
-}
-
 class UnknownModeException(Exception):
 	pass
 
@@ -140,10 +132,6 @@ class AddonClient(object):
 
 	def debug_3(self):
 		return self.execute('debug_3')
-
-def exc_text_by_mode(mode):
-	return t_text_by_mode.get(mode, t_listing_failed)
-
 
 # script start
 try:

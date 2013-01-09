@@ -47,21 +47,6 @@ list_filter = reccoDefaultProps + ['type', 'id', 'stvId', 'xbmc_id', 'name', 'fi
 
 item_show_all_movies_hack = { 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': '', 'type': 'HACK'}
 
-# texts
-t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
-t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
-t_nolocalrecco = 'There are no items in this list. Either you have no items in your library or they have not been recognized by Synopsi'
-t_needrestart = 'To start the SynopsiTV service, please turn off your media center then turn it back on again. Do this now?'
-t_enter_title_to_search =  'Enter a title name to search for.'
-t_correct_search_title = 'Search for the correct title'
-
-t_listing_failed = 'Unknown error'
-t_stv = 'SynopsiTV'
-t_unavail = 'N/A'
-
-overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
-
-
 #	enums
 class OverlayCode:
 	Empty = 0
@@ -85,6 +70,28 @@ class ActionCode:
 
 	VideoDialogShow = 900
 	VideoDialogShowById = 910
+
+# texts
+t_noupcoming = 'There are no upcoming episodes in your TV Show tracking'
+t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
+t_nolocalrecco = 'There are no items in this list. Either you have no movies in your library or they have not been recognized by Synopsi'
+t_nolocaltvshow = 'There are no items in this list. Either you have no episodes in your library or they have not been recognized by Synopsi'
+t_needrestart = 'To start the SynopsiTV service, please turn off your media center then turn it back on again. Do this now?'
+t_enter_title_to_search =  'Enter a title name to search for.'
+t_correct_search_title = 'Search for the correct title'
+
+t_listing_failed = 'Unknown error'
+t_stv = 'SynopsiTV'
+t_unavail = 'N/A'
+
+overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
+
+t_text_by_mode = {
+	ActionCode.UnwatchedEpisodes: t_nounwatched,
+	ActionCode.UpcomingEpisodes: t_noupcoming,
+	ActionCode.LocalMovieRecco: t_nolocalrecco,
+	ActionCode.LocalTVShows: t_nolocaltvshow
+}
 
 
 # exceptions
@@ -149,6 +156,10 @@ def addon_getSetting(aid, adef=None):
 
 	return res
 
+def exc_text_by_mode(mode):
+	return t_text_by_mode.get(mode, t_listing_failed)
+
+# application utilities
 def check_first_run():
 	# on first run
 	if __addon__.getSetting('FIRSTRUN') == 'true':

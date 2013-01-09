@@ -5,8 +5,8 @@ x	korekcie
 n?	shutdown error - dummy thread #4 (server.shutdown), unable to solve
 x	play epizody v listingu seasnu nefunguje
 -	paskovanie v listingoch
-	-	handle ListEmptyExceptions
-	-	handle HACK_SHOW_ALL_LOCAL_MOVIES
+	x	handle ListEmptyExceptions
+	x	handle HACK_SHOW_ALL_LOCAL_MOVIES
 	-	handle AuthenticationError
 	-	remove obsolete Container.* calls
 	-	paskovanie k tvshows - zistit v ktorych episodach su already-watched episody

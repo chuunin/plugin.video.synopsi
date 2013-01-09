@@ -155,9 +155,6 @@ class AppApiClient(ApiClient):
 
 	def get_tvshow_season(self, season_id):
 		season = self.season(season_id)
-
-		log('top: ' + str(top))
-		log('top dict: ' + str(top.__dict__))
 		
 		# fix names
 		for i in season['episodes']:
