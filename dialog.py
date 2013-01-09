@@ -145,9 +145,7 @@ def show_movie_list(item_list):
 			pass
 
 def show_tvshows_episodes(stv_id):
-	#~ apiClient = AppApiClient.getDefaultClient()
-	apiClient = top.apiClient
-	items = apiClient.get_tvshow_season(stv_id)
+	items = top.apiClient.get_tvshow_season(stv_id)
 	open_list_dialog({'items': items })
 
 
@@ -340,26 +338,21 @@ def open_select_movie_dialog(tpl_data):
 	del ui
 	return result
 
-def show_video_dialog_byId(stv_id, apiClient=None, close=False):
-	if not apiClient:
-		apiClient = AppApiClient.getDefaultClient()
-				
-	stv_details = apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
+def show_video_dialog_byId(stv_id, close=False):				
+	stv_details = top.apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
 	top.stvList.updateTitle(stv_details)
-	show_video_dialog_data(apiClient, stv_details, close=close)
+	show_video_dialog_data(stv_details, close=close)
 
-def show_video_dialog(json_data, apiClient=None, close=False):
-	if not apiClient:
-		apiClient = AppApiClient.getDefaultClient()
-	
+def show_video_dialog(json_data, close=False):	
 	if json_data.get('type') == 'tvshow':
-		stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
+		stv_details = top.apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
 	else:
-		stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+		stv_details = top.apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+		
+	top.stvList.updateTitle(stv_details)
+	show_video_dialog_data(stv_details, json_data, close)
 
-	show_video_dialog_data(apiClient, stv_details, json_data, close)
-
-def show_video_dialog_data(apiClient, stv_details, json_data={}, close=False):
+def show_video_dialog_data(stv_details, json_data={}, close=False):
 	log('stv_details:' + dump(stv_details))
 
 	# add xbmc id if available
@@ -374,7 +367,7 @@ def show_video_dialog_data(apiClient, stv_details, json_data={}, close=False):
 	# add similars or seasons (bottom covers list)
 	if stv_details['type'] == 'movie':
 		# get similar movies
-		t1_similars = apiClient.titleSimilar(stv_details['id'])
+		t1_similars = top.apiClient.titleSimilar(stv_details['id'])
 		if t1_similars.has_key('titles'):
 			stv_details['similars'] = t1_similars['titles']
 	elif stv_details['type'] == 'tvshow':
@@ -397,7 +390,7 @@ def show_video_dialog_data(apiClient, stv_details, json_data={}, close=False):
 				item['overlay'] = overlay_image[oc]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data, apiClient, top.stvList, close)
+	open_video_dialog(tpl_data, top.apiClient, top.stvList, close)
 
 
 def video_dialog_template_fill(stv_details, json_data={}):
