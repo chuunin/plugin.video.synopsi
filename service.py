@@ -43,7 +43,7 @@ def main():
 	# try to restore cache
 	cache = StvList(iuid, apiclient1)
 	top.stvList = cache
-	log('top set')	
+	
 	try:
 		cache.load()
 		thread.start_new_thread(home_screen_fill, (apiclient1, cache))

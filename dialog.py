@@ -340,36 +340,31 @@ def open_select_movie_dialog(tpl_data):
 	del ui
 	return result
 
-def show_video_dialog_byId(stv_id, apiClient=None, stvList=None, close=False):
+def show_video_dialog_byId(stv_id, apiClient=None, close=False):
 	if not apiClient:
 		apiClient = AppApiClient.getDefaultClient()
-	
-	if not stvList:
-		stvList = StvList.getDefaultList()
-			
+				
 	stv_details = apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
-	stvList.updateTitle(stv_details)
-	show_video_dialog_data(apiClient, stvList, stv_details, close=close)
+	top.stvList.updateTitle(stv_details)
+	show_video_dialog_data(apiClient, stv_details, close=close)
 
-def show_video_dialog(json_data, apiClient=None, stvList=None, close=False):
+def show_video_dialog(json_data, apiClient=None, close=False):
 	if not apiClient:
 		apiClient = AppApiClient.getDefaultClient()
 	
-	if not stvList:
-		stvList = StvList.getDefaultList()
-
 	if json_data.get('type') == 'tvshow':
 		stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
 	else:
 		stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
 
-	show_video_dialog_data(apiClient, stvList, stv_details, json_data, close)
+	show_video_dialog_data(apiClient, stv_details, json_data, close)
 
-def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}, close=False):
+def show_video_dialog_data(apiClient, stv_details, json_data={}, close=False):
 	log('stv_details:' + dump(stv_details))
+
 	# add xbmc id if available
-	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
-		cacheItem = stvList.getByStvId(json_data['id'])
+	if json_data.has_key('id') and top.stvList.hasStvId(json_data['id']):
+		cacheItem = top.stvList.getByStvId(json_data['id'])
 		json_data['xbmc_id'] = cacheItem['id']
 		try:
 			json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
@@ -390,7 +385,7 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}, close=
 	# similar overlays
 	if stv_details.has_key('similars'):
 		for item in stv_details['similars']:
-			stvList.updateTitle(item)
+			top.stvList.updateTitle(item)
 
 			oc = 0
 			if item.get('file'):
@@ -402,7 +397,7 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}, close=
 				item['overlay'] = overlay_image[oc]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data, apiClient, stvList, close)
+	open_video_dialog(tpl_data, apiClient, top.stvList, close)
 
 
 def video_dialog_template_fill(stv_details, json_data={}):

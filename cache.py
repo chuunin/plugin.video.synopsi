@@ -417,24 +417,25 @@ class OfflineStvList(object):
 
 
 class OnlineStvList(OfflineStvList):
+	_instance = None
 	def __init__(self, uuid, apiclient, filePath=None):
 		super(OnlineStvList, self).__init__(uuid, filePath)
 		self.apiClient = apiclient
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
-		#~ if not apiClient:
-			#~ apiClient = AppApiClient.getDefaultClient()
+		if cls._instance:
+			return cls._instance
 
 		iuid = get_install_id()
-		cache = cls(iuid, apiClient)
+		cls._instance = cls(iuid, apiClient)
 		try:
-			cache.load()
+			cls._instance.load()
 		except:
 			# first time
 			log('CACHE restore failed. If this is your first run, its ok')
 
-		return cache
+		return cls._instance
 
 	def put(self, item):
 		OfflineStvList.put(self, item)
