@@ -176,12 +176,12 @@ class ApiClient(loggable.Loggable):
 			raise AuthenticationError()
 
 		except URLError as e:
-			self._log.error(str(e))
+			self._log.error(unicode(e))
 			self._log.error(e.reason)
 			raise AuthenticationError()
 
 		except Exception as e:
-		 	self._log.error('OTHER EXCEPTION:' + str(e))
+		 	self._log.error('OTHER EXCEPTION:' + unicode(e))
 			raise AuthenticationError()
 
 
@@ -257,12 +257,12 @@ class ApiClient(loggable.Loggable):
 
 		except HTTPError as e:
 			response_json = json.loads(e.read())
-			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, str(e), response_json))
+			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, unicode(e), response_json))
 
 		except URLError as e:
 			self._log.error('APICLIENT:' + url)
-			self._log.error('APICLIENT:' + str(e))
-			self._log.error('APICLIENT:' + str(e.reason))
+			self._log.error('APICLIENT:' + unicode(e))
+			self._log.error('APICLIENT:' + unicode(e.reason))
 			response_json = {}
 
 		else:

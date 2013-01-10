@@ -87,7 +87,7 @@ class AppApiClient(ApiClient):
 			except Exception as e:
 				finished = True
 				self._log.debug('Unknown exception')
-				self._log.debug(str(e))
+				self._log.debug(unicode(e))
 				res = False
 			else:
 				finished = True

@@ -86,7 +86,7 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		self.controlId = controlId
 
 	def onAction(self, action):
-		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		
 		if action in CANCEL_DIALOG:
 			self.close()
@@ -262,7 +262,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 					#~ TODO: refresh current window content
 					#~ xbmc.executebuiltin('Container.Refresh()')					
 				except DuplicateStvIdException, e:
-					log(str(e))
+					log(unicode(e))
 					dialog_ok('This title is already in library. Cannot correct identity to this title')
 
 
@@ -270,7 +270,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		self.controlId = controlId
 
 	def onAction(self, action):
-		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
 
@@ -327,7 +327,7 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 		self.controlId = controlId
 
 	def onAction(self, action):
-		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
 

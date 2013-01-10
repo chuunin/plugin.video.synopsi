@@ -114,7 +114,7 @@ class SynopsiPlayer(xbmc.Player):
 					self.media_file = None
 					self.ended()
 				else:
-					log('Error: ' + str(e))
+					log('Error: ' + unicode(e))
 
 	def onPlayBackStopped(self):
 		self.log('onPlayBackStopped')

@@ -56,8 +56,8 @@ class RPCListener(MyThread):
 			try:
 				data_json = json.loads(datapack)
 			except ValueError, e:
-				self._log.error('RPC ERROR:' + str(e))
-				self._log.error('RPC ERROR DATA:' + str(data))
+				self._log.error('RPC ERROR:' + unicode(e))
+				self._log.error('RPC ERROR DATA:' + unicode(data))
 				continue
 
 			for request in data_json:

@@ -319,7 +319,7 @@ class OfflineStvList(object):
 				self.addorupdate('movie', movie['movieid'])
 			except Exception as e:
 				#~ self.log(traceback.format_exc())
-				self.log(str(e))
+				self.log(unicode(e))
 
 		tvshows = xbmc_rpc.get_all_tvshows()
 
@@ -341,7 +341,7 @@ class OfflineStvList(object):
 							self.addorupdate('episode', episode['episodeid'])
 						except Exception as e:
 							#~ self.log(traceback.format_exc())
-							self.log(str(e))
+							self.log(unicode(e))
 
 
 	def rebuild_light(self):
@@ -399,7 +399,7 @@ class OfflineStvList(object):
 			try:
 				OfflineStvList.put(self, item)
 			except DuplicateStvIdException, e:
-				self.log('LOAD / ' + str(e))
+				self.log('LOAD / ' + unicode(e))
 
 		f.close()
 

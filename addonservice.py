@@ -44,7 +44,7 @@ class ServiceTCPHandler(SocketServer.StreamRequestHandler):
 
 		except Exception as e:
 			# raise
-			self.server._log.error('ERROR CALLING METHOD "%s": %s' % (methodName, str(e)))
+			self.server._log.error('ERROR CALLING METHOD "%s": %s' % (methodName, unicode(e)))
 			self.server._log.error('TRACEBACK / ' + traceback.format_exc())
 
 
