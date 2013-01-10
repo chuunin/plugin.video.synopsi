@@ -69,11 +69,24 @@
 						<bordersize>5</bordersize>
 						<texture background="true">$INFO[ListItem.Icon]</texture>
 					</control>
+					<!--	first label row: title	-->
 					<control type="label">
-						<posx>140</posx>
-						<posy>0</posy>
-						<width>700</width>
-						<height>140</height>
+						<posx>200</posx>
+						<posy>25</posy>
+						<width>100</width>
+						<height>30</height>
+						<label>Title:</label>
+						<font>font13</font>
+						<align>right</align>
+						<aligny>center</aligny>
+						<textcolor>blue</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<control type="label">
+						<posx>210</posx>
+						<posy>25</posy>
+						<width>600</width>
+						<height>30</height>
 						<info>ListItem.Label</info>
 						<font>font13</font>
 						<align>left</align>
@@ -81,8 +94,60 @@
 						<textcolor>white</textcolor>
 						<selectedcolor>white</selectedcolor>
 					</control>
+					<!--	second label row: director	-->
+					<control type="label">
+						<posx>200</posx>
+						<posy>55</posy>
+						<width>100</width>
+						<height>30</height>
+						<label>Director:</label>
+						<font>font13</font>
+						<align>right</align>
+						<aligny>center</aligny>
+						<textcolor>blue</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<control type="label">
+						<posx>210</posx>
+						<posy>55</posy>
+						<width>600</width>
+						<height>30</height>
+						<label>$INFO[ListItem.Property(director)]</label>
+						<font>font13</font>
+						<align>left</align>
+						<aligny>center</aligny>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<!--	trird label row: cast	-->
+					<control type="label">
+						<posx>200</posx>
+						<posy>85</posy>
+						<width>100</width>
+						<height>30</height>
+						<label>Cast:</label>
+						<font>font13</font>
+						<align>right</align>
+						<aligny>center</aligny>
+						<textcolor>blue</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<control type="label">
+						<posx>210</posx>
+						<posy>85</posy>
+						<width>600</width>
+						<height>30</height>
+						<label>$INFO[ListItem.Property(cast)]</label>
+						<font>font13</font>
+						<align>left</align>
+						<aligny>center</aligny>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					
 				</itemlayout>
 				<focusedlayout height="140" width="920">
+
 					<control type="image">
 						<posx>0</posx>
 						<posy>0</posy>
@@ -90,29 +155,94 @@
 						<height>140</height>
 						<info>ListItem.Icon</info>
 						<bordersize>5</bordersize>
-						<bordertexture border="5">folder-focus.png</bordertexture>
 						<texture background="true">$INFO[ListItem.Icon]</texture>
 					</control>
-					<control type="image">
-						<posx>120</posx>
-						<posy>0</posy>
-						<width>760</width>
-						<height>140</height>
-						<texture background="true">HomeSubFO.png</texture>
-					</control>					
+
+					<!-- focused background	-->
+					<control type="image">                                                                                                                           
+						<posx>100</posx>                                                                                                                         
+						<posy>0</posy>        
+						<width>760</width>                                                                                                                       
+						<height>140</height>                                                                                                                     
+						<texture background="true">HomeSubFO.png</texture>                                                                                       
+					</control>                                                  
+					
+					<!--	first label row: title	-->
 					<control type="label">
-						<posx>140</posx>
-						<posy>0</posy>
-						<width>700</width>
-						<height>140</height>
+						<posx>200</posx>
+						<posy>25</posy>
+						<width>100</width>
+						<height>30</height>
+						<label>Title:</label>
+						<font>font13</font>
+						<align>right</align>
+						<aligny>center</aligny>
+						<textcolor>blue</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<control type="label">
+						<posx>210</posx>
+						<posy>25</posy>
+						<width>600</width>
+						<height>30</height>
 						<info>ListItem.Label</info>
 						<font>font13</font>
 						<align>left</align>
 						<aligny>center</aligny>
-						<textcolor>FFF0E0E0</textcolor>
+						<textcolor>white</textcolor>
 						<selectedcolor>white</selectedcolor>
-						<!-- <colordiffuse>FF88FF88</colordiffuse> -->
 					</control>
+					<!--	second label row: director	-->
+					<control type="label">
+						<posx>200</posx>
+						<posy>55</posy>
+						<width>100</width>
+						<height>30</height>
+						<label>Director:</label>
+						<font>font13</font>
+						<align>right</align>
+						<aligny>center</aligny>
+						<textcolor>blue</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<control type="label">
+						<posx>210</posx>
+						<posy>55</posy>
+						<width>600</width>
+						<height>30</height>
+						<label>$INFO[ListItem.Property(director)]</label>
+						<font>font13</font>
+						<align>left</align>
+						<aligny>center</aligny>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<!--	trird label row: cast	-->
+					<control type="label">
+						<posx>200</posx>
+						<posy>85</posy>
+						<width>100</width>
+						<height>30</height>
+						<label>Cast:</label>
+						<font>font13</font>
+						<align>right</align>
+						<aligny>center</aligny>
+						<textcolor>blue</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					<control type="label">
+						<posx>210</posx>
+						<posy>85</posy>
+						<width>600</width>
+						<height>30</height>
+						<label>$INFO[ListItem.Property(cast)]</label>
+						<font>font13</font>
+						<align>left</align>
+						<aligny>center</aligny>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+					</control>
+					
 				</focusedlayout>
 			</control>
 		</control>

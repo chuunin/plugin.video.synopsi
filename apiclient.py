@@ -30,7 +30,7 @@ defaultEpisodeProps = smallListProps + ['season_number', 'episode_number']
 allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
 defaultSeasonProps = ['id', 'cover_medium', 'season_number']
 defaultSeasonProps2 = ['id', 'episodes']
-defaultSearchProps = defaultEpisodeProps + ['year']
+defaultSearchProps = defaultEpisodeProps + ['year', 'directors', 'cast']
 
 class NotConnectedException(Exception):
 	pass
@@ -467,7 +467,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def search(self, term, limit=None, props=defaultSearchProps):
+	def search(self, term, limit=None, props=defaultSearchProps, props_cast=defaultCastProps):
 		req = {
 			'methodPath': 'search/',
 			'method': 'get',
@@ -480,5 +480,9 @@ class ApiClient(loggable.Loggable):
 		if limit:
 			req['data']['limit'] = limit
 
+		if 'cast' in props:
+			req['data']['cast_property[]'] = ','.join(props_cast)
+
+		log(dump(req))
 		return self.execute(req)
 

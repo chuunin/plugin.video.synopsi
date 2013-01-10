@@ -300,16 +300,16 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 	def onInit(self):
 		items = []
 		for item in self.data['movies']:
-			if not item.get('year'):
-				item['year'] =  '-'
-
-			text = '%s (%s) ' % (item['name'], item['year'])
+			text = '%s [COLOR=gray](%s)[/COLOR]' % (item['name'], item.get('year', '?'))
 
 			if item.get('type') == 'episode':
 				text = 'S%sE%s - ' % (item.get('season_number', '??'), item.get('episode_number', '??')) + text
 
 			li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
 			li.setProperty('id', str(item['id']))
+			li.setProperty('director', ', '.join(item.get('directors')) if item.has_key('directors') else t_unavail)
+			cast = ', '.join([i['name'] for i in item['cast']]) if item.has_key('cast') else t_unavail			
+			li.setProperty('cast', cast)
 			items.append(li)
 
 			self.getControl(59).addItems(items)

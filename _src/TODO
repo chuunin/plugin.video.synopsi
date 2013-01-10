@@ -5,9 +5,10 @@ x	korekcie
 n?	shutdown error - dummy thread #4 (server.shutdown), unable to solve
 x	play epizody v listingu seasnu nefunguje
 x	fix: stack:// multi-file unwanted rating/checkin in the middle
--	video detail
+x	video detail
 	x	rok do title
 	x	labels: genre, runtime, director, cast
+	x	korekcie: show more info
 -	stv_subtitle_hash - hash of the subtitle file if present
 -	paskovanie v listingoch
 	x	handle ListEmptyExceptions
