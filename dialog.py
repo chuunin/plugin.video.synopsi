@@ -161,10 +161,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 	def onInit(self):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-		win.setProperty("Movie.Title", self.data["name"])
+		win.setProperty("Movie.Title", self.data["name"] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]')
 		win.setProperty("Movie.Plot", self.data["plot"])
 		win.setProperty("Movie.Cover", self.data["cover_full"])
-		#~ win.setProperty("Movie.Cover", "http://www.synopsi.tv/title/100/cover/full/")
 
 		for i in range(5):
 			win.setProperty("Movie.Similar.{0}.Cover".format(i + 1), "default.png")
@@ -407,14 +406,16 @@ def video_dialog_template_fill(stv_details, json_data={}):
 	tpl_data=stv_details
 
 	stv_labels = {}
+	if tpl_data.get('genres'):
+		stv_labels['Genre'] = ', '.join(tpl_data['genres'])	
+	if tpl_data.get('runtime'):
+		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
 	if tpl_data.get('directors'):
 		stv_labels['Director'] = ', '.join(tpl_data['directors'])
 	if tpl_data.get('cast'):
 		stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], tpl_data['cast']))
-	if tpl_data.get('writers'):
-		stv_labels['Writer'] = ', '.join(tpl_data['writers'])
-	if tpl_data.get('runtime'):
-		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
+	#~ if tpl_data.get('writers'):
+		#~ stv_labels['Writer'] = ', '.join(tpl_data['writers'])
 	if tpl_data.get('date'):
 		tpl_data['release_date'] = datetime.fromtimestamp(tpl_data['date'])
 		stv_labels['Release date'] = tpl_data['release_date'].strftime('%x')
@@ -424,8 +425,8 @@ def video_dialog_template_fill(stv_details, json_data={}):
 		d = tpl_data['xbmc_movie_detail']
 		if d.get('director'):
 			xbmclabels["Director"] = ', '.join(d['director'])
-		if d.get('writer'):
-			xbmclabels["Writer"] = d['writer']
+		#~ if d.get('writer'):
+			#~ xbmclabels["Writer"] = d['writer']
 		if d.get('runtime'):
 			xbmclabels["Runtime"] = d['runtime'] + ' min'
 		if d.get('premiered'):
@@ -444,7 +445,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 	labels.update(stv_labels)
 
 	# set unavail labels
-	for label in ['Director','Cast','Runtime','Release date']:
+	for label in ['Genre', 'Runtime', 'Director','Cast']:
 		if not labels.has_key(label):
 			labels[label] = t_unavail
 
