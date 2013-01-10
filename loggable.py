@@ -25,9 +25,11 @@ class Loggable(object):
 		self._log.addHandler(fh)
 
 		# try to add handlers from default log
-		def_log = logging.getLogger()
+		#~ def_log = logging.getLogger()
+		#~ self._log.handlers += def_log.handlers
+
 		self._log.debug('Starting logger')
-		self._log.handlers += def_log.handlers
+
 
 	def get_log_dir(self):
 		return os.path.join(xbmc.translatePath('special://temp'), 'log')

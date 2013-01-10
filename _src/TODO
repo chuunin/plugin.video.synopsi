@@ -4,13 +4,21 @@ x	paskovanie vo VideoInfo dialogu
 x	korekcie
 n?	shutdown error - dummy thread #4 (server.shutdown), unable to solve
 x	play epizody v listingu seasnu nefunguje
-n	paskovanie v listingoch
 x	fix: stack:// multi-file unwanted rating/checkin in the middle
+-	stv_subtitle_hash - hash of the subtitle file if present
+-	paskovanie v listingoch
+	x	handle ListEmptyExceptions
+	x	handle HACK_SHOW_ALL_LOCAL_MOVIES
+	-	handle AuthenticationError
+	-	remove obsolete Container.* calls
+	-	paskovanie k tvshows - zistit v ktorych episodach su already-watched episody
+	-	local movies / tvshows / episodes - paska watched nefunguje
 x	bug: similars v epizodach
--	icon vs thumbnail v listingoch
+-	icon vs thhumbnail v listingoch
 x	512kB hash (synopsi hash)
 -	cache
--	stv_subtitle_hash - hash of the subtitle file if present
--	corrections between episode/movie types
+-	show_video_dialog / show_video_dialog_byId optimize
 -	window opening response
+n	corrections between episode/movie types
+	-	possible only with scraper
 -	frodo version

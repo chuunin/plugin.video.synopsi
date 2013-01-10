@@ -1,8 +1,6 @@
+
 # xbmc
-import xbmc
 import xbmcgui
-import xbmcplugin
-import xbmcaddon
 
 # python standart lib
 import urllib
@@ -10,78 +8,146 @@ import sys
 import os
 import time
 import json
-import urllib2
-import re
 import os.path
-import logging
-import traceback
-import subprocess
 from datetime import datetime
 import CommonFunctions
 import socket
 
 # application
-from app_apiclient import AppApiClient, LoginState, AuthenticationError
 from utilities import *
+from app_apiclient import AuthenticationError, AppApiClient, AuthenticationError
 from cache import StvList, DuplicateStvIdException
-from xbmcrpc import xbmc_rpc
+import top
 
+ACTIONS_CLICK = [7, 100]
+LIST_ITEM_CONTROL_ID = 500
+HACK_GO_BACK = -2
 
 common = CommonFunctions
 common.plugin = "SynopsiTV"
 
 __addon__  = xbmcaddon.Addon()
+__addonpath__	= __addon__.getAddonInfo('path')
 __addonname__ = __addon__.getAddonInfo('name')
 __cwd__	= __addon__.getAddonInfo('path')
 __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __profile__      = __addon__.getAddonInfo('profile')
 
+itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': HACK_GO_BACK, 'type': 'HACK'}
 
-class ActionCode:
-	MovieRecco = 10
-	LocalMovieRecco = 15
-	LocalMovies = 16
-	TVShows = 20
-	LocalTVShows = 25
-	UnwatchedEpisodes = 40
-	UpcomingEpisodes = 50
+class ListDialog(xbmcgui.WindowXMLDialog):
+	""" Dialog for choosing movie corrections """
+	def __init__(self, *args, **kwargs):
+		self.data = kwargs['data']
+		self.controlId = None
+		self.selectedMovie = None
 
-	LoginAndSettings = 90
+	def onInit(self):
+		items = []
+		items.append(self._getListItem(itemFolderBack))
+		for item in self.data['items']:
+			li = self._getListItem(item)
+			items.append(li)
 
-	TVShowEpisodes = 60
+		try:
+			listControl = self.getControl(LIST_ITEM_CONTROL_ID)
+			listControl.addItems(items)
+			self.setFocus(listControl)
+		except:
+			log('Adding items failed')
 
-	VideoDialogShow = 900
-	VideoDialogShowById = 910
+	def _getListItem(self, item):
+		#~ itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
+		li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
+		li.setProperty('id', str(item['id']))
+		li.setProperty('type', str(item['type']))
+		#~ li.setProperty('path', str(itemPath))		
+			
+		# prefer already set custom_overlay, if N/A set custom overlay
+		if item.get('custom_overlay'):
+			li.setProperty('CustomOverlay', item['custom_overlay'])
+		else:
+			oc = self._getItemOverlayCode(item)
+			li.setProperty('CustomOverlay', overlay_image[oc])
+			
+		return li
 
+	def _getItemOverlayCode(self, item):
+		overlayCode = OverlayCode.Empty
+		if item.get('file'):
+			overlayCode += OverlayCode.OnYourDisk
+		if item.get('watched'):
+			overlayCode += OverlayCode.AlreadyWatched
+			
+		return overlayCode
 
-class OverlayCode:
-	OnYourDisk = 1
-	AlreadyWatched = 2
-	AlreadyWatchedOnYourDisk = 3	#	this is just to know the code, it should be created by addition of the two
+	def onFocus(self, controlId):
+		self.controlId = controlId
 
+	def onAction(self, action):
+		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		
+		if action in CANCEL_DIALOG:
+			self.close()
+		# if user clicked/entered an item
+		elif self.controlId == LIST_ITEM_CONTROL_ID and action in ACTIONS_CLICK:
+			item = self.getControl(LIST_ITEM_CONTROL_ID).getSelectedItem()			
+			stv_id = int(item.getProperty('id'))
 
-overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
+			if stv_id == HACK_GO_BACK:
+				self.close()
+			elif stv_id == HACK_SHOW_ALL_LOCAL_MOVIES:
+				show_submenu(ActionCode.LocalMovies)
+			else:
+				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id}, close=False)
 
+	def close(self):
+		xbmcgui.WindowXMLDialog.close(self)
 
-def log(msg):
-	#logging.debug('ADDON: ' + str(msg))
-	xbmc.log('ADDON / ' + str(msg))
+def open_list_dialog(tpl_data, close=True):
+	log('open_list_dialog cwd: ' + __addonpath__)
+	
+	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
+	path = ''
+	
+	try:
+		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+	except ValueError, e:
+		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
+		ui.doModal()
+		del ui
+	else:
+		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
+		if close:
+			win.close()
+		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
+		ui.doModal()
+		del ui
 
-def uniquote(s):
-	return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
+def show_movie_list(item_list):
+	errorMsg = None
+	try:
+		open_list_dialog({ 'items': item_list })
+	except AuthenticationError:
+		errorMsg = True
+	finally:
+		pass
 
-def uniunquote(uni):
-	return urllib.unquote_plus(uni.decode('utf-8'))
+	if errorMsg:
+		if dialog_check_login_correct():
+			#~ xbmc.executebuiltin('Container.Refresh')
+			#~ TODO: retry list loading
+			pass
+		else:
+			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+			#~ TODO: test: exit with closed window
+			pass
 
-class ListEmptyException(BaseException):
-	pass
+def show_tvshows_episodes(stv_id):
+	items = top.apiClient.get_tvshow_season(stv_id)
+	open_list_dialog({'items': items })
 
-def get_local_tvshows():
-	localtvshows = xbmc_rpc.get_all_tvshows()
-	log(dump(localtvshows))
-
-	return [ { 'name': item['label'], 'cover_medium': item['thumbnail'] } for item in localtvshows['tvshows'] ]
 
 class VideoDialog(xbmcgui.WindowXMLDialog):
 	"""
@@ -167,7 +233,8 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			if rating < 4:
 				self.apiClient.titleWatched(self.data['id'], rating=rating)
 			self.close()
-			xbmc.executebuiltin('Container.Refresh()')
+			#~ TODO: reload the container view
+			#~ xbmc.executebuiltin('Container.Refresh()')
 
 		# similars / tvshow seasons	cover
 		elif controlId == 59:
@@ -176,9 +243,11 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 			if self.data['type'] == 'tvshow':
 				self.close()
-				xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
+				#~ TODO: show tvshow episodes
+				#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
+				show_tvshows_episodes(stv_id)				
 			else:
-				show_video_dialog_byId(stv_id, self.apiClient, self.stvList)
+				show_video_dialog_byId(stv_id, close=True)
 
 		# correct
 		elif controlId == 13:
@@ -188,10 +257,12 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
 					self.stvList.correct_title(self.data, new_title)
-					show_video_dialog_byId(new_title['id'], self.apiClient, self.stvList)
-					xbmc.executebuiltin('Container.Refresh()')
+					self.close()
+					show_video_dialog_byId(new_title['id'])
+					#~ TODO: refresh current window content
+					#~ xbmc.executebuiltin('Container.Refresh()')					
 				except DuplicateStvIdException, e:
-					log(str(e))
+					log(unicode(e))
 					dialog_ok('This title is already in library. Cannot correct identity to this title')
 
 
@@ -199,7 +270,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		self.controlId = controlId
 
 	def onAction(self, action):
-		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
 
@@ -256,7 +327,7 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 		self.controlId = controlId
 
 	def onAction(self, action):
-		log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
 
@@ -268,24 +339,26 @@ def open_select_movie_dialog(tpl_data):
 	del ui
 	return result
 
-def show_video_dialog_byId(stv_id, apiClient, stvList):
-	stv_details = apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
-	stvList.updateTitle(stv_details)
-	show_video_dialog_data(apiClient, stvList, stv_details)
+def show_video_dialog_byId(stv_id, close=False):				
+	stv_details = top.apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
+	top.stvList.updateTitle(stv_details)
+	show_video_dialog_data(stv_details, close=close)
 
-def show_video_dialog(json_data, apiClient, stvList):
-		if json_data.get('type') == 'tvshow':
-			stv_details = apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
-		else:
-			stv_details = apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+def show_video_dialog(json_data, close=False):	
+	if json_data.get('type') == 'tvshow':
+		stv_details = top.apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
+	else:
+		stv_details = top.apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+		
+	top.stvList.updateTitle(stv_details)
+	show_video_dialog_data(stv_details, json_data, close)
 
-		show_video_dialog_data(apiClient, stvList, stv_details, json_data)
-
-def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
+def show_video_dialog_data(stv_details, json_data={}, close=False):
 	log('stv_details:' + dump(stv_details))
+
 	# add xbmc id if available
-	if json_data.has_key('id') and stvList.hasStvId(json_data['id']):
-		cacheItem = stvList.getByStvId(json_data['id'])
+	if json_data.has_key('id') and top.stvList.hasStvId(json_data['id']):
+		cacheItem = top.stvList.getByStvId(json_data['id'])
 		json_data['xbmc_id'] = cacheItem['id']
 		try:
 			json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
@@ -295,7 +368,7 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 	# add similars or seasons (bottom covers list)
 	if stv_details['type'] == 'movie':
 		# get similar movies
-		t1_similars = apiClient.titleSimilar(stv_details['id'])
+		t1_similars = top.apiClient.titleSimilar(stv_details['id'])
 		if t1_similars.has_key('titles'):
 			stv_details['similars'] = t1_similars['titles']
 	elif stv_details['type'] == 'tvshow':
@@ -306,7 +379,7 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 	# similar overlays
 	if stv_details.has_key('similars'):
 		for item in stv_details['similars']:
-			stvList.updateTitle(item)
+			top.stvList.updateTitle(item)
 
 			oc = 0
 			if item.get('file'):
@@ -318,7 +391,7 @@ def show_video_dialog_data(apiClient, stvList, stv_details, json_data={}):
 				item['overlay'] = overlay_image[oc]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data, apiClient, stvList)
+	open_video_dialog(tpl_data, top.apiClient, top.stvList, close)
 
 
 def video_dialog_template_fill(stv_details, json_data={}):
@@ -380,7 +453,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 
 	return tpl_data
 
-def open_video_dialog(tpl_data, apiClient, stvList):
+def open_video_dialog(tpl_data, apiClient, stvList, close=False):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
@@ -389,80 +462,22 @@ def open_video_dialog(tpl_data, apiClient, stvList):
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
-		win.close()
+		if close:
+			win.close()
 		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient, stvList=stvList)
 		ui.doModal()
 		del ui
+	
+def show_submenu(action_code, **kwargs):
+	item_list = top.apiClient.get_item_list(action_code=action_code, **kwargs)
 
-
-
-def add_directory(name, url, mode, iconimage):
-	u = sys.argv[0]+"?mode="+str(mode)
-	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-	# liz.setInfo(type="Video", infoLabels={"Title": name} )
-	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-	return ok
-
-
-def add_movie(movie, mode, iconimage):
-	json_data = json.dumps(movie)
-	if not movie.has_key('type'):
-		log('add_movie type not set')
-
-	log('add_movie: ' + dump(filtertitles(movie)))
-
-	u = sys.argv[0]+"?&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
-	li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-	if movie.get('watched'):
-		li.setInfo( type="Video", infoLabels={ "playcount": 1 } )
-
-	# local movies button to show all movies
-	isFolder = movie.get('id') == HACK_SHOW_ALL_LOCAL_MOVIES
-	new_li = (u, li, isFolder)
-
-	return new_li
-
-def show_categories():
-	"""
-	Shows initial categories on home screen.
-	"""
-	xbmc.executebuiltin("Container.SetViewMode(503)")
-	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png")
-	add_directory("Popular TV Shows", "url", ActionCode.TVShows, "list.png")
-	add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png")
-	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png")
-	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "list.png")
-	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "list.png")
-	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "list.png")
-
-
-def show_movie_list(item_list, dirhandle):
-	errorMsg = None
-	try:
-		if not item_list:
-			raise ListEmptyException
-
-		lis = []
-		for movie in item_list:
-			# log(dump(movie))
-			lis.append(
-				add_movie(movie, ActionCode.VideoDialogShow, movie.get('cover_medium'))
-			)
-
-		xbmcplugin.addDirectoryItems(dirhandle, lis)
-
-	except AuthenticationError:
-		errorMsg = True
-	finally:
-		xbmcplugin.endOfDirectory(dirhandle)
-		xbmc.executebuiltin("Container.SetViewMode(500)")
-
-	if errorMsg:
-		if dialog_check_login_correct():
-			xbmc.executebuiltin('Container.Refresh')
-		else:
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-
-	# xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi?url=url&mode=999)')
-
+	if not item_list:
+		dialog_ok(exc_text_by_mode(action_code))
+		return
+	
+	# hack HACK_SHOW_ALL_LOCAL_MOVIES
+	if action_code==ActionCode.LocalMovieRecco:
+		item_list.append(item_show_all_movies_hack)
+		
+	show_movie_list(item_list)
 

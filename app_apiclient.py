@@ -1,7 +1,13 @@
+
+# xbmc
+import xbmcgui
+
+# application
 from apiclient import *
 from utilities import *
 import threading
-import xbmcgui
+import top
+
 
 class LoginState:
 	Notify = 1
@@ -81,7 +87,7 @@ class AppApiClient(ApiClient):
 			except Exception as e:
 				finished = True
 				self._log.debug('Unknown exception')
-				self._log.debug(str(e))
+				self._log.debug(unicode(e))
 				res = False
 			else:
 				finished = True
@@ -113,3 +119,101 @@ class AppApiClient(ApiClient):
 		result = episodes['upcoming']
 		return result
 
+	def get_global_recco(self, movie_type):
+		resRecco = self.profileRecco(movie_type, False, reccoDefaulLimit, reccoDefaultProps)
+
+		# log('global recco for ' + movie_type)
+		# for title in resRecco['titles']:
+		#	log(title['name'])
+
+		return resRecco.get('titles', [])
+
+	def get_top_tvshows(self):
+		episodes = self.unwatchedEpisodes()
+
+		# log('top tvshows')
+		# for title in episodes['top']:
+		#	 log(title['name'])
+
+		result = episodes['top'][0:29]
+		return result
+
+
+	def get_local_recco(self, movie_type):
+		resRecco = self.profileRecco(movie_type, True, reccoDefaulLimit, reccoDefaultProps)
+
+		return resRecco
+
+	def get_local_recco2(self, movie_type):
+		""" Updates the get_local_recco function result to include stv_title_hash """
+		recco = self.get_local_recco(movie_type)['titles']
+
+		for title in recco:
+			top.stvList.updateTitle(title)
+
+		return recco
+
+	def get_tvshow_season(self, season_id):
+		season = self.season(season_id)
+		
+		# fix names
+		for i in season['episodes']:
+			episident = 'S%sE%s' % (i['season_number'], i['episode_number'])
+			i['name'] = '%s - %s' % (episident, i['name'])
+			top.stvList.updateTitle(i)
+
+		return season['episodes']
+
+	def get_title(self, stv_id, detailProps=defaultDetailProps, castProps=defaultCastProps):
+		return self.title(stv_id, detailProps, castProps)
+
+	def get_title_similars(self, stv_id):
+		self.titleSimilar(stv_id)
+
+	def get_tvshow(self, stv_id, **kwargs):
+		return self.tvshow(stv_id, **kwargs)
+
+	def get_local_movies(self):
+		props = reccoDefaultProps
+		library = self.library(title_property=props)['titles']
+		
+		# pass only movies through filter
+		def filter_movies(item):
+			return item['type']=='movie'
+
+		library = filter(filter_movies, library)
+
+		for title in library:
+			top.stvList.updateTitle(title)
+
+		return library
+
+	def get_item_list(self, **kwargs):
+		action_code = kwargs['action_code']
+
+		log('get_item_list:' + str(action_code))
+		
+		if action_code==ActionCode.MovieRecco:
+			return self.get_global_recco('movie')
+
+		elif action_code==ActionCode.LocalMovieRecco:
+			return self.get_local_recco2('movie')
+
+		elif action_code==ActionCode.LocalMovies:
+			return self.get_local_movies()
+
+		elif action_code==ActionCode.TVShows:
+			return self.get_top_tvshows()
+
+		elif action_code==ActionCode.LocalTVShows:
+			return top.stvList.get_local_tvshows()
+
+		elif action_code==ActionCode.UnwatchedEpisodes:
+			return self.get_unwatched_episodes()
+
+		elif action_code==ActionCode.UpcomingEpisodes:
+			return self.get_upcoming_episodes()
+
+		elif action_code==ActionCode.TVShowEpisodes:
+			return self.get_tvshow_season(kwargs['stv_id'])
+		

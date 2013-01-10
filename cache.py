@@ -9,7 +9,7 @@ import traceback
 
 # application
 from utilities import *
-from app_apiclient import ApiClient
+#~ from app_apiclient import AppApiClient, ApiClient
 from apiclient import commonTitleProps
 from xbmcrpc import xbmc_rpc
 
@@ -319,7 +319,7 @@ class OfflineStvList(object):
 				self.addorupdate('movie', movie['movieid'])
 			except Exception as e:
 				#~ self.log(traceback.format_exc())
-				self.log(str(e))
+				self.log(unicode(e))
 
 		tvshows = xbmc_rpc.get_all_tvshows()
 
@@ -341,7 +341,7 @@ class OfflineStvList(object):
 							self.addorupdate('episode', episode['episodeid'])
 						except Exception as e:
 							#~ self.log(traceback.format_exc())
-							self.log(str(e))
+							self.log(unicode(e))
 
 
 	def rebuild_light(self):
@@ -399,7 +399,7 @@ class OfflineStvList(object):
 			try:
 				OfflineStvList.put(self, item)
 			except DuplicateStvIdException, e:
-				self.log('LOAD / ' + str(e))
+				self.log('LOAD / ' + unicode(e))
 
 		f.close()
 
@@ -417,24 +417,25 @@ class OfflineStvList(object):
 
 
 class OnlineStvList(OfflineStvList):
+	_instance = None
 	def __init__(self, uuid, apiclient, filePath=None):
 		super(OnlineStvList, self).__init__(uuid, filePath)
 		self.apiClient = apiclient
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
-		if not apiClient:
-			apiClient = AppApiClient.getDefaultClient()
+		if cls._instance:
+			return cls._instance
 
 		iuid = get_install_id()
-		cache = cls(iuid, apiClient)
+		cls._instance = cls(iuid, apiClient)
 		try:
-			cache.load()
+			cls._instance.load()
 		except:
 			# first time
 			log('CACHE restore failed. If this is your first run, its ok')
 
-		return cache
+		return cls._instance
 
 	def put(self, item):
 		OfflineStvList.put(self, item)
@@ -459,6 +460,12 @@ class OnlineStvList(OfflineStvList):
 
 		return new_item
 
+class AppStvList(OnlineStvList):
+	def get_local_tvshows(self):
+		local_tvshows = self.getAllByType('tvshow')
+		log('local tvshows ' + dump(local_tvshows))
+		return local_tvshows.values()
+
 #	the final class name used in application, instead of rewriting classnames
-class StvList(OnlineStvList):
+class StvList(AppStvList):
 	pass

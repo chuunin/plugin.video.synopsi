@@ -1,5 +1,5 @@
 # xbmc
-import xbmc, xbmcgui, xbmcaddon
+import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 
 # python standart lib
 import json
@@ -18,11 +18,7 @@ from urllib2 import Request, urlopen
 from copy import copy
 import xml.etree.ElementTree as ET
 import time
-
-CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
-CANCEL_DIALOG2 = (61467, )
-HACK_SHOW_ALL_LOCAL_MOVIES = -1
-SEARCH_RESULT_LIMIT = 15
+import sys
 
 __addon__  = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
@@ -34,8 +30,13 @@ __lockLoginScreen__ = threading.Lock()
 
 # constant
 BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
+CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
+CANCEL_DIALOG2 = (61467, )
+HACK_SHOW_ALL_LOCAL_MOVIES = -1
+SEARCH_RESULT_LIMIT = 15
+
 homeReccoLimit = 5
-reccoDefaultProps = ['id', 'cover_medium', 'name']
+reccoDefaultProps = ['id', 'cover_medium', 'name', 'type', 'watched']
 defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 tvshowdefaultDetailProps = defaultDetailProps + ['seasons']
 defaultCastProps = ['name']
@@ -44,11 +45,37 @@ type2listinglabel = { 'movie': 'Similar movies', 'tvshow': 'Seasons'}
 
 list_filter = reccoDefaultProps + ['type', 'id', 'stvId', 'xbmc_id', 'name', 'file']
 
+item_show_all_movies_hack = { 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': '', 'type': 'HACK'}
+
+#	enums
+class OverlayCode:
+	Empty = 0
+	OnYourDisk = 1
+	AlreadyWatched = 2
+	AlreadyWatchedOnYourDisk = 3	#	this is just to know the code, it should be created by addition of the two
+
+
+class ActionCode:
+	MovieRecco = 10
+	LocalMovieRecco = 15
+	LocalMovies = 16
+	TVShows = 20
+	LocalTVShows = 25
+	UnwatchedEpisodes = 40
+	UpcomingEpisodes = 50
+
+	LoginAndSettings = 90
+
+	TVShowEpisodes = 60
+
+	VideoDialogShow = 900
+	VideoDialogShowById = 910
 
 # texts
 t_noupcoming = 'There are no upcoming episodes from your tracked TV shows.'
 t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
-t_nolocalrecco = 'There are no items in this list. Either you have no items in your library or they have not been recognized by Synopsi'
+t_nolocalrecco = 'There are no items in this list. Either you have no movies in your library or they have not been recognized by Synopsi'
+t_nolocaltvshow = 'There are no items in this list. Either you have no episodes in your library or they have not been recognized by Synopsi'
 t_needrestart = 'To start the SynopsiTV service, please turn off your media center then turn it back on again. Do this now?'
 t_enter_title_to_search =  'Enter a title name to search for.'
 t_correct_search_title = 'Search for the correct title'
@@ -57,11 +84,26 @@ t_listing_failed = 'Unknown error'
 t_stv = 'SynopsiTV'
 t_unavail = 'N/A'
 
+overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
+
+t_text_by_mode = {
+	ActionCode.UnwatchedEpisodes: t_nounwatched,
+	ActionCode.UpcomingEpisodes: t_noupcoming,
+	ActionCode.LocalMovieRecco: t_nolocalrecco,
+	ActionCode.LocalTVShows: t_nolocaltvshow
+}
+
+
+# exceptions
 class HashError(Exception):
 	pass
 
 class ShutdownRequestedException(Exception):
 	pass
+
+class ListEmptyException(BaseException):
+	pass
+
 
 def dump(var):
 	return json.dumps(var, indent=4)
@@ -78,6 +120,13 @@ def structfilter(var, filter_keys):
 
 	return v
 
+def uniquote(s):
+	return urllib.quote_plus(s.encode('ascii', 'backslashreplace'))
+
+def uniunquote(uni):
+	return urllib.unquote_plus(uni.decode('utf-8'))
+
+
 def filterkeys(var, keys):
 	return dict([(k,var[k]) for k in var.keys() if k in keys])
 
@@ -85,7 +134,8 @@ def filtertitles(titles):
 	return structfilter(titles, list_filter)
 
 def log(msg):
-	xbmc.log(unicode(msg).encode('utf-8'))
+	#~ xbmc.log(unicode(msg).encode('utf-8'))
+	xbmc.log(threading.current_thread().name + ' ' + unicode(msg).encode('utf-8'))
 
 def notification(text, name='SynopsiTV Plugin', time=5000):
     """
@@ -106,6 +156,10 @@ def addon_getSetting(aid, adef=None):
 
 	return res
 
+def exc_text_by_mode(mode):
+	return t_text_by_mode.get(mode, t_listing_failed)
+
+# application utilities
 def check_first_run():
 	reloadSkin = False
 	# on first run
@@ -581,11 +635,52 @@ def dialog_login_fail_yesno():
 	result = dialog.yesno(t_stv, "Authentication failed", "Would you like to open settings and correct your login info?")
 	return result
 
+
 def dialog_need_restart():
 	dialog = xbmcgui.Dialog()
 	yes = dialog_yesno(t_needrestart)
 	return yes
 
+
+def add_directory(name, url, mode, iconimage):
+	u = sys.argv[0]+"?mode="+str(mode)
+	liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+	# liz.setInfo(type="Video", infoLabels={"Title": name} )
+	ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
+	return ok
+
+
+def add_movie(movie, mode, iconimage):
+	json_data = json.dumps(movie)
+	if not movie.has_key('type'):
+		log('add_movie type not set')
+
+	log('add_movie: ' + dump(filtertitles(movie)))
+
+	u = sys.argv[0]+"?&mode="+str(mode)+"&name="+uniquote(movie.get('name'))+"&data="+uniquote(json_data)
+	li = xbmcgui.ListItem(movie.get('name'), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+	if movie.get('watched'):
+		li.setInfo( type="Video", infoLabels={ "playcount": 1 } )
+
+	# local movies button to show all movies
+	isFolder = movie.get('id') == HACK_SHOW_ALL_LOCAL_MOVIES
+	new_li = (u, li, isFolder)
+
+	return new_li
+
+
+def show_categories():
+	"""
+	Shows initial categories on home screen.
+	"""
+	xbmc.executebuiltin("Container.SetViewMode(503)")
+	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png")
+	add_directory("Popular TV Shows", "url", ActionCode.TVShows, "list.png")
+	add_directory("Local Movie recommendations", "url", ActionCode.LocalMovieRecco, "list.png")
+	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png")
+	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "list.png")
+	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "list.png")
+	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "list.png")
 
 
 

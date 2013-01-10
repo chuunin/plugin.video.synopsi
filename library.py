@@ -5,7 +5,6 @@ import socket
 import json
 import re
 import traceback
-from app_apiclient import AppApiClient
 from utilities import *
 from cache import *
 
@@ -19,7 +18,6 @@ class RPCListener(MyThread):
 
 		self.cache = cache
 		self.scrobbler = scrobbler
-		self.apiclient = None
 		self.sock = socket.socket()
 		self.sock.settimeout(5)
 		self.connected = False
@@ -50,9 +48,6 @@ class RPCListener(MyThread):
 			self._log.error('RPC Listener cannot run, there is not connection to xbmc')
 			return False
 
-		self.apiclient = AppApiClient.getDefaultClient()
-
-
 		while not self._stop:
 			data = self.sock.recv(8192)
 			data = data.replace('}{', '},{')
@@ -61,8 +56,8 @@ class RPCListener(MyThread):
 			try:
 				data_json = json.loads(datapack)
 			except ValueError, e:
-				self._log.error('RPC ERROR:' + str(e))
-				self._log.error('RPC ERROR DATA:' + str(data))
+				self._log.error('RPC ERROR:' + unicode(e))
+				self._log.error('RPC ERROR DATA:' + unicode(data))
 				continue
 
 			for request in data_json:

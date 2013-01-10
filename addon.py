@@ -22,20 +22,15 @@ import logging
 import traceback
 import subprocess
 import CommonFunctions
+import socket
+import threading
 
 # application
 from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
-from addonutilities import *
 
-# constant
-t_text_by_mode = {
-	ActionCode.UnwatchedEpisodes: t_nounwatched,
-	ActionCode.UpcomingEpisodes: t_noupcoming,
-	ActionCode.LocalMovieRecco: t_nolocalrecco,
-	ActionCode.LocalTVShows: t_nolocalrecco
-}
+threading.current_thread().name = 'addon.py'
 
 class UnknownModeException(Exception):
 	pass
@@ -117,6 +112,9 @@ class AddonClient(object):
 	def get_local_movies(self):
 		return self.execute('get_local_movies')
 
+	def show_submenu(self, mode, **params):		
+		return self.execute('show_submenu', action_code=mode, **params)
+
 	def show_video_dialog(self, json_data):
 		return self.execute('show_video_dialog', json_data=json_data)
 
@@ -134,46 +132,6 @@ class AddonClient(object):
 
 	def debug_3(self):
 		return self.execute('debug_3')
-
-def get_item_list(action_code, **kwargs):
-	log('get_item_list:' + str(action_code))
-
-	if action_code==ActionCode.MovieRecco:
-		return addonclient.get_global_recco('movie')
-
-	elif action_code==ActionCode.LocalMovieRecco:
-		return addonclient.get_local_recco2('movie')
-
-	elif action_code==ActionCode.LocalMovies:
-		return addonclient.get_local_movies()
-
-	elif action_code==ActionCode.TVShows:
-		return addonclient.get_top_tvshows()
-
-	elif action_code==ActionCode.LocalTVShows:
-		return addonclient.get_local_tvshows()
-
-	elif action_code==ActionCode.UnwatchedEpisodes:
-		return addonclient.get_unwatched_episodes()
-
-	elif action_code==ActionCode.UpcomingEpisodes:
-		return addonclient.get_upcoming_episodes()
-
-	elif action_code==ActionCode.TVShowEpisodes:
-		return addonclient.get_tvshow_season(kwargs['stv_id'])
-
-def show_submenu(action_code, dirhandle, **kwargs):
-	item_list = get_item_list(action_code, **kwargs)
-
-	# hack HACK_SHOW_ALL_LOCAL_MOVIES
-	if action_code==ActionCode.LocalMovieRecco:
-		item_list.append({ 'id': HACK_SHOW_ALL_LOCAL_MOVIES, 'cover_medium': BTN_SHOW_ALL_MOVIES, 'name': ''})
-
-	show_movie_list(item_list, dirhandle)
-
-def exc_text_by_mode(mode):
-	return t_text_by_mode.get(mode, t_listing_failed)
-
 
 # script start
 try:
@@ -220,6 +178,10 @@ try:
 	if p['mode'] == ActionCode.VideoDialogShow and p['json_data']['id'] == HACK_SHOW_ALL_LOCAL_MOVIES:
 		p['mode'] = ActionCode.LocalMovies
 
+	# debug
+	#~ if p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
+		#~ p['mode']=971
+
 	# routing
 	if p['mode']==None:
 		show_categories()
@@ -228,14 +190,16 @@ try:
 	elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
 		params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
 		try:
-			show_submenu(p['mode'], dirhandle, **params)
+			addonclient.show_submenu(p['mode'], **params)
 		except ListEmptyException:
 			dialog_ok(exc_text_by_mode(p['mode']))
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+			#~ TODO: close window if open & show main plugin menu
+			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 		except:
 			log(traceback.format_exc())
 			dialog_ok(t_listing_failed)
-			xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+			#~ TODO: close window if open & show main plugin menu
+			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
 
 	elif p['mode']==ActionCode.VideoDialogShow:
 		addonclient.show_video_dialog(p['json_data'])
@@ -252,10 +216,71 @@ try:
 		xbmc.executebuiltin('UpdateLibrary(video)')
 
 	elif p['mode']==971:
-		addonclient.debug_1()
+		#~ addonclient.debug_1()
+
+		#~ winid = common.getUserInput("Title", "")
+		#~ xbmc.executebuiltin('ActivateWindow(' + winid + ')')
+
+		#~ xbmc.executebuiltin('ActivateWindow(/home/smid/projects/XBMC/resources/skins/Default/720p/MyVideoNav.xml)')
+		#~ xbmc.executebuiltin('ActivateWindow(9525)')
+		
+		#~ xbmcplugin.endOfDirectory(dirhandle)
+		
+		
+		#~ xbmc.executebuiltin('RunScript(plugin.video.synopsi, 0, mode=910&stv_id=2514500)')
+		#~ sys.exit(0)
+		
+		# fill in custom listing dialog/window
+		items = [
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00136558-223.jpg",
+            "id": 136558,
+            "name": "The Time Machine",
+            'file': 'volaco'
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/02514500-223.jpg",
+            "id": 2514500,
+            "name": "Inglourious Basterds",
+            'watched': 'yes'
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
+            "id": 72215,
+            "name": "I, Robot",
+            'watched': 'yes',
+            'file': 'volaco'
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
+            "id": 72215,
+            "name": "I, Robot 2",
+            'custom_overlay': 'ondisk-AND-already-watched-stack.png'
+        },
+        {
+            "cover_medium": "https://s3.amazonaws.com/titles.synopsi.tv/00072215-223.jpg",
+            "id": 72215,
+            "name": "I, Robot 3",
+            'custom_overlay': 'already-watched-stack.png'
+        }
+        ]
+
+		dialog.open_list_dialog({ 'items': items }, close=True)
+	
 
 	elif p['mode']==972:
-		addonclient.debug_2()
+		#~ xbmc.executebuiltin('ActivateWindow(MyVideoNav,plugin://plugin.video.synopsi,return)')
+		
+		#~ addonclient.debug_2()
+		#~ wid = xbmcgui.getCurrentWindowDialogId()
+		#~ print 'wid:' + str(wid)
+		#~ win = xbmcgui.WindowDialog(wid)
+		#~ item_list = win.getControl(50)
+		#~ for i in xrange(item_list.size()):
+			#~ item = item_list.getListItem()
+			#~ print i, item
+		pass
+
 
 	elif p['mode']==973:
 		addonclient.debug_3()
@@ -266,8 +291,8 @@ except ShutdownRequestedException:
 	xbmcplugin.endOfDirectory(dirhandle)
 	xbmc.executebuiltin('Quit')
 except:
-	xbmcplugin.endOfDirectory(dirhandle)
 	log(traceback.format_exc())
+	xbmcplugin.endOfDirectory(dirhandle)
 
 
 
