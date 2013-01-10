@@ -174,7 +174,7 @@ class AppApiClient(ApiClient):
 		return self.tvshow(stv_id, **kwargs)
 
 	def get_local_movies(self):
-		props = reccoDefaultProps + ['type']
+		props = reccoDefaultProps
 		library = self.library(title_property=props)['titles']
 		
 		# pass only movies through filter

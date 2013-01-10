@@ -36,7 +36,7 @@ HACK_SHOW_ALL_LOCAL_MOVIES = -1
 SEARCH_RESULT_LIMIT = 15
 
 homeReccoLimit = 5
-reccoDefaultProps = ['id', 'cover_medium', 'name', 'type']
+reccoDefaultProps = ['id', 'cover_medium', 'name', 'type', 'watched']
 defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 tvshowdefaultDetailProps = defaultDetailProps + ['seasons']
 defaultCastProps = ['name']
