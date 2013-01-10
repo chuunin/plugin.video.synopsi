@@ -33,7 +33,9 @@ if __name__ == '__main__':
 		'stvId': 10009
 	}		
 
-	hash_path = '/media/sdb1/Movies/Jeff.Who.Lives.at.Home.2011.LIMITED.DVDRip.XviD-AMIABLE/Jeff.Who.Lives.at.Home.2011.LIMITED.DVDRip.XviD-AMIABLE.avi'		
+	#~ hash_path = '/media/sdb1/Movies/Jeff.Who.Lives.at.Home.2011.LIMITED.DVDRip.XviD-AMIABLE/Jeff.Who.Lives.at.Home.2011.LIMITED.DVDRip.XviD-AMIABLE.avi'		
+	hash_path = '/media/VESMIR/Film/Movies/Pioneer.One.S01E02.720p.x264-VODO/Pioneer.One.S01E02.720p.x264-VODO.mkv'
+	#~ hash_path = '/media/VESMIR/Film/Movies/\[ UsaBit.com \] - Life.in.a.Day.2011.DVDRiP.XViD-TASTE/Life in a day.avi'
 
 	logger = logging.getLogger()
 
