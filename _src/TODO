@@ -15,7 +15,7 @@ x	fix: stack:// multi-file unwanted rating/checkin in the middle
 	-	handle AuthenticationError
 	-	remove obsolete Container.* calls
 	-	paskovanie k tvshows - zistit v ktorych episodach su already-watched episody
-	-	local movies / tvshows / episodes - paska watched nefunguje
+	x	local movies / tvshows / episodes - paska watched nefunguje
 x	bug: similars v epizodach
 -	icon vs thhumbnail v listingoch
 x	512kB hash (synopsi hash)
