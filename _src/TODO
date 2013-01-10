@@ -10,6 +10,7 @@ x	play epizody v listingu seasnu nefunguje
 	-	handle AuthenticationError
 	-	remove obsolete Container.* calls
 	-	paskovanie k tvshows - zistit v ktorych episodach su already-watched episody
+	-	local movies / tvshows / episodes - paska watched nefunguje
 -	CD1/CD2 rating uprostred filmu
 x	bug: similars v epizodach
 -	icon vs thhumbnail v listingoch

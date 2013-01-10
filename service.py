@@ -68,7 +68,7 @@ def main():
 
 	log('Service loop START')
 	while True:
-		time.sleep(0.5)
+		xbmc.sleep(500)
 
 		if not l.isAlive() and not s.isAlive() and not aos.isAlive():
 			log('All threads are dead. Exiting loop')
