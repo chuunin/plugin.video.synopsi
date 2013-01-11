@@ -15,7 +15,7 @@ import socket
 
 # application
 from utilities import *
-from app_apiclient import AuthenticationError, AppApiClient, AuthenticationError
+from app_apiclient import AppApiClient, AuthenticationError
 from cache import StvList, DuplicateStvIdException
 import top
 
@@ -106,8 +106,6 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 		xbmcgui.WindowXMLDialog.close(self)
 
 def open_list_dialog(tpl_data, close=True):
-	log('open_list_dialog cwd: ' + __addonpath__)
-	
 	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
 	path = ''
 	
@@ -126,23 +124,8 @@ def open_list_dialog(tpl_data, close=True):
 		del ui
 
 def show_movie_list(item_list):
-	errorMsg = None
-	try:
-		open_list_dialog({ 'items': item_list })
-	except AuthenticationError:
-		errorMsg = True
-	finally:
-		pass
+	open_list_dialog({ 'items': item_list })
 
-	if errorMsg:
-		if dialog_check_login_correct():
-			#~ xbmc.executebuiltin('Container.Refresh')
-			#~ TODO: retry list loading
-			pass
-		else:
-			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-			#~ TODO: test: exit with closed window
-			pass
 
 def show_tvshows_episodes(stv_id):
 	items = top.apiClient.get_tvshow_season(stv_id)
@@ -470,15 +453,22 @@ def open_video_dialog(tpl_data, apiClient, stvList, close=False):
 		del ui
 	
 def show_submenu(action_code, **kwargs):
-	item_list = top.apiClient.get_item_list(action_code=action_code, **kwargs)
+	try:
+		item_list = top.apiClient.get_item_list(action_code=action_code, **kwargs)
 
-	if not item_list:
-		dialog_ok(exc_text_by_mode(action_code))
-		return
-	
-	# hack HACK_SHOW_ALL_LOCAL_MOVIES
-	if action_code==ActionCode.LocalMovieRecco:
-		item_list.append(item_show_all_movies_hack)
+		if not item_list:
+			dialog_ok(exc_text_by_mode(action_code))
+			return
 		
+		# hack HACK_SHOW_ALL_LOCAL_MOVIES
+		if action_code==ActionCode.LocalMovieRecco:
+			item_list.append(item_show_all_movies_hack)
+			
+	except AuthenticationError as e:
+		if dialog_check_login_correct():
+			show_submenu(action_code, **kwargs)
+		else:
+			return
+			
 	show_movie_list(item_list)
 

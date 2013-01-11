@@ -86,7 +86,7 @@ t_unavail = 'N/A'
 
 overlay_image = ['', 'ondisk-stack.png', 'already-watched-stack.png', 'ondisk-AND-already-watched-stack.png']
 
-t_text_by_mode = {
+t_emptylist_by_mode = {
 	ActionCode.UnwatchedEpisodes: t_nounwatched,
 	ActionCode.UpcomingEpisodes: t_noupcoming,
 	ActionCode.LocalMovieRecco: t_nolocalrecco,
@@ -157,7 +157,7 @@ def addon_getSetting(aid, adef=None):
 	return res
 
 def exc_text_by_mode(mode):
-	return t_text_by_mode.get(mode, t_listing_failed)
+	return t_emptylist_by_mode.get(mode, t_listing_failed)
 
 # application utilities
 def check_first_run():
