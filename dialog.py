@@ -76,14 +76,16 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 	
 	def refresh(self):
 		self.updateItems()
-		log('refreshed')
 		
 	def setWatched(self, stv_id):
-		log('setWatched: ' + str(stv_id))
 		for item in self.data['items']:
 			if item['id'] == stv_id:
 				item['watched'] = True
-				log('found item: set watched')
+
+	def correctItem(self, old_stv_id, new_item):
+		for index, item in enumerate(self.data['items']):
+			if item['id'] == old_stv_id:
+				self.data['items'][index] = new_item
 
 	def _getListItem(self, item):
 		#~ itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
@@ -247,10 +249,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			if rating < 4:
 				top.apiClient.titleWatched(self.data['id'], rating=rating)
 				self.parentWindow.setWatched(self.data['id'])
-			self.close()
-			#~ TODO: reload the container view
-			#~ xbmc.executebuiltin('Container.Refresh()')
-			
+			self.close()			
 			self.parentWindow.refresh()
 
 		# similars / tvshow seasons	cover
@@ -271,11 +270,11 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			#~ log('new_title:' + dump(filtertitles(new_title)))
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
-					self.stvList.correct_title(self.data, new_title)
+					top.stvList.correct_title(self.data, new_title)
 					self.close()
+					self.parentWindow.correctItem(self.data['id'], new_title)
+					self.parentWindow.refresh()
 					show_video_dialog_byId(new_title['id'])
-					#~ TODO: refresh current window content
-					#~ xbmc.executebuiltin('Container.Refresh()')					
 				except DuplicateStvIdException, e:
 					log(unicode(e))
 					dialog_ok('This title is already in library. Cannot correct identity to this title')
