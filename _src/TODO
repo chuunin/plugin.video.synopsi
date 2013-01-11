@@ -14,7 +14,7 @@ x	video detail
 	x	handle ListEmptyExceptions
 	x	handle HACK_SHOW_ALL_LOCAL_MOVIES
 	x	handle AuthenticationError
-	-	remove obsolete Container.* calls
+	x	remove obsolete Container.* calls
 	-	paskovanie k tvshows - zistit v ktorych episodach su already-watched episody
 	x	local movies / tvshows / episodes - paska watched nefunguje
 x	bug: similars v epizodach
