@@ -36,14 +36,31 @@ __profile__      = __addon__.getAddonInfo('profile')
 
 itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': HACK_GO_BACK, 'type': 'HACK'}
 
+opendialogs = []
+
+def get_current_dialog():
+	if opendialogs:
+		return opendialogs[-1]
+	else:
+		return None
+
+def close_current_dialog():
+	d = get_current_dialog()
+	if d:
+		d.close()
+
 class ListDialog(xbmcgui.WindowXMLDialog):
 	""" Dialog for choosing movie corrections """
 	def __init__(self, *args, **kwargs):
 		self.data = kwargs['data']
 		self.controlId = None
 		self.selectedMovie = None
+		opendialogs.append(self)
 
 	def onInit(self):
+		self.updateItems()
+		
+	def updateItems(self):
 		items = []
 		items.append(self._getListItem(itemFolderBack))
 		for item in self.data['items']:
@@ -56,6 +73,17 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 			self.setFocus(listControl)
 		except:
 			log('Adding items failed')
+	
+	def refresh(self):
+		self.updateItems()
+		log('refreshed')
+		
+	def setWatched(self, stv_id):
+		log('setWatched: ' + str(stv_id))
+		for item in self.data['items']:
+			if item['id'] == stv_id:
+				item['watched'] = True
+				log('found item: set watched')
 
 	def _getListItem(self, item):
 		#~ itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
@@ -103,6 +131,9 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id}, close=False)
 
 	def close(self):
+		current_window = opendialogs.pop()
+		if current_window != self:
+			log('WARNING: dialog queue inconsistency')
 		xbmcgui.WindowXMLDialog.close(self)
 
 def open_list_dialog(tpl_data, close=True):
@@ -112,13 +143,14 @@ def open_list_dialog(tpl_data, close=True):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
+		log('Window ValueError')
 		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		if close:
-			win.close()
+			close_current_dialog()
 		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
@@ -138,9 +170,9 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 	"""
 	def __init__(self, *args, **kwargs):
 		self.data = kwargs['data']
+		self.parentWindow = opendialogs[-1]
 		self.controlId = None
-		self.apiClient = kwargs['apiClient']
-		self.stvList = kwargs['stvList']
+		opendialogs.append(self)
 
 	def onInit(self):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -213,10 +245,13 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		elif controlId == 11:
 			rating = get_rating()
 			if rating < 4:
-				self.apiClient.titleWatched(self.data['id'], rating=rating)
+				top.apiClient.titleWatched(self.data['id'], rating=rating)
+				self.parentWindow.setWatched(self.data['id'])
 			self.close()
 			#~ TODO: reload the container view
 			#~ xbmc.executebuiltin('Container.Refresh()')
+			
+			self.parentWindow.refresh()
 
 		# similars / tvshow seasons	cover
 		elif controlId == 59:
@@ -229,11 +264,11 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			else:
 				show_video_dialog_byId(stv_id, close=True)
 
-		# correct
+		# correction
 		elif controlId == 13:
 			new_title = self.user_title_search()
-			log('old_title:' + dump(filtertitles(self.data)))
-			log('new_title:' + dump(filtertitles(new_title)))
+			#~ log('old_title:' + dump(filtertitles(self.data)))
+			#~ log('new_title:' + dump(filtertitles(new_title)))
 			if new_title and self.data.has_key('id') and self.data.get('type') not in ['tvshow', 'season']:
 				try:
 					self.stvList.correct_title(self.data, new_title)
@@ -258,7 +293,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 		try:
 			search_term = common.getUserInput(t_correct_search_title, "")
 			if search_term:
-				results = self.apiClient.search(search_term, SEARCH_RESULT_LIMIT)
+				results = top.apiClient.search(search_term, SEARCH_RESULT_LIMIT)
 				if len(results['search_result']) == 0:
 					dialog_ok('No results')
 				else:
@@ -271,12 +306,20 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 		return
 
+	def close(self):
+		current_window = opendialogs.pop()
+		if current_window != self:
+			log('WARNING: dialog queue inconsistency')
+		xbmcgui.WindowXMLDialog.close(self)
+
+
 class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 	""" Dialog for choosing movie corrections """
 	def __init__(self, *args, **kwargs):
 		self.data = kwargs['data']
 		self.controlId = None
 		self.selectedMovie = None
+		opendialogs.append(self)
 
 	def onInit(self):
 		items = []
@@ -310,6 +353,12 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
+
+	def close(self):
+		current_window = opendialogs.pop()
+		if current_window != self:
+			log('WARNING: dialog queue inconsistency')
+		xbmcgui.WindowXMLDialog.close(self)
 
 
 def open_select_movie_dialog(tpl_data):
@@ -371,7 +420,7 @@ def show_video_dialog_data(stv_details, json_data={}, close=False):
 				item['overlay'] = overlay_image[oc]
 
 	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data, top.apiClient, top.stvList, close)
+	open_video_dialog(tpl_data, close)
 
 
 def video_dialog_template_fill(stv_details, json_data={}):
@@ -435,18 +484,19 @@ def video_dialog_template_fill(stv_details, json_data={}):
 
 	return tpl_data
 
-def open_video_dialog(tpl_data, apiClient, stvList, close=False):
+def open_video_dialog(tpl_data, close=False):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except ValueError, e:
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient, stvList=stvList)
+		log('Window ValueError')
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		if close:
-			win.close()
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data, apiClient=apiClient, stvList=stvList)
+			close_current_dialog()
+		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	
