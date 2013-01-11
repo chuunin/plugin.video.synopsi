@@ -189,17 +189,7 @@ try:
 
 	elif p['mode'] in [ActionCode.MovieRecco, ActionCode.LocalMovieRecco, ActionCode.TVShows, ActionCode.LocalTVShows, ActionCode.TVShowEpisodes, ActionCode.UnwatchedEpisodes, ActionCode.UpcomingEpisodes, ActionCode.LocalMovies]:
 		params = {'stv_id': p['stv_id']} if p['stv_id'] else {}
-		try:
-			addonclient.show_submenu(p['mode'], **params)
-		except ListEmptyException:
-			dialog_ok(exc_text_by_mode(p['mode']))
-			#~ TODO: close window if open & show main plugin menu
-			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
-		except:
-			log(traceback.format_exc())
-			dialog_ok(t_listing_failed)
-			#~ TODO: close window if open & show main plugin menu
-			#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi, replace)')
+		addonclient.show_submenu(p['mode'], **params)
 
 	elif p['mode']==ActionCode.VideoDialogShow:
 		addonclient.show_video_dialog(p['json_data'])

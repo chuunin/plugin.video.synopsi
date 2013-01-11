@@ -225,8 +225,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 			if self.data['type'] == 'tvshow':
 				self.close()
-				#~ TODO: show tvshow episodes
-				#~ xbmc.executebuiltin('Container.Update(plugin://plugin.video.synopsi/addon.py?mode=%d&amp;stv_id=%d)' % (ActionCode.TVShowEpisodes, stv_id))
 				show_tvshows_episodes(stv_id)				
 			else:
 				show_video_dialog_byId(stv_id, close=True)
@@ -455,20 +453,27 @@ def open_video_dialog(tpl_data, apiClient, stvList, close=False):
 def show_submenu(action_code, **kwargs):
 	try:
 		item_list = top.apiClient.get_item_list(action_code=action_code, **kwargs)
-
-		if not item_list:
-			dialog_ok(exc_text_by_mode(action_code))
-			return
 		
 		# hack HACK_SHOW_ALL_LOCAL_MOVIES
 		if action_code==ActionCode.LocalMovieRecco:
 			item_list.append(item_show_all_movies_hack)
+
+		if not item_list:
+			dialog_ok(exc_text_by_mode(action_code))
+			return
 			
 	except AuthenticationError as e:
 		if dialog_check_login_correct():
 			show_submenu(action_code, **kwargs)
 
 		return
+
+	except ListEmptyException:
+		dialog_ok(exc_text_by_mode(p['mode']))
+		
+	except:
+		log(traceback.format_exc())
+		dialog_ok(t_listing_failed)
 			
 	show_movie_list(item_list)
 
