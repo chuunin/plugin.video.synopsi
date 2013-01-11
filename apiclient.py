@@ -21,14 +21,15 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
+# api request title properties
 commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
 defaultIdentifyProps = commonTitleProps + ['tvshow_id']
 watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
 smallListProps = ['id', 'cover_medium', 'name', 'watched', 'type']
 defaultEpisodeProps = smallListProps + ['season_number', 'episode_number']
-allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
-defaultSeasonProps = ['id', 'cover_medium', 'season_number']
+allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number', 'episode_count', 'watched_count']
+defaultSeasonProps = ['id', 'cover_medium', 'season_number', 'episode_count', 'watched_count']
 defaultSeasonProps2 = ['id', 'episodes']
 defaultSearchProps = defaultEpisodeProps + ['year', 'directors', 'cast']
 
