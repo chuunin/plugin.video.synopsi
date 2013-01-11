@@ -13,7 +13,7 @@ x	video detail
 -	paskovanie v listingoch
 	x	handle ListEmptyExceptions
 	x	handle HACK_SHOW_ALL_LOCAL_MOVIES
-	-	handle AuthenticationError
+	x	handle AuthenticationError
 	-	remove obsolete Container.* calls
 	-	paskovanie k tvshows - zistit v ktorych episodach su already-watched episody
 	x	local movies / tvshows / episodes - paska watched nefunguje

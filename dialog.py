@@ -467,8 +467,8 @@ def show_submenu(action_code, **kwargs):
 	except AuthenticationError as e:
 		if dialog_check_login_correct():
 			show_submenu(action_code, **kwargs)
-		else:
-			return
+
+		return
 			
 	show_movie_list(item_list)
 
