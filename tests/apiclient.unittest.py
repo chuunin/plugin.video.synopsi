@@ -174,7 +174,7 @@ class ApiTest(TestCase):
 		self.assertTrue(title['cast'][0]['name']=='Charlton Heston')
 
 	def test_tvshow(self):
-		title = client.tvshow(14335, cast_props=['name'], season_props=['id','season_number'], season_limit=3)
+		title = client.tvshow(14335, cast_props=['name'], season_props=['id','season_number', 'episodes_count', 'watched_count'], season_limit=3)
 
 		# print dump(title)
 
