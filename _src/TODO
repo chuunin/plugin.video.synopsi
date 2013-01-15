@@ -23,4 +23,4 @@ x	<extension point="xbmc.service" library="service.py" start="login|startup">. C
 x	Remove the <extension point="xbmc.addon.repository"... part
 x	You need to add a language tag. See http://wiki.xbmc.org/index.php?title=Addon.xml
 x	You might want to update your changelog.txt
--	icon.png contains "beta". Since everything in xbmc repo should be considered stable please remove that.
+x	icon.png contains "beta". Since everything in xbmc repo should be considered stable please remove that.
