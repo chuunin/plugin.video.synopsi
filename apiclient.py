@@ -484,6 +484,5 @@ class ApiClient(loggable.Loggable):
 		if 'cast' in props:
 			req['data']['cast_property[]'] = ','.join(props_cast)
 
-		log(dump(req))
 		return self.execute(req)
 
