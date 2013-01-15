@@ -25,4 +25,14 @@ x	512kB hash (synopsi hash)
 -	window opening response
 n	corrections between episode/movie types
 	-	possible only with scraper
+-	test how do the profiles work, and their options about sharing media sources/information
 -	frodo version
+
+
+x	You need xbmc.python 2.0 for eden. See http://wiki.xbmc.org/index.php?title=Addon.xml
+x	Remove <import addon="xbmc.addon" version="11.0"/>
+x	<extension point="xbmc.service" library="service.py" start="login|startup">. Choose login or startup, not both.
+x	Remove the <extension point="xbmc.addon.repository"... part
+x	You need to add a language tag. See http://wiki.xbmc.org/index.php?title=Addon.xml
+x	You might want to update your changelog.txt
+x	icon.png contains "beta". Since everything in xbmc repo should be considered stable please remove that.
