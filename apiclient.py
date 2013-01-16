@@ -21,16 +21,17 @@ RATING_CODE = {
 	3: 'dislike'
 }
 
+# api request title properties
 commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
 defaultIdentifyProps = commonTitleProps + ['tvshow_id']
 watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
 smallListProps = ['id', 'cover_medium', 'name', 'watched', 'type']
 defaultEpisodeProps = smallListProps + ['season_number', 'episode_number']
-allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number']
-defaultSeasonProps = ['id', 'cover_medium', 'season_number']
+allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number', 'episodes_count', 'watched_count']
+defaultSeasonProps = ['id', 'cover_medium', 'season_number', 'episodes_count', 'watched_count']
 defaultSeasonProps2 = ['id', 'episodes']
-defaultSearchProps = defaultEpisodeProps + ['year']
+defaultSearchProps = defaultEpisodeProps + ['year', 'directors', 'cast']
 
 class NotConnectedException(Exception):
 	pass
@@ -176,12 +177,12 @@ class ApiClient(loggable.Loggable):
 			raise AuthenticationError()
 
 		except URLError as e:
-			self._log.error(str(e))
+			self._log.error(unicode(e))
 			self._log.error(e.reason)
 			raise AuthenticationError()
 
 		except Exception as e:
-		 	self._log.error('OTHER EXCEPTION:' + str(e))
+		 	self._log.error('OTHER EXCEPTION:' + unicode(e))
 			raise AuthenticationError()
 
 
@@ -257,12 +258,12 @@ class ApiClient(loggable.Loggable):
 
 		except HTTPError as e:
 			response_json = json.loads(e.read())
-			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, str(e), response_json))
+			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, unicode(e), response_json))
 
 		except URLError as e:
 			self._log.error('APICLIENT:' + url)
-			self._log.error('APICLIENT:' + str(e))
-			self._log.error('APICLIENT:' + str(e.reason))
+			self._log.error('APICLIENT:' + unicode(e))
+			self._log.error('APICLIENT:' + unicode(e.reason))
 			response_json = {}
 
 		else:
@@ -467,7 +468,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def search(self, term, limit=None, props=defaultSearchProps):
+	def search(self, term, limit=None, props=defaultSearchProps, props_cast=defaultCastProps):
 		req = {
 			'methodPath': 'search/',
 			'method': 'get',
@@ -479,6 +480,9 @@ class ApiClient(loggable.Loggable):
 
 		if limit:
 			req['data']['limit'] = limit
+
+		if 'cast' in props:
+			req['data']['cast_property[]'] = ','.join(props_cast)
 
 		return self.execute(req)
 
