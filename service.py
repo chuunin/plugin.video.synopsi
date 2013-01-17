@@ -26,7 +26,6 @@ __addon__  = get_current_addon()
 __cwd__	= __addon__.getAddonInfo('path')
 __addon__.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
 
-
 DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
@@ -57,11 +56,13 @@ def main():
 		thread.start_new_thread(cache_rebuild_hp_update, ())
 
 
+	threads = []
 	s = Scrobbler(cache)
+	threads.append(s)
 	l = RPCListenerHandler(cache, s)
+	threads.append(l)
 	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, apiclient1, cache)
-
-	threads = [s, l, aos]
+	threads.append(aos)
 
 	for t in threads:
 		t.start()
@@ -70,7 +71,7 @@ def main():
 	while True:
 		xbmc.sleep(500)
 
-		if not l.isAlive() and not s.isAlive() and not aos.isAlive():
+		if not [t for t in threads if t.isAlive()]:
 			log('All threads are dead. Exiting loop')
 			break
 
