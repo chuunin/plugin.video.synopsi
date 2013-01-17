@@ -144,7 +144,7 @@ def open_list_dialog(tpl_data, close=True):
 	
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-	except ValueError, e:
+	except RuntimeError, e:
 		log('Window ValueError')
 		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
 		ui.doModal()
@@ -487,7 +487,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 def open_video_dialog(tpl_data, close=False):
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-	except ValueError, e:
+	except RuntimeError, e:
 		log('Window ValueError')
 		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
 		ui.doModal()
