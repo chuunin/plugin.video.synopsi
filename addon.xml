@@ -2,7 +2,7 @@
 <addon id="plugin.video.synopsi"
        name="SynopsiTV"
        version="1.0.0"
-       provider-name="Synopsi s.r.o.">
+       provider-name="synopsi.tv">
 	<requires>
 		<import addon="xbmc.python" version="2.1.0" />
 		<import addon="xbmc.addon" version="12.0.0" />
