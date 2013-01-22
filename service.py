@@ -11,7 +11,7 @@ import sys
 import time
 
 # application
-from scrobbler import Scrobbler
+from scrobbler import Scrobbler, SynopsiPlayerDecor
 from library import RPCListenerHandler
 from cache import *
 from utilities import home_screen_fill, login_screen, log
@@ -42,6 +42,9 @@ def main():
 	# try to restore cache
 	cache = StvList(iuid, apiclient1)
 	top.stvList = cache
+
+	player = SynopsiPlayerDecor()
+	player.setStvList(cache)
 	
 	try:
 		cache.load()
@@ -58,7 +61,7 @@ def main():
 
 	threads = []
 	s = Scrobbler(cache)
-	threads.append(s)
+	#~ threads.append(s)
 	l = RPCListenerHandler(cache, s)
 	threads.append(l)
 	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, apiclient1, cache)
@@ -79,6 +82,9 @@ def main():
 			log('service.py abortRequested')
 			log('waiting for: ' + str(','.join([i.name for i in threads if i.isAlive()])))
 			aos.stop()
+
+		player.update_current_time()
+
 
 	log('Service loop END')
 	cache.save()
