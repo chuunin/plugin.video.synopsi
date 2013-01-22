@@ -2,7 +2,7 @@
 <addon id="plugin.video.synopsi"
        name="SynopsiTV"
        version="0.4.7"
-       provider-name="Synopsi s.r.o.">
+       provider-name="synopsi.tv">
 	<requires>
 		<import addon="xbmc.python" version="2.0"/>
 		<import addon="plugin.video.youtube" version="2.9.1"/> <!-- We play trailers through this plugin -->
