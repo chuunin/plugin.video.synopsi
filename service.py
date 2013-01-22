@@ -11,7 +11,6 @@ import sys
 import time
 
 # application
-from scrobbler import Scrobbler, SynopsiPlayerDecor
 from library import RPCListenerHandler
 from cache import *
 from utilities import home_screen_fill, login_screen, log
