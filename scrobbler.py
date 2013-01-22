@@ -146,7 +146,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 	def update_current_time(self):
 		""" This function updates the current_time. To avoid race condition, it will not update
 			the current time, if get_time returns None, but the player is still playing a file
-			(acording to the self.playing variable). This indicates that the scrobbler update loop
+			(acording to the self.playing variable). This indicates that the service thread update loop
 			tries to update time while we are in the onPlayBackStopped method and handlers """
 		t = self.get_time()
 		if t or not self.playing:
