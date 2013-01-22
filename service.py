@@ -60,9 +60,7 @@ def main():
 
 
 	threads = []
-	s = Scrobbler(cache)
-	#~ threads.append(s)
-	l = RPCListenerHandler(cache, s)
+	l = RPCListenerHandler(cache)
 	threads.append(l)
 	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, apiclient1, cache)
 	threads.append(aos)
