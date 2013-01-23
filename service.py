@@ -43,8 +43,9 @@ def main():
 	cache = StvList(iuid, apiclient1)
 	top.stvList = cache
 
-	player = SynopsiPlayerDecor()
-	player.setStvList(cache)
+	top.player = SynopsiPlayerDecor()
+	top.player.setStvList(cache)
+	
 	
 	try:
 		cache.load()
@@ -81,7 +82,7 @@ def main():
 			log('waiting for: ' + str(','.join([i.name for i in threads if i.isAlive()])))
 			aos.stop()
 
-		player.update_current_time()
+		top.player.update_current_time()
 
 
 	log('Service loop END')
