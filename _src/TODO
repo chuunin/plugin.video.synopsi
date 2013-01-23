@@ -28,7 +28,7 @@ x	512kB hash (synopsi hash)
 n	corrections between episode/movie types
 	-	possible only with scraper
 -	test how do the profiles work, and their options about sharing media sources/information
--	frodo version
+
 
 
 x	You need xbmc.python 2.0 for eden. See http://wiki.xbmc.org/index.php?title=Addon.xml
