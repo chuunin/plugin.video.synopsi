@@ -1,3 +1,7 @@
+[B]Version 0.4.8[/B]
+- Fixed: moved scrobbler/player to main thread, removing one thread
+- Added: send timestamp for checkin
+
 [B]Version 0.4.7[/B]
 - Added: send checkin w/o rating for a played file stopped before 70% of progress
 - Fixed: Empty list exception for "Local movies"
