@@ -201,9 +201,15 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		if not detail.has_key('stvId'):
 			return False
 
-		# prepare the data
+		## prepare the data
 		data = { 'player_events': json.dumps(self.playerEvents) }
+	
+		# prepare timestamp if avail
+		pe = self.playerEvents
+		if len(pe) > 0 and pe[0]['event'] == 'start':
+			data['timestamp'] = pe[0]['timestamp']
 
+		# prepare rating if requested
 		if rate:
 			rating = get_rating()
 			# if user rated the title
