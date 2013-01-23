@@ -1,10 +1,16 @@
+# xbmc
 import xbmc, xbmcgui, xbmcaddon
-from mythread import MyThread
+
+# python standart library
 import time
 import socket
 import json
 import re
 import traceback
+import top
+
+# application
+from mythread import MyThread
 from utilities import *
 from cache import *
 
