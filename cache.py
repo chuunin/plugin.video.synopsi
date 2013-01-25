@@ -119,7 +119,6 @@ class OfflineStvList(object):
 			else:
 				self.log('File NOT identified %s' % movie['file'])
 
-
 			self.put(movie)
 
 			# debug warning on movie type mismatch
@@ -127,9 +126,8 @@ class OfflineStvList(object):
 				self.log('Xbmc/Synopsi identification type mismatch: %s / %s in [%s]' % (movie['type'], title.get('type'), movie.get('file')))
 
 			# for episode, add tvshow
-			if title.has_key('id') and movie['type'] == 'episode' and title.get('type') == 'episode':
-				self.log('xbmc episode:'+dump(filtertitles(movie)))
-				self.add_tvshow(title['tvshow_id'], movie['tvshowid'])
+			if title.get('type') == 'episode' and title.has_key('id') and item['type'] == 'episode':	
+				self.add_tvshow(title['tvshow_id'], item['tvshowid'])
 
 		# it is already in cache, some property has changed (e.g. lastplayed time)
 		else:
@@ -139,14 +137,9 @@ class OfflineStvList(object):
 		" Adds a tvshow with stvId into cache, if it's not already there "
 		if not self.byStvId.has_key(stvId):
 			stv_title = self.apiClient.tvshow(stvId, commonTitleProps)
-
 			stv_title['xbmc_id'] = xbmc_id
 
-			# if tvshow not in cache yet
-			if not self.hasStvId(stv_title['id']):
-				self.log('tvshow stv id:' + str(stv_title['id']))
-				self.log('tvshow xbmc id:' + str(xbmc_id))
-				self.put(stv_title)
+			self.put(stv_title)
 
 	def put(self, item):
 		" Put a new record in the list "
@@ -175,8 +168,8 @@ class OfflineStvList(object):
 		self.items.append(item)
 
 		logstr = 'PUT / ' + str(item.get('type')) + '--' + str(item.get('id')) + ' | ' + item.get('file', '')
-
 		self.log(logstr)
+								
 
 	def update(self, item):
 		typeIdStr = self._getKey(item['type'], item['id'])
@@ -280,7 +273,8 @@ class OfflineStvList(object):
 			self.log(dump(filtertitles(rec)))
 
 	def dump(self):
-		self.log(dump(filtertitles(self.byTypeId)))
+		#~ self.log(dump(filtertitles(self.byTypeId)))
+		self.log(dump(self.byType))
 		#~ self.log(dump(self.byStvId))
 		#~ self.log(dump(self.byFilename))
 
@@ -465,6 +459,17 @@ class AppStvList(OnlineStvList):
 		local_tvshows = self.getAllByType('tvshow')
 		log('local tvshows ' + dump(local_tvshows))
 		return local_tvshows.values()
+
+	def get_tvshow_local_seasons(self, stv_id):
+		tvshow = self.byType['tvshow'][stv_id]
+		xbmc_id = tvshow['xbmc_id']
+				
+		seasons = []		
+		for i in self.byType['episode']:
+			if i['tvshowid'] == xbmc_id and i['season'] not in seasons:
+				seasons.append[i['season']]
+		
+		return seasons		
 
 #	the final class name used in application, instead of rewriting classnames
 class StvList(AppStvList):

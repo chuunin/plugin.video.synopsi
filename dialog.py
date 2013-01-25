@@ -400,9 +400,12 @@ def show_video_dialog_data(stv_details, json_data={}, close=False):
 		if t1_similars.has_key('titles'):
 			stv_details['similars'] = t1_similars['titles']
 	elif stv_details['type'] == 'tvshow':
+		seasons = get_tvshow_local_seasons(stv_details['stvId'])
+		log('seasons on disk:' + seasons)
+		
 		# append seasons
 		if stv_details.has_key('seasons'):
-			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium'], 'watched': i['episodes_count'] == i['watched_count']} for i in stv_details['seasons'] ]
+			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium'], 'watched': i['episodes_count'] == i['watched_count'], 'file': i['id'] in seasons} for i in stv_details['seasons'] ]
 				
 
 	# similar overlays
