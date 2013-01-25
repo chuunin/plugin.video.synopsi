@@ -29,8 +29,8 @@ x	512kB hash (synopsi hash)
 n	corrections between episode/movie types
 	-	possible only with scraper
 -	test how do the profiles work, and their options about sharing media sources/information
--	apiclient - send timestamp with checkin/watched
--	apiclient - update library/list method
+x	apiclient - send timestamp with checkin/watched
+n	apiclient - update library/list method
 x	remove scrobbler, move xbmc.player to main (service) thread
 x	rpc listener - remove scrobbler dependency, use global player
 x	frodo version

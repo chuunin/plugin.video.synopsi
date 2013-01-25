@@ -1,3 +1,6 @@
+[B]Version 1.0.1[/B]
+- Added: get 'on-disk' season-strips in tvshow detail
+
 [B]Version 1.0.0[/B]
 - Fixed: Frodo version requirements
 - Fixed: Empty list exception for "Local movies"
