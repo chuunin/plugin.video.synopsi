@@ -23,7 +23,11 @@ class UtilitiesTest(TestCase):
 			return movie
 		
 		print gethash(hash_path)
-
+	
+	def test_xml_sources(self):
+		sources = get_movie_sources()
+		sources.sort(key=len, reverse=True)
+		print sources
 
 if __name__ == '__main__':
 	test_item1 = {
