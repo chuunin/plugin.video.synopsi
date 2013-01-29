@@ -176,10 +176,12 @@ def check_first_run():
 	if __addon__.getSetting('FIRSTRUN') == 'true':
 		log('SYNOPSI FIRST RUN')
 
-		# enable home screen recco
-		__addon__.openSettings()
+		# get activation token
+		dialog_activation_token()
+
+		# enable home screen recco		
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
-		reloadSkin = True			
+		reloadSkin = True
 		__addon__.setSetting('FIRSTRUN', "false")
 
 	if addon_getSetting('ADDON_SERVICE_FIRSTRUN') != "false":
@@ -644,16 +646,13 @@ def dialog_check_login_correct():
 		return False
 
 def dialog_login_fail_yesno():
-	dialog = xbmcgui.Dialog()
-	result = dialog.yesno(t_stv, "Authentication failed", "Would you like to open settings and correct your login info?")
+	xdialog = xbmcgui.Dialog()
+	result = xdialog.yesno(t_stv, "Authentication failed", "Would you like to open settings and correct your login info?")
 	return result
 
-
 def dialog_need_restart():
-	dialog = xbmcgui.Dialog()
 	yes = dialog_yesno(t_needrestart)
 	return yes
-
 
 def add_directory(name, url, mode, iconimage):
 	u = sys.argv[0]+"?mode="+str(mode)

@@ -1,0 +1,12 @@
+<window id="5000">
+	<defaultcontrol always="true">10</defaultcontrol>
+	<coordinates>
+		<system>1</system>
+		<posx>335</posx>
+		<posy>230</posy>
+	</coordinates>
+	<include>dialogeffect</include>
+	<controls>
+
+	</controls>
+</window>

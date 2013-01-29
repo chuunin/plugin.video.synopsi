@@ -32,6 +32,8 @@ allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_smal
 defaultSeasonProps = ['id', 'cover_medium', 'season_number', 'episodes_count', 'watched_count']
 defaultSeasonProps2 = ['id', 'episodes']
 defaultSearchProps = defaultEpisodeProps + ['year', 'directors', 'cast']
+URL_TOKEN_ACTIVATION = 'token/activate'
+
 
 class NotConnectedException(Exception):
 	pass
@@ -52,7 +54,7 @@ class ApiClient(loggable.Loggable):
 		self.username = username
 		self.password = password
 		self.accessToken = None
-		#~ self.refreshToken = None
+		self.refreshToken = None
 		self.apiUrl = self.baseUrl + rel_api_url
 		self.originReqHost = originReqHost
 		self.authHeaders = None
@@ -134,11 +136,10 @@ class ApiClient(loggable.Loggable):
 
 	def getAccessToken(self):
 		data = {
-			'grant_type': 'password',
+			'grant_type': 'refreshtoken',
 			'client_id': self.key,
 			'client_secret': self.secret,
-			'username': self.username,
-			'password': self.password
+			'refreshToken': self.refreshToken
 		}
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
@@ -150,7 +151,7 @@ class ApiClient(loggable.Loggable):
 		try:
 
 			req = Request(
-					self.baseUrl + 'oauth2/token/',
+					self.baseUrl + URL_TOKEN_ACTIVATION,
 					data=urlencode(data),
 					headers=self.authHeaders,
 					origin_req_host=self.originReqHost)
@@ -187,7 +188,7 @@ class ApiClient(loggable.Loggable):
 
 		self.updateAccessTokenTimeout()
 		self.accessToken = response_json['access_token']
-		#~ self.refreshToken = response_json['refresh_token']
+		self.refreshToken = response_json['refresh_token']
 		self._log.debug('new access token: ' + self.accessToken)
 		return True
 
@@ -277,6 +278,15 @@ class ApiClient(loggable.Loggable):
 
 #	api methods
 #	list independent
+	def getActivationToken(self):
+		req = {
+			'methodPath': 'activation/token'
+			'method': 'get',
+		}
+		
+		return self.execute(req)
+		
+
 	def titleWatched(self, titleId, **data):
 		# normalize ratings
 		if data.has_key('rating') and isinstance(data['rating'], (int, long)):
