@@ -34,9 +34,6 @@ def executebuiltin(builtin):
 		print "Executed Builtin:", builtin
 
 def translatePath(path):
-	if path == 'special://userdata':
-		return os.path.expanduser('~/.xbmc/userdata')
-	else:
 		return 'data/'
 
 class Player(MyThread):

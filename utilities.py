@@ -701,4 +701,14 @@ def get_movie_sources():
 	tree = et.parse(sourceFilePath)
 	root = tree.getroot()
 	el = root.findall('video/source/path')
-	return [i.text for i in el]
+	return sorted([i.text for i in el], key=len, reverse=True)
+
+def rel_path(realpath):
+	sources = get_movie_sources()
+	for src in sources:
+		if realpath.startswith(src):
+			return realpath[len(src):]
+	
+	return realpath
+		
+	
