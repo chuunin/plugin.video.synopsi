@@ -1,5 +1,6 @@
 [B]Version 1.0.1[/B]
-- Added: get 'on-disk' season-strips in tvshow detail
+- Added: season 'on-disk' strips in tvshow detail 
+- Improved: idetification, send filenames without xbmc's source path part
 
 [B]Version 1.0.0[/B]
 - Fixed: Frodo version requirements
