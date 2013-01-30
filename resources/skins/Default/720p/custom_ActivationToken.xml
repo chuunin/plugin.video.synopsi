@@ -1,12 +1,125 @@
-<window id="5000">
+<window id="3091">
 	<defaultcontrol always="true">10</defaultcontrol>
 	<coordinates>
 		<system>1</system>
-		<posx>335</posx>
-		<posy>230</posy>
+		<posx>240</posx>
+		<posy>160</posy>
 	</coordinates>
 	<include>dialogeffect</include>
-	<controls>
+	<controls>		
+		<control type="group">
+			<control type="image">
+				<posx>0</posx>
+				<posy>0</posy>
+				<width>800</width>
+				<height>400</height>
+				<texture border="40">DialogBack.png</texture>
+			</control>
 
+			<control id="1" type="label">
+				<description>header label</description>
+				<posx>0</posx>
+				<posy>20</posy>
+				<width>800</width>
+				<height>50</height>
+				<font>font13_title</font>
+				<label>Authentication</label>
+				<align>center</align>
+				<aligny>center</aligny>
+				<textcolor>selected</textcolor>
+				<shadowcolor>black</shadowcolor>
+			</control>
+			
+			<control id="2" type="label">
+				<description>explanation</description>
+				<posx>50</posx>
+				<posy>70</posy>
+				<width>700</width>
+				<height>100</height>
+				<font>font13</font>
+				<label>$ADDON[plugin.video.synopsi 69605]</label>
+				<align>center</align>
+				<aligny>center</aligny>
+				<textcolor>white</textcolor>
+				<shadowcolor>black</shadowcolor>
+				<wrapmultiline>true</wrapmultiline>
+			</control>
+
+			<control id="313" type="label">
+				<description>authentication link</description>
+				<posx>50</posx>
+				<posy>170</posy>
+				<width>700</width>
+				<height>30</height>
+				<font>font16</font>
+				<label>http://www.synopsi.tv/xbmc/f7d8a2</label>
+				<align>center</align>
+				<aligny>center</aligny>
+				<textcolor>white</textcolor>
+				<shadowcolor>black</shadowcolor>
+			</control>
+
+			<control id="4" type="label">
+				<description>text after link</description>
+				<posx>50</posx>
+				<posy>220</posy>
+				<width>700</width>
+				<height>60</height>
+				<font>font13</font>
+				<label>$ADDON[plugin.video.synopsi 69606]</label>
+				<align>center</align>
+				<aligny>top</aligny>
+				<textcolor>white</textcolor>
+				<shadowcolor>black</shadowcolor>
+				<wrapmultiline>true</wrapmultiline>
+			</control>
+
+			<control id="101" type="button">
+				<description>cancel button</description>
+				<posx>100</posx>
+				<posy>310</posy>
+				<width>150</width>
+				<height>40</height>
+				<label>Cancel</label>
+				<font>font12</font>
+				<textcolor>white</textcolor>
+				<focusedcolor>white</focusedcolor>
+				<align>center</align>
+				<onleft></onleft>
+				<onright></onright>
+				<onup></onup>
+				<ondown></ondown>
+			</control>
+
+			<control id="102" type="button">
+				<description>finished button</description>
+				<posx>550</posx>
+				<posy>310</posy>
+				<width>150</width>
+				<height>40</height>
+				<label>Finished</label>
+				<font>font12</font>
+				<textcolor>white</textcolor>
+				<focusedcolor>white</focusedcolor>
+				<align>center</align>
+				<onleft></onleft>
+				<onright></onright>
+				<onup></onup>
+				<ondown></ondown>
+			</control>
+		
+		</control>
+			
+		<control type="image">
+			<description>debug image</description>
+			<posx>100</posx>
+			<posy>100</posy>
+			<width>200</width>
+			<height>200</height>
+			<aspectratio>stretch</aspectratio>
+			<texture>debug.png</texture>
+			<visible>False</visible>
+		</control>		
+		
 	</controls>
 </window>

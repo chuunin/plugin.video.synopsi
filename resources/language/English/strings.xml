@@ -23,4 +23,7 @@
     <string id="69603">Terrible</string>
     <string id="69604">SynopsiTV Rating</string>
     
+    <string id="69605">In order to use this service, you will have to pair this device with your Synopsi.TV account. To pair this device, visit this link in your browser on any device:</string>
+    <string id="69606">Waiting for you to finish browser activation. </string>
+    
 </strings>
