@@ -12,6 +12,7 @@ import os.path
 from datetime import datetime
 import CommonFunctions
 import socket
+import threading
 
 # application
 from utilities import *
@@ -22,6 +23,7 @@ import top
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
 HACK_GO_BACK = -2
+URL_TOKEN_ACTIVATION_BROWSER = 'http://www.synopsi.tv/xbmc/'
 
 common = CommonFunctions
 common.plugin = "SynopsiTV"
@@ -33,6 +35,7 @@ __cwd__	= __addon__.getAddonInfo('path')
 __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __profile__      = __addon__.getAddonInfo('profile')
+
 
 itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': HACK_GO_BACK, 'type': 'HACK'}
 
@@ -56,6 +59,7 @@ def close_all_dialogs():
 
 
 def open_dialog(dialogclass, filename, tpl_data, close=False):
+	result = None
 	try:
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except RuntimeError, e:
@@ -539,13 +543,51 @@ def show_submenu(action_code, **kwargs):
 
 #	dialog activation using token and browser
 class ActivationToken(xbmcgui.WindowXMLDialog):
+	BTN_CANCEL = 101
+	BTN_FINISH = 102
+	LBL_TEXT_AFTER = 4
+	
 	def __init__(self, *args, **kwargs):
 		self.data = kwargs['data']
 		self.controlId = None
 		opendialogs.append(self)
+		self._canceled = False
+		self._authenticated = False
 
 	def onInit(self):
-		pass
+		self.getControl(self.BTN_FINISH).setVisible(False)
+		self.thread_auth_loop = threading.Thread(target=self.auth_loop)
+		self.thread_auth_loop.start()		
+
+	def auth_loop(self):
+		token = top.apiClient.getActivationToken()
+		self.getControl(313).setLabel(URL_TOKEN_ACTIVATION_BROWSER + token)
+		
+		while not self._canceled and not self._authenticated:
+			time.sleep(1)
+			self._authenticated = top.apiClient.checkActivationToken(token)
+			log('loop ' + str(time.time()))
+
+		if self._authenticated:
+			self.getControl(self.BTN_FINISH).setVisible(True)
+			self.getControl(self.BTN_CANCEL).setVisible(False)
+			self.getControl(self.LBL_TEXT_AFTER).setLabel(T(69607))
+					
+	def onAction(self, action):
+		log('action: ' + str(action.getId()))
+		focusedId = self.getFocusId()
+		if action.getId() == 10 or (action.getId() == 100 and focusedId == self.BTN_CANCEL):
+			self._canceled = True
+			self.thread_auth_loop.join()
+			self.close()		
+
+	def close(self):
+		# check if closing the currently opened dialog
+		if opendialogs[-1] != self:
+			log('WARNING: Dialog queue inconsistency. Non-top dialog close')
+			
+		opendialogs.remove(self)
+		xbmcgui.WindowXMLDialog.close(self)
 		
 def dialog_activation_token(tpl_data, close=False):
 	open_dialog(ActivationToken, "custom_ActivationToken.xml", tpl_data, close)

@@ -4,6 +4,7 @@
 -	icon vs thhumbnail v listingoch
 -	cache
 -	show_video_dialog / show_video_dialog_byId optimize
+-	open_dialog cleanup, unify result mechanism
 -	window opening response
 -	test how do the profiles work, and their options about sharing media sources/information
 

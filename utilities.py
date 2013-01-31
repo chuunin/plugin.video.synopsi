@@ -33,6 +33,7 @@ __author__  = __addon__.getAddonInfo('author')
 __version__   = __addon__.getAddonInfo('version')
 __profile__      = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __lockLoginScreen__ = threading.Lock()
+T = __addon__.getLocalizedString
 
 # constant
 BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
@@ -289,12 +290,11 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 		xbmcgui.WindowXMLDialog.__init__( self )
 
 	def onInit(self):
-		self.getString = __addon__.getLocalizedString
-		self.getControl(11).setLabel(self.getString(69601))
-		self.getControl(10).setLabel(self.getString(69602))
-		self.getControl(15).setLabel(self.getString(69603))
-		self.getControl(1 ).setLabel(self.getString(69604))
-		self.getControl(2 ).setLabel(self.getString(69600))
+		self.getControl(11).setLabel(T(69601))
+		self.getControl(10).setLabel(T(69602))
+		self.getControl(15).setLabel(T(69603))
+		self.getControl(1 ).setLabel(T(69604))
+		self.getControl(2 ).setLabel(T(69600))
 
 	def onClick(self, controlId):
 		"""

@@ -34,7 +34,6 @@ defaultSeasonProps2 = ['id', 'episodes']
 defaultSearchProps = defaultEpisodeProps + ['year', 'directors', 'cast']
 URL_TOKEN_ACTIVATION = 'token/activate'
 
-
 class NotConnectedException(Exception):
 	pass
 
@@ -280,12 +279,25 @@ class ApiClient(loggable.Loggable):
 #	list independent
 	def getActivationToken(self):
 		req = {
-			'methodPath': 'activation/token'
-			'method': 'get',
+			'methodPath': 'activation/token',
+			'method': 'get'
 		}
 		
-		return self.execute(req)
+		#~ return self.execute(req)
+		return '4br4k4'
+
+	_debug_counter = 0
+	def checkActivationToken(self, token):		
+		req = {
+			'methodPath': 'activation/check_token/%s' % token,
+			'method': 'get'
+		}
 		
+		#~ return self.execute(req)
+		self._debug_counter += 1
+		log('counter: ' + str(self._debug_counter))
+		return self._debug_counter > 5
+				
 
 	def titleWatched(self, titleId, **data):
 		# normalize ratings
