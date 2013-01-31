@@ -7,6 +7,7 @@ import thread
 # application
 from utilities import *
 import dialog
+import myaddon as ADDON
 
 class ServiceTCPHandler(SocketServer.StreamRequestHandler):
 	def __init__(self, *args, **kwargs):

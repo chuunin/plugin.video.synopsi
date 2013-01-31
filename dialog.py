@@ -19,6 +19,7 @@ from utilities import *
 from app_apiclient import AppApiClient, AuthenticationError
 from cache import StvList, DuplicateStvIdException
 import top
+import myaddon as ADDON
 
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
@@ -26,8 +27,6 @@ HACK_GO_BACK = -2
 
 common = CommonFunctions
 common.plugin = "SynopsiTV"
-
-__profile__      = ADDON.addon.getAddonInfo('profile')
 
 itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': HACK_GO_BACK, 'type': 'HACK'}
 

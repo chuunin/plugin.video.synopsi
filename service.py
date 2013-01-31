@@ -14,12 +14,13 @@ import time
 from scrobbler import SynopsiPlayerDecor
 from library import RPCListenerHandler
 from cache import *
-from utilities import home_screen_fill, login_screen, log
+from utilities import home_screen_fill, log
 from app_apiclient import AppApiClient
 from addonservice import AddonService
 import top
 import threading
 import dialog
+import myaddon as ADDON
 
 threading.current_thread().name = 'service.py'
 

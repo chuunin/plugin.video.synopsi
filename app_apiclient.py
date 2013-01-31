@@ -7,7 +7,7 @@ from apiclient import *
 from utilities import *
 import threading
 import top
-
+import myaddon as ADDON
 
 class LoginState:
 	Notify = 1

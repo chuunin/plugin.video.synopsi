@@ -29,6 +29,7 @@ import threading
 from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
+import myaddon as ADDON
 
 threading.current_thread().name = 'addon.py'
 

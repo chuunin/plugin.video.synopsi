@@ -28,8 +28,6 @@ import myaddon as ADDON
 common = CommonFunctions
 common.plugin = "SynopsiTV"
 
-__profile__      = xbmc.translatePath(ADDON.addon.getAddonInfo('profile'))
-__lockLoginScreen__ = threading.Lock()
 T = ADDON.addon.getLocalizedString
 
 # constant
@@ -238,7 +236,7 @@ def dialog_yesno(msg):
 
 def clear_setting_cache():
 	"Clear cached addon setting. Useful after update"
-	settingsPath = os.path.join(__profile__, 'settings.xml')
+	settingsPath = os.path.join(ADDON.addon.profilePath, 'settings.xml')
 	if os.path.exists(settingsPath):
 		os.remove(settingsPath)
 
@@ -258,7 +256,7 @@ def get_settings_file_version():
 	return value
 
 def setting_cache_append_string(string):
-	settingsPath = os.path.join(__profile__, 'settings.xml')
+	settingsPath = os.path.join(ADDON.addon.profilePath, 'settings.xml')
 
 	# load file
 	with open(settingsPath) as f:
@@ -320,7 +318,6 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		self.password = kwargs['password']
 
 	def onInit(self):
-		self.getString = ADDON.addon.getLocalizedString
 		c = self.getControl(10)
 
 		self.getControl(10).setText(self.username)
@@ -576,44 +573,6 @@ def home_screen_fill(apiClient, cache):
 		log(traceback.format_exc())
 		notification('Movie reccomendation service failed')
 		return
-
-
-def login_screen(apiClient):
-	if not __lockLoginScreen__.acquire(False):
-		log('login_screen not starting duplicate')
-		return False
-
-	username = ADDON.addon.getSetting('USER')
-	password = ADDON.addon.getSetting('PASS')
-
-	log('string type: ' + str(type(username)))
-	log('string type: ' + str(type(password)))
-
-	ui = XMLLoginDialog("LoginDialog.xml", ADDON.path, "Default", username=username, password=password)
-	ui.doModal()
-	# ui.show()
-
-	# dialog result is 'OK'
-	if ui.response==2:
-		log('dialog OK')
-		# check if data changed
-		d = ui.getData()
-		if username!=d['username'] or password!=d['password']:
-			# store in settings
-			ADDON.addon.setSetting('USER', value=d['username'])
-			ADDON.addon.setSetting('PASS', value=d['password'])
-			apiClient.setUserPass(d['username'], d['password'])
-
-		result=True
-	else:
-		log('dialog canceled')
-		result=False
-
-	del ui
-
-	__lockLoginScreen__.release()
-	log('login_screen result: %d' % result)
-	return result
 
 def get_rating():
 	"""

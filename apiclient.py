@@ -14,6 +14,7 @@ import httplib
 # application
 from utilities import *
 import loggable
+import myaddon as ADDON
 
 RATING_CODE = {
 	1: 'like',
