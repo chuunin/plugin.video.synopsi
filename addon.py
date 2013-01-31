@@ -42,8 +42,7 @@ class AddonClient(object):
 	def __init__(self, pluginhandle):
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.pluginhandle = pluginhandle
-		addon = get_current_addon()
-		self.service_port = int(addon.getSetting('ADDON_SERVICE_PORT'))
+		self.service_port = int(ADDON.addon.getSetting('ADDON_SERVICE_PORT'))
 
 	def execute(self, command, **arguments):
 		try:
@@ -274,6 +273,8 @@ try:
 
 	elif p['mode']==973:
 		addonclient.debug_3()
+	elif p['mode']==974:
+		addonclient.debug_4()
 	else:
 		raise UnknownModeException('Unknown mode: %s' % p['mode'])
 

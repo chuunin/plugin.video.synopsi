@@ -23,7 +23,7 @@
 				<width>800</width>
 				<height>50</height>
 				<font>font13_title</font>
-				<label>Authentication</label>
+				<label>$ADDON[69610]</label>
 				<align>center</align>
 				<aligny>center</aligny>
 				<textcolor>selected</textcolor>
@@ -37,7 +37,7 @@
 				<width>700</width>
 				<height>100</height>
 				<font>font13</font>
-				<label>$ADDON[plugin.video.synopsi 69605]</label>
+				<label>$ADDON[69605]</label>
 				<align>center</align>
 				<aligny>center</aligny>
 				<textcolor>white</textcolor>
@@ -52,7 +52,7 @@
 				<width>700</width>
 				<height>30</height>
 				<font>font16</font>
-				<label>http://www.synopsi.tv/xbmc/f7d8a2</label>
+				<label></label>
 				<align>center</align>
 				<aligny>center</aligny>
 				<textcolor>white</textcolor>
@@ -66,7 +66,7 @@
 				<width>700</width>
 				<height>60</height>
 				<font>font13</font>
-				<label>$ADDON[plugin.video.synopsi 69606]</label>
+				<label>$ADDON[69606]</label>
 				<align>center</align>
 				<aligny>top</aligny>
 				<textcolor>white</textcolor>
@@ -80,7 +80,7 @@
 				<posy>310</posy>
 				<width>150</width>
 				<height>40</height>
-				<label>Cancel</label>
+				<label>$ADDON[69609]</label>
 				<font>font12</font>
 				<textcolor>white</textcolor>
 				<focusedcolor>white</focusedcolor>
@@ -97,7 +97,7 @@
 				<posy>310</posy>
 				<width>150</width>
 				<height>40</height>
-				<label>Finished</label>
+				<label>$ADDON[69608]</label>
 				<font>font12</font>
 				<textcolor>white</textcolor>
 				<focusedcolor>white</focusedcolor>

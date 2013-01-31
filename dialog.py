@@ -23,19 +23,11 @@ import top
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
 HACK_GO_BACK = -2
-URL_TOKEN_ACTIVATION_BROWSER = 'http://www.synopsi.tv/xbmc/'
 
 common = CommonFunctions
 common.plugin = "SynopsiTV"
 
-__addon__  = xbmcaddon.Addon()
-__addonpath__	= __addon__.getAddonInfo('path')
-__addonname__ = __addon__.getAddonInfo('name')
-__cwd__	= __addon__.getAddonInfo('path')
-__author__  = __addon__.getAddonInfo('author')
-__version__   = __addon__.getAddonInfo('version')
-__profile__      = __addon__.getAddonInfo('profile')
-
+__profile__      = ADDON.addon.getAddonInfo('profile')
 
 itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': HACK_GO_BACK, 'type': 'HACK'}
 
@@ -64,14 +56,14 @@ def open_dialog(dialogclass, filename, tpl_data, close=False):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 	except RuntimeError, e:
 		log('Window ValueError')
-		ui = dialogclass(filename, __cwd__, "Default", data=tpl_data)
+		ui = dialogclass(filename, ADDON.path, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 	else:
 		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
 		if close:
 			close_current_dialog()
-		ui = dialogclass(filename, __cwd__, "Default", data=tpl_data)
+		ui = dialogclass(filename, ADDON.path, "Default", data=tpl_data)
 		ui.doModal()
 		del ui
 
@@ -384,7 +376,7 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 
 
 def open_select_movie_dialog(tpl_data):
-	ui = SelectMovieDialog("SelectMovie.xml", __cwd__, "Default", data=tpl_data)
+	ui = SelectMovieDialog("SelectMovie.xml", ADDON.path, "Default", data=tpl_data)
 	ui.doModal()
 	result = ui.selectedMovie
 	del ui
@@ -561,7 +553,7 @@ class ActivationToken(xbmcgui.WindowXMLDialog):
 
 	def auth_loop(self):
 		token = top.apiClient.getActivationToken()
-		self.getControl(313).setLabel(URL_TOKEN_ACTIVATION_BROWSER + token)
+		self.getControl(313).setLabel(top.apiClient.URL_TOKEN_ACTIVATION_BROWSER + token)
 		
 		while not self._canceled and not self._authenticated:
 			time.sleep(1)

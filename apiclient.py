@@ -45,6 +45,7 @@ class ApiCallError(Exception):
 
 class ApiClient(loggable.Loggable):
 	_instance = None
+	URL_TOKEN_ACTIVATION_BROWSER = 'http://www.synopsi.tv/xbmc/'
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		super(ApiClient, self).__init__()
 		self.baseUrl = base_url
@@ -76,20 +77,18 @@ class ApiClient(loggable.Loggable):
 		if ApiClient._instance:
 			return ApiClient._instance
 
-		__addon__  = get_current_addon()
-
 		iuid = get_install_id()
 
 		# get or generate install-unique ID
 		ApiClient._instance = cls(
-			__addon__.getSetting('BASE_URL'),
-			__addon__.getSetting('KEY'),
-			__addon__.getSetting('SECRET'),
-			__addon__.getSetting('USER'),
-			__addon__.getSetting('PASS'),
+			ADDON.addon.getSetting('BASE_URL'),
+			ADDON.addon.getSetting('KEY'),
+			ADDON.addon.getSetting('SECRET'),
+			ADDON.addon.getSetting('USER'),
+			ADDON.addon.getSetting('PASS'),
 			iuid,
 			debugLvl=logging.ERROR,
-			rel_api_url=__addon__.getSetting('REL_API_URL'),
+			rel_api_url=ADDON.addon.getSetting('REL_API_URL'),
 		)
 
 		return ApiClient._instance
@@ -276,7 +275,7 @@ class ApiClient(loggable.Loggable):
 
 
 #	api methods
-#	list independent
+#	library independent
 	def getActivationToken(self):
 		req = {
 			'methodPath': 'activation/token',
@@ -358,7 +357,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-# conditionally dependent
+# conditionally library dependent
 	def profileRecco(self, atype, local=False, limit=None, props=watchableTitleProps):
 		req = {
 			'methodPath': 'profile/recco/',

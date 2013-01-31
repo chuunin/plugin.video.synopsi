@@ -21,15 +21,14 @@ class AppApiClient(ApiClient):
 		self.login_state_announce = lsa
 
 	def reloadUserPass(self):
-		__addon__ = get_current_addon()
 		changed = False
 
-		if self.username != __addon__.getSetting('USER'):
-			self.username = __addon__.getSetting('USER')
+		if self.username != ADDON.addon.getSetting('USER'):
+			self.username = ADDON.addon.getSetting('USER')
 			changed = True
 
-		if self.password != __addon__.getSetting('PASS'):
-			self.password = __addon__.getSetting('PASS')
+		if self.password != ADDON.addon.getSetting('PASS'):
+			self.password = ADDON.addon.getSetting('PASS')
 			changed = True
 
 		return changed

@@ -323,6 +323,25 @@ class ApiTest(TestCase):
 		result = client.library(['date', 'genres', 'cover_small'])
 		print dump(result)
 
+	def test_activation(self):
+		token = client.getActivationToken()
+		print client.URL_TOKEN_ACTIVATION_BROWSER + token
+	
+		_authenticated = False
+		try:
+			while not _authenticated:
+				time.sleep(1)
+				response = client.checkActivationToken(token)
+				_authenticated = response
+				log('loop ' + str(time.time()))
+		except:
+			pass
+
+		self.assertTrue(_authenticated)
+
+
+
+
 if __name__ == '__main__':
 	c = connection
 	client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])

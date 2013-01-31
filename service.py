@@ -23,11 +23,9 @@ import dialog
 
 threading.current_thread().name = 'service.py'
 
-__addon__  = get_current_addon()
-__cwd__	= __addon__.getAddonInfo('path')
-__addon__.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
+ADDON.addon.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
 
-DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
+DEFAULT_SERVICE_PORT=int(ADDON.addon.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
 	log('SYNOPSI SERVICE START (Python %s)' % str(sys.version))

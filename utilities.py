@@ -22,21 +22,18 @@ import time
 import sys
 import xml.etree.ElementTree as et
 
+# application
+import myaddon as ADDON
+
 common = CommonFunctions
 common.plugin = "SynopsiTV"
 
-
-__addon__  = xbmcaddon.Addon()
-__addonname__ = __addon__.getAddonInfo('name')
-__addonpath__	= __addon__.getAddonInfo('path')
-__author__  = __addon__.getAddonInfo('author')
-__version__   = __addon__.getAddonInfo('version')
-__profile__      = xbmc.translatePath(__addon__.getAddonInfo('profile'))
+__profile__      = xbmc.translatePath(ADDON.addon.getAddonInfo('profile'))
 __lockLoginScreen__ = threading.Lock()
-T = __addon__.getLocalizedString
+T = ADDON.addon.getLocalizedString
 
 # constant
-BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
+BTN_SHOW_ALL_MOVIES = os.path.join(ADDON.path, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
 HACK_SHOW_ALL_LOCAL_MOVIES = -1
@@ -154,14 +151,9 @@ def notification(text, name='SynopsiTV Plugin', time=5000):
     """
     xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))
 
-def get_current_addon():
-	global __addon__
-	return __addon__
-
 def addon_getSetting(aid, adef=None):
-	addon = get_current_addon()
 	try:
-		res = addon.getSetting(aid)
+		res = ADDON.addon.getSetting(aid)
 	except:
 		res = adef
 
@@ -174,7 +166,7 @@ def exc_text_by_mode(mode):
 def check_first_run():
 	reloadSkin = False
 	# on first run
-	if __addon__.getSetting('FIRSTRUN') == 'true':
+	if ADDON.addon.getSetting('FIRSTRUN') == 'true':
 		log('SYNOPSI FIRST RUN')
 
 		# get activation token
@@ -183,7 +175,7 @@ def check_first_run():
 		# enable home screen recco		
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
 		reloadSkin = True
-		__addon__.setSetting('FIRSTRUN', "false")
+		ADDON.addon.setSetting('FIRSTRUN', "false")
 
 	if addon_getSetting('ADDON_SERVICE_FIRSTRUN') != "false":
 		#~ xbmc.executebuiltin("RunPlugin('plugin://plugin.video.synopsi/?action=restart')")
@@ -251,7 +243,7 @@ def clear_setting_cache():
 		os.remove(settingsPath)
 
 def get_settings_file_version():
-	path = os.path.join(__addonpath__, 'resources', 'settings.xml')
+	path = os.path.join(ADDON.path, 'resources', 'settings.xml')
 
 	value = None
 	try:
@@ -328,7 +320,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		self.password = kwargs['password']
 
 	def onInit(self):
-		self.getString = __addon__.getLocalizedString
+		self.getString = ADDON.addon.getLocalizedString
 		c = self.getControl(10)
 
 		self.getControl(10).setText(self.username)
@@ -365,10 +357,10 @@ def get_protected_folders():
 	Returns array of protected folders.
 	"""
 	array = []
-	if __addon__.getSetting("PROTFOL") == "true":
-		num_folders = int(__addon__.getSetting("NUMFOLD")) + 1
+	if ADDON.addon.getSetting("PROTFOL") == "true":
+		num_folders = int(ADDON.addon.getSetting("NUMFOLD")) + 1
 		for i in range(num_folders):
-			path = __addon__.getSetting("FOLDER{0}".format(i + 1))
+			path = ADDON.addon.getSetting("FOLDER{0}".format(i + 1))
 			array.append(path)
 
 	return array
@@ -527,13 +519,11 @@ def get_api_port():
 	return value
 
 def get_install_id():
-	global __addon__
-
-	iuid = __addon__.getSetting(id='INSTALL_UID')
+	iuid = ADDON.addon.getSetting(id='INSTALL_UID')
 	if not iuid:
 		iuid = generate_iuid()
 		log('iuid:' + iuid)
-		__addon__.setSetting(id='INSTALL_UID', value=iuid)
+		ADDON.addon.setSetting(id='INSTALL_UID', value=iuid)
 
 	return iuid
 
@@ -593,13 +583,13 @@ def login_screen(apiClient):
 		log('login_screen not starting duplicate')
 		return False
 
-	username = __addon__.getSetting('USER')
-	password = __addon__.getSetting('PASS')
+	username = ADDON.addon.getSetting('USER')
+	password = ADDON.addon.getSetting('PASS')
 
 	log('string type: ' + str(type(username)))
 	log('string type: ' + str(type(password)))
 
-	ui = XMLLoginDialog("LoginDialog.xml", __addonpath__, "Default", username=username, password=password)
+	ui = XMLLoginDialog("LoginDialog.xml", ADDON.path, "Default", username=username, password=password)
 	ui.doModal()
 	# ui.show()
 
@@ -610,8 +600,8 @@ def login_screen(apiClient):
 		d = ui.getData()
 		if username!=d['username'] or password!=d['password']:
 			# store in settings
-			__addon__.setSetting('USER', value=d['username'])
-			__addon__.setSetting('PASS', value=d['password'])
+			ADDON.addon.setSetting('USER', value=d['username'])
+			ADDON.addon.setSetting('PASS', value=d['password'])
 			apiClient.setUserPass(d['username'], d['password'])
 
 		result=True
@@ -630,7 +620,7 @@ def get_rating():
 	Get rating from user:
 	1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
 	"""
-	ui = XMLRatingDialog("SynopsiDialog.xml", __addonpath__, "Default")
+	ui = XMLRatingDialog("SynopsiDialog.xml", ADDON.path, "Default")
 	ui.doModal()
 	_response = ui.response
 	del ui
@@ -638,8 +628,7 @@ def get_rating():
 
 def dialog_check_login_correct():
 	if dialog_login_fail_yesno():
-		addon = get_current_addon()
-		result = addon.openSettings()
+		result = ADDON.addon.openSettings()
 		# openSettings do not return users click, so we return if user had the intention to correct credentials
 		return True
 	else:

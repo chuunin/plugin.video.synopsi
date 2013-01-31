@@ -106,8 +106,7 @@ class AddonHandler(ServiceTCPHandler):
 		thread.start_new_thread(dialog.show_video_dialog_byId, (stv_id))
 
 	def open_settings(self):
-		__addon__ = get_current_addon()
-		thread.start_new_thread(__addon__.openSettings, ())
+		thread.start_new_thread(ADDON.addon.openSettings, ())
 
 	def debug_1(self):
 		self.server.stvList.clear()
@@ -127,7 +126,9 @@ class AddonHandler(ServiceTCPHandler):
 		self.server.stvList.list()
 
 	def debug_3(self):
-		log(dump(self.server.stvList.byStvId))
+		data = {}
+		t1 = threading.Thread(target=dialog.dialog_activation_token, args=[data])
+		t1.start()
 
 
 class AddonServer(SocketServer.TCPServer):
@@ -144,8 +145,7 @@ class AddonServer(SocketServer.TCPServer):
 					raise
 
 
-		addon = get_current_addon()
-		addon.setSetting('ADDON_SERVICE_PORT', str(tport))
+		ADDON.addon.setSetting('ADDON_SERVICE_PORT', str(tport))
 
 class AddonService(mythread.MyThread):
 	def __init__(self, host, port, apiClient, stvList):
