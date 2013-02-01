@@ -222,3 +222,7 @@ class AppApiClient(ApiClient):
 		data['file_name'] = rel_path(data['file_name'])
 		return ApiClient.titleIdentify(self, props, **data)
 
+	def titleWatched(self, titleId, **data):
+		data['software_info'] = software_info()
+		return ApiClient.titleWatched(self, titleId, **data)
+
