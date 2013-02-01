@@ -1,3 +1,8 @@
+[B]Version 1.0.2[/B]
+
+- Fixed: sending checkins wrong api usage
+- Fixed: restart fails on OSX, trying quit after restart
+
 [B]Version 1.0.1[/B]
 
 - Added: season 'on-disk' strips in tvshow detail 
