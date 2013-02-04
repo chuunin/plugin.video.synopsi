@@ -98,6 +98,10 @@ class AppApiClient(ApiClient):
 		self._lock_access_token.release()
 		return res
 
+	def setRefreshToken(self, token):
+		ADDON = get_current_addon()
+		ADDON.setSetting('REFTOKEN', token)		
+
 	# convienent functions
 	def get_unwatched_episodes(self):
 		episodes = self.unwatchedEpisodes()
