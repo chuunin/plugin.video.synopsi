@@ -32,6 +32,11 @@ exampleEvents = [
 		"position": 1359
 	},
 	{
+		"event": "pause",
+		"timestamp": '2012-10-08 16:55:10',
+		"position": 65535
+	},
+	{
 		"event": "stop",
 		"timestamp": '2012-10-08 16:55:15',
 		"position": 1460
