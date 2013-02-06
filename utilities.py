@@ -17,11 +17,9 @@ from base64 import b64encode
 from urllib import urlencode
 from urllib2 import Request, urlopen
 from copy import copy
-import xml.etree.ElementTree as ET
 import time
 import sys
 import xml.etree.ElementTree as et
-import platform
 
 common = CommonFunctions
 common.plugin = "SynopsiTV"
