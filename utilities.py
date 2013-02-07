@@ -32,7 +32,7 @@ __addon__  = xbmcaddon.Addon()
 __addonname__ = __addon__.getAddonInfo('name')
 __addonpath__	= __addon__.getAddonInfo('path')
 __author__  = __addon__.getAddonInfo('author')
-__version__   = __addon__.getAddonInfo('version')
+VERSION   = __addon__.getAddonInfo('version')
 __profile__      = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __lockLoginScreen__ = threading.Lock()
 
@@ -138,7 +138,7 @@ def os_info():
 	return info
 
 def software_info():
-	i = { 'plugin_version': const.VERSION, 'os_info': os_info() }
+	i = { 'plugin_version': VERSION, 'os_info': os_info() }
 	i.update(player_info())
 	return i 
 

@@ -137,6 +137,7 @@ class AddonClient(object):
 try:
 	dirhandle = int(sys.argv[1])
 
+	log('SYNOPSI ADDON (%s) START' % VERSION)
 	log('SYS ARGV:' + str(sys.argv))
 
 	url_parsed = urlparse.urlparse(sys.argv[2])
