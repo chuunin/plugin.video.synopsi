@@ -181,7 +181,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 	"""
 	def __init__(self, *args, **kwargs):
 		self.data = kwargs['data']
-		self.parentWindow = opendialogs[-1]
+		self.parentWindow = opendialogs[-1] if opendialogs else None
 		self.controlId = None
 		opendialogs.append(self)
 
@@ -196,7 +196,7 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 		# set available labels
 		i = 1
-		for key, value in self.data['labels'].iteritems():
+		for key, value in self.data['labels']:
 			win.setProperty("Movie.Label.{0}.1".format(i), key)
 			win.setProperty("Movie.Label.{0}.2".format(i), value)
 			i = i + 1
@@ -449,50 +449,39 @@ def video_dialog_template_fill(stv_details, json_data={}):
 
 	tpl_data=stv_details
 
-	stv_labels = {}
-	if tpl_data.get('genres'):
-		stv_labels['Genre'] = ', '.join(tpl_data['genres'])	
-	if tpl_data.get('runtime'):
-		stv_labels['Runtime'] = '%d min' % tpl_data['runtime']
-	if tpl_data.get('directors'):
-		stv_labels['Director'] = ', '.join(tpl_data['directors'])
-	if tpl_data.get('cast'):
-		stv_labels['Cast'] = ', '.join(map(lambda x:x['name'], tpl_data['cast']))
-	#~ if tpl_data.get('writers'):
-		#~ stv_labels['Writer'] = ', '.join(tpl_data['writers'])
-	if tpl_data.get('date'):
-		tpl_data['release_date'] = datetime.fromtimestamp(tpl_data['date'])
-		stv_labels['Release date'] = tpl_data['release_date'].strftime('%x')
-
-	xbmclabels = {}
+	# store file in tpl
 	if tpl_data.has_key('xbmc_movie_detail'):
-		d = tpl_data['xbmc_movie_detail']
-		if d.get('director'):
-			xbmclabels["Director"] = ', '.join(d['director'])
-		#~ if d.get('writer'):
-			#~ xbmclabels["Writer"] = d['writer']
-		if d.get('runtime'):
-			xbmclabels["Runtime"] = d['runtime'] + ' min'
-		if d.get('premiered'):
-			xbmclabels["Release date"] = d['premiered']
-			if not tpl_data.get('release_date'):
-				try:
-					tpl_data['release_date'] = datetime.strptime(d['premiered'], '%m/%d/%y')
-				except:
-					pass
-
 		if d.get('file'):
 			tpl_data['file'] = d.get('file')
 
-	labels = {}
-	labels.update(xbmclabels)
-	labels.update(stv_labels)
+	# store labels
+	labels = []	
 
-	# set unavail labels
-	for label in ['Genre', 'Runtime', 'Director','Cast']:
-		if not labels.has_key(label):
-			labels[label] = t_unavail
+	# append tuple to labels, translated by trfn, or the N/A string
+	def append_tuple(stv_label, tpl_label, trfn):
+		log('tpl_label:' + tpl_label)
+		if tpl_data.get(tpl_label):
+			log('tpl_data[tpl_label]:' + str(tpl_data[tpl_label]))
+			val = trfn(tpl_data[tpl_label])
+		else:
+			val = t_unavail
+				
+		labels.append((stv_label, val))
+	
+	# translate functions
+	def tr_genre(data): return ', '.join(data)
+	def tr_cast(data): return ', '.join(map(lambda x:x['name'], data))
+	def tr_runtime(data): return '%d min' % data
 
+	append_tuple('Genre', 'genres', tr_genre)
+	append_tuple('Cast', 'cast', tr_cast)
+	append_tuple('Director', 'directors', tr_genre)		# reuse tr_genre here	
+	append_tuple('Runtime', 'runtime', tr_runtime)
+		
+	if tpl_data.get('date'):
+		tpl_data['release_date'] = datetime.fromtimestamp(tpl_data['date'])
+		labels.append(('Release date', tpl_data['release_date'].strftime('%x')))
+		
 	tpl_data['labels'] = labels
 	tpl_data['BottomListingLabel'] = type2listinglabel.get(tpl_data['type'], '')
 
