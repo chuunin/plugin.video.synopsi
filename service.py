@@ -30,6 +30,8 @@ __addon__.setSetting('ADDON_SERVICE_FIRSTRUN', "false")
 DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
+	log('SYNOPSI SERVICE (%s) START' % ADDON.version)
+	
 	apiclient1 = AppApiClient.getDefaultClient()
 	top.apiClient = apiclient1
 

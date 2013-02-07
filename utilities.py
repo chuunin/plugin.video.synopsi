@@ -21,6 +21,9 @@ import time
 import sys
 import xml.etree.ElementTree as et
 
+# application
+import resources.const
+
 common = CommonFunctions
 common.plugin = "SynopsiTV"
 
@@ -135,7 +138,7 @@ def os_info():
 	return info
 
 def software_info():
-	i = { 'os_info': os_info() }
+	i = { 'plugin_version': const.VERSION, 'os_info': os_info() }
 	i.update(player_info())
 	return i 
 
@@ -268,21 +271,6 @@ def clear_setting_cache():
 	settingsPath = os.path.join(__profile__, 'settings.xml')
 	if os.path.exists(settingsPath):
 		os.remove(settingsPath)
-
-def get_settings_file_version():
-	path = os.path.join(__addonpath__, 'resources', 'settings.xml')
-
-	value = None
-	try:
-		with open(path, 'r') as _file:
-			temp = _file.read()
-			if "SETTINGS_VERSION" in temp:
-				version = re.compile('\<setting id="SETTINGS_VERSION" option="hidden" type="number" visible="false" default="(\d+)" /\>').findall(temp)
-				value = int(version[0])
-	except (IOError, IndexError):
-		pass
-
-	return value
 
 def setting_cache_append_string(string):
 	settingsPath = os.path.join(__profile__, 'settings.xml')
