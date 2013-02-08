@@ -7,6 +7,7 @@ import thread
 # application
 from utilities import *
 import dialog
+import resources.const as const
 
 class ServiceTCPHandler(SocketServer.StreamRequestHandler):
 	def __init__(self, *args, **kwargs):
@@ -25,6 +26,14 @@ class ServiceTCPHandler(SocketServer.StreamRequestHandler):
 			return
 
 		try:
+			# check interface version
+			iface_version = json_data['iface_version']
+			if iface_version != const.SERVICE_IFACE_VERSION:
+				exc = { 'type': 'VersionMismatch',
+						'message': 'plugin version (%s) doesn\'t match service version (%s). Please restart service' % (iface_version, const.SERVICE_IFACE_VERSION) }
+				self.wfile.write(json.dumps({'exception': exc}))
+				return
+			
 			# handle requested method
 			methodName = json_data['command']
 			arguments = json_data.get('arguments', {})

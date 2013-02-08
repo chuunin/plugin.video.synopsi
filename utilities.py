@@ -88,6 +88,7 @@ t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
 t_nolocalrecco = 'There are no items in this list. Either you have no movies in your library or they have not been recognized by Synopsi'
 t_nolocaltvshow = 'There are no items in this list. Either you have no episodes in your library or they have not been recognized by Synopsi'
 t_needrestart = 'To start the SynopsiTV service, please turn off your media center then turn it back on again. Do this now?'
+t_needrestart_update = 'Addon service has been updated. For the plugin to work correctly, turn off your media center then turn it back on again. Do this now?'
 t_enter_title_to_search =  'Enter a title name to search for.'
 t_correct_search_title = 'Search for the correct title'
 
@@ -659,9 +660,9 @@ def dialog_login_fail_yesno():
 	return result
 
 
-def dialog_need_restart():
+def dialog_need_restart(reason=t_needrestart):
 	dialog = xbmcgui.Dialog()
-	yes = dialog_yesno(t_needrestart)
+	yes = dialog_yesno(reason)
 	return yes
 
 

@@ -29,6 +29,7 @@ import threading
 from utilities import *
 from cache import StvList
 from xbmcrpc import xbmc_rpc
+import resources.const as const
 
 threading.current_thread().name = 'addon.py'
 
@@ -49,7 +50,8 @@ class AddonClient(object):
 		try:
 			json_data = {
 				'command': command,
-				'arguments': arguments
+				'arguments': arguments,
+				'iface_version': const.SERVICE_IFACE_VERSION
 			}
 
 			response = None
@@ -71,7 +73,17 @@ class AddonClient(object):
 			response_json = json.loads(response)
 			#~ xbmc.log('CLIENT / JSON RESPONSE / ' + dump(response))
 
+			# handle exceptions
+			if response_json.get('exception'):
+				exc = response_json['exception']
+				if exc['type'] == 'VersionMismatch':
+					if dialog_need_restart(t_needrestart_update):
+						raise ShutdownRequestedException('User requested shutdown')
+					
+
 		# TODO: some handling
+		except ShutdownRequestedException, e:
+			raise
 		except:
 			xbmc.log('CLIENT / ERROR / RESPONSE ' + str(response))
 			#~ raise
