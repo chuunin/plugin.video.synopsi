@@ -38,6 +38,7 @@ itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': 
 
 open_dialogs = []
 closed_dialogs = []
+stashed_dialogs = []
 
 def get_current_dialog():
 	if open_dialogs:
@@ -58,14 +59,21 @@ def close_all_dialogs():
 		if not d:
 			break
 
-def open_dialog(dialogClass, xmlFile, tpl_data, close=False):
-	#~ try:
-		#~ win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-		#~ log('DBG: Window')
-	#~ except RuntimeError, e:
-		#~ win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
-		#~ log('DBG: WindowDialog')
-		
+def stash_all_dialogs():
+	while 1:
+		d = close_current_dialog()
+		if not d:
+			break
+
+		stashed_dialogs.append(d)
+
+def unstash_all_dialogs():
+	log('stashed_dialogs:' + str(stashed_dialogs))
+	for d in stashed_dialogs:
+		open_dialogs.append(d)
+		d.doModal()
+
+def open_dialog(dialogClass, xmlFile, tpl_data, close=False):		
 	if close:
 		close_current_dialog()
 			
@@ -262,7 +270,7 @@ class VideoDialog(MyDialog):
 
 		# trailer
 		elif controlId == 10:
-			close_all_dialogs()
+			stash_all_dialogs()
 
 		# already watched
 		elif controlId == 11:
