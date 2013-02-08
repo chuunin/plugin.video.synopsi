@@ -268,7 +268,7 @@ try:
         }
         ]
 
-		dialog.open_list_dialog({ 'items': items }, close=True)
+		dialog.open_list_dialog({ 'items': items }, close=False)
 	
 
 	elif p['mode']==972:

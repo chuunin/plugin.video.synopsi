@@ -36,11 +36,12 @@ __profile__      = __addon__.getAddonInfo('profile')
 
 itemFolderBack = {'name': '...', 'cover_medium': 'DefaultFolderBack.png', 'id': HACK_GO_BACK, 'type': 'HACK'}
 
-opendialogs = []
+open_dialogs = []
+closed_dialogs = []
 
 def get_current_dialog():
-	if opendialogs:
-		return opendialogs[-1]
+	if open_dialogs:
+		return open_dialogs[-1]
 	else:
 		return None
 
@@ -49,18 +50,36 @@ def close_current_dialog():
 	if d:
 		d.close()
 
-def close_all_dialogs():
-	for d in opendialogs:
-		d.close()
-		del d
+	return d
 
-class ListDialog(xbmcgui.WindowXMLDialog):
+def close_all_dialogs():
+	while 1:
+		d = close_current_dialog()
+		if not d:
+			break
+
+class MyDialog(xbmcgui.WindowXMLDialog):
+	def __init__(self, *args, **kwargs):
+		super(MyDialog, self).__init__(*args, **kwargs)
+		self.parentWindow = open_dialogs[-1] if open_dialogs else None
+		open_dialogs.append(self)
+
+	def close(self):
+		# check if closing the currently opened dialog
+		if open_dialogs[-1] != self:
+			log('WARNING: Dialog queue inconsistency. Non-top dialog close')
+
+		xbmcgui.WindowXMLDialog.close(self)
+		open_dialogs.remove(self)
+
+
+class ListDialog(MyDialog):
 	""" Dialog for choosing movie corrections """
 	def __init__(self, *args, **kwargs):
+		super(ListDialog, self).__init__(*args, **kwargs)
 		self.data = kwargs['data']
 		self.controlId = None
 		self.selectedMovie = None
-		opendialogs.append(self)
 
 	def onInit(self):
 		self.updateItems()
@@ -137,17 +156,9 @@ class ListDialog(xbmcgui.WindowXMLDialog):
 			else:
 				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id}, close=False)
 
-	def close(self):		
-		# check if closing the currently opened dialog
-		if opendialogs[-1] != self:
-			log('WARNING: Dialog queue inconsistency. Non-top dialog close')
-			
-		opendialogs.remove(self)
-		xbmcgui.WindowXMLDialog.close(self)
-
 		
 
-def open_list_dialog(tpl_data, close=True):
+def open_list_dialog(tpl_data, close=False):
 	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
 	path = ''
 	
@@ -175,15 +186,14 @@ def show_tvshows_episodes(stv_id):
 	open_list_dialog({'items': items })
 
 
-class VideoDialog(xbmcgui.WindowXMLDialog):
+class VideoDialog(MyDialog):
 	"""
 	Dialog about video information.
 	"""
 	def __init__(self, *args, **kwargs):
+		super(VideoDialog, self).__init__(*args, **kwargs)
 		self.data = kwargs['data']
-		self.parentWindow = opendialogs[-1] if opendialogs else None
 		self.controlId = None
-		opendialogs.append(self)
 
 	def onInit(self):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -267,7 +277,6 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 			stv_id = int(selected_item.getProperty('id'))
 
 			if self.data['type'] == 'tvshow':
-				self.close()
 				show_tvshows_episodes(stv_id)				
 			else:
 				show_video_dialog_byId(stv_id, close=True)
@@ -314,22 +323,14 @@ class VideoDialog(xbmcgui.WindowXMLDialog):
 
 		return
 
-	def close(self):		
-		# check if closing the currently opened dialog
-		if opendialogs[-1] != self:
-			log('WARNING: Dialog queue inconsistency. Non-top dialog close')
-			
-		opendialogs.remove(self)
-		xbmcgui.WindowXMLDialog.close(self)
 
-
-class SelectMovieDialog(xbmcgui.WindowXMLDialog):
+class SelectMovieDialog(MyDialog):
 	""" Dialog for choosing movie corrections """
 	def __init__(self, *args, **kwargs):
+		super(SelectMovieDialog, self).__init__(*args, **kwargs)
 		self.data = kwargs['data']
 		self.controlId = None
 		self.selectedMovie = None
-		opendialogs.append(self)
 
 	def onInit(self):
 		items = []
@@ -363,14 +364,6 @@ class SelectMovieDialog(xbmcgui.WindowXMLDialog):
 		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
 		if (action.getId() in CANCEL_DIALOG):
 			self.close()
-
-	def close(self):		
-		# check if closing the currently opened dialog
-		if opendialogs[-1] != self:
-			log('WARNING: Dialog queue inconsistency. Non-top dialog close')
-			
-		opendialogs.remove(self)
-		xbmcgui.WindowXMLDialog.close(self)
 
 
 def open_select_movie_dialog(tpl_data):
