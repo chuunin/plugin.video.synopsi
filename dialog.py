@@ -58,12 +58,29 @@ def close_all_dialogs():
 		if not d:
 			break
 
+def open_dialog(dialogClass, xmlFile, tpl_data, close=False):
+	#~ try:
+		#~ win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+		#~ log('DBG: Window')
+	#~ except RuntimeError, e:
+		#~ win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
+		#~ log('DBG: WindowDialog')
+		
+	if close:
+		close_current_dialog()
+			
+	ui = dialogClass(xmlFile, __cwd__, "Default", data=tpl_data)
+	ui.doModal()
+		
+	result = ui.result
+	return result	
+
 class MyDialog(xbmcgui.WindowXMLDialog):
-	def __init__(self, *args, **kwargs):
-		super(MyDialog, self).__init__(*args, **kwargs)
+	def __init__(self):
 		self.parentWindow = open_dialogs[-1] if open_dialogs else None
 		open_dialogs.append(self)
-
+		self.result = None
+	
 	def close(self):
 		# check if closing the currently opened dialog
 		if open_dialogs[-1] != self:
@@ -71,12 +88,11 @@ class MyDialog(xbmcgui.WindowXMLDialog):
 
 		xbmcgui.WindowXMLDialog.close(self)
 		open_dialogs.remove(self)
-
-
+	
 class ListDialog(MyDialog):
 	""" Dialog for choosing movie corrections """
-	def __init__(self, *args, **kwargs):
-		super(ListDialog, self).__init__(*args, **kwargs)
+	def __init__(self, strXMLname, strFallbackPath, strDefaultName, **kwargs):
+		super(ListDialog, self).__init__()
 		self.data = kwargs['data']
 		self.controlId = None
 		self.selectedMovie = None
@@ -159,23 +175,9 @@ class ListDialog(MyDialog):
 		
 
 def open_list_dialog(tpl_data, close=False):
-	#~ path = '/home/smid/projects/XBMC/resources/skins/Default/720p/'
-	path = ''
-	
-	try:
-		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-	except RuntimeError, e:
-		log('Window ValueError')
-		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
-		ui.doModal()
-		del ui
-	else:
-		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
-		if close:
-			close_current_dialog()
-		ui = ListDialog(path + "custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)
-		ui.doModal()
-		del ui
+	log('open_list_dialog')
+	#~ ui = ListDialog("custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)	
+	open_dialog(ListDialog, "custom_MyVideoNav.xml", tpl_data, close)
 
 def show_movie_list(item_list):
 	open_list_dialog({ 'items': item_list })
@@ -191,7 +193,7 @@ class VideoDialog(MyDialog):
 	Dialog about video information.
 	"""
 	def __init__(self, *args, **kwargs):
-		super(VideoDialog, self).__init__(*args, **kwargs)
+		super(VideoDialog, self).__init__()
 		self.data = kwargs['data']
 		self.controlId = None
 
@@ -256,11 +258,11 @@ class VideoDialog(MyDialog):
 
 		# play
 		if controlId == 5:
-			self.close()
+			close_all_dialogs()
 
 		# trailer
 		elif controlId == 10:
-			self.close()
+			close_all_dialogs()
 
 		# already watched
 		elif controlId == 11:
@@ -327,7 +329,7 @@ class VideoDialog(MyDialog):
 class SelectMovieDialog(MyDialog):
 	""" Dialog for choosing movie corrections """
 	def __init__(self, *args, **kwargs):
-		super(SelectMovieDialog, self).__init__(*args, **kwargs)
+		super(SelectMovieDialog, self).__init__()
 		self.data = kwargs['data']
 		self.controlId = None
 		self.selectedMovie = None
@@ -353,7 +355,7 @@ class SelectMovieDialog(MyDialog):
 		log('onClick: ' + str(controlId))
 		if self.controlId == 59:
 			sel_index = self.getControl(59).getSelectedPosition()
-			self.selectedMovie = self.data['movies'][sel_index]
+			self.result = self.data['movies'][sel_index]
 			self.close()
 
 
@@ -367,11 +369,7 @@ class SelectMovieDialog(MyDialog):
 
 
 def open_select_movie_dialog(tpl_data):
-	ui = SelectMovieDialog("SelectMovie.xml", __cwd__, "Default", data=tpl_data)
-	ui.doModal()
-	result = ui.selectedMovie
-	del ui
-	return result
+	return open_dialog(SelectMovieDialog, "SelectMovie.xml", tpl_data)
 
 def show_video_dialog_byId(stv_id, close=False):				
 	stv_details = top.apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
@@ -481,21 +479,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 	return tpl_data
 
 def open_video_dialog(tpl_data, close=False):
-	try:
-		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-	except RuntimeError, e:
-		log('Window ValueError')
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
-		ui.doModal()
-		del ui
-	else:
-		win = xbmcgui.WindowDialog(xbmcgui.getCurrentWindowDialogId())
-		if close:
-			close_current_dialog()
-		ui = VideoDialog("VideoInfo.xml", __cwd__, "Default", data=tpl_data)
-		ui.doModal()
-		del ui
-
+	open_dialog(VideoDialog, "VideoInfo.xml", tpl_data, close)
 
 
 def show_submenu(action_code, **kwargs):
