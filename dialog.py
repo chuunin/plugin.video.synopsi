@@ -270,7 +270,7 @@ class VideoDialog(MyDialog):
 
 		# trailer
 		elif controlId == 10:
-			stash_all_dialogs()
+			close_all_dialogs()
 
 		# already watched
 		elif controlId == 11:
@@ -379,10 +379,8 @@ class SelectMovieDialog(MyDialog):
 def open_select_movie_dialog(tpl_data):
 	return open_dialog(SelectMovieDialog, "SelectMovie.xml", tpl_data)
 
-def show_video_dialog_byId(stv_id, close=False):				
-	stv_details = top.apiClient.title(stv_id, defaultDetailProps, defaultCastProps)
-	top.stvList.updateTitle(stv_details)
-	show_video_dialog_data(stv_details, close=close)
+def show_video_dialog_byId(stv_id, close=False):
+	show_video_dialog({'id': stv_id}, close)	
 
 def show_video_dialog(json_data, close=False):	
 	if json_data.get('type') == 'tvshow':
