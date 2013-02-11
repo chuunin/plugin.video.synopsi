@@ -12,7 +12,7 @@ import json
 # application
 from utilities import *
 import top
-
+import dialog
 
 TIME_UNKNOWN = 65535
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
@@ -31,7 +31,6 @@ class SynopsiPlayer(xbmc.Player):
 	ended = False
 	stopped = False
 	paused = False
-	ended_without_rating = False
 	apiclient = None
 
 	playing = False
@@ -173,8 +172,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		# rate file
 		self.rate_file(self.last_played_file)
 
-	def ended_without_rating(self):
-		self.playerEvent('end')
+		self.onAfterStop()
 
 	def stopped(self):
 		self.playerEvent('stop')
@@ -187,6 +185,14 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 			self.rate_file(self.last_played_file)
 		else:
 			self.send_checkin(self.last_played_file)
+		
+		self.onAfterStop()
+
+	def onAfterStop(self):
+		# unstash all dialogs, if any
+		#~ dialog.unstash_all_dialogs()
+		pass
+
 
 	def paused(self):
 		self.update_current_time()
