@@ -210,12 +210,15 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		# get stv id
 		detail = self.cache.getByFilename(filename)
 
-		self.log('detail: ' + str(detail))
+		self.log('rating detail: ' + str(detail))
 
 		# only for identified by synopsi
 		if not detail.has_key('stvId'):
 			return False
-
+		
+		# disallow sending 'watched' event for this file from scrobbler
+		self.cache.setBlockEvents(detail['type'], detail['id'])
+		
 		## prepare the data
 		data = { 'player_events': json.dumps(self.playerEvents) }
 	
@@ -232,7 +235,10 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 				data['rating'] = rating
 
 		self.apiclient.titleWatched(detail['stvId'], **data)
-
+		
+		# allow sending 'watched' event for this file from scrobbler
+		self.cache.resetBlockEvents()
+		
 		# clear the player events
 		self.playerEvents = []
 
