@@ -448,6 +448,9 @@ class OnlineStvList(OfflineStvList):
 		# if known by synopsi, add to list
 		if item.has_key('stvId'):
 			self.apiClient.libraryTitleAdd(item['stvId'])
+			# if already watched, check-in to title
+			if item.get('lastplayed'):
+				self.apiClient.titleWatched(item['stvId'], {'created_time': item.get('lastplayed')})
 
 	def remove(self, atype, aid):
 		if self.hasTypeId(atype, aid):
