@@ -122,7 +122,7 @@ class SynopsiPlayer(xbmc.Player):
 		if self.playing:
 			self.resumed()
 
-	def get_time(self, default=TIME_UNKNOWN):
+	def get_time(self, default=None):
 		try:
 			if self.isPlayingVideo():
 				t = int(self.getTime())
@@ -130,7 +130,7 @@ class SynopsiPlayer(xbmc.Player):
 				raise Exception('fix: xbmc missing exception')
 		except:
 			return default
-
+			
 		return t
 
 	def get_media_info_tag(self):
@@ -155,10 +155,8 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 			tries to update time while we are in the onPlayBackStopped method and handlers """
 		
 		t = self.get_time()
-			
 		if t or not self.playing:
 			self.current_time = t
-			
 			
 		#~ self.get_media_info_tag()
 
@@ -176,7 +174,6 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 
 	def stopped(self):
 		self.playerEvent('stop')
-		#~ self.log(dump(self.playerEvents))
 		percent = self.current_time / self.total_time
 		self.log('percent:' + str(self.current_time / self.total_time))
 
