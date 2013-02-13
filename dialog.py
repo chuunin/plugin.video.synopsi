@@ -102,10 +102,12 @@ class ListDialog(MyDialog):
 	def __init__(self, strXMLname, strFallbackPath, strDefaultName, **kwargs):
 		super(ListDialog, self).__init__()
 		self.data = kwargs['data']
+		#~ self.cb_init_data = kwargs['cb_init_data']
 		self.controlId = None
 		self.selectedMovie = None
 
 	def onInit(self):
+		#~ self.cb_init_data()
 		self.updateItems()
 		
 	def updateItems(self):
@@ -183,8 +185,6 @@ class ListDialog(MyDialog):
 		
 
 def open_list_dialog(tpl_data, close=False):
-	log('open_list_dialog')
-	#~ ui = ListDialog("custom_MyVideoNav.xml", __addonpath__, "Default", data=tpl_data)	
 	open_dialog(ListDialog, "custom_MyVideoNav.xml", tpl_data, close)
 
 def show_movie_list(item_list):
@@ -204,8 +204,55 @@ class VideoDialog(MyDialog):
 		super(VideoDialog, self).__init__()
 		self.data = kwargs['data']
 		self.controlId = None
+		
+	def _init_data(self):
+		json_data = self.data
+		if json_data.get('type') == 'tvshow':
+			stv_details = top.apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
+		else:
+			stv_details = top.apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
+			
+		top.stvList.updateTitle(stv_details)
+		log('stv_details:' + dump(stv_details))
+
+		# add xbmc id if available
+		if json_data.has_key('id') and top.stvList.hasStvId(json_data['id']):
+			cacheItem = top.stvList.getByStvId(json_data['id'])
+			json_data['xbmc_id'] = cacheItem['id']
+			try:
+				json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
+			except:
+				pass
+
+		# add similars or seasons (bottom covers list)
+		if stv_details['type'] == 'movie':
+			# get similar movies
+			t1_similars = top.apiClient.titleSimilar(stv_details['id'])
+			if t1_similars.has_key('titles'):
+				stv_details['similars'] = t1_similars['titles']
+		elif stv_details['type'] == 'tvshow' and stv_details.has_key('seasons'):
+			seasons = top.stvList.get_tvshow_local_seasons(stv_details['id'])
+			log('seasons on disk:' + str(seasons))		
+			stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium'], 'watched': i['episodes_count'] == i['watched_count'], 'file': i['season_number'] in seasons} for i in stv_details['seasons'] ]
+
+		# similar overlays
+		if stv_details.has_key('similars'):
+			for item in stv_details['similars']:
+				top.stvList.updateTitle(item)
+
+				oc = 0
+				if item.get('file'):
+					oc |= OverlayCode.OnYourDisk
+				if item.get('watched'):
+					oc |= OverlayCode.AlreadyWatched
+
+				if oc:
+					item['overlay'] = overlay_image[oc]
+
+		self.data = video_dialog_template_fill(stv_details, json_data)
 
 	def onInit(self):
+		self._init_data()
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 		win.setProperty("Movie.Title", self.data["name"] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]')
 		win.setProperty("Movie.Plot", self.data["plot"])
@@ -383,55 +430,7 @@ def show_video_dialog_byId(stv_id, close=False):
 	show_video_dialog({'id': stv_id}, close)	
 
 def show_video_dialog(json_data, close=False):	
-	if json_data.get('type') == 'tvshow':
-		stv_details = top.apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
-	else:
-		stv_details = top.apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
-		
-	top.stvList.updateTitle(stv_details)
-	show_video_dialog_data(stv_details, json_data, close)
-
-def show_video_dialog_data(stv_details, json_data={}, close=False):
-	log('stv_details:' + dump(stv_details))
-
-	# add xbmc id if available
-	if json_data.has_key('id') and top.stvList.hasStvId(json_data['id']):
-		cacheItem = top.stvList.getByStvId(json_data['id'])
-		json_data['xbmc_id'] = cacheItem['id']
-		try:
-			json_data['xbmc_movie_detail'] = xbmc_rpc.get_details('movie', json_data['xbmc_id'], True)
-		except:
-			pass
-
-	# add similars or seasons (bottom covers list)
-	if stv_details['type'] == 'movie':
-		# get similar movies
-		t1_similars = top.apiClient.titleSimilar(stv_details['id'])
-		if t1_similars.has_key('titles'):
-			stv_details['similars'] = t1_similars['titles']
-	elif stv_details['type'] == 'tvshow' and stv_details.has_key('seasons'):
-		seasons = top.stvList.get_tvshow_local_seasons(stv_details['id'])
-		log('seasons on disk:' + str(seasons))		
-		stv_details['similars'] = [ {'id': i['id'], 'name': 'Season %d' % i['season_number'], 'cover_medium': i['cover_medium'], 'watched': i['episodes_count'] == i['watched_count'], 'file': i['season_number'] in seasons} for i in stv_details['seasons'] ]
-
-				
-
-	# similar overlays
-	if stv_details.has_key('similars'):
-		for item in stv_details['similars']:
-			top.stvList.updateTitle(item)
-
-			oc = 0
-			if item.get('file'):
-				oc |= OverlayCode.OnYourDisk
-			if item.get('watched'):
-				oc |= OverlayCode.AlreadyWatched
-
-			if oc:
-				item['overlay'] = overlay_image[oc]
-
-	tpl_data = video_dialog_template_fill(stv_details, json_data)
-	open_video_dialog(tpl_data, close)
+	open_video_dialog(json_data, close)
 
 
 def video_dialog_template_fill(stv_details, json_data={}):
