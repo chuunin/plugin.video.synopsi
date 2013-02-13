@@ -218,7 +218,7 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 		
 		# disallow sending 'watched' event for this file from scrobbler
 		self.cache.setBlockEvents(detail['type'], detail['id'])
-		
+				
 		## prepare the data
 		data = { 'player_events': json.dumps(self.playerEvents) }
 	
@@ -234,13 +234,14 @@ class SynopsiPlayerDecor(SynopsiPlayer):
 			if rating < 4:
 				data['rating'] = rating
 
-		self.apiclient.titleWatched(detail['stvId'], **data)
-		
-		# allow sending 'watched' event for this file from scrobbler
-		self.cache.resetBlockEvents()
-		
-		# clear the player events
-		self.playerEvents = []
+		try:
+			self.apiclient.titleWatched(detail['stvId'], **data)
+		finally:
+			# allow sending 'watched' event for this file from scrobbler
+			self.cache.resetBlockEvents()
+			
+			# clear the player events
+			self.playerEvents = []
 
 	def send_checkin(self, filename):
 		self.rate_file(filename, rate=False)
