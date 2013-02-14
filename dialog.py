@@ -482,9 +482,7 @@ def video_dialog_template_fill(stv_details, json_data={}):
 
 	# append tuple to labels, translated by trfn, or the N/A string
 	def append_tuple(stv_label, tpl_label, trfn):
-		log('tpl_label:' + tpl_label)
 		if tpl_data.get(tpl_label):
-			log('tpl_data[tpl_label]:' + str(tpl_data[tpl_label]))
 			val = trfn(tpl_data[tpl_label])
 		else:
 			val = t_unavail
