@@ -18,6 +18,7 @@ from utilities import *
 from app_apiclient import AppApiClient, AuthenticationError
 from cache import StvList, DuplicateStvIdException
 import top
+from threading import Thread
 
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
@@ -98,29 +99,45 @@ class MyDialog(xbmcgui.WindowXMLDialog):
 		open_dialogs.remove(self)
 	
 class ListDialog(MyDialog):
-	""" Dialog for choosing movie corrections """
+	""" Dialog for synopsi listings with custom cover overlays """
 	def __init__(self, strXMLname, strFallbackPath, strDefaultName, **kwargs):
 		super(ListDialog, self).__init__()
 		self.data = kwargs['data']
-		#~ self.cb_init_data = kwargs['cb_init_data']
+
+		if kwargs['data'].has_key('_async_init'):
+			self._async_init = kwargs['data']['_async_init']
+			
 		self.controlId = None
 		self.selectedMovie = None
+		self.listControl = None
 
 	def onInit(self):
-		#~ self.cb_init_data()
-		self.updateItems()
+		self.listControl = self.getControl(LIST_ITEM_CONTROL_ID)
+		self.listControl.reset()
 		
+		if self.__dict__.get('_async_init'):
+			result = {}
+			kwargs = self._async_init.get('kwargs', {})
+			kwargs['result'] = result
+			try:
+				self._async_init['method'](**kwargs)
+			except (AuthenticationError, ListEmptyException) as e:
+				self.close()
+				return
+				
+			self.data = result
+			
+		self.updateItems()
+				
 	def updateItems(self):
 		items = []
 		items.append(self._getListItem(itemFolderBack))
 		for item in self.data['items']:
 			li = self._getListItem(item)
 			items.append(li)
-
 		try:
-			listControl = self.getControl(LIST_ITEM_CONTROL_ID)
-			listControl.addItems(items)
-			self.setFocus(listControl)
+			self.listControl.addItems(items)
+			self.setFocus(self.listControl)
 		except:
 			log('Adding items failed')
 	
@@ -190,10 +207,14 @@ def open_list_dialog(tpl_data, close=False):
 def show_movie_list(item_list):
 	open_list_dialog({ 'items': item_list })
 
-
 def show_tvshows_episodes(stv_id):
-	items = top.apiClient.get_tvshow_season(stv_id)
-	open_list_dialog({'items': items })
+	def init_data(result, **kwargs):
+		log('asyn handler show_tvshows_episodes: ' + str(kwargs))
+		result['items'] = top.apiClient.get_tvshow_season(stv_id)
+	
+	tpl_data = { '_async_init': { 'method': init_data, 'kwargs': {} }}
+
+	open_list_dialog(tpl_data)
 
 
 class VideoDialog(MyDialog):
@@ -252,7 +273,13 @@ class VideoDialog(MyDialog):
 		self.data = video_dialog_template_fill(stv_details, json_data)
 
 	def onInit(self):
+		# reset some default garbage
+		self.getControl(59).reset()
+		
+		# initialze data for the form
 		self._init_data()
+		
+		# fill-in the form
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 		win.setProperty("Movie.Title", self.data["name"] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]')
 		win.setProperty("Movie.Plot", self.data["plot"])
@@ -483,14 +510,15 @@ def video_dialog_template_fill(stv_details, json_data={}):
 
 	return tpl_data
 
+
 def open_video_dialog(tpl_data, close=False):
 	open_dialog(VideoDialog, "VideoInfo.xml", tpl_data, close)
 
 
-def show_submenu(action_code, **kwargs):
+def get_submenu_item_list(action_code, **kwargs):
 	try:
 		item_list = top.apiClient.get_item_list(action_code=action_code, **kwargs)
-		
+
 		# hack HACK_SHOW_ALL_LOCAL_MOVIES
 		if action_code==ActionCode.LocalMovieRecco:
 			item_list.append(item_show_all_movies_hack)
@@ -501,16 +529,26 @@ def show_submenu(action_code, **kwargs):
 	except AuthenticationError as e:
 		if dialog_check_login_correct():
 			show_submenu(action_code, **kwargs)
-			
-		return
+
+		raise
 
 	except ListEmptyException:
 		dialog_ok(exc_text_by_mode(action_code))
-		return
+		raise
 		
 	except:
 		log(traceback.format_exc())
 		dialog_ok(t_listing_failed)
+		raise
 			
-	show_movie_list(item_list)
+	return item_list
 
+
+def show_submenu(action_code, **kwargs):
+	def init_data(result, **kwargs):
+		log('init_data kwargs: ' + str(kwargs))
+		result['items'] = get_submenu_item_list(**kwargs)
+	
+	kwargs['action_code'] = action_code	
+	tpl_data = { '_async_init': { 'method': init_data, 'kwargs': kwargs }}
+	open_list_dialog(tpl_data)
