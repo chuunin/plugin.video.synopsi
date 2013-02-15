@@ -234,7 +234,6 @@ class VideoDialog(MyDialog):
 			stv_details = top.apiClient.title(json_data['id'], defaultDetailProps, defaultCastProps)
 			
 		top.stvList.updateTitle(stv_details)
-		log('stv_details:' + dump(stv_details))
 
 		# add xbmc id if available
 		if json_data.has_key('id') and top.stvList.hasStvId(json_data['id']):
@@ -394,12 +393,8 @@ class VideoDialog(MyDialog):
 		try:
 			search_term = common.getUserInput(t_correct_search_title, "")
 			if search_term:
-				results = top.apiClient.search(search_term, SEARCH_RESULT_LIMIT)
-				if len(results['search_result']) == 0:
-					dialog_ok('No results')
-				else:
-					data = { 'movies': results['search_result'] }
-					return open_select_movie_dialog(data)
+				data = { 'search_term': search_term }
+				return open_select_movie_dialog(data)				
 			else:
 				dialog_ok(t_enter_title_to_search)
 		except:
@@ -416,22 +411,33 @@ class SelectMovieDialog(MyDialog):
 		self.controlId = None
 		self.selectedMovie = None
 
+	def _init_data(self):
+		results = top.apiClient.search(self.data['search_term'], SEARCH_RESULT_LIMIT)
+		if len(results['search_result']) == 0:
+			dialog_ok('No results')
+			self.close()
+			return False
+		else:
+			self.data.update({ 'movies': results['search_result'] })		
+			return True
+
 	def onInit(self):
-		items = []
-		for item in self.data['movies']:
-			text = '%s [COLOR=gray](%s)[/COLOR]' % (item['name'], item.get('year', '?'))
+		if self._init_data():
+			items = []
+			for item in self.data['movies']:
+				text = '%s [COLOR=gray](%s)[/COLOR]' % (item['name'], item.get('year', '?'))
 
-			if item.get('type') == 'episode':
-				text = 'S%sE%s - ' % (item.get('season_number', '??'), item.get('episode_number', '??')) + text
+				if item.get('type') == 'episode':
+					text = 'S%sE%s - ' % (item.get('season_number', '??'), item.get('episode_number', '??')) + text
 
-			li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
-			li.setProperty('id', str(item['id']))
-			li.setProperty('director', ', '.join(item.get('directors')) if item.has_key('directors') else t_unavail)
-			cast = ', '.join([i['name'] for i in item['cast']]) if item.has_key('cast') else t_unavail			
-			li.setProperty('cast', cast)
-			items.append(li)
+				li = xbmcgui.ListItem(text, iconImage=item['cover_medium'])
+				li.setProperty('id', str(item['id']))
+				li.setProperty('director', ', '.join(item.get('directors')) if item.has_key('directors') else t_unavail)
+				cast = ', '.join([i['name'] for i in item['cast']]) if item.has_key('cast') else t_unavail			
+				li.setProperty('cast', cast)
+				items.append(li)
 
-			self.getControl(59).addItems(items)
+				self.getControl(59).addItems(items)
 
 	def onClick(self, controlId):
 		log('onClick: ' + str(controlId))
