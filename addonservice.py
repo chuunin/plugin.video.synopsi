@@ -42,10 +42,10 @@ class ServiceTCPHandler(SocketServer.StreamRequestHandler):
 			result = method(**arguments)
 
 			# convert non-string result to json string
-			if not isinstance(result, str):
-				result = json.dumps(result)
-			elif not result:
+			if result == None:
 				result = '{}'
+			elif not isinstance(result, str):
+				result = json.dumps(result)
 
 			self.server._log.debug('RESULT: ' + result)
 
