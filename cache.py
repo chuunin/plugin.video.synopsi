@@ -454,7 +454,7 @@ class OnlineStvList(OfflineStvList):
 			self.apiClient.libraryTitleAdd(item['stvId'])
 			# if already watched, check-in to title
 			if item.get('lastplayed'):
-				self.apiClient.titleWatched(item['stvId'], {'created_time': item.get('lastplayed')})
+				self.apiClient.titleWatched(item['stvId'], created_time=item.get('lastplayed'))
 
 	def update(self, item):
 		cacheItem, changed_keys = OfflineStvList.update(self, item)
