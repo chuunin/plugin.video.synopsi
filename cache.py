@@ -430,6 +430,7 @@ class OnlineStvList(OfflineStvList):
 	def __init__(self, uuid, apiclient, filePath=None):
 		super(OnlineStvList, self).__init__(uuid, filePath)
 		self.apiClient = apiclient
+		self._block_rating = None
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
