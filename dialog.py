@@ -157,12 +157,25 @@ class ListDialog(MyDialog):
 	def _getListItem(self, item):
 		#~ itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
 		itemName = item['name']
+		
+		# add year after name
 		if item.has_key('year'):
 			itemName += ' (' + str(item['year']) + ')'
-			
+
+		# for episodes, add epis-ident
+		if item['type'] == 'episode':
+			episident = 'S%sE%s' % (item['season_number'], item['episode_number'])
+			itemName = '%s - %s' % (episident, itemName)
+		
+		# create listitem with basic properties	
 		li = xbmcgui.ListItem(itemName, iconImage=item['cover_medium'])
 		li.setProperty('id', str(item['id']))
 		li.setProperty('type', str(item['type']))
+
+		if item['type'] == 'episode':
+			li.setProperty('episode_number', str(item['episode_number']))
+			li.setProperty('season_number', str(item['season_number']))
+			
 		#~ li.setProperty('path', str(itemPath))		
 			
 		# prefer already set custom_overlay, if N/A set custom overlay
@@ -201,7 +214,12 @@ class ListDialog(MyDialog):
 			elif stv_id == HACK_SHOW_ALL_LOCAL_MOVIES:
 				show_submenu(ActionCode.LocalMovies)
 			else:
-				show_video_dialog({'type': item.getProperty('type'), 'id': stv_id}, close=False)
+				data = {'type': item.getProperty('type'), 'id': stv_id}
+				if data['type'] == 'episode':
+					data['season_number'] = item.getProperty('season_number')
+					data['episode_number'] = item.getProperty('episode_number')
+					
+				show_video_dialog(data, close=False)
 
 		
 
@@ -284,7 +302,13 @@ class VideoDialog(MyDialog):
 		
 		# fill-in the form
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-		win.setProperty("Movie.Title", self.data["name"] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]')
+		str_title = self.data["name"] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]'
+		if self.data['type'] == 'episode':
+			episident = 'S%sE%s' % (self.data['season_number'], self.data['episode_number'])
+			tvshow_name = 'Test TV Show Name'
+			str_title = tvshow_name + ' - [COLOR=gray]' + episident + ' -[/COLOR] ' + str_title
+			
+		win.setProperty("Movie.Title", str_title)
 		win.setProperty("Movie.Plot", self.data["plot"])
 		win.setProperty("Movie.Cover", self.data["cover_full"])
 

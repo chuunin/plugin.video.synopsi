@@ -462,7 +462,7 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def unwatchedEpisodes(self, props=watchableTitleProps):
+	def unwatchedEpisodes(self, props=defaultEpisodeProps):
 		req = {
 			'methodPath': 'profile/unwatched_episodes/',
 			'method': 'get',

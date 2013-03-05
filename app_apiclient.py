@@ -160,12 +160,6 @@ class AppApiClient(ApiClient):
 	def get_tvshow_season(self, season_id):
 		season = self.season(season_id)
 		
-		# fix names
-		for i in season['episodes']:
-			episident = 'S%sE%s' % (i['season_number'], i['episode_number'])
-			i['name'] = '%s - %s' % (episident, i['name'])
-			top.stvList.updateTitle(i)
-
 		return season['episodes']
 
 	def get_title(self, stv_id, detailProps=defaultDetailProps, castProps=defaultCastProps):
