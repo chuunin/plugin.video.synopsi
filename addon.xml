@@ -6,7 +6,7 @@
 	<requires>
 		<import addon="xbmc.python" version="2.1.0" />
 		<import addon="xbmc.addon" version="12.0.0" />
-		<import addon="xbmc.metadata" version="2.0.0" />
+		<import addon="xbmc.metadata" version="2.1.0" />
 		<import addon="xbmc.gui" version="4.0.0" />
 		
 		<import addon="script.module.parsedom" version="1.5.1" />
