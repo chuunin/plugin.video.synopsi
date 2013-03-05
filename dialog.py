@@ -156,7 +156,11 @@ class ListDialog(MyDialog):
 
 	def _getListItem(self, item):
 		#~ itemPath = 'mode=' + str(ActionCode.VideoDialogShowById) + '&amp;stv_id=' + str(item['id'])
-		li = xbmcgui.ListItem(item['name'], iconImage=item['cover_medium'])
+		itemName = item['name']
+		if item.has_key('year'):
+			itemName += ' (' + str(item['year']) + ')'
+			
+		li = xbmcgui.ListItem(itemName, iconImage=item['cover_medium'])
 		li.setProperty('id', str(item['id']))
 		li.setProperty('type', str(item['type']))
 		#~ li.setProperty('path', str(itemPath))		
@@ -225,7 +229,7 @@ class VideoDialog(MyDialog):
 		super(VideoDialog, self).__init__()
 		self.data = kwargs['data']
 		self.controlId = None
-		
+
 	def _init_data(self):
 		json_data = self.data
 		if json_data.get('type') == 'tvshow':

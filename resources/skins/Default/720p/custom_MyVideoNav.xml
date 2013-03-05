@@ -112,6 +112,7 @@
 							<align>center</align>
 							<aligny>center</aligny>
 							<info>ListItem.Label</info>
+							<scrollsuffix>       ~       </scrollsuffix>
 						</control>
 						<control type="image">
 							<posx>180</posx>

@@ -45,7 +45,7 @@ SEARCH_RESULT_LIMIT = 15
 
 
 # api request title properties
-reccoDefaultProps = ['id', 'cover_medium', 'name', 'type', 'watched']
+reccoDefaultProps = ['id', 'cover_medium', 'name', 'type', 'watched', 'year']
 defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 tvshowdefaultDetailProps = defaultDetailProps + ['seasons']
 defaultCastProps = ['name']
