@@ -47,7 +47,6 @@ class OfflineStvList(object):
 		self.filePath = filePath or self.__class__.getDefaultFilePath()
 		self.clear()
 		self.uuid = uuid
-		#~ self.list()
 
 	@classmethod
 	def getDefaultFilePath(cls):
@@ -78,7 +77,6 @@ class OfflineStvList(object):
 
 	def deserialize(self, _string):
 		self.items, self.byType, self.byTypeId, self.byFilename, self.byStvId = pickle.loads(base64.b64decode(_string))
-		self.dump()
 
 	def log(self, msg):
 		log('CACHE / ' + msg)
