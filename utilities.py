@@ -579,15 +579,17 @@ def home_screen_fill(apiClient, cache):
 
 			# recco could return less than 5 items
 			if i < len(episode_recco):
-				e = episode_recco[i]
-				lib_item = cache.getByStvId(e['id'])
+				e = episode_recco[i]				
+				c_episode = cache.getByStvId(e['id'])
+					
 				log('episode %d %s' % (i, e['name']))
-				log('lib_item %s' % (str(lib_item)))
-				WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i+1), e['name'])
-				WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i+1), e['name'])
-				WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i+1), str(i))
-				if lib_item:
-					WINDOW.setProperty("LatestEpisode.{0}.Path".format(i+1), e['cover_large'])
+				log('episode: ' + dump(e))
+				log('c_episode: ' + dump(c_episode))
+								
+				WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i+1), 'x' + e['tvshow_name'])				# tv show name
+				WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i+1), e['name'])						# episode name
+				WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i+1), get_episode_identifier(e))		# episode id string
+				WINDOW.setProperty("LatestEpisode.{0}.Path".format(i+1), c_episode['file'] if c_episode else '')
 				WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i+1), e['cover_large'])
 
 
@@ -722,4 +724,5 @@ def rel_path(realpath):
 	
 	return realpath
 		
-	
+def get_episode_identifier(item):
+	return 'S%sE%s' % (item.get('season_number', '??'), item.get('episode_number', '??'))

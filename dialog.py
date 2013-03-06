@@ -164,7 +164,7 @@ class ListDialog(MyDialog):
 
 		# for episodes, add epis-ident
 		if item['type'] == 'episode':
-			episident = 'S%sE%s' % (item['season_number'], item['episode_number'])
+			episident = get_episode_identifier(item)
 			itemName = '%s - %s' % (episident, itemName)
 		
 		# create listitem with basic properties	
@@ -304,7 +304,7 @@ class VideoDialog(MyDialog):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 		str_title = self.data["name"] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]'
 		if self.data['type'] == 'episode':
-			episident = 'S%sE%s' % (self.data['season_number'], self.data['episode_number'])
+			episident = get_episode_identifier(self.data)
 			tvshow_name = 'Test TV Show Name'
 			str_title = tvshow_name + ' - [COLOR=gray]' + episident + ' -[/COLOR] ' + str_title
 			
