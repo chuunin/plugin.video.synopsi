@@ -20,6 +20,9 @@ from cache import StvList, DuplicateStvIdException
 import top
 from threading import Thread
 
+# temporary
+import random
+
 ACTIONS_CLICK = [7, 100]
 LIST_ITEM_CONTROL_ID = 500
 HACK_GO_BACK = -2
@@ -111,7 +114,11 @@ class ListDialog(MyDialog):
 		self.selectedMovie = None
 		self.listControl = None
 
-	def onInit(self):
+
+	def onInit(self):		
+		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+		win.setProperty('ContainerCategory', self.data.get('_categoryName', ''))
+		
 		self.listControl = self.getControl(LIST_ITEM_CONTROL_ID)
 		self.listControl.reset()
 		
@@ -128,6 +135,7 @@ class ListDialog(MyDialog):
 			self.data = result
 			
 		self.updateItems()
+		
 				
 	def updateItems(self):
 		items = []
@@ -218,7 +226,7 @@ class ListDialog(MyDialog):
 				if data['type'] == 'episode':
 					data['season_number'] = item.getProperty('season_number')
 					data['episode_number'] = item.getProperty('episode_number')
-					
+
 				show_video_dialog(data, close=False)
 
 		
@@ -250,6 +258,7 @@ class VideoDialog(MyDialog):
 
 	def _init_data(self):
 		json_data = self.data
+
 		if json_data.get('type') == 'tvshow':
 			stv_details = top.apiClient.tvshow(json_data['id'], cast_props=defaultCastProps)
 		else:
@@ -302,10 +311,11 @@ class VideoDialog(MyDialog):
 		
 		# fill-in the form
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-		str_title = self.data["name"] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]'
+		str_title = self.data['name'] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]'
 		if self.data['type'] == 'episode':
 			episident = get_episode_identifier(self.data)
 			tvshow_name = 'Test TV Show Name'
+			
 			str_title = tvshow_name + ' - [COLOR=gray]' + episident + ' -[/COLOR] ' + str_title
 			
 		win.setProperty("Movie.Title", str_title)
@@ -581,6 +591,7 @@ def show_submenu(action_code, **kwargs):
 		log('init_data kwargs: ' + str(kwargs))
 		result['items'] = get_submenu_item_list(**kwargs)
 	
-	kwargs['action_code'] = action_code	
-	tpl_data = { '_async_init': { 'method': init_data, 'kwargs': kwargs }}
+	categoryName = submenu_categories_dict[action_code]
+	kwargs['action_code'] = action_code
+	tpl_data = { '_categoryName': categoryName, '_async_init': { 'method': init_data, 'kwargs': kwargs }}
 	open_list_dialog(tpl_data)

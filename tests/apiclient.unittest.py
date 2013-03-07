@@ -357,7 +357,7 @@ class ApiTest(TestCase):
 
 if __name__ == '__main__':
 	c = connection
-	client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.WARNING, rel_api_url=c['rel_api_url'])
+	client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
 
 	logger = logging.getLogger()
 
