@@ -132,11 +132,8 @@ class ListDialog(MyDialog):
 				self.close()
 				return
 				
-			log('result type: ' + str(type(result['result'])))
-			log('result: ' + str(result['result']))
 			self.data.update(result['result'])
 
-		log('list data:' + str(self.data))
 		# exception of incoming data format
 		if self.data.has_key('episodes'):
 			self.data['items'] = self.data['episodes']
@@ -600,7 +597,6 @@ def get_submenu_item_list(action_code, **kwargs):
 
 def show_submenu(action_code, **kwargs):
 	def init_data(result, **kwargs):
-		log('init_data kwargs: ' + str(kwargs))
 		result['result'] = {'items': get_submenu_item_list(**kwargs)}
 	
 	categoryName = submenu_categories_dict[action_code]
