@@ -94,6 +94,9 @@ submenu_categories = [
 
 submenu_categories_dict = dict(submenu_categories)
 
+# we do not want the all local movies have listed in main menu, so this is an easy fix
+submenu_categories_dict[ActionCode.LocalMovies] = 'All Your Local Movies'
+
 # texts
 t_noupcoming = 'There are no upcoming episodes from your tracked TV shows.'
 t_nounwatched = 'There are no unwatched episodes in your TV Show tracking'
