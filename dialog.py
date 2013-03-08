@@ -141,7 +141,8 @@ class ListDialog(MyDialog):
 		if self.data.has_key('episodes'):
 			self.data['items'] = self.data['episodes']
 			first_episode = self.data['items'][0]
-			self.data['_categoryName'] = first_episode['tvshow_name'] + ' - Season ' + first_episode['season_number']
+			self.data['tvshow_name'] = first_episode['tvshow_name']
+			self.data['_categoryName'] = self.data['tvshow_name'] + ' - Season ' + first_episode['season_number']
 			
 		win.setProperty('ContainerCategory', self.data.get('_categoryName', ''))
 		
@@ -194,6 +195,7 @@ class ListDialog(MyDialog):
 		if item['type'] == 'episode':
 			li.setProperty('episode_number', str(item['episode_number']))
 			li.setProperty('season_number', str(item['season_number']))
+			li.setProperty('tvshow_name', str(item['tvshow_name']))
 			
 		#~ li.setProperty('path', str(itemPath))		
 			
@@ -237,6 +239,8 @@ class ListDialog(MyDialog):
 				if data['type'] == 'episode':
 					data['season_number'] = item.getProperty('season_number')
 					data['episode_number'] = item.getProperty('episode_number')
+					data['tvshow_name'] = item.getProperty('tvshow_name')
+					#~ data['tvshow_name'] = self.data['tvshow_name']
 
 				show_video_dialog(data, close=False)
 
@@ -323,10 +327,8 @@ class VideoDialog(MyDialog):
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
 		str_title = self.data['name'] + '[COLOR=gray] (' + unicode(self.data.get('year')) + ')[/COLOR]'
 		if self.data['type'] == 'episode':
-			episident = get_episode_identifier(self.data)
-			tvshow_name = 'Test TV Show Name'
-			
-			str_title = tvshow_name + ' - [COLOR=gray]' + episident + ' -[/COLOR] ' + str_title
+			episident = get_episode_identifier(self.data)			
+			str_title = self.data['tvshow_name'] + ' - [COLOR=gray]' + episident + ' -[/COLOR] ' + str_title
 			
 		win.setProperty("Movie.Title", str_title)
 		win.setProperty("Movie.Plot", self.data["plot"])
