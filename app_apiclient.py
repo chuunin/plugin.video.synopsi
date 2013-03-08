@@ -160,7 +160,7 @@ class AppApiClient(ApiClient):
 	def get_tvshow_season(self, season_id):
 		season = self.season(season_id)
 		
-		return season['episodes']
+		return season
 
 	def get_title(self, stv_id, detailProps=defaultDetailProps, castProps=defaultCastProps):
 		return self.title(stv_id, detailProps, castProps)

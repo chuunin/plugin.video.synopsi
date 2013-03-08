@@ -117,23 +117,34 @@ class ListDialog(MyDialog):
 
 	def onInit(self):		
 		win = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-		win.setProperty('ContainerCategory', self.data.get('_categoryName', ''))
 		
 		self.listControl = self.getControl(LIST_ITEM_CONTROL_ID)
 		self.listControl.reset()
-		
+
+		# asynchronous initialization
 		if self.__dict__.get('_async_init'):
 			result = {}
 			kwargs = self._async_init.get('kwargs', {})
 			kwargs['result'] = result
 			try:
-				self._async_init['method'](**kwargs)
+				self._async_init['method'](**kwargs)	# method(result=result, +kwargs)
 			except (AuthenticationError, ListEmptyException) as e:
 				self.close()
 				return
 				
-			self.data = result
+			log('result type: ' + str(type(result['result'])))
+			log('result: ' + str(result['result']))
+			self.data.update(result['result'])
+
+		log('list data:' + str(self.data))
+		# exception of incoming data format
+		if self.data.has_key('episodes'):
+			self.data['items'] = self.data['episodes']
+			first_episode = self.data['items'][0]
+			self.data['_categoryName'] = first_episode['tvshow_name'] + ' - Season ' + first_episode['season_number']
 			
+		win.setProperty('ContainerCategory', self.data.get('_categoryName', ''))
+		
 		self.updateItems()
 		
 				
@@ -238,11 +249,10 @@ def show_movie_list(item_list):
 	open_list_dialog({ 'items': item_list })
 
 def show_tvshows_episodes(stv_id):
-	def init_data(result, **kwargs):
-		log('asyn handler show_tvshows_episodes: ' + str(kwargs))
-		result['items'] = top.apiClient.get_tvshow_season(stv_id)
+	def init_data(result):
+		result['result'] = top.apiClient.get_tvshow_season(stv_id)
 	
-	tpl_data = { '_async_init': { 'method': init_data, 'kwargs': {} }}
+	tpl_data = { '_async_init': { 'method': init_data }}
 
 	open_list_dialog(tpl_data)
 
@@ -589,7 +599,7 @@ def get_submenu_item_list(action_code, **kwargs):
 def show_submenu(action_code, **kwargs):
 	def init_data(result, **kwargs):
 		log('init_data kwargs: ' + str(kwargs))
-		result['items'] = get_submenu_item_list(**kwargs)
+		result['result'] = {'items': get_submenu_item_list(**kwargs)}
 	
 	categoryName = submenu_categories_dict[action_code]
 	kwargs['action_code'] = action_code
