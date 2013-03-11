@@ -603,3 +603,26 @@ def show_submenu(action_code, **kwargs):
 	kwargs['action_code'] = action_code
 	tpl_data = { '_categoryName': categoryName, '_async_init': { 'method': init_data, 'kwargs': kwargs }}
 	open_list_dialog(tpl_data)
+
+
+# settings create account dialog
+class CreateAccountDialog(MyDialog):
+	""" Dialog for choosing movie corrections """
+	def __init__(self, *args, **kwargs):
+		super(CreateAccountDialog, self).__init__()
+		self.data = kwargs['data']
+
+
+	def onInit(self):
+		log('init')
+		
+	def onClick(self, controlId):
+		log('onClick: ' + str(controlId))
+
+	def onAction(self, action):
+		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
+		if (action.getId() in CANCEL_DIALOG):
+			self.close()
+
+def open_create_account_dialog(tpl_data):
+	return open_dialog(CreateAccountDialog, "AccountCreate.xml", tpl_data)

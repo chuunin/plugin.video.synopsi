@@ -79,6 +79,7 @@ class ActionCode:
 
 	TVShowEpisodes = 60
 
+	DialogAccountCreate = 920
 	VideoDialogShow = 900
 	VideoDialogShowById = 910
 
