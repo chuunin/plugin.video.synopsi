@@ -322,7 +322,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 
 	def onClick(self, controlId):
 		"""
-		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
+		For controlID see: <control id="11" type="button"> in Rating.xml
 		"""
 		if controlId == 11:
 			self.response = 1
@@ -360,7 +360,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 
 	def onClick(self, controlId):
 		"""
-		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
+		For controlID see: <control id="11" type="button"> in Rating.xml
 		"""
 		# log(str('onClick:'+str(controlId)))
 
@@ -653,7 +653,7 @@ def get_rating():
 	Get rating from user:
 	1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
 	"""
-	ui = XMLRatingDialog("SynopsiDialog.xml", __addonpath__, "Default")
+	ui = XMLRatingDialog("Rating.xml", __addonpath__, "Default")
 	ui.doModal()
 	_response = ui.response
 	del ui
