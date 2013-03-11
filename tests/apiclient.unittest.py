@@ -148,14 +148,49 @@ class ApiTest(TestCase):
 		self.assertTrue(data.has_key('titles'))
 		self.assertTrue(len(data['titles']) > 0)
 
-	@skip('this needs deeper work')
-	def test_profile_recco_local(self):
-		props = [ 'year', 'cover_small' ]
-		data = client.profileRecco('movie', True, 5, props)
 
-		self.assertTrue(data.has_key('recco_id'))
-		self.assertTrue(data.has_key('titles'))
-		self.assertTrue(len(data['titles']) > 0)
+	def test_profile_recco_local(self):
+		""" 
+			To test local recco, we have to prepare a scenario for it:
+			- create new client with origin library
+			- get global recco
+			- add some random titles from global recco to library
+			- add titles not in global recco to library
+			- test that first title is in local recco, and second not
+		"""
+		props = [ 'id', 'name', 'year', 'cover_small' ]
+
+		device_id = ''.join([random.choice(string.hexdigits) for n in xrange(32)])
+		new_client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], device_id, debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
+		
+		# get global recco
+		reco_global = new_client.profileRecco('movie', False, 50, props)
+		reco_global_ids = [i['id'] for i in reco_global['titles']]
+		
+		# pick five titles
+		random_pick = list(set([random.choice(reco_global_ids) for i in xrange(0,5)]))
+		
+		# add them to library
+		for i in random_pick:
+			new_client.libraryTitleAdd(i)
+		
+		# wait a little !
+		time.sleep(1)
+		
+		# get local recco
+		reco_local = new_client.profileRecco('movie', True, 50, props)
+
+		reco_local_ids = [i['id'] for i in reco_local['titles']]
+		
+		# check local recco		
+		self.assertTrue(reco_local.has_key('recco_id'))
+		self.assertTrue(reco_local.has_key('titles'))
+		self.assertTrue(len(reco_local['titles']) > 0)
+		
+		# every picked movie should be in local recco
+		for i in random_pick:
+			self.assertTrue(i in reco_local_ids)
+		
 
 	def test_profile_recco_watched(self):
 		props = [ 'id', 'year', 'cover_small' ]
