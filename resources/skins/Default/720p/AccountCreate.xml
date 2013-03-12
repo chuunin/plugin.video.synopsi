@@ -1,5 +1,5 @@
-<window id="100">
-	<defaultcontrol always="true">10</defaultcontrol>
+<window id="3018">
+	<defaultcontrol always="true">4</defaultcontrol>
 	<coordinates>
 		<system>1</system>
 		<posx>335</posx>
@@ -11,7 +11,7 @@
 			<posx>0</posx>
 			<posy>0</posy>
 			<width>610</width>
-			<height>240</height>
+			<height>340</height>
 			<texture border="40">DialogBack.png</texture>
 		</control>
 		<control type="image">
@@ -29,7 +29,7 @@
 			<width>530</width>
 			<height>30</height>
 			<font>font13_title</font>
-			<label>SynopsiTV Rating</label>
+			<label>Create Account - SynopsiTV</label>
 			<!-- <label>$LOCALIZE[SCRIPT69604]</label> -->
 			<!-- <label>$LOCALIZE[69604]</label> -->
 			<align>center</align>
@@ -56,20 +56,7 @@
 		</control>
 
 		<!-- custom controls inside the common dialog layout -->
-		<control id="2" type="label">
-			<description>dialog line 1</description>
-			<posx>30</posx>
-			<posy>60</posy>
-			<width>550</width>
-			<height>30</height>
-			<!--<align>left</align>-->
-			<align>center</align>
-			<aligny>center</aligny>
-			<label>So, how did you like this movie?</label>
-			<font>font13</font>
-		</control>
-
-		<control id="3" type="label">
+		<control id="10" type="label">
 			<description>dialog line 1</description>
 			<posx>30</posx>
 			<posy>60</posy>
@@ -80,49 +67,60 @@
 			<aligny>center</aligny>
 			<label>Enter joor kredentail</label>
 			<font>font13</font>
+			<visible>False</visible>
 		</control>
-		
-		<control id="4" type="editcontrol">
+			
+		<control id="4" type="edit">
 			<description>real name</description>
 			<posx>30</posx>
-			<posy>60</posy>
-			<width>250</width>
-			<height>30</height>
+			<posy>100</posy>
+			<width>550</width>
+			<height>40</height>
 			<!--<align>left</align>-->
-			<align>center</align>
+			<align>right</align>
 			<aligny>center</aligny>
-			<label>real name</label>
+			<label>Real Name</label>
 			<font>font13</font>
+			<textcolor>FF888888</textcolor>
+			<onleft>4</onleft>
+			<onright>4</onright>
+			<onup>3</onup>
+			<ondown>5</ondown>
 		</control>
 		
-		<control id="4" type="editcontrol">
+		<control id="5" type="edit">
 			<description>email</description>
 			<posx>30</posx>
-			<posy>100</posy>
-			<width>250</width>
-			<height>30</height>
+			<posy>150</posy>
+			<width>550</width>
+			<height>40</height>
 			<!--<align>left</align>-->
-			<align>center</align>
+			<align>right</align>
 			<aligny>center</aligny>
-			<label>email name</label>
 			<font>font13</font>
+			<label>Email</label>
+			<textcolor>FF888888</textcolor>
+			<onleft>5</onleft>
+			<onright>5</onright>
+			<onup>4</onup>
+			<ondown>110</ondown>
 		</control>
 		
-		<control id="11" type="button">
+		<control id="110" type="button">
 			<description>Create account button</description>
-			<posx>385</posx>
-			<posy>155</posy>
+			<posx>430</posx>
+			<posy>220</posy>
 			<width>150</width>
 			<height>40</height>
-			<label>Sign-up</label>
+			<label>Register</label>
 			<font>font12_title</font>
 			<textcolor>white</textcolor>
 			<focusedcolor>white</focusedcolor>
 			<align>center</align>
-			<onleft>10</onleft>
-			<onright>11</onright>
-			<onup>11</onup>
-			<ondown>11</ondown>
+			<onleft>5</onleft>
+			<onright>110</onright>
+			<onup>5</onup>
+			<ondown>110</ondown>
 		</control>
 	</controls>
 </window>
