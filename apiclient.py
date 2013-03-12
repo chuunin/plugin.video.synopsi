@@ -491,3 +491,16 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
+	def accountCreate(self, realname, email):
+		req = {
+			'methodPath': 'account/create',
+			'method': 'get',
+			'data': {
+				'real_name': realname,
+				'email': email,
+			}
+		}
+
+		return self.execute(req)
+		
+		
