@@ -69,17 +69,31 @@
 			<font>font13</font>
 			<visible>False</visible>
 		</control>
-			
-		<control id="4" type="edit">
+
+		<control type="label">
 			<description>real name</description>
-			<posx>30</posx>
+			<posx>130</posx>
 			<posy>100</posy>
-			<width>550</width>
+			<width>100</width>
 			<height>40</height>
 			<!--<align>left</align>-->
 			<align>right</align>
 			<aligny>center</aligny>
 			<label>Real Name</label>
+			<font>font13</font>
+			<textcolor>FF888888</textcolor>
+		</control>
+			
+		<control id="4" type="button">
+			<description>real name</description>
+			<posx>145</posx>
+			<posy>100</posy>
+			<width>435</width>
+			<height>40</height>
+			<!--<align>left</align>-->
+			<align>right</align>
+			<aligny>center</aligny>
+			<label></label>
 			<font>font13</font>
 			<textcolor>FF888888</textcolor>
 			<onleft>4</onleft>
@@ -88,17 +102,31 @@
 			<ondown>5</ondown>
 		</control>
 		
-		<control id="5" type="edit">
+		<control type="label">
 			<description>email</description>
-			<posx>30</posx>
+			<posx>130</posx>
 			<posy>150</posy>
-			<width>550</width>
+			<width>100</width>
+			<height>40</height>
+			<!--<align>left</align>-->
+			<align>right</align>
+			<aligny>center</aligny>
+			<label>Email</label>
+			<font>font13</font>
+			<textcolor>FF888888</textcolor>
+		</control>
+		
+		<control id="5" type="button">
+			<description>email</description>
+			<posx>145</posx>
+			<posy>150</posy>
+			<width>435</width>
 			<height>40</height>
 			<!--<align>left</align>-->
 			<align>right</align>
 			<aligny>center</aligny>
 			<font>font13</font>
-			<label>Email</label>
+			<label></label>
 			<textcolor>FF888888</textcolor>
 			<onleft>5</onleft>
 			<onright>5</onright>

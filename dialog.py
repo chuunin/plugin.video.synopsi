@@ -94,12 +94,14 @@ class MyDialog(xbmcgui.WindowXMLDialog):
 		self.result = None
 	
 	def close(self):
-		# check if closing the currently opened dialog
-		if open_dialogs[-1] != self:
-			log('WARNING: Dialog queue inconsistency. Non-top dialog close')
-
+		if open_dialogs:
+			# check if closing the currently opened dialog
+			if open_dialogs[-1] != self:
+				log('WARNING: Dialog queue inconsistency. Non-top dialog close')
+			
+			open_dialogs.remove(self)
+			
 		xbmcgui.WindowXMLDialog.close(self)
-		open_dialogs.remove(self)
 	
 class ListDialog(MyDialog):
 	""" Dialog for synopsi listings with custom cover overlays """
@@ -607,22 +609,46 @@ def show_submenu(action_code, **kwargs):
 
 # settings create account dialog
 class CreateAccountDialog(MyDialog):
+	ctl_create_account_id = 110
+	ctl_realname = 4
+	ctl_email = 5
+	
+	
 	""" Dialog for choosing movie corrections """
 	def __init__(self, *args, **kwargs):
 		super(CreateAccountDialog, self).__init__()
 		self.data = kwargs['data']
-
+		self.real_name = None
+		self.email = None
 
 	def onInit(self):
-		log('init')
+		pass
 		
-	def onClick(self, controlId):
-		log('onClick: ' + str(controlId))
-
 	def onAction(self, action):
-		#~ log('action: %s focused id: %s' % (str(action.getId()), str(self.controlId)))
-		if (action.getId() in CANCEL_DIALOG):
+		if action in CANCEL_DIALOG:
 			self.close()
+		# click on 'real name' button/input
+		elif action in ACTIONS_CLICK and (self.getFocusId() == self.ctl_realname):
+			act_value = self.getControl(self.ctl_realname).getLabel()
+			self.real_name = common.getUserInput('Enter Real Name', act_value)
+			self.getControl(self.ctl_realname).setLabel(self.real_name)
 
+		# click on 'email' button/input
+		elif action in ACTIONS_CLICK and (self.getFocusId() == self.ctl_email):
+			act_value = self.getControl(self.ctl_email).getLabel()
+			self.email = common.getUserInput('Enter Email', act_value)
+			self.getControl(self.ctl_email).setLabel(self.email)
+
+		# click on 'create account' button
+		elif action in ACTIONS_CLICK and (self.getFocusId() == self.ctl_create_account_id):
+			log('real name ' + str(self.real_name))
+			log('email ' + str(self.email))
+			
+			#~ thread.start_new_thread(top.apiClient.accountCreate, (self.real_name, self.email))			
+			Thread(target=top.apiClient.accountCreate, args=(self.real_name, self.email)).start()
+			
+			return True
+			
 def open_create_account_dialog(tpl_data):
-	return open_dialog(CreateAccountDialog, "AccountCreate.xml", tpl_data)
+	dlg_result = open_dialog(CreateAccountDialog, "AccountCreate.xml", tpl_data)
+	

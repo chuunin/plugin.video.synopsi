@@ -13,8 +13,8 @@
     	<setting label="" type="lsep"/>
     	<setting label="" type="lsep"/>
     	
-    	<setting label="If you dont have an account yet, click here" type="action" action="RunScript(plugin.video.synopsi, -1, addon.py?mode=920)"/>
-    	
+    	<setting label="If you dont have an account yet, click here" type="action" option="close" action="RunScript(plugin.video.synopsi, -1, addon.py?mode=920)"/>
+    	    	
     	<!--TOKENS-->
         <setting id="ADDON_SERVICE_PORT" option="hidden" type="number" visible="false" default="9091" />
 
