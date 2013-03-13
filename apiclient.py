@@ -168,12 +168,17 @@ class ApiClient(loggable.Loggable):
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
-			response = json.loads(e.read())
-			if "User authentication failed" in response['error_description']:
-				self._log.info('%d %s' % (e.code, response['error_description']))
-			else:
-				self._log.error('%d %s' % (e.code, e))
-				self._log.error(e.read())
+			try:
+				response = json.loads(e.read())
+			
+				if "User authentication failed" in response['error_description']:
+					self._log.info('%d %s' % (e.code, response['error_description']))
+				else:
+					self._log.error('%d %s' % (e.code, e))
+					self._log.error(e.read())
+			except:
+				self._log.error('HTTPError: %d\nReceived:\n"%s"' % (e.code, e.read()))
+				
 
 			raise AuthenticationError()
 
@@ -491,10 +496,10 @@ class ApiClient(loggable.Loggable):
 
 		return self.execute(req)
 
-	def accountCreate(self, realname, email):
+	def profileCreate(self, realname, email):
 		req = {
-			'methodPath': 'account/create',
-			'method': 'get',
+			'methodPath': 'profile/create',
+			'method': 'post',
 			'data': {
 				'real_name': realname,
 				'email': email,
