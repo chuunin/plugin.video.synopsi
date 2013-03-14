@@ -57,7 +57,7 @@ class ApiClient(loggable.Loggable):
 		self.refreshToken = None
 		self.apiUrl = self.baseUrl + rel_api_url
 		self.originReqHost = originReqHost
-		self.authHeaders = None
+		self.authHeaders = {}
 		self.device_id = device_id
 
 		# xbmc.log('Log handler count %d ' % len(self._log.handlers))
@@ -266,9 +266,17 @@ class ApiClient(loggable.Loggable):
 				False
 			)
 
+			if response_json.get('status') == 'error':
+				raise ApiCallError('ApiClient response: ' + json.dumps(response_json.get('errors')))
+
 		except HTTPError as e:
-			response_json = json.loads(e.read())
-			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: %s' % (e.code, url, unicode(e), response_json))
+			response_json_str = e.read()
+			try:
+				response_json = json.loads(response_json_str)
+			except:
+				response_json = response_json_str
+				
+			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: "%s"' % (e.code, url, unicode(e), response_json))
 
 		except URLError as e:
 			self._log.error('APICLIENT:' + url)
@@ -279,8 +287,6 @@ class ApiClient(loggable.Loggable):
 		else:
 			self.updateAccessTokenTimeout()
 
-		if response_json.get('status') == 'error':
-			raise ApiCallError('ApiClient response: ' + json.dumps(response_json.get('errors')))
 
 		return response_json
 
