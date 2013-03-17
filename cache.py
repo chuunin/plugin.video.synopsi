@@ -1,5 +1,5 @@
 # xbmc
-import xbmc
+import xbmc, xbmcvfs
 
 # python standart lib
 import base64
