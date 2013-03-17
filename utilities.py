@@ -1,5 +1,5 @@
 # xbmc
-import xbmc, xbmcgui, xbmcaddon, xbmcplugin
+import xbmc, xbmcgui, xbmcaddon, xbmcplugin, xbmcvfs
 import CommonFunctions
 
 # python standart lib
@@ -404,9 +404,9 @@ def stv_hash(filepath):
 	sha1 = hashlib.sha1()
 
 	try:
-		with open(filepath, 'rb') as f:
-			f.seek(524288, 0)
-			sha1.update(f.read(524288))
+		f = xbmcvfs.File(filepath, 'rb')
+		f.seek(524288, 0)
+		sha1.update(f.read(524288))
 	except (IOError) as e:
 		raise HashError('Unable to hash file [%s]' % filepath)
 
@@ -421,10 +421,10 @@ def old_stv_hash(filepath):
 	sha1 = hashlib.sha1()
 
 	try:
-		with open(filepath, 'rb') as f:
-			sha1.update(f.read(256))
-			f.seek(-256, 2)
-			sha1.update(f.read(256))
+		f = xbmcvfs.File(filepath, 'rb')
+		sha1.update(f.read(256))
+		f.seek(-256, 2)
+		sha1.update(f.read(256))
 	except (IOError) as e:
 		return None
 
@@ -439,9 +439,9 @@ def hash_opensubtitle(name):
 		longlongformat = 'q'  # long long
 		bytesize = struct.calcsize(longlongformat)
 
-		_file = open(name, "rb")
+		_file = xbmcvfs.File(name, 'rb')		
 
-		filesize = os.path.getsize(name)
+		filesize = _file.size()
 		hash = filesize
 
 		if filesize < 65536 * 2:

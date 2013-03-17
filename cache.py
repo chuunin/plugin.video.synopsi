@@ -403,12 +403,12 @@ class OfflineStvList(object):
 
 	def save(self):
 		self.log('SAVING / ' + self.filePath)
-		f = open(self.filePath, 'w')
+		f = xbmcvfs.File(self.filePath, 'w')
 		f.write(self.serialize())
 		f.close()
 
 	def load(self):
-		f = open(self.filePath, 'r')
+		f = xbmcvfs.File(self.filePath, 'r')
 		self.deserialize(f.read())
 		f.close()
 
