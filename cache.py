@@ -47,7 +47,6 @@ class OfflineStvList(object):
 		self.filePath = filePath or self.__class__.getDefaultFilePath()
 		self.clear()
 		self.uuid = uuid
-		#~ self.list()
 
 	@classmethod
 	def getDefaultFilePath(cls):
@@ -78,7 +77,6 @@ class OfflineStvList(object):
 
 	def deserialize(self, _string):
 		self.items, self.byType, self.byTypeId, self.byFilename, self.byStvId = pickle.loads(base64.b64decode(_string))
-		self.dump()
 
 	def log(self, msg):
 		log('CACHE / ' + msg)
@@ -161,7 +159,7 @@ class OfflineStvList(object):
 			self.put(stv_title)
 
 	def put(self, item):
-		" Put a new record in the list "
+		""" Put a new record in the list """
 		self.log('PUT ' + dump(filtertitles(item)))
 		# check if an item with this stvId is not already there
 		if item.has_key('stvId') and self.hasStvId(item['stvId']):
@@ -311,10 +309,10 @@ class OfflineStvList(object):
 
 	def clear(self):
 		self.items = []
-		self.byType = { 'movie': {}, 'tvshow': {}, 'episode': {}, 'season': {}}
-		self.byTypeId = {}
+		self.byType = { 'movie': {}, 'tvshow': {}, 'episode': {}, 'season': {}}		# ids here are xbmc_ids, except tvshow_ids!
+		self.byTypeId = {}															# ids here are xbmc_ids
 		self.byFilename = {}
-		self.byStvId = {}
+		self.byStvId = {}															# ids here are stv_ids
 
 	def getItems(self):
 		return self.items
@@ -430,6 +428,7 @@ class OnlineStvList(OfflineStvList):
 	def __init__(self, uuid, apiclient, filePath=None):
 		super(OnlineStvList, self).__init__(uuid, filePath)
 		self.apiClient = apiclient
+		self._block_rating = None
 
 	@classmethod
 	def getDefaultList(cls, apiClient=None):
@@ -453,7 +452,7 @@ class OnlineStvList(OfflineStvList):
 			self.apiClient.libraryTitleAdd(item['stvId'])
 			# if already watched, check-in to title
 			if item.get('lastplayed'):
-				self.apiClient.titleWatched(item['stvId'], {'created_time': item.get('lastplayed')})
+				self.apiClient.titleWatched(item['stvId'], created_time=item.get('lastplayed'))
 
 	def update(self, item):
 		cacheItem, changed_keys = OfflineStvList.update(self, item)
@@ -495,7 +494,7 @@ class OnlineStvList(OfflineStvList):
 class AppStvList(OnlineStvList):
 	def get_local_tvshows(self):
 		local_tvshows = self.getAllByType('tvshow')
-		log('local tvshows ' + dump(local_tvshows))
+				
 		return local_tvshows.values()
 
 	def get_tvshow_local_seasons(self, stv_id):

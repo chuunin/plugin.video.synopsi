@@ -45,7 +45,7 @@ SEARCH_RESULT_LIMIT = 15
 
 
 # api request title properties
-reccoDefaultProps = ['id', 'cover_medium', 'name', 'type', 'watched']
+reccoDefaultProps = ['id', 'cover_medium', 'name', 'type', 'watched', 'year']
 defaultDetailProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'directors', 'writers', 'runtime', 'cast']
 tvshowdefaultDetailProps = defaultDetailProps + ['seasons']
 defaultCastProps = ['name']
@@ -81,6 +81,21 @@ class ActionCode:
 
 	VideoDialogShow = 900
 	VideoDialogShowById = 910
+
+submenu_categories = [
+	(ActionCode.MovieRecco, "Movie Recommendations"),
+	(ActionCode.TVShows, "Popular TV Shows"),
+	(ActionCode.LocalMovieRecco, "Local Movie Recommendations"),
+	(ActionCode.LocalTVShows, "Local TV Shows"),
+	(ActionCode.UnwatchedEpisodes, "Unwatched TV Show Episodes"),
+	(ActionCode.UpcomingEpisodes, "Upcoming TV Episodes"),
+	(ActionCode.LoginAndSettings, "Login and Settings")
+]
+
+submenu_categories_dict = dict(submenu_categories)
+
+# we do not want the all local movies have listed in main menu, so this is an easy fix
+submenu_categories_dict[ActionCode.LocalMovies] = 'All Your Local Movies'
 
 # texts
 t_noupcoming = 'There are no upcoming episodes from your tracked TV shows.'
@@ -307,7 +322,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 
 	def onClick(self, controlId):
 		"""
-		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
+		For controlID see: <control id="11" type="button"> in Rating.xml
 		"""
 		if controlId == 11:
 			self.response = 1
@@ -345,7 +360,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 
 	def onClick(self, controlId):
 		"""
-		For controlID see: <control id="11" type="button"> in SynopsiDialog.xml
+		For controlID see: <control id="11" type="button"> in Rating.xml
 		"""
 		# log(str('onClick:'+str(controlId)))
 
@@ -579,15 +594,14 @@ def home_screen_fill(apiClient, cache):
 
 			# recco could return less than 5 items
 			if i < len(episode_recco):
-				e = episode_recco[i]
-				lib_item = cache.getByStvId(e['id'])
-				log('episode %d %s' % (i, e['name']))
-				log('lib_item %s' % (str(lib_item)))
-				WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i+1), e['name'])
-				WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i+1), e['name'])
-				WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i+1), str(i))
-				if lib_item:
-					WINDOW.setProperty("LatestEpisode.{0}.Path".format(i+1), e['cover_large'])
+				e = episode_recco[i]				
+				c_episode = cache.getByStvId(e['id'])
+					
+								
+				WINDOW.setProperty("LatestEpisode.{0}.EpisodeTitle".format(i+1), e['tvshow_name'])				# tv show name
+				WINDOW.setProperty("LatestEpisode.{0}.ShowTitle".format(i+1), e['name'])						# episode name
+				WINDOW.setProperty("LatestEpisode.{0}.EpisodeNo".format(i+1), get_episode_identifier(e))		# episode id string
+				WINDOW.setProperty("LatestEpisode.{0}.Path".format(i+1), c_episode['file'] if c_episode else '')
 				WINDOW.setProperty("LatestEpisode.{0}.Thumb".format(i+1), e['cover_large'])
 
 
@@ -639,7 +653,7 @@ def get_rating():
 	Get rating from user:
 	1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
 	"""
-	ui = XMLRatingDialog("SynopsiDialog.xml", __addonpath__, "Default")
+	ui = XMLRatingDialog("Rating.xml", __addonpath__, "Default")
 	ui.doModal()
 	_response = ui.response
 	del ui
@@ -691,20 +705,15 @@ def add_movie(movie, mode, iconimage):
 	new_li = (u, li, isFolder)
 
 	return new_li
-
-
+	
+	
 def show_categories():
 	"""
 	Shows initial categories on home screen.
 	"""
 	xbmc.executebuiltin("Container.SetViewMode(503)")
-	add_directory("Movie Recommendations", "url", ActionCode.MovieRecco, "list.png")
-	add_directory("Popular TV Shows", "url", ActionCode.TVShows, "list.png")
-	add_directory("Local Movie Recommendations", "url", ActionCode.LocalMovieRecco, "list.png")
-	add_directory("Local TV Shows", "url", ActionCode.LocalTVShows, "list.png")
-	add_directory("Unwatched TV Show Episodes", "url", ActionCode.UnwatchedEpisodes, "list.png")
-	add_directory("Upcoming TV Episodes", "url", ActionCode.UpcomingEpisodes, "list.png")
-	add_directory("Login and Settings", "url", ActionCode.LoginAndSettings, "list.png")
+	for categoryCode, categoryName in submenu_categories:
+		add_directory(categoryName, "url", categoryCode, "list.png")
 
 def get_movie_sources():		
 	userdata = xbmc.translatePath('special://userdata')
@@ -722,4 +731,5 @@ def rel_path(realpath):
 	
 	return realpath
 		
-	
+def get_episode_identifier(item):
+	return 'S%sE%s' % (item.get('season_number', '??'), item.get('episode_number', '??'))
