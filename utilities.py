@@ -285,8 +285,8 @@ def dialog_yesno(msg):
 def clear_setting_cache():
 	"Clear cached addon setting. Useful after update"
 	settingsPath = os.path.join(__profile__, 'settings.xml')
-	if os.path.exists(settingsPath):
-		os.remove(settingsPath)
+	if xbmcvfs.exists(settingsPath):
+		xbmcvfs.delete(settingsPath)
 
 def setting_cache_append_string(string):
 	settingsPath = os.path.join(__profile__, 'settings.xml')
@@ -537,14 +537,17 @@ def get_api_port():
 	If nothing is changed return default 9090.
 	"""
 
-	path = os.path.join('special://profile', 'advancedsettings.xml')
-	path = xbmc.translatePath(path)
-
 	try:
-		tree = ET.parse(path)
-		root = tree.getroot()
+		path = os.path.join('special://profile', 'advancedsettings.xml')
+				
+		f = xbmcvfs.File(path, 'r')
+		fcontent = f.read()
+		f.close()
+
+		root = et.fromstring(fcontent)
 		nodes = root.findall('.//tcpport')
 		value = int(nodes[0].text)
+
 	except:
 		value = 9090
 
@@ -718,8 +721,12 @@ def show_categories():
 def get_movie_sources():		
 	userdata = xbmc.translatePath('special://userdata')
 	sourceFilePath = os.path.join(userdata, 'sources.xml')
-	tree = et.parse(sourceFilePath)
-	root = tree.getroot()
+	
+	f = xbmcvfs.File(sourceFilePath, 'r')
+	fcontent = f.read()
+	f.close()
+
+	root = et.fromstring(fcontent)
 	el = root.findall('video/source/path')
 	return sorted([i.text for i in el], key=len, reverse=True)
 
