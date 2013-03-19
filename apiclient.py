@@ -117,11 +117,11 @@ class ApiClient(loggable.Loggable):
 		return connected
 
 	def doRequest(self, req, cacheable=True):
-		if not self.isAuthenticated():
-			access = self.getAccessToken()
-			if not access:
-				self._log.error('Could not get the auth token')
-				return False
+		#~ if not self.isAuthenticated():
+			#~ access = self.getAccessToken()
+			#~ if not access:
+				#~ self._log.error('Could not get the auth token')
+				#~ return False
 
 		# put the cacheable request into queue
 		if cacheable:
@@ -145,7 +145,7 @@ class ApiClient(loggable.Loggable):
 
 		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
-		# self._log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
+		#~ self._log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
 		# self._log.debug('apiclient getaccesstoken %s' % str(data))
 
 		# get token
@@ -220,10 +220,22 @@ class ApiClient(loggable.Loggable):
 
 		return safe_data
 
+
 	def execute(self, requestData, cacheable=True):
+		if requestData.get('_noauth'):
+			return self.execute_noauth(requestData, cacheable)
+		else:
+			return self.execute_auth(requestData, cacheable)
+
+
+	def execute_auth(self, requestData, cacheable=True):
 		if not self.isAuthenticated():
 			self.getAccessToken()
 
+		return self.execute_noauth(requestData, cacheable=True)
+
+
+	def execute_noauth(self, requestData, cacheable=True):
 		self._log.debug('-' * 20)
 		url = self.apiUrl + requestData['methodPath']
 		method = requestData['method']
@@ -269,6 +281,8 @@ class ApiClient(loggable.Loggable):
 			if response_json.get('status') == 'error':
 				raise ApiCallError('ApiClient response: ' + json.dumps(response_json.get('errors')))
 
+			self.updateAccessTokenTimeout()
+
 		except HTTPError as e:
 			response_json_str = e.read()
 			try:
@@ -283,10 +297,6 @@ class ApiClient(loggable.Loggable):
 			self._log.error('APICLIENT:' + unicode(e))
 			self._log.error('APICLIENT:' + unicode(e.reason))
 			response_json = {}
-
-		else:
-			self.updateAccessTokenTimeout()
-
 
 		return response_json
 
@@ -345,7 +355,7 @@ class ApiClient(loggable.Loggable):
 			data['stv_subtitle_hash'] = stv_subtitle_hash
 
 		req = {
-			'methodPath': '/title/identify/mark_pair/',
+			'methodPath': 'title/identify/mark_pair/',
 			'method': 'post',
 			'data': data
 		}
@@ -417,7 +427,7 @@ class ApiClient(loggable.Loggable):
 			props += ['cast']
 
 		req = {
-			'methodPath': '/title/%d/' % titleId,
+			'methodPath': 'title/%d/' % titleId,
 			'method': 'get',
 			'data': {
 				'title_property[]': ','.join(props)
@@ -504,6 +514,7 @@ class ApiClient(loggable.Loggable):
 
 	def profileCreate(self, realname, email):
 		req = {
+			'_noauth': True,
 			'methodPath': 'profile/create',
 			'method': 'post',
 			'data': {

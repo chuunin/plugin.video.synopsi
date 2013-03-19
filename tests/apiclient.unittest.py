@@ -179,7 +179,7 @@ class ApiTest(TestCase):
 		
 		# get local recco
 		reco_local = new_client.profileRecco('movie', True, 50, props)
-
+		
 		reco_local_ids = [i['id'] for i in reco_local['titles']]
 		
 		# check local recco		
@@ -268,7 +268,7 @@ class ApiTest(TestCase):
 
 	def test_identify_correct(self):
 		result = client.title_identify_correct(1947362, '8b05ff1ad4865480e4705a42b413115db2bf94db')
-		# print dump(result)
+		#~ print dump(result)
 		self.assertTrue(result['status']=='ok')
 
 	@skip('this needs deeper work')
@@ -391,8 +391,11 @@ class ApiTest(TestCase):
 		self.assertTrue(type(result2['titles']) is list)
 
 	def test_profileCreate(self):
-		result = client.profileCreate('Real Name', 'email@server.com')
-		print result
+		device_id = ''.join([random.choice(string.hexdigits) for n in xrange(32)])
+		new_client = ApiClient(c['base_url'], c['key'], c['secret'], None, None, device_id, debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
+		result = new_client.profileCreate('Real Name', 'email@server.com')
+		
+		self.assertEqual(result.get('status'), 'created')
 
 if __name__ == '__main__':
 	c = connection
