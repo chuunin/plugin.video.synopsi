@@ -94,6 +94,33 @@ class ApiTest(TestCase):
 		stv_title = client.titleIdentify(**ident2)
 		self.assertTrue(stv_title.has_key('type'))
 
+		ident3 = {
+			'file_name': '_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
+		}
+
+		stv_title = client.titleIdentify(**ident3)
+
+		self.assertTrue(stv_title.has_key('type'))
+
+		ident = {
+			'file_name': '_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
+			'stv_title_hash': None,
+			'os_title_hash': None
+		}
+
+		stv_title = client.titleIdentify(**ident)
+
+		self.assertTrue(stv_title.has_key('type'))
+		
+		ident = {
+			'file_name': '_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
+			'stv_title_hash': ''
+		}
+
+		stv_title = client.titleIdentify(**ident)
+
+		self.assertTrue(stv_title.has_key('type'))
+
 
 	def test_library_add(self):
 		client.getAccessToken()
