@@ -121,6 +121,23 @@ class ApiTest(TestCase):
 
 		self.assertTrue(stv_title.has_key('type'))
 
+		ident = {
+			'file_name': 'Avatar.avi',
+			'stv_title_hash': ''
+		}
+
+		stv_title = client.titleIdentify(**ident)
+
+		self.assertTrue(stv_title.has_key('type'))
+
+		ident = {
+			'file_name': 'Rambo.avi',
+		}
+
+		stv_title = client.titleIdentify(**ident)
+
+		self.assertTrue(stv_title.has_key('type'))
+
 
 	def test_library_add(self):
 		client.getAccessToken()
