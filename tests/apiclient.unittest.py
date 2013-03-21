@@ -393,9 +393,20 @@ class ApiTest(TestCase):
 	def test_profileCreate(self):
 		device_id = ''.join([random.choice(string.hexdigits) for n in xrange(32)])
 		new_client = ApiClient(c['base_url'], c['key'], c['secret'], None, None, device_id, debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
-		result = new_client.profileCreate('Real Name', 'email@server.com')
 		
-		self.assertEqual(result.get('status'), 'created')
+		# bad request
+		result = new_client.profileCreate('Real \;\"\\"Name', '"select 1\".smid\"@gmail.com')		
+		print result
+		
+		# good request, but repeated
+		result = new_client.profileCreate('Real Second Name', 'martin.smid@gmail.com')		
+		print result
+		
+		# good request, unique
+		result = new_client.profileCreate('Real Third Name', 'martin.smid+%s@gmail.com' % device_id)		
+		print result
+		
+		#~ self.assertEqual(result.get('status'), 'created')
 
 if __name__ == '__main__':
 	c = connection
