@@ -243,6 +243,9 @@ class ApiClient(loggable.Loggable):
 		else:
 			requestData['data'] = self._unicode_input(requestData['data'])
 
+		
+		authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))} if requestData['_noauth'] else None
+	
 		# append data to post
 		if method == 'post':
 			post = requestData['data']
@@ -269,6 +272,7 @@ class ApiClient(loggable.Loggable):
 				Request(
 					url,
 					data = data,
+					headers = authHeaders,
 					origin_req_host = self.originReqHost
 				),
 				False

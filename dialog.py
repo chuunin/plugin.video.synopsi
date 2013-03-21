@@ -645,7 +645,7 @@ class CreateAccountDialog(MyDialog):
 			log('email ' + str(self.email))
 			
 			#~ thread.start_new_thread(top.apiClient.accountCreate, (self.real_name, self.email))			
-			Thread(target=top.apiClient.accountCreate, args=(self.real_name, self.email)).start()
+			Thread(target=top.apiClient.profileCreate, args=(self.real_name, self.email)).start()
 			
 			return True
 			
