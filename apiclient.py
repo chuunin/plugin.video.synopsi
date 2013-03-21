@@ -57,20 +57,16 @@ class ApiClient(loggable.Loggable):
 		self.refreshToken = None
 		self.apiUrl = self.baseUrl + rel_api_url
 		self.originReqHost = originReqHost
-		self.authHeaders = {}
 		self.device_id = device_id
-
-		# xbmc.log('Log handler count %d ' % len(self._log.handlers))
-
+	
+		self._log.setLevel(debugLvl)
+		
 		if len(self._log.handlers)==0:
 			self._log.addHandler(logging.StreamHandler(sys.stdout))
 
-		#~ self._log.setLevel(debugLvl)
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
 		self.failedRequest = []
-		# self._log.error('APIURL:' + self.apiUrl)
-		# self._log.error('BASEURL:' + self.baseUrl)
 
 	@classmethod
 	def getDefaultClient(cls):
@@ -143,10 +139,10 @@ class ApiClient(loggable.Loggable):
 			'password': self.password
 		}
 
-		self.authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
+		authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
 		#~ self._log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
-		# self._log.debug('apiclient getaccesstoken %s' % str(data))
+		#~ self._log.debug('apiclient getaccesstoken %s' % str(data))
 
 		# get token
 		try:
@@ -154,7 +150,7 @@ class ApiClient(loggable.Loggable):
 			req = Request(
 					self.baseUrl + 'oauth2/token/',
 					data=urlencode(data),
-					headers=self.authHeaders,
+					headers=authHeaders,
 					origin_req_host=self.originReqHost)
 
 			# self._log.debug('request REQ HOST:' + str(req.get_origin_req_host()))
@@ -237,6 +233,7 @@ class ApiClient(loggable.Loggable):
 
 	def execute_noauth(self, requestData, cacheable=True):
 		self._log.debug('-' * 20)
+		
 		url = self.apiUrl + requestData['methodPath']
 		method = requestData['method']
 		data = None
@@ -272,7 +269,6 @@ class ApiClient(loggable.Loggable):
 				Request(
 					url,
 					data = data,
-					headers = self.authHeaders,
 					origin_req_host = self.originReqHost
 				),
 				False
