@@ -518,7 +518,7 @@ class ApiClient(loggable.Loggable):
 			'methodPath': 'profile/create',
 			'method': 'post',
 			'data': {
-				'real_name': realname,
+				'realname': realname,
 				'email': email,
 			}
 		}
