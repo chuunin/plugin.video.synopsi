@@ -5,7 +5,6 @@
 + Added: breadcrumbs for listings
 + Added: display tvshow name in episode detail
 * Fixed: show correct titles on home screen (recently added)
-* Fixed: when using samba as source, hashing the file failed
 
 [B]Version 1.0.4[/B]
 

@@ -135,7 +135,7 @@ class OfflineStvList(object):
 					
 				self.log('identified: ' + title['name'])
 			else:
-				self.log('File NOT identified %s' % movie['file'])
+				self.log('NOT identified %s' % movie['file'])
 
 			# current block could raise ApiCallError, when there is not a real problem
 			try:

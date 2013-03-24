@@ -411,19 +411,40 @@ def is_protected(path):
 	return False
 
 
+def textfilter(bytestring):
+	import string,re
+
+	norm = string.maketrans('', '') #builds list of all characters
+	non_alnum = string.translate(norm, norm, string.letters+string.digits) 
+	
+	trans_nontext=string.maketrans(non_alnum,'?'*len(non_alnum))
+	cleaned=string.translate(bytestring, trans_nontext)
+	
+	return cleaned
+
 def stv_hash(filepath):
 	"""
 	New synopsi hash. Hashing the sedond 512 kB of a file using SHA1.
 	"""
 
+	chunk_offset = 524288
+	chunk_length = 524288
+	
 	sha1 = hashlib.sha1()
 
 	try:
-		f = xbmcvfs.File(filepath, 'rb')
-		f.seek(524288, 0)
-		sha1.update(f.read(524288))
+		f = xbmcvfs.File(filepath, 'r')
+		f.seek(chunk_offset, 0)
+		fcontent = f.read(chunk_length)
+		if len(fcontent) != chunk_length:
+			raise IOError()
+			
+		sha1.update(fcontent)
+		f.close()
+	
 	except (IOError) as e:
-		raise HashError('Unable to hash file [%s]' % filepath)
+		log('Unable to hash file [%s]' % filepath)
+		return None
 
 	return sha1.hexdigest()
 
@@ -440,6 +461,7 @@ def old_stv_hash(filepath):
 		sha1.update(f.read(256))
 		f.seek(-256, 2)
 		sha1.update(f.read(256))
+		f.close()
 	except (IOError) as e:
 		return None
 
@@ -454,7 +476,7 @@ def hash_opensubtitle(name):
 		longlongformat = 'q'  # long long
 		bytesize = struct.calcsize(longlongformat)
 
-		_file = xbmcvfs.File(name, 'rb')		
+		_file = xbmcvfs.File(name, 'rb')
 
 		filesize = _file.size()
 		hash = filesize
@@ -482,7 +504,8 @@ def hash_opensubtitle(name):
 		return returnedhash
 
 	except(IOError):
-		raise HashError('Unable to hash file [%s]' % name)
+		log('Unable to hash file [%s]' % name)
+		return None
 
 
 def generate_deviceid():
