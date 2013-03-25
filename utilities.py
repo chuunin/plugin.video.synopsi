@@ -235,7 +235,7 @@ def check_first_run():
 				xbmc.executebuiltin('ReloadSkin()')		
 			raise Exception('Addon service is not running')
 
-def dialog_text(msg, max_line_length=20, max_lines=3):
+def dialog_text(msg, max_line_length=60, max_lines=3):
 	line_end = [0]
 	idx = -1
 	line_no = 0
@@ -275,11 +275,11 @@ def list_get(alist, index, default=''):
 		return default
 
 def dialog_ok(msg):
-	lines = dialog_text(msg, 45)
+	lines = dialog_text(msg, 60)
 	return xbmcgui.Dialog().ok(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
 
 def dialog_yesno(msg):
-	lines = dialog_text(msg, 45)
+	lines = dialog_text(msg, 60)
 	return xbmcgui.Dialog().yesno(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
 
 
