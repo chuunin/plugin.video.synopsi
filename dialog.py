@@ -641,14 +641,22 @@ class CreateAccountDialog(MyDialog):
 
 		# click on 'create account' button
 		elif action in ACTIONS_CLICK and (self.getFocusId() == self.ctl_create_account_id):
-			log('real name ' + str(self.real_name))
-			log('email ' + str(self.email))
-			
-			#~ thread.start_new_thread(top.apiClient.accountCreate, (self.real_name, self.email))			
-			Thread(target=top.apiClient.profileCreate, args=(self.real_name, self.email)).start()
-			
+			result = top.apiClient.profileCreate(self.real_name, self.email)
+			if result.get('status') == 'created':
+				dialog_ok('Thank You for Signing Up! Check your inbox for an email from us to complete the process. We are happy to have you.')
+				self.close()
+			elif result.get('status') == 'failed':
+				if result.get('message') is str:
+					message = result['message']
+				else:
+					message = '\n'.join([' '.join(i) for i in result['message'].values()])
+
+				dialog_ok(message)
+			else:
+				log('Failed to create account.' + str(result))
+
 			return True
-			
+
 def open_create_account_dialog(tpl_data):
 	dlg_result = open_dialog(CreateAccountDialog, "AccountCreate.xml", tpl_data)
 	
