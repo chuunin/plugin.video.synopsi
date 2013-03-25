@@ -244,7 +244,7 @@ class ApiClient(loggable.Loggable):
 			requestData['data'] = self._unicode_input(requestData['data'])
 
 		
-		authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))} if requestData['_noauth'] else None
+		authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))} if requestData.get('_noauth') else None
 	
 		# append data to post
 		if method == 'post':
