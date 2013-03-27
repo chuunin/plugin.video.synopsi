@@ -619,10 +619,10 @@ class CreateAccountDialog(MyDialog):
 		super(CreateAccountDialog, self).__init__()
 		self.data = kwargs['data']
 		self.real_name = None
-		self.email = None
+		self.email = __addon__.getSetting('USER')
 
 	def onInit(self):
-		pass
+		self.getControl(self.ctl_email).setLabel(self.email)
 		
 	def onAction(self, action):
 		if action in CANCEL_DIALOG:
