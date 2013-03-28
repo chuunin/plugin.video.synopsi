@@ -234,7 +234,7 @@ def check_first_run():
 				xbmc.executebuiltin('ReloadSkin()')		
 			raise Exception('Addon service is not running')
 
-def dialog_text(msg, max_line_length=60, max_lines=3):
+def dialog_text(msg, max_line_length=50, max_lines=3):
 	line_end = [0]
 	idx = -1
 	line_no = 0
