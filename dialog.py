@@ -649,7 +649,7 @@ class CreateAccountDialog(MyDialog):
 				if result.get('message') is str:
 					message = result['message']
 				else:
-					message = '\n'.join([' '.join(i) for i in result['message'].values()])
+					message = ' '.join([' '.join(i) for i in result['message'].values()])
 
 				dialog_ok(message)
 			else:

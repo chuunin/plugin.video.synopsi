@@ -245,7 +245,14 @@ def dialog_text(msg, max_line_length=60, max_lines=3):
 		last_idx = idx
 		idx = msg.find(' ', idx+1)
 		if idx==-1:
-			break
+			# if length of this line would fit into $max_line_length
+			if len(msg) - line_end[-1] > max_line_length:
+				line_end.append(last_idx)
+				line_no += 1
+				if line_no >= max_lines:
+					break				
+			else:
+				break
 		elif idx-line_end[-1] > max_line_length:
 			line_end.append(last_idx)
 			line_no += 1
@@ -275,11 +282,11 @@ def list_get(alist, index, default=''):
 		return default
 
 def dialog_ok(msg):
-	lines = dialog_text(msg, 60)
+	lines = dialog_text(msg)
 	return xbmcgui.Dialog().ok(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
 
 def dialog_yesno(msg):
-	lines = dialog_text(msg, 60)
+	lines = dialog_text(msg)
 	return xbmcgui.Dialog().yesno(t_stv, list_get(lines, 0), list_get(lines, 1), list_get(lines, 2))
 
 
