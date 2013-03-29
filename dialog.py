@@ -618,7 +618,7 @@ class CreateAccountDialog(MyDialog):
 	def __init__(self, *args, **kwargs):
 		super(CreateAccountDialog, self).__init__()
 		self.data = kwargs['data']
-		self.real_name = None
+		self.real_name = ''
 		self.email = __addon__.getSetting('USER')
 
 	def onInit(self):
