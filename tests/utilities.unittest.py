@@ -62,6 +62,8 @@ class UtilitiesTest(TestCase):
 		text = 'one two three one two three one two three one two three one two three'
 		print dialog_text(text, 20)
 
+	def test_get_api_port(self):
+		print get_api_port()
 
 if __name__ == '__main__':
 	test_item1 = {

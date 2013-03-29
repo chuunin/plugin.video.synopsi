@@ -567,13 +567,13 @@ def get_api_port():
 
 	path = os.path.join('special://profile', 'advancedsettings.xml')
 	path = xbmc.translatePath(path)
-
+	
 	try:
-		tree = ET.parse(path)
+		tree = et.parse(path)
 		root = tree.getroot()
 		nodes = root.findall('.//tcpport')
 		value = int(nodes[0].text)
-	except:
+	except Exception as e:
 		value = 9090
 
 	return value
