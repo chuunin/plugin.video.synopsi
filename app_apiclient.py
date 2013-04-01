@@ -18,6 +18,7 @@ class AppApiClient(ApiClient):
 		super(AppApiClient, self).__init__(base_url, key, secret, username, password, device_id, originReqHost, debugLvl, accessTokenTimeout, rel_api_url)
 		self._lock_access_token = threading.Lock()
 		self._rejected_to_correct = False
+		self._login_success_announced = False
 		self.login_state_announce = lsa
 
 	def reloadUserPass(self):
@@ -65,8 +66,9 @@ class AppApiClient(ApiClient):
 
 				# try to log in
 				ApiClient.getAccessToken(self)
-				if self.login_state_announce==LoginState.Notify:
+				if self.login_state_announce==LoginState.Notify and not self._login_success_announced:
 					notification('Logged in as %s' % self.username)
+					self._login_success_announced = True
 
 			# in failure, ask for new login/pass and repeat if dialog was not canceled
 			except AuthenticationError:
