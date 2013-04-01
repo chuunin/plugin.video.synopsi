@@ -21,34 +21,25 @@ class AppApiClient(ApiClient):
 		self._login_success_announced = False
 		self.login_state_announce = lsa
 
-	def reloadUserPass(self):
+	def checkAccountChange(self):
 		__addon__ = get_current_addon()
-		changed = False
 
-		if self.username != __addon__.getSetting('USER'):
-			self.username = __addon__.getSetting('USER')
-			changed = True
-
-		if self.password != __addon__.getSetting('PASS'):
-			self.password = __addon__.getSetting('PASS')
-			changed = True
+		changed = self.username != __addon__.getSetting('USER') or self.password != __addon__.getSetting('PASS')
 
 		return changed
+
+	def onAccountChange(self):
+		self.username = __addon__.getSetting('USER')
+		self.password = __addon__.getSetting('PASS')
+		self.clearAccessToken()
 
 	def clearAccessToken(self):
 		self.accessToken = None
 		self.accessTokenSessionStart = None
 
-	def checkUserPass(self):
-		if self.reloadUserPass():
-			self.clearAccessToken()
-			return True
-
-		return False
-
 	def isAuthenticated(self):
 		" Returns true if user is authenticated. This method adds to its parent method a check if user credentials have changed "
-		self.checkUserPass()
+		self.checkAccountChange()
 		return ApiClient.isAuthenticated(self)
 
 	def getAccessToken(self):
@@ -62,7 +53,7 @@ class AppApiClient(ApiClient):
 		while not finished:
 			try:
 				# check to clear tokens if user credentials changed
-				self.checkUserPass()
+				self.checkAccountChange()
 
 				# try to log in
 				ApiClient.getAccessToken(self)

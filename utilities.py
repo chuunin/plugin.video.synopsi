@@ -23,6 +23,7 @@ import xml.etree.ElementTree as et
 
 # application
 import resources.const
+import top
 
 common = CommonFunctions
 common.plugin = "SynopsiTV"
@@ -201,6 +202,13 @@ def get_current_addon():
 	global __addon__
 	return __addon__
 
+def addon_openSettings():
+	addon = get_current_addon()
+	addon.openSettings()
+	changed = top.apiClient.checkAccountChange()
+
+	return changed
+
 def addon_getSetting(aid, adef=None):
 	addon = get_current_addon()
 	try:
@@ -220,8 +228,9 @@ def check_first_run():
 	if __addon__.getSetting('FIRSTRUN') == 'true':
 		log('SYNOPSI FIRST RUN')
 
+		addon_openSettings()
+
 		# enable home screen recco
-		__addon__.openSettings()
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
 		reloadSkin = True			
 		__addon__.setSetting('FIRSTRUN', "false")
@@ -578,7 +587,7 @@ def get_api_port():
 		root = et.fromstring(fcontent)
 		nodes = root.findall('.//tcpport')
 		value = int(nodes[0].text)
-		
+
 	except:
 		value = 9090
 
@@ -695,8 +704,8 @@ def get_rating():
 
 def dialog_check_login_correct():
 	if dialog_login_fail_yesno():
-		addon = get_current_addon()
-		result = addon.openSettings()
+		addon_openSettings()
+
 		# openSettings do not return users click, so we return if user had the intention to correct credentials
 		return True
 	else:
