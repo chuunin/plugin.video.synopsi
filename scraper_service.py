@@ -5,6 +5,8 @@ import sys
 import json
 import urlparse
 import traceback
+from lxml.builder import E
+from lxml import etree
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from threading import Thread
@@ -23,19 +25,52 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		try:
 			url = urlparse.urlparse(s.path)
 			qs = urlparse.parse_qs(url.query)
+			if not qs.get('q'):
+				raise Exception('Missing parameter: q')
+
 			file_name = qs['q'][0]
 
 			s.send_response(200)
-			s.send_header("Content-type", "text/json")
+			s.send_header("Content-type", "text/xml")
 			s.end_headers()
 
-			response = {}
-			response['requested'] = file_name
+			imaginary_title = {
+				'name': 'The Return To Earth',
+				'runtime': '121',
+				'genres': ['Sci-fi', 'Drama'],
+				'cast': ['Elon Musk', 'Keanu Reeves']
+			}
+
+			# create xml from title
+			genres  = E.genres()
+			cast = E.cast()		
+			for genre in imaginary_title['genres']:
+				e = etree.SubElement(genres, 'genre')
+				e.text = genre
+
+			for actor_name in imaginary_title['cast']:
+				e = etree.SubElement(cast, 'actor')
+				e.text = actor_name
+
+			xml_root = E.results(
+				E.title(
+					E.name( imaginary_title['name'] ),
+					E.runtime( imaginary_title['runtime'] ),
+					genres,
+					cast
+				)
+			)
+
+			str_response = etree.tostring(xml_root, pretty_print=True)
 		except:
 			exc_type, exc_value, exc_traceback = sys.exc_info()
-			response = {'status': 'exception', 'traceback': traceback.extract_tb(exc_traceback)}
+			exc_string = traceback.extract_tb(exc_traceback)
+			# exc_string = traceback.format_exception(exc_type, exc_value, exc_traceback)
 
-		s.wfile.write(json.dumps(response))
+			response = {'status': 'exception', 'exc_type': str(exc_type), 'exc_value': str(exc_value), 'traceback': exc_string}
+			str_response = json.dumps(response)
+
+		s.wfile.write(str_response)
 		s.wfile.write('\n')
 
 class ScraperServerThread(ScraperServer, Thread):
