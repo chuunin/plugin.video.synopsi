@@ -40,7 +40,9 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 			response = {'status': 'exception', 'exc_type': str(exc_type), 'exc_value': str(exc_value), 'traceback': exc_string}
 			str_response = json.dumps(response)
 
+		print self.path
 		print str_response
+
 		self.wfile.write(str_response)
 		self.wfile.write('\n')
 
@@ -55,7 +57,7 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		self.end_headers()
 
 		title = {
-			'id': 22,
+			'id': '22',
 			'name': file_name,
 			'runtime': '121',
 			'genres': ['Sci-fi', 'Drama'],
@@ -88,8 +90,30 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		return str_response
 
 	def path_get_detail(self, url, qs):
+		name = qs.get('q')[0]
 
-		return '<xxx>get_detail_result</xxx>'
+		# return '<xxx>get_detail_result</xxx>'
+		return '''
+			<details>
+				<title>%s</title>
+				<year></year>
+				<director></director>
+				<top250></top250>
+				<mpaa></mpaa>
+				<tagline></tagline>
+				<runtime></runtime>
+				<thumb></thumb>
+				<credits></credits>
+				<rating></rating>
+				<votes></votes>
+				<genre></genre>
+				<actor>
+					<name></name>
+					<role></role>
+				</actor>
+				<outline></outline>
+				<plot></plot>
+			</details>''' % name
 
 
 class ScraperServerThread(ScraperServer, Thread):
