@@ -21,57 +21,76 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 	protocol_version = "HTTP/1.0"
 
 
-	def do_GET(s):
+	def do_GET(self):
 		try:
-			url = urlparse.urlparse(s.path)
+			url = urlparse.urlparse(self.path)
 			qs = urlparse.parse_qs(url.query)
-			if not qs.get('q'):
-				raise Exception('Missing parameter: q')
+			
+			str_response = 'Unhandled'
 
-			file_name = qs['q'][0]
+			if url.path == '/search/':
+				str_response = self.path_search(url, qs)
+			elif url.path == '/get_detail/':
+				str_response = self.path_get_detail(url, qs)
 
-			s.send_response(200)
-			s.send_header("Content-type", "text/xml")
-			s.end_headers()
-
-			imaginary_title = {
-				'name': 'The Return To Earth',
-				'runtime': '121',
-				'genres': ['Sci-fi', 'Drama'],
-				'cast': ['Elon Musk', 'Keanu Reeves']
-			}
-
-			# create xml from title
-			genres  = E.genres()
-			cast = E.cast()		
-			for genre in imaginary_title['genres']:
-				e = etree.SubElement(genres, 'genre')
-				e.text = genre
-
-			for actor_name in imaginary_title['cast']:
-				e = etree.SubElement(cast, 'actor')
-				e.text = actor_name
-
-			xml_root = E.results(
-				E.title(
-					E.name( imaginary_title['name'] ),
-					E.runtime( imaginary_title['runtime'] ),
-					genres,
-					cast
-				)
-			)
-
-			str_response = etree.tostring(xml_root, pretty_print=True)
 		except:
 			exc_type, exc_value, exc_traceback = sys.exc_info()
 			exc_string = traceback.extract_tb(exc_traceback)
 			# exc_string = traceback.format_exception(exc_type, exc_value, exc_traceback)
-
 			response = {'status': 'exception', 'exc_type': str(exc_type), 'exc_value': str(exc_value), 'traceback': exc_string}
 			str_response = json.dumps(response)
 
-		s.wfile.write(str_response)
-		s.wfile.write('\n')
+		print str_response
+		self.wfile.write(str_response)
+		self.wfile.write('\n')
+
+	def path_search(self, url, qs):
+		if not qs.get('q'):
+			raise Exception('Missing parameter: q')
+
+		file_name = qs['q'][0]
+
+		self.send_response(200)
+		self.send_header("Content-type", "text/xml")
+		self.end_headers()
+
+		title = {
+			'id': 22,
+			'name': file_name,
+			'runtime': '121',
+			'genres': ['Sci-fi', 'Drama'],
+			'cast': ['Elon Musk', 'Keanu Reeves']
+		}
+
+		# create xml from title
+		genres  = E.genres()
+		cast = E.cast()		
+		for genre in title['genres']:
+			e = etree.SubElement(genres, 'genre')
+			e.text = genre
+
+		for actor_name in title['cast']:
+			e = etree.SubElement(cast, 'actor')
+			e.text = actor_name
+
+		xml_root = E.results(
+			E.title(
+				E.id( title['id'] ),
+				E.name( title['name'] ),
+				E.runtime( title['runtime'] ),
+				genres,
+				cast
+			)
+		)
+
+		str_response = etree.tostring(xml_root, pretty_print=True)
+
+		return str_response
+
+	def path_get_detail(self, url, qs):
+
+		return '<xxx>get_detail_result</xxx>'
+
 
 class ScraperServerThread(ScraperServer, Thread):
 	_stopped = False
