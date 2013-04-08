@@ -11,6 +11,7 @@ import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from threading import Thread
 from httplib2 import Http
+from app_apiclient import AppApiClient
 
 
 class ScraperServer(BaseHTTPServer.HTTPServer):
@@ -46,6 +47,32 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		self.wfile.write(str_response)
 		self.wfile.write('\n')
 
+	def title_identify(self, file_name, type):
+		movie = {}
+		movie['file'] = file_name
+
+		path = self.get_path(movie)
+		# DISABLED while testing
+		# movie['stv_title_hash'] = stv_hash(path)
+		# movie['os_title_hash'] = hash_opensubtitle(path)
+		
+		# TODO: stv_subtitle_hash - hash of the subtitle file if present
+		ident = {}
+		self._translate_xbmc2stv_keys(ident, movie)
+
+		# give api a hint about type if possible
+		if movie['type'] in playable_types:
+			ident['type'] = movie['type']
+
+		# correct input
+		if ident.get('imdb_id'):
+			ident['imdb_id'] = ident['imdb_id'][2:]
+
+		# try to get synopsi id
+		log('to identify: ' + ident['file_name'])
+		title = top.apiClient.titleIdentify(**ident)
+		return title
+
 	def path_search(self, url, qs):
 		if not qs.get('q'):
 			raise Exception('Missing parameter: q')
@@ -56,6 +83,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		self.send_header("Content-type", "text/xml")
 		self.end_headers()
 
+
+		title = self.title_identify(self, qs['q'])
 		title = {
 			'id': '22',
 			'name': file_name,
@@ -140,6 +169,9 @@ class ScraperServerThread(ScraperServer, Thread):
 		h.request('http://%s:%s' % self.server_address, "HEAD")
 
 if __name__ == '__main__':
+
+	top.apiClient = AppApiClient.getDefaultClient()
+
 	server_address = ('127.0.0.1', 9099)
 	scraper_server_thread = ScraperServerThread(server_address)
 	scraper_server_thread.start()
