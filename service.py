@@ -17,6 +17,7 @@ from cache import *
 from utilities import home_screen_fill, login_screen, log, VERSION
 from app_apiclient import AppApiClient
 from addonservice import AddonService
+from scraper_service import ScraperServerThread
 import top
 import threading
 import dialog
@@ -60,12 +61,17 @@ def main():
 
 
 	threads = []
-	l = RPCListenerHandler(top.stvList)
-	threads.append(l)
+	# l = RPCListenerHandler(top.stvList)
+	# threads.append(l)
 	aos = AddonService('localhost', DEFAULT_SERVICE_PORT, top.apiClient, top.stvList)
 	threads.append(aos)
+	server_address = ('127.0.0.1', 9099)
+	scraper_server_thread = ScraperServerThread(server_address)
+	threads.append(scraper_server_thread)
 
+	log('thread count %s ' % len(threads))
 	for t in threads:
+		log(' --> %s ' % type(t))
 		t.start()
 
 	log('Service loop START')
@@ -80,6 +86,7 @@ def main():
 			log('service.py abortRequested')
 			log('waiting for: ' + str(','.join([i.name for i in threads if i.isAlive()])))
 			aos.stop()
+			scraper_server_thread.server_stop()
 
 		top.player.update_current_time()
 

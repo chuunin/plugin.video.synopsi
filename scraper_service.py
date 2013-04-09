@@ -5,13 +5,18 @@ import sys
 import json
 import urlparse
 import traceback
+import random
 from lxml.builder import E
 from lxml import etree
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
-from threading import Thread
+from mythread import MyThread
 from httplib2 import Http
-from app_apiclient import AppApiClient
+
+# application
+from utilities import *
+import top
+from apiclient import ApiClient
 
 
 class ScraperServer(BaseHTTPServer.HTTPServer):
@@ -21,6 +26,8 @@ class ScraperServer(BaseHTTPServer.HTTPServer):
 class ScraperRequestHandler(SimpleHTTPRequestHandler):
 	protocol_version = "HTTP/1.0"
 
+	def log(self, msg):
+		log('SCRAPER: ' + unicode(msg))
 
 	def do_GET(self):
 		try:
@@ -41,8 +48,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 			response = {'status': 'exception', 'exc_type': str(exc_type), 'exc_value': str(exc_value), 'traceback': exc_string}
 			str_response = json.dumps(response)
 
-		print self.path
-		print str_response
+		self.log(self.path)
+		self.log(str_response)
 
 		self.wfile.write(str_response)
 		self.wfile.write('\n')
@@ -85,32 +92,14 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 
 
 		title = self.title_identify(self, qs['q'])
-		title = {
-			'id': '22',
-			'name': file_name,
-			'runtime': '121',
-			'genres': ['Sci-fi', 'Drama'],
-			'cast': ['Elon Musk', 'Keanu Reeves']
-		}
-
-		# create xml from title
-		genres  = E.genres()
-		cast = E.cast()		
-		for genre in title['genres']:
-			e = etree.SubElement(genres, 'genre')
-			e.text = genre
-
-		for actor_name in title['cast']:
-			e = etree.SubElement(cast, 'actor')
-			e.text = actor_name
+		# title = {'id': str(random.randint(1,1000))}
+		
+		print 'storing cache id: ' + str(title['id'])
+		self.server.cache[title['id']] = title
 
 		xml_root = E.results(
 			E.title(
 				E.id( title['id'] ),
-				E.name( title['name'] ),
-				E.runtime( title['runtime'] ),
-				genres,
-				cast
 			)
 		)
 
@@ -119,45 +108,59 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		return str_response
 
 	def path_get_detail(self, url, qs):
-		name = qs.get('q')[0]
+		stv_id = qs.get('q')[0]
 
-		# return '<xxx>get_detail_result</xxx>'
+		t = title = self.server.cache[stv_id]
+
+		log(dump(t))
+		
+		# t = {
+		# 	'name': 'Fake Name' + stv_id, 
+		# 	'year': 2010, 
+		# 	'directors': 'Fake Directors',
+		# 	'runtime': '20 min',
+		# 	'genres': 'Fake Comedy',
+		# 	'plot': 'Codem checksum'
+		# }
+
 		return '''
-			<details>
 				<title>%s</title>
-				<year></year>
-				<director></director>
+				<year>%s</year>
+				<director>%s</director>
 				<top250></top250>
 				<mpaa></mpaa>
 				<tagline></tagline>
-				<runtime></runtime>
+				<runtime>%s</runtime>
 				<thumb></thumb>
 				<credits></credits>
 				<rating></rating>
 				<votes></votes>
-				<genre></genre>
+				<genre>%s</genre>
 				<actor>
 					<name></name>
 					<role></role>
 				</actor>
 				<outline></outline>
-				<plot></plot>
-			</details>''' % name
+				<plot>%s</plot>
+			''' % (t['name'], t['year'], t['directors'], t['runtime'], t['genres'], t['plot'])
 
 
-class ScraperServerThread(ScraperServer, Thread):
+class ScraperServerThread(ScraperServer, MyThread):
 	_stopped = False
+	cache = {}
 
 	def __init__(self, server_address):
 		ScraperServer.__init__(self, server_address)
-		Thread.__init__(self)
+		MyThread.__init__(self)
 
 	def serve_forever(self):
 		while not self._stopped:
 			self.handle_request()
 
 	def run(self):
+		log('starting server')
 		self.serve_forever()
+		log('stopping server')
 
 	def server_stop(self):
 		self._stopped = True
@@ -170,7 +173,7 @@ class ScraperServerThread(ScraperServer, Thread):
 
 if __name__ == '__main__':
 
-	top.apiClient = AppApiClient.getDefaultClient()
+	top.apiClient = ApiClient.getDefaultClient()
 
 	server_address = ('127.0.0.1', 9099)
 	scraper_server_thread = ScraperServerThread(server_address)

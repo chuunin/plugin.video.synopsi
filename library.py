@@ -5,7 +5,6 @@ import xbmc, xbmcgui, xbmcaddon
 import time
 import socket
 import json
-import re
 import traceback
 import top
 

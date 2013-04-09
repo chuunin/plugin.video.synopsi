@@ -1,7 +1,7 @@
 import requests
 import json
 
-r = requests.get('http://localhost:9099/?q=The+Holy+Grail')
+r = requests.get('http://localhost:9099/search/?q=The+Holy+Grail')
 if r.text[0] == '{':
 	print json.dumps(json.loads(r.text), indent=4)
 else:
