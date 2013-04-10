@@ -122,10 +122,13 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 						<role>%s</role>
 					</actor>''' % (actor['name'], actor['role']['name']) for actor in t['cast']])
 
+		xml_thumbs = '' #'\n'.join(['<thumb>%s</thumb>' % t[''])
+
 
 		tpl['xml_directors'] = xml_directors
 		tpl['xml_genres'] = xml_genres
 		tpl['xml_cast'] = xml_cast
+		tpl['xml_thumbs'] = xml_thumbs
 
 		log('--'*20)
 		log(dump(tpl))
@@ -138,7 +141,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 				<mpaa></mpaa>
 				<tagline></tagline>
 				<runtime>%(runtime)s</runtime>
-				<thumb></thumb>
+				<thumb>%(cover_full)s</thumb>
+				%(xml_thumbs)s
 				<credits></credits>
 				<rating></rating>
 				<votes></votes>
