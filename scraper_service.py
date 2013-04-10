@@ -92,9 +92,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 
 
 		title = self.title_identify(file_name, 'movie')		# TODO: put in the correct source type
-		# title = {'id': str(random.randint(1,1000))}
-		
-		print 'storing cache id: ' + str(title['id'])
+
+		# store 		
 		self.server.cache[title['id']] = title
 
 		xml_root = E.results(
@@ -109,40 +108,45 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 
 	def path_get_detail(self, url, qs):
 		stv_id = int(qs.get('q')[0])
-		log('get detail: %s' % stv_id)
+
 		t = title = self.server.cache[stv_id]
 
-		# log(dump(t))
-		
-		# t = {
-		# 	'name': 'Fake Name' + stv_id, 
-		# 	'year': 2010, 
-		# 	'directors': 'Fake Directors',
-		# 	'runtime': '20 min',
-		# 	'genres': 'Fake Comedy',
-		# 	'plot': 'Codem checksum'
-		# }
+		tpl = t.copy()
+
+		# data transformations
+		xml_directors = '\n'.join('<director>%s</director>' % director['name'] for director in t['directors'])
+		xml_genres = '\n'.join('<genre>%s</genre>' % genre for genre in t['genres'])
+		xml_cast = '\n'.join(['''
+					<actor>
+						<name>%s</name>
+						<role>%s</role>
+					</actor>''' % (actor['name'], actor['role']['name']) for actor in t['cast']])
+
+
+		tpl['xml_directors'] = xml_directors
+		tpl['xml_genres'] = xml_genres
+		tpl['xml_cast'] = xml_cast
+
+		log('--'*20)
+		log(dump(tpl))
 
 		return '''
-				<title>%s</title>
-				<year>%s</year>
-				<director>%s</director>
+				<title>%(name)s</title>
+				<year>%(year)s</year>
+				%(xml_directors)s
 				<top250></top250>
 				<mpaa></mpaa>
 				<tagline></tagline>
-				<runtime>%s</runtime>
+				<runtime>%(runtime)s</runtime>
 				<thumb></thumb>
 				<credits></credits>
 				<rating></rating>
 				<votes></votes>
-				<genre>%s</genre>
-				<actor>
-					<name></name>
-					<role></role>
-				</actor>
+				%(xml_genres)s
+				%(xml_cast)s
 				<outline></outline>
-				<plot>%s</plot>
-			''' % (t['name'], t['year'], t['directors'], t['runtime'], t['genres'], t['plot'])
+				<plot>%(plot)s</plot>
+			''' % tpl
 
 
 class ScraperServerThread(ScraperServer, MyThread):
