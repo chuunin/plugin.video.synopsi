@@ -13,17 +13,6 @@ from utilities import *
 from apiclient import commonTitleProps
 from xbmcrpc import xbmc_rpc
 
-xbmc2stv_key_translation = {
-	'file_name': 'file',
-	'os_title_hash': 'os_title_hash',
-	'stv_title_hash': 'stv_title_hash',
-	'total_time': 'runtime',
-	'label': 'originaltitle',
-	'imdb_id': 'imdbnumber'
-}
-
-playable_types = ['movie', 'episode']
-
 class DuplicateStvIdException(Exception):
 	pass
 
@@ -81,18 +70,6 @@ class OfflineStvList(object):
 	def log(self, msg):
 		log('CACHE / ' + msg)
 
-	def _translate_xbmc2stv_keys(self, a, b):
-		for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
-			if b.has_key(src_key):
-				a[dst_key] = b[src_key]
-
-	def get_path(self, movie):
-		if 'stack://' in movie['file']:
-			parts = movie['file'][8:].split(" , ")
-			return parts[0]
-		else:
-			return movie['file']
-
 	def addorupdate(self, atype, aid):
 		if not atype in playable_types:
 			return
@@ -105,14 +82,14 @@ class OfflineStvList(object):
 		# if not in cache, it's been probably added
 		if not self.hasTypeId(movie['type'], movie['id']):
 			# get stv hash
-			path = self.get_path(movie)
+			path = get_movie_path(movie)
 			movie['stv_title_hash'] = stv_hash(path)
 			movie['os_title_hash'] = hash_opensubtitle(path)
 
 			
 			# TODO: stv_subtitle_hash - hash of the subtitle file if present
 			ident = {}
-			self._translate_xbmc2stv_keys(ident, movie)
+			translate_xbmc2stv_keys(ident, movie)
 
 			# give api a hint about type if possible
 			if movie['type'] in playable_types:

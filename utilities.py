@@ -124,6 +124,19 @@ t_emptylist_by_mode = {
 }
 
 
+playable_types = ['movie', 'episode']
+
+
+xbmc2stv_key_translation = {
+	'file_name': 'file',
+	'os_title_hash': 'os_title_hash',
+	'stv_title_hash': 'stv_title_hash',
+	'total_time': 'runtime',
+	'label': 'originaltitle',
+	'imdb_id': 'imdbnumber'
+}
+
+
 # exceptions
 class HashError(Exception):
 	pass
@@ -780,3 +793,18 @@ def rel_path(realpath):
 		
 def get_episode_identifier(item):
 	return 'S%sE%s' % (item.get('season_number', '??'), item.get('episode_number', '??'))
+
+def get_path(movie_path):
+	if 'stack://' in movie_path:
+		parts = movie_path[8:].split(" , ")
+		return parts[0]
+	else:
+		return movie_path
+
+def get_movie_path(movie):
+	return get_path(movie['file'])
+
+def translate_xbmc2stv_keys(a, b):
+	for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
+		if b.has_key(src_key):
+			a[dst_key] = b[src_key]
