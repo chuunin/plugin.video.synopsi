@@ -69,9 +69,7 @@ def main():
 	scraper_server_thread = ScraperServerThread(server_address)
 	threads.append(scraper_server_thread)
 
-	log('thread count %s ' % len(threads))
 	for t in threads:
-		log(' --> %s ' % type(t))
 		t.start()
 
 	log('Service loop START')

@@ -54,18 +54,18 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		self.wfile.write(str_response)
 		self.wfile.write('\n')
 
-	def title_identify(self, file_name, type):
+	def title_identify(self, file_name, atype):
 		movie = {}
 		movie['file'] = file_name
-
-		path = self.get_path(movie)
-		# DISABLED while testing
-		# movie['stv_title_hash'] = stv_hash(path)
-		# movie['os_title_hash'] = hash_opensubtitle(path)
+		movie['type'] = atype
+		log(str(movie))
+		path = get_movie_path(movie)
+		movie['stv_title_hash'] = stv_hash(path)
+		movie['os_title_hash'] = hash_opensubtitle(path)
 		
 		# TODO: stv_subtitle_hash - hash of the subtitle file if present
 		ident = {}
-		self._translate_xbmc2stv_keys(ident, movie)
+		translate_xbmc2stv_keys(ident, movie)
 
 		# give api a hint about type if possible
 		if movie['type'] in playable_types:
@@ -91,7 +91,7 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		self.end_headers()
 
 
-		title = self.title_identify(self, qs['q'])
+		title = self.title_identify(file_name, 'movie')		# TODO: put in the correct source type
 		# title = {'id': str(random.randint(1,1000))}
 		
 		print 'storing cache id: ' + str(title['id'])
@@ -99,7 +99,7 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 
 		xml_root = E.results(
 			E.title(
-				E.id( title['id'] ),
+				E.id( str(title['id']) )
 			)
 		)
 
@@ -108,11 +108,11 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		return str_response
 
 	def path_get_detail(self, url, qs):
-		stv_id = qs.get('q')[0]
-
+		stv_id = int(qs.get('q')[0])
+		log('get detail: %s' % stv_id)
 		t = title = self.server.cache[stv_id]
 
-		log(dump(t))
+		# log(dump(t))
 		
 		# t = {
 		# 	'name': 'Fake Name' + stv_id, 
