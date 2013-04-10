@@ -24,7 +24,7 @@ RATING_CODE = {
 }
 
 # api request title properties
-commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
+commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime', 'cast']
 defaultIdentifyProps = commonTitleProps + ['tvshow_id']
 watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
@@ -316,13 +316,15 @@ class ApiClient(loggable.Loggable):
 				
 		self.execute(req)
 
-	def titleIdentify(self, props=defaultIdentifyProps, **data):
+	def titleIdentify(self, props=defaultIdentifyProps, cast_props=defaultCastProps, **data):
 		""" Try to match synopsi title by various data """
 		# filter-out empty data
 		data = dict((k, v) for k, v in data.iteritems() if v)
 
 		data['device_id'] = self.device_id
 		data['title_property[]'] = ','.join(props)
+		data['cast_property[]'] = ','.join(cast_props)
+		
 		req = {
 			'methodPath': 'title/identify/',
 			'method': 'get',
