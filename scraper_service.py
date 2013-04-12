@@ -10,10 +10,11 @@ from lxml.builder import E
 from lxml import etree
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
-from mythread import MyThread
 from httplib2 import Http
 
 # application
+from mythread import MyThread
+from loggable import Loggable
 from utilities import *
 import top
 from apiclient import ApiClient
@@ -23,7 +24,7 @@ class ScraperServer(BaseHTTPServer.HTTPServer):
 	def __init__(self, server_address):
 		BaseHTTPServer.HTTPServer.__init__(self, server_address, ScraperRequestHandler)
 
-class ScraperRequestHandler(SimpleHTTPRequestHandler):
+class ScraperRequestHandler(SimpleHTTPRequestHandler, Loggable):
 	protocol_version = "HTTP/1.0"
 
 	def log(self, msg):
@@ -58,7 +59,7 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		movie = {}
 		movie['file'] = file_name
 		movie['type'] = atype
-		log(str(movie))
+		self.log(str(movie))
 		path = get_movie_path(movie)
 		movie['stv_title_hash'] = stv_hash(path)
 		movie['os_title_hash'] = hash_opensubtitle(path)
@@ -76,7 +77,7 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 			ident['imdb_id'] = ident['imdb_id'][2:]
 
 		# try to get synopsi id
-		log('to identify: ' + ident['file_name'])
+		self.log('to identify: ' + ident['file_name'])
 		title = top.apiClient.titleIdentify(**ident)
 		return title
 
@@ -92,6 +93,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 
 
 		title = self.title_identify(file_name, 'movie')		# TODO: put in the correct source type
+
+		del(title['relevant_results'])
 
 		# store 		
 		self.server.cache[title['id']] = title
@@ -129,8 +132,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler):
 		tpl['xml_cast'] = xml_cast
 		tpl['xml_thumbs'] = xml_thumbs
 
-		log('--'*20)
-		log(dump(tpl))
+		# self.log('--'*20)
+		# self.log(dump(tpl))
 
 		return '''
 				<title>%(name)s</title>
@@ -164,9 +167,7 @@ class ScraperServerThread(ScraperServer, MyThread):
 			self.handle_request()
 
 	def run(self):
-		log('starting server')
 		self.serve_forever()
-		log('stopping server')
 
 	def server_stop(self):
 		self._stopped = True

@@ -4,11 +4,12 @@ import sys
 
 print sys.argv
 
-if len(sys.argv) == 1:
+if len(sys.argv) == 0:
 	r = requests.get('http://localhost:9099/search/?q=The+Holy+Grail')
 elif sys.argv[1] == 'detail':
 	r = requests.get('http://localhost:9099/get_detail/?q=%s' % sys.argv[2])
-
+else:
+	r = requests.get('http://localhost:9099/search/?q=%s' % sys.argv[1])
 
 # print result
 if r.text[0] == '{':
