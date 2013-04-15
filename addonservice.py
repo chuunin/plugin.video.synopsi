@@ -23,7 +23,10 @@ class ServiceTCPHandler(SocketServer.StreamRequestHandler):
 			json_data = json.loads(self.data)
 		except:
 			self.server._log.debug('Invalid data "%s"' % str(self.data))
+			exc = { 'type': 'Unable to parse JSON input.' }
+			self.wfile.write(json.dumps({'exception': exc}))
 			return
+
 
 		try:
 			# check interface version

@@ -218,6 +218,7 @@ class xbmcRPCclient(Loggable):
 
 		return movie
 
+
 	def GetInfoLabels(self):
 		"""
 		"""
@@ -230,6 +231,42 @@ class xbmcRPCclient(Loggable):
 		)
 
 		return response
+
+
+	def set_movie_details(self, details):
+		"""
+			Update the given movie with the given details. More info at http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.SetMovieDetails
+		"""
+
+		response = self.execute(
+			'VideoLibrary.SetMovieDetails',
+			details
+		)
+
+		log('set_movie_details response: %s' % dump(response))
+		return response
+
+
+	def set_episode_details(self, details):
+		response = self.execute(
+			'VideoLibrary.SetEpisodeDetails',
+			details
+		)
+
+		log('set_episode_details response: %s' % dump(response))
+		return response
+
+
+	def set_tvshow_details(self, details):
+		response = self.execute(
+			'VideoLibrary.SetTVShowDetails',
+			details
+		)
+
+		log('set_tvshow_details response: %s' % dump(response))
+		return response
+
+
 
 
 # init local variables

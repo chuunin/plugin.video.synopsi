@@ -6,6 +6,7 @@ import base64
 import pickle
 import json
 import traceback
+from copy import copy
 
 # application
 from utilities import *
@@ -79,6 +80,8 @@ class OfflineStvList(object):
 		movie['type'] = atype
 		movie['id'] = aid
 		
+		log('LIBRARY_ADD_UPDATE: %s--%s [%s]' % (movie['type'], movie['id'], movie['file']))
+
 		# if not in cache, it's been probably added
 		if not self.hasTypeId(movie['type'], movie['id']):
 			# get stv hash
@@ -105,6 +108,12 @@ class OfflineStvList(object):
 
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
+				
+				details = copy(title)
+				del(details['relevant_results'])
+				log('details:' + dump(details))
+				
+				xbmc_rpc.set_movie_details(translate_stv2xbmc(title))
 
 				# use synopsi runtime if possible
 				if title.get('runtime'):

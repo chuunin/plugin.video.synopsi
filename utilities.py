@@ -808,3 +808,15 @@ def translate_xbmc2stv_keys(a, b):
 	for (dst_key, src_key) in xbmc2stv_key_translation.iteritems():
 		if b.has_key(src_key):
 			a[dst_key] = b[src_key]
+
+def translate_stv2xbmc(stv_title):
+	stv_title['movieid'] = stv_title['id']
+	del(stv_title['id'])
+	del(stv_title['type'])
+
+	return filter_movie_params(stv_title)
+
+
+def filter_movie_params(title):
+	valid_keys = ['movieid', 'title', 'playcount', 'runtime', 'director', 'studio', 'year', 'plot', 'genre', 'rating', 'mpaa', 'imdbnumber', 'votes', 'lastplayed', 'originaltitle', 'trailer', 'tagline', 'plotoutline', 'writer', 'country', 'top250', 'sorttitle', 'set', 'showlink', 'thumbnail', 'fanart', 'tag', 'art']
+	return { key: title[key] for key in valid_keys }
