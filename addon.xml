@@ -12,6 +12,10 @@
 		<import addon="script.module.parsedom" version="1.5.1" />
 		<import addon="plugin.video.youtube" version="2.9.1" /> <!-- We play trailers through this plugin -->	
 	</requires>
+	
+	<extension point="xbmc.metadata.scraper.movies" library="scraper.xml"/>
+	<extension point="xbmc.metadata.scraper.tvshows" library="scraper.xml"/>	
+
 	<extension point="xbmc.python.pluginsource" library="addon.py">
 		<provides>video</provides> <!-- addon.py is file for addon -->
 	</extension>
