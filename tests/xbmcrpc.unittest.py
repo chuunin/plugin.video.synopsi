@@ -21,6 +21,43 @@ class XbmcRPCTest(TestCase):
 		res = xbmc_rpc.get_movie_details(70)
 		print dump(result)
 
+	def test_save_details(self):
+		details = {
+			'movieid': 'movieid' 
+			'title': 'title' 
+			'playcount': 'playcount' 
+			'runtime': 'runtime' 
+			'director': 'director' 
+			'studio': 'studio' 
+			'year': 'year' 
+			'plot': 'plot' 
+			'genre': 'genre' 
+			'rating': 'rating' 
+			'mpaa': 'mpaa' 
+			'imdbnumber': 'imdbnumber' 
+			'votes': 'votes' 
+			'lastplayed': 'lastplayed' 
+			'originaltitle': 'originaltitle' 
+			'trailer': 'trailer' 
+			'tagline': 'tagline' 
+			'plotoutline': 'plotoutline' 
+			'writer': 'writer' 
+			'country': 'country' 
+			'top250': 'top250' 
+			'sorttitle': 'sorttitle' 
+			'set': 'set' 
+			'showlink': 'showlink' 
+			'thumbnail': 'thumbnail' 
+			'fanart': 'fanart' 
+			'tag': 'tag' 			
+		}
+		
+		res = xbmc_rpc.set_movie_details(details)
+
+	def test_translate_stv2xbmc(self):
+		
+		items = translate_stv2xbmc()
+
 
 if __name__ == '__main__':
 	test_item1 = {
