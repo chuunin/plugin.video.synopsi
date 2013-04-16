@@ -293,7 +293,11 @@ try:
 
 	elif p['mode']==973:
 		#~ addonclient.show_video_dialog_byId(2406418)
-		addonclient.debug_3()
+		from test.xbmcrpc_unittest import XbmcRPCTest
+		t = XbmcRPCTest()
+		t.test_save_details()
+
+		# addonclient.debug_3()
 	else:
 		raise UnknownModeException('Unknown mode: %s' % p['mode'])
 
