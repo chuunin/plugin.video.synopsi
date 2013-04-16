@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="scraper.video.synopsi"
+<addon id="plugin.video.synopsi"
        name="SynopsiTV"
        version="1.0.7"
        provider-name="Synopsi.TV">

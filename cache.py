@@ -105,15 +105,22 @@ class OfflineStvList(object):
 			# try to get synopsi id
 			self.log('to identify: ' + ident['file_name'])
 			title = self.apiClient.titleIdentify(**ident)
-
+			
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
 				
 				details = copy(title)
-				del(details['relevant_results'])
-				log('details:' + dump(details))
+				if details.has_key('relevant_results'):
+					del(details['relevant_results'])
+
+				self.log('details:' + dump(details))
 				
-				xbmc_rpc.set_movie_details(translate_stv2xbmc(title))
+				filtered_details = translate_stv2xbmc(title)
+
+				self.log('filtered_details:' + dump(filtered_details))
+				
+				xbmc_rpc.set_movie_details(filtered_details)
+				self.log('details set')
 
 				# use synopsi runtime if possible
 				if title.get('runtime'):
