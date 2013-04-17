@@ -91,7 +91,8 @@ submenu_categories = [
 	(ActionCode.LocalTVShows, "Local TV Shows"),
 	(ActionCode.UnwatchedEpisodes, "Unwatched TV Show Episodes"),
 	(ActionCode.UpcomingEpisodes, "Upcoming TV Episodes"),
-	(ActionCode.LoginAndSettings, "Login and Settings")
+	(ActionCode.LoginAndSettings, "Login and Settings"),
+	(973, "Test")
 ]
 
 submenu_categories_dict = dict(submenu_categories)

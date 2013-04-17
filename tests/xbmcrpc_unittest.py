@@ -23,33 +23,33 @@ class XbmcRPCTest(TestCase):
 
 	def test_save_details(self):
 		details = {
-			'movieid': 'movieid' 
-			'title': 'title' 
-			'playcount': 'playcount' 
-			'runtime': 'runtime' 
-			'director': 'director' 
-			'studio': 'studio' 
-			'year': 'year' 
-			'plot': 'plot' 
-			'genre': 'genre' 
-			'rating': 'rating' 
-			'mpaa': 'mpaa' 
-			'imdbnumber': 'imdbnumber' 
-			'votes': 'votes' 
-			'lastplayed': 'lastplayed' 
-			'originaltitle': 'originaltitle' 
-			'trailer': 'trailer' 
-			'tagline': 'tagline' 
-			'plotoutline': 'plotoutline' 
-			'writer': 'writer' 
-			'country': 'country' 
-			'top250': 'top250' 
-			'sorttitle': 'sorttitle' 
-			'set': 'set' 
-			'showlink': 'showlink' 
-			'thumbnail': 'thumbnail' 
-			'fanart': 'fanart' 
-			'tag': 'tag' 			
+			'movieid': 'movieid',
+			'title': 'title',
+			'playcount': 'playcount',
+			'runtime': 'runtime',
+			'director': 'director',
+			'studio': 'studio',
+			'year': 'year',
+			'plot': 'plot',
+			'genre': 'genre',
+			'rating': 'rating',
+			'mpaa': 'mpaa',
+			'imdbnumber': 'imdbnumber',
+			'votes': 'votes',
+			'lastplayed': 'lastplayed',
+			'originaltitle': 'originaltitle',
+			'trailer': 'trailer',
+			'tagline': 'tagline',
+			'plotoutline': 'plotoutline',
+			'writer': 'writer',
+			'country': 'country',
+			'top250': 'top250',
+			'sorttitle': 'sorttitle',
+			'set': 'set',
+			'showlink': 'showlink',
+			'thumbnail': 'thumbnail',
+			'fanart': 'fanart',
+			'tag': 'tag' 		,
 		}
 		
 		res = xbmc_rpc.set_movie_details(details)

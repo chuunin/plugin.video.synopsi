@@ -293,9 +293,11 @@ try:
 
 	elif p['mode']==973:
 		#~ addonclient.show_video_dialog_byId(2406418)
-		from test.xbmcrpc_unittest import XbmcRPCTest
-		t = XbmcRPCTest()
-		t.test_save_details()
+
+		from tests.xbmcrpc_unittest import XbmcRPCTest
+
+		suite = TestLoader().loadTestsFromName('XbmcRPCTest.test_save_details')
+		TextTestRunner(verbosity=2).run(suite)
 
 		# addonclient.debug_3()
 	else:
