@@ -12,6 +12,10 @@ defaultProperties = ['file', 'imdbnumber', "lastplayed", "playcount", "runtime"]
 props_all_tvshow = ['title', 'genre', 'year', 'rating', 'plot', 'studio', 'mpaa', 'cast', 'playcount', 'episode', 'imdbnumber', 'premiered', 'votes', 'lastplayed', 'fanart', 'thumbnail', 'file', 'originaltitle', 'sorttitle', 'episodeguide', 'season', 'watchedepisodes', 'dateadded', 'tag', 'art']
 props_default_tvshow = ['file'] 
 
+props_all_movie = ['title', 'genre', 'year', 'rating', 'director', 'trailer', 'tagline', 'plot', 'plotoutline', 'originaltitle', 'lastplayed', 'playcount', 'writer', 'studio', 'mpaa', 'cast', 'country', 'imdbnumber', 'runtime', 'set', 'showlink', 'streamdetails', 'top250', 'votes', 'fanart', 'thumbnail', 'file', 'sorttitle', 'resume', 'setid', 'dateadded', 'tag', 'art']
+props_default_movie = ['file', 'lastplayed', 'playcount']
+
+
 class xbmcRPCclient(Loggable):
 
 	def __init__(self, logLevel = 0):
@@ -44,13 +48,13 @@ class xbmcRPCclient(Loggable):
 
 		return json_response['result']
 
-	def get_movies(self, start=None, end=None):
+	def get_movies(self, properties=props_default_movie, start=None, end=None):
 		"""
 		Get movies from xbmc library. Start is the first in list and end is the last.
 		"""
 
 		data = {
-			'properties': defaultProperties
+			'properties': properties
 		}
 
 		if start or end:
@@ -65,11 +69,10 @@ class xbmcRPCclient(Loggable):
 
 		return response
 
-	def get_all_tvshows(self):
+	def get_all_tvshows(self, properties=props_default_tvshow):
 		"""
 		Get movies from xbmc library. Start is the first in list and end is the last.
 		"""
-		properties = ['file', 'imdbnumber', "lastplayed", "playcount", "episode", "thumbnail"]
 
 		response = self.execute(
 			'VideoLibrary.GetTVShows',
@@ -104,47 +107,10 @@ class xbmcRPCclient(Loggable):
 
 		return response
 
-	def get_movie_details(self, movie_id, all_prop=False):
+	def get_movie_details(self, movie_id, properties=props_default_movie):
 		"""
 		Get dict of movie_id details.
 		"""
-		if all_prop:
-			properties = [
-				"title",
-				"genre",
-				"year",
-				"rating",
-				"director",
-				"trailer",
-				"tagline",
-				"plot",
-				"plotoutline",
-				"originaltitle",
-				"lastplayed",
-				"playcount",
-				"writer",
-				"studio",
-				"mpaa",
-				"cast",
-				"country",
-				"imdbnumber",
-				"premiered",
-				"productioncode",
-				"runtime",
-				# "set",
-				"showlink",
-				"streamdetails",
-				# "top250",
-				"votes",
-				# "fanart",
-				# "thumbnail",
-				"file",
-				"sorttitle",
-				"resume",
-				# "setid
-			]
-		else:
-			properties = defaultProperties
 
 		response = self.execute(
 			'VideoLibrary.GetMovieDetails',
