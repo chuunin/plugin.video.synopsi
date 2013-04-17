@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="scraper.video.synopsi"
+<addon id="plugin.video.synopsi"
        name="SynopsiTV"
        version="1.0.7"
        provider-name="Synopsi.TV">
@@ -13,9 +13,6 @@
 		<import addon="plugin.video.youtube" version="2.9.1" /> <!-- We play trailers through this plugin -->	
 	</requires>
 	
-	<extension point="xbmc.metadata.scraper.movies" library="scraper.xml"/>
-	<extension point="xbmc.metadata.scraper.tvshows" library="scraper.xml"/>	
-
 	<extension point="xbmc.python.pluginsource" library="addon.py">
 		<provides>video</provides> <!-- addon.py is file for addon -->
 	</extension>
