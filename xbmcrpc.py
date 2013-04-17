@@ -9,6 +9,8 @@ from utilities import *
 from loggable import Loggable
 
 defaultProperties = ['file', 'imdbnumber', "lastplayed", "playcount", "runtime"]
+props_all_tvshow = ['title', 'genre', 'year', 'rating', 'plot', 'studio', 'mpaa', 'cast', 'playcount', 'episode', 'imdbnumber', 'premiered', 'votes', 'lastplayed', 'fanart', 'thumbnail', 'file', 'originaltitle', 'sorttitle', 'episodeguide', 'season', 'watchedepisodes', 'dateadded', 'tag', 'art']
+props_default_tvshow = ['file'] 
 
 class xbmcRPCclient(Loggable):
 
@@ -154,31 +156,10 @@ class xbmcRPCclient(Loggable):
 
 		return response['moviedetails']
 
-	def get_tvshow_details(self, movie_id):
+	def get_tvshow_details(self, movie_id, properties=props_default_tvshow):
 		"""
-		Get dict of movie_id details.
+		Get dict of movie_id details. Docs: http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetTVShowDetails
 		"""
-		properties = defaultProperties
-		#	"title",
-		#   "genre",
-		#   "year",
-		#   "rating",
-		#   "plot",
-		#   "studio",
-		#   "mpaa",
-		#   "cast",
-		#   "playcount",
-		#   "episode",
-		#   "imdbnumber",
-		#   "premiered",
-		#   "votes",
-		#   "lastplayed",
-		#   "fanart",
-		#   "thumbnail",
-		#   "file",
-		#   "originaltitle",
-		#   "sorttitle",
-		#   "episodeguide"
 
 		response = self.execute(
 			'VideoLibrary.GetTVShowDetails',
