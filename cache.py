@@ -110,12 +110,13 @@ class OfflineStvList(object):
 				movie['stvId'] = title['id']
 				
 				details = copy(title)
+				details['id'] = movie['id']
 				if details.has_key('relevant_results'):
 					del(details['relevant_results'])
 
 				self.log('details:' + dump(details))
 				
-				filtered_details = translate_stv2xbmc(title)
+				filtered_details = translate_stv2xbmc(details)
 
 				self.log('filtered_details:' + dump(filtered_details))
 				
