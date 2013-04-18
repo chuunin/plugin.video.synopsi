@@ -71,8 +71,16 @@ class OfflineStvList(object):
 	def log(self, msg):
 		log('CACHE / ' + msg)
 
+	def addorupdate_nonplayable(self, atype, aid):
+		if atype == 'tvshow':
+			tvshow = xbmc_rpc.get_tvshow_details(aid)
+			self.log('tvshow: %s' % tvshow)
+		else:
+			self.log('unknown type: %s %s' % (atype, aid))	
+
 	def addorupdate(self, atype, aid):
 		if not atype in playable_types:
+			self.addorupdate_nonplayable(atype, aid)
 			return
 		
 		# find out actual data about movie

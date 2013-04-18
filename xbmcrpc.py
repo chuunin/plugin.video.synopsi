@@ -8,7 +8,6 @@ import json
 from utilities import *
 from loggable import Loggable
 
-defaultProperties = ['file', 'imdbnumber', "lastplayed", "playcount", "runtime"]
 props_all_tvshow = ['title', 'genre', 'year', 'rating', 'plot', 'studio', 'mpaa', 'cast', 'playcount', 'episode', 'imdbnumber', 'premiered', 'votes', 'lastplayed', 'fanart', 'thumbnail', 'file', 'originaltitle', 'sorttitle', 'episodeguide', 'season', 'watchedepisodes', 'dateadded', 'tag', 'art']
 props_default_tvshow = ['file'] 
 
