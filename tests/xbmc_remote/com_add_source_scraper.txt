@@ -1,0 +1,50 @@
+# starting in main menu
+
+# open videolibrary
+GUI.ActivateWindow videolibrary
+Input.ExecuteAction previousmenu
+Input.ExecuteAction previousmenu
+Input.ExecuteAction previousmenu
+Input.ExecuteAction previousmenu
+GUI.ActivateWindow videolibrary
+Input.ExecuteAction pagedown
+Input.Up
+Input.Up
+Input.Select
+Input.ExecuteAction pagedown
+Input.Select
+
+# in window 'Add Video Source'
+@stop
+
+Input.ExecuteAction pageup
+Input.ExecuteAction pageup
+Input.Right
+Input.Right
+Input.Down
+Input.Select
+Input.Select
+Input.Down
+Input.Select
+
+Input.Select
+Input.Down
+Input.Down
+Input.Down
+Input.Select
+Input.ExecuteAction pagedown
+Input.ExecuteAction pagedown
+Input.ExecuteAction pagedown
+Input.Up
+Input.Select
+Input.Down
+Input.Down
+Input.Select
+Input.Left
+Input.Select
+Input.Down
+Input.Down
+Input.Down
+
+
+

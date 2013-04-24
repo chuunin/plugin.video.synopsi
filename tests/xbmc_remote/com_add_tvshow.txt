@@ -1,0 +1,16 @@
+Input.Select
+Input.SendText /home/smid/Videos/_testset/TVShows/
+Input.Down
+Input.Down
+Input.Select
+Input.Select
+Input.Select
+Input.Left
+Input.Left
+Input.Down
+Input.Select
+Input.Down
+Input.Down
+Input.Select
+Input.Left
+Input.Select

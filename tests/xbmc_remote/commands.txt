@@ -1,0 +1,15 @@
+Input.ExecuteAction contextmenu
+Input.Down
+Input.Down
+Input.Select
+Input.Down
+Input.Down
+Input.Select
+Input.Select
+Input.Right
+Input.Down
+Input.Select
+Input.Down
+Input.Down
+Input.Down
+
