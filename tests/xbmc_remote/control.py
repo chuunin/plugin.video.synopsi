@@ -64,4 +64,4 @@ if __name__ == '__main__':
 
 	for line in batch:
 		handle_command_line(line)
-		time.sleep(0.5)
+		time.sleep(0.2)
