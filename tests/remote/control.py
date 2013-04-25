@@ -31,10 +31,11 @@ def call_method(methodName, params = {}):
 
 	data = json.loads(strdata)
 	if not data.get('result') == 'OK':
+		print '=' * 20
 		print 'Received', repr(data)
+		print '=' * 20
 
 def handle_command_line(line):
-	print '=' * 20
 	print line
 	# ignore empty lines
 	if not len(line):
@@ -55,11 +56,13 @@ def handle_command_line(line):
 
 if __name__ == '__main__':
 	a1 = sys.argv[1]
+	fname =  os.path.join(os.getcwd(), sys.argv[1])
+
 	if a1[0] == '@':
 		batch = custom[a1[1:]]
 	else:
 		print 'opening ' + sys.argv[1]
-		f = open(sys.argv[1])
+		f = open(fname)
 		batch = f.read().splitlines()	
 
 	for line in batch:
