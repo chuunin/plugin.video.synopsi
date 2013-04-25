@@ -1,4 +1,6 @@
-import socket, json, time, sys
+import socket, json, time, sys, os
+
+import xbmc
 
 custom = {
 	'add_video_source': [
@@ -35,6 +37,9 @@ def call_method(methodName, params = {}):
 		print 'Received', repr(data)
 		print '=' * 20
 
+def call_builtin(builtincommand):
+	xbmc.executebuiltin(builtincommand, True)
+
 def handle_command_line(line):
 	print line
 	# ignore empty lines
@@ -50,7 +55,16 @@ def handle_command_line(line):
 		if not len(l):
 			return
 
-		call_method(l[0], l[1:])
+		if l[0] == 'ExecuteBuiltin':
+			call_builtin(' '.join(l[1:]))
+		else:
+			call_method(l[0], l[1:])
+
+
+def run_batch(batch):
+	for line in batch:
+		handle_command_line(line)
+		time.sleep(0.2)
 
 
 
@@ -65,6 +79,4 @@ if __name__ == '__main__':
 		f = open(fname)
 		batch = f.read().splitlines()	
 
-	for line in batch:
-		handle_command_line(line)
-		time.sleep(0.2)
+	run_batch(batch)

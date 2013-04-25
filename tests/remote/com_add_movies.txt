@@ -1,6 +1,6 @@
 Input.ExecuteAction pagedown
 Input.Select
-#Input.Right
+ExecuteBuiltin SetFocus(10)
 Input.Select
 Input.SendText /home/smid/Videos/_testset/Movies/
 Input.Down
@@ -18,5 +18,5 @@ Input.Down
 Input.Down
 Input.Down
 Input.Select
-Input.Left
+ExecuteBuiltin SetFocus(11)
 Input.Select

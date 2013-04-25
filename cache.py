@@ -117,12 +117,13 @@ class OfflineStvList(object):
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
 				
+				##+ scraper part
 				details = copy(title)
 				details['id'] = movie['id']
 				if details.has_key('relevant_results'):
 					del(details['relevant_results'])
 
-				self.log('details:' + dump(details))
+				# self.log('details:' + dump(details))
 				
 				filtered_details = translate_stv2xbmc(details)
 
@@ -130,6 +131,7 @@ class OfflineStvList(object):
 				
 				xbmc_rpc.set_movie_details(filtered_details)
 				self.log('details set')
+				##- scraper part
 
 				# use synopsi runtime if possible
 				if title.get('runtime'):
