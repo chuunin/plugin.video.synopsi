@@ -152,9 +152,9 @@ class xbmcRPCclient(Loggable):
 
 		return response['episodedetails']
 
-	def get_details(self, atype, aid, all_prop=False):
+	def get_details(self, atype, aid):
 		if atype == "movie":
-			movie = self.get_movie_details(aid, all_prop)
+			movie = self.get_movie_details(aid)
 		elif atype == "episode":
 			movie = self.get_episode_details(aid)
 		elif atype == "tvshow":
