@@ -18,21 +18,21 @@ from utilities import *
 
 class XbmcRPCTest(TestCase):
 	def test_get_movie_details(self):
-		res = xbmc_rpc.get_movie_details(70)
-		print dump(result)
+		movie_details = xbmc_rpc.get_movie_details(1)
+		print dump(movie_details)
 
 	def test_save_details(self):
 		details = {
-			'movieid': 'movieid',
-			'title': 'title',
-			'playcount': 'playcount',
-			'runtime': 'runtime',
-			'director': 'director',
-			'studio': 'studio',
-			'year': 'year',
+			'movieid': 1,
+			'title': 'Movie Title',
+			'playcount': 5,
+			'runtime': 110,
+			'director': ['Director Igor'],
+			'studio': ['Studio'],
+			'year': 1984,
 			'plot': 'plot',
-			'genre': 'genre',
-			'rating': 'rating',
+			'genre': ['An Imaginary Genre', 'Comedy'],
+			'rating': 11,
 			'mpaa': 'mpaa',
 			'imdbnumber': 'imdbnumber',
 			'votes': 'votes',
@@ -41,22 +41,34 @@ class XbmcRPCTest(TestCase):
 			'trailer': 'trailer',
 			'tagline': 'tagline',
 			'plotoutline': 'plotoutline',
-			'writer': 'writer',
-			'country': 'country',
-			'top250': 'top250',
+			'writer': ['Writer'],
+			'country': ['Country', 'Country 2'],
+			'top250': 210,
 			'sorttitle': 'sorttitle',
 			'set': 'set',
-			'showlink': 'showlink',
+			'showlink': ['showlink'],
 			'thumbnail': 'thumbnail',
 			'fanart': 'fanart',
-			'tag': 'tag' 		,
+			'tag': ['tag'],
+			# 'cast': ['Jozko Pucik', 'Jano Mak'], 
+			# 'streamdetails': '', 
+			# 'file': '', 
+			# 'resume': '', 
+			# 'setid': '',  
+			# 'dateadded': '', 
+			# 'art': {}			# todo
 		}
 		
 		res = xbmc_rpc.set_movie_details(details)
 
 	def test_translate_stv2xbmc(self):
-		
-		items = translate_stv2xbmc()
+		stv_title = {
+			'id': 1,
+			'type': 'movie',
+			'name': 'Rambo'
+		}
+
+		items = translate_stv2xbmc(stv_title)
 
 
 if __name__ == '__main__':

@@ -115,7 +115,7 @@ class xbmcRPCclient(Loggable):
 			'VideoLibrary.GetMovieDetails',
 			{
 				'properties': properties,
-				'movieid': movie_id  # s 1 e 2 writes 2
+				'movieid': movie_id
 			}
 		)
 
