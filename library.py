@@ -56,7 +56,7 @@ class RPCListener(MyThread):
 		while not self._stop:
 			data = self.sock.recv(8192)
 			data = data.replace('}{', '},{')
-			datapack='[%s]' % data
+			datapack = '[%s]' % data
 			# self._log.debug('SynopsiTV: {0}'.format(str(data)))
 			try:
 				data_json = json.loads(datapack)

@@ -84,14 +84,15 @@ class OfflineStvList(object):
 			return
 		
 		# find out actual data about movie
-		movie = xbmc_rpc.get_details(atype, aid)
+		movie = xbmc_rpc.get_movie_details(aid)
 		movie['type'] = atype
 		movie['id'] = aid
 		
 		log('LIBRARY_ADD_UPDATE: %s--%s [%s]' % (movie['type'], movie['id'], movie['file']))
 
-		# if not in cache, it's been probably added
-		if not self.hasTypeId(movie['type'], movie['id']):
+		# check addition or modification
+		# if addition
+		if movie['title'] == 'N/A':
 			# get stv hash
 			path = get_movie_path(movie)
 			movie['stv_title_hash'] = stv_hash(path)
@@ -127,10 +128,9 @@ class OfflineStvList(object):
 				
 				filtered_details = translate_stv2xbmc(details)
 
-				self.log('filtered_details:' + dump(filtered_details))
+				# self.log('filtered_details:' + dump(filtered_details))
 				
 				xbmc_rpc.set_movie_details(filtered_details)
-				self.log('details set')
 				##- scraper part
 
 				# use synopsi runtime if possible
