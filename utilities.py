@@ -810,13 +810,24 @@ def translate_xbmc2stv_keys(a, b):
 		if b.has_key(src_key):
 			a[dst_key] = b[src_key]
 
-def translate_stv2xbmc(stv_title):
-	stv_title['movieid'] = stv_title['id']
-	stv_title['title'] = stv_title['name']
+def dict_rename(dict0, orig, new):
+	dict0[new] = dict0[orig]
+	del(dict0[orig])
+	
+def tr_directors(dir_struct):
+	return [d.get('name') for d in dir_struct]
 
-	del(stv_title['id'])
+def translate_stv2xbmc(stv_title):
+	dict_rename(stv_title, 'id', 'movieid')	
+	dict_rename(stv_title, 'name', 'title')
+	dict_rename(stv_title, 'genres', 'genre')
+	dict_rename(stv_title, 'directors', 'director')
+	dict_rename(stv_title, 'writers', 'writer')
+	dict_rename(stv_title, 'cover_large', 'thumbnail')
+
+	stv_title['director'] = tr_directors(stv_title['director'])
+	
 	del(stv_title['type'])
-	del(stv_title['name'])
 
 	return filter_movie_params(stv_title)
 

@@ -36,7 +36,6 @@ class xbmcRPCclient(Loggable):
 
 		json_response = json.loads(response)
 
-
 		self._log.debug('xbmc RPC response: ' + dump(json_response))
 
 		if json_response.has_key('error') and json_response['error']:
@@ -106,7 +105,7 @@ class xbmcRPCclient(Loggable):
 
 		return response
 
-	def get_movie_details(self, movie_id, properties=props_default_movie):
+	def get_movie_details(self, movie_id, properties=props_all_movie):
 		"""
 		Get dict of movie_id details.
 		"""
