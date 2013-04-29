@@ -54,10 +54,32 @@ class RPCListener(MyThread):
 			return False
 
 		while not self._stop:
-			data = self.sock.recv(8192)
+			data = ''
+			while not self._stop:
+				if not data:
+					# self._log.debug('first read')
+					chunk = self.sock.recv(1024)	
+				else:
+					# self._log.debug('continued read')
+					self.sock.setblocking(False)
+					try:
+						chunk = self.sock.recv(1024)	
+					except Exception as e:
+						# we are here = didn't recv anything
+						chunk = None
+					self._log.debug('read: ' + str(chunk))
+
+				if not chunk:
+					self.sock.setblocking(True)
+					break
+
+				data += chunk
+				# self._log.debug('recv ' + str(chunk))
+			
+			# self._log.debug('received data:' + str(data))
 			data = data.replace('}{', '},{')
 			datapack = '[%s]' % data
-			# self._log.debug('SynopsiTV: {0}'.format(str(data)))
+			
 			try:
 				data_json = json.loads(datapack)
 			except ValueError, e:
