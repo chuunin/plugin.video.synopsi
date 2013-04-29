@@ -135,11 +135,17 @@ class RPCListenerHandler(RPCListener):
 
 	def VideoLibrary_OnUpdate(self, data):
 		i = data['params']['data']['item']
-		self.cache.addorupdate(i['type'], i['id'])
+
+		self.scraper_addorupdate(i['type'], i['id'])
+
+		# self.cache.addorupdate(i['type'], i['id'])
+
 
 	def VideoLibrary_OnRemove(self, data):
 		d = data['params']['data']
-		self.cache.remove(d['type'], d['id'])
+
+		# self.cache.remove(d['type'], d['id'])
+
 
 	def Player_OnPlay(self, data):
 		self.playerEvent(data)
@@ -167,3 +173,52 @@ class RPCListenerHandler(RPCListener):
 		self.playerEvent(data)
 		pass
 
+
+	def scraper_addorupdate(self, atype, aid):
+		if atype != 'movie':
+			return
+
+		movie = xbmc_rpc.get_movie_details(aid)
+		movie['type'] = atype
+		movie['id'] = aid
+		
+		log('LIBRARY_ADD_UPDATE: %s--%s [%s]' % (movie['type'], movie['id'], movie['file']))
+
+		if movie['title'] == 'N/A':
+			path = get_movie_path(movie)
+			movie['stv_title_hash'] = stv_hash(path)
+			movie['os_title_hash'] = hash_opensubtitle(path)
+
+			# TODO: stv_subtitle_hash - hash of the subtitle file if present
+			ident = {}
+			translate_xbmc2stv_keys(ident, movie)
+
+			# give api a hint about type if possible
+			if movie['type'] in playable_types:
+				ident['type'] = movie['type']
+
+			# try to get synopsi id
+			self.log('to identify: ' + ident['file_name'])
+			title = self.apiClient.titleIdentify(**ident)
+
+			# if identified			
+			if title.has_key('id'):
+				movie['stvId'] = title['id']
+				self.log('identified: ' + title['name'])
+				
+				##+ scraper part
+				details = copy(title)
+				details['id'] = movie['id']
+				if details.has_key('relevant_results'):
+					del(details['relevant_results'])
+
+				# self.log('details:' + dump(details))
+				
+				filtered_details = translate_stv2xbmc(details)
+
+				# self.log('filtered_details:' + dump(filtered_details))
+				
+				xbmc_rpc.set_movie_details(filtered_details)
+				##- scraper part
+			else:
+				self.log('NOT identified %s' % movie['file'])

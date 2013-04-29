@@ -11,7 +11,7 @@ import sys
 import time
 
 # application
-from scrobbler import SynopsiPlayerDecor
+# from scrobbler import SynopsiPlayerDecor
 from library import RPCListenerHandler
 from cache import *
 from utilities import home_screen_fill, login_screen, log, VERSION
@@ -40,24 +40,7 @@ def main():
 	# get or generate install-unique ID
 	iuid = get_install_id()
 
-	# try to restore cache
-	top.stvList = StvList(iuid, top.apiClient)
-	top.player = SynopsiPlayerDecor()
-	top.player.setStvList(top.stvList)
-	
-	
-	try:
-		top.stvList.load()
-		thread.start_new_thread(home_screen_fill, (top.apiClient, top.stvList))
-	except:
-		# first time
-		log('CACHE restore failed. If this is your first run, its ok. Rebuilding cache')
-		def cache_rebuild_hp_update():
-			top.stvList.rebuild()
-			home_screen_fill(top.apiClient, top.stvList)
-
-		thread.start_new_thread(cache_rebuild_hp_update, ())
-
+	log('ADDON_SERVICE_PORT: ' + str(DEFAULT_SERVICE_PORT))
 
 	threads = []
 	l = RPCListenerHandler(top.stvList)
@@ -80,8 +63,6 @@ def main():
 			log('service.py abortRequested')
 			log('waiting for: ' + str(','.join([i.name for i in threads if i.isAlive()])))
 			aos.stop()
-
-		top.player.update_current_time()
 
 
 	log('Service loop END')

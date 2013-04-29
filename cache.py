@@ -114,7 +114,8 @@ class OfflineStvList(object):
 			# try to get synopsi id
 			self.log('to identify: ' + ident['file_name'])
 			title = self.apiClient.titleIdentify(**ident)
-			
+
+			# if identified
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
 				
