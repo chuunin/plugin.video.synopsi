@@ -67,7 +67,7 @@ class RPCListener(MyThread):
 					except Exception as e:
 						# we are here = didn't recv anything
 						chunk = None
-					self._log.debug('read: ' + str(chunk))
+					# self._log.debug('read: ' + str(chunk))
 
 				if not chunk:
 					self.sock.setblocking(True)
@@ -76,7 +76,7 @@ class RPCListener(MyThread):
 				data += chunk
 				# self._log.debug('recv ' + str(chunk))
 			
-			# self._log.debug('received data:' + str(data))
+			# self._log.debug('recvd data:' + str(data))
 			data = data.replace('}{', '},{')
 			datapack = '[%s]' % data
 			
