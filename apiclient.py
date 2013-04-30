@@ -139,8 +139,8 @@ class ApiClient(loggable.Loggable):
 
 		authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
-		#~ self._log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
-		#~ self._log.debug('apiclient getaccesstoken %s' % str(data))
+		# self._log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
+		# self._log.debug('apiclient getaccesstoken %s' % str(data))
 
 		# get token
 		try:
