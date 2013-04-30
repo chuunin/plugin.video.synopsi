@@ -138,39 +138,28 @@ class RPCListenerHandler(RPCListener):
 
 		self.scraper_addorupdate(i['type'], i['id'])
 
-		# self.cache.addorupdate(i['type'], i['id'])
-
-
 	def VideoLibrary_OnRemove(self, data):
 		d = data['params']['data']
 
-		# self.cache.remove(d['type'], d['id'])
-
-
 	def Player_OnPlay(self, data):
-		self.playerEvent(data)
+		pass
 
 	def Player_OnStop(self, data):
-		self.playerEvent(data)
+		pass
 
 	def Player_OnSeek(self, data):
-		position = self._xbmc_time2sec(data['params']['data']['player']['time'])
-		top.player.playerEventSeek(position)
+		pass
 
 	def Player_OnPause(self, data):
-		self.playerEvent(data)
 		pass
 
 	def Player_OnResume(self, data):
-		self.playerEvent(data)
 		pass
 
 	def GUI_OnScreenSaverActivated(self, data):
-		self.playerEvent(data)
 		pass
 
 	def GUI_OnScreenSaverDeactivated(self, data):
-		self.playerEvent(data)
 		pass
 
 
@@ -198,13 +187,13 @@ class RPCListenerHandler(RPCListener):
 				ident['type'] = movie['type']
 
 			# try to get synopsi id
-			self.log('to identify: ' + ident['file_name'])
-			title = self.apiClient.titleIdentify(**ident)
+			self._log.info('to identify: ' + ident['file_name'])
+			title = top.apiClient.titleIdentify(**ident)
 
 			# if identified			
 			if title.has_key('id'):
 				movie['stvId'] = title['id']
-				self.log('identified: ' + title['name'])
+				self._log.info('identified: ' + title['name'])
 				
 				##+ scraper part
 				details = copy(title)
@@ -212,13 +201,14 @@ class RPCListenerHandler(RPCListener):
 				if details.has_key('relevant_results'):
 					del(details['relevant_results'])
 
-				# self.log('details:' + dump(details))
+				# self._log.debug('details:' + dump(details))
 				
 				filtered_details = translate_stv2xbmc(details)
 
-				# self.log('filtered_details:' + dump(filtered_details))
+				# self._log.debug('filtered_details:' + dump(filtered_details))
 				
 				xbmc_rpc.set_movie_details(filtered_details)
 				##- scraper part
+			# if identification failed
 			else:
-				self.log('NOT identified %s' % movie['file'])
+				self._log.info('NOT identified %s' % movie['file'])

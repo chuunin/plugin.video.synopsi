@@ -11,11 +11,11 @@
 		
 		<import addon="script.module.parsedom" version="1.5.1" />
 	</requires>
-	
+
 	<extension point="xbmc.service" library="service.py" start="login">
 		<provides>service</provides> <!-- service.py is file for service/daemon -->
 	</extension>
-	
+
 	<extension point="xbmc.addon.metadata">
 		<platform>all</platform>
 		<summary>SynopsiTV</summary>
