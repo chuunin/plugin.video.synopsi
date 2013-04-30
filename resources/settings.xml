@@ -16,7 +16,7 @@
     	
     	    	
     	<!--TOKENS-->
-        <setting id="ADDON_SERVICE_PORT" option="hidden" type="number" visible="false" default="9091" />
+        <setting id="ADDON_SERVICE_PORT" option="hidden" type="number" visible="false" default="9190" />
 
     	<setting id="ACCTOKEN" option="hidden" type="text" visible="false" default=""/>
     	<setting id="REFTOKEN" option="hidden" type="text" visible="false" default=""/>

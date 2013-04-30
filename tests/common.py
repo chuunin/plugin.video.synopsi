@@ -10,6 +10,17 @@ live_conn = {
 	'device_id': 'd2a8e78f-408a-11e2-9b7d-9927c8ae50bb',
 }
 
+live_screaper_conn = {
+	'base_url': 'https://api.synopsi.tv/',
+	'key': 'fd0880f3d41d5c8f98047584a38eee4c',
+	'secret': '95a27ca8e7241a25ee3e9383023f78d44b8f9560928606103c6479b482a6eca1',
+	'rel_api_url': '1.0/',
+	'username': local_settings.username,
+	'password': local_settings.password,
+	'device_id': 'abcde78f-408a-11e2-9b7d-9927c8ae50bb',
+}
+
+
 local_conn = {
 	'base_url': 'http://crux.local:8000/',
 	'key': '59c53964b1013defcff0155f6e4d54a4',
@@ -22,4 +33,4 @@ local_conn = {
 
 
 
-connection = local_conn
+connection = live_screaper_conn
