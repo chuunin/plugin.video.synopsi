@@ -226,6 +226,11 @@ def addon_openSettings():
 
 	return changed
 
+def metadata_addon_openSettings():
+	metadata_addon.openSettings()
+
+	return None
+
 def addon_getSetting(aid, adef=None):
 	addon = get_current_addon()
 	try:
@@ -245,7 +250,7 @@ def check_first_run():
 	if __addon__.getSetting('FIRSTRUN') == 'true':
 		log('SYNOPSI FIRST RUN')
 
-		addon_openSettings()
+		metadata_addon_openSettings()
 
 		# enable home screen recco
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
@@ -721,7 +726,7 @@ def get_rating():
 
 def dialog_check_login_correct():
 	if dialog_login_fail_yesno():
-		addon_openSettings()
+		metadata_addon_openSettings()
 
 		# openSettings do not return users click, so we return if user had the intention to correct credentials
 		return True
