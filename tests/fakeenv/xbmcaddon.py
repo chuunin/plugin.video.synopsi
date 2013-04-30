@@ -4,7 +4,7 @@ class Addon(object):
 	"""
 	docstring for Addon
 	"""
-	def __init__(self):
+	def __init__(self, addonid=None):
 		super(Addon, self).__init__()
 		self.data = {}
 	
