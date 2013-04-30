@@ -20,17 +20,15 @@ import top
 from apiclient import ApiClient
 
 
-class ScraperServer(BaseHTTPServer.HTTPServer):
-	def __init__(self, server_address):
-		BaseHTTPServer.HTTPServer.__init__(self, server_address, ScraperRequestHandler)
-
-class ScraperRequestHandler(SimpleHTTPRequestHandler, Loggable):
+class ScraperRequestHandler(SimpleHTTPRequestHandler):
 	protocol_version = "HTTP/1.0"
 
-	def log(self, msg):
-		log('SCRAPER: ' + unicode(msg))
+	def __init__(self, request, client_address, server):
+		SimpleHTTPRequestHandler.__init__(self, request, client_address, server)
 
 	def do_GET(self):
+		self._log = self.server._log
+		self._log.error('xxx')
 		try:
 			url = urlparse.urlparse(self.path)
 			qs = urlparse.parse_qs(url.query)
@@ -49,8 +47,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler, Loggable):
 			response = {'status': 'exception', 'exc_type': str(exc_type), 'exc_value': str(exc_value), 'traceback': exc_string}
 			str_response = json.dumps(response)
 
-		self.log(self.path)
-		self.log(str_response)
+		self._log.debug(self.path)
+		self._log.debug(str_response)
 
 		self.wfile.write(str_response)
 		self.wfile.write('\n')
@@ -59,7 +57,7 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler, Loggable):
 		movie = {}
 		movie['file'] = file_name
 		movie['type'] = atype
-		self.log(str(movie))
+		self._log.debug(str(movie))
 		path = get_movie_path(movie)
 		movie['stv_title_hash'] = stv_hash(path)
 		movie['os_title_hash'] = hash_opensubtitle(path)
@@ -77,7 +75,7 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler, Loggable):
 			ident['imdb_id'] = ident['imdb_id'][2:]
 
 		# try to get synopsi id
-		self.log('to identify: ' + ident['file_name'])
+		self._log.debug('to identify: ' + ident['file_name'])
 		title = top.apiClient.titleIdentify(**ident)
 		return title
 
@@ -132,8 +130,8 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler, Loggable):
 		tpl['xml_cast'] = xml_cast
 		tpl['xml_thumbs'] = xml_thumbs
 
-		# self.log('--'*20)
-		# self.log(dump(tpl))
+		# self._log.debug('--'*20)
+		# self._log.debug(dump(tpl))
 
 		return '''
 				<title>%(name)s</title>
@@ -154,12 +152,12 @@ class ScraperRequestHandler(SimpleHTTPRequestHandler, Loggable):
 			''' % tpl
 
 
-class ScraperServerThread(ScraperServer, MyThread):
+class ScraperServerThread(BaseHTTPServer.HTTPServer, MyThread):
 	_stopped = False
 	cache = {}
 
 	def __init__(self, server_address):
-		ScraperServer.__init__(self, server_address)
+		BaseHTTPServer.HTTPServer.__init__(self, server_address, ScraperRequestHandler)
 		MyThread.__init__(self)
 
 	def serve_forever(self):
