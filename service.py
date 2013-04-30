@@ -31,7 +31,7 @@ DEFAULT_SERVICE_PORT=int(__addon__.getSetting('ADDON_SERVICE_PORT'))
 
 def main():
 	log('SYNOPSI SCRAPER SERVICE (%s) START' % VERSION)
-	
+
 	top.apiClient = AppApiClient.getDefaultClient()
 
 	# check first run
@@ -66,7 +66,6 @@ def main():
 
 
 	log('Service loop END')
-	top.stvList.save()
 	
 	dialog.close_all_dialogs()
 	log('Service thread END')

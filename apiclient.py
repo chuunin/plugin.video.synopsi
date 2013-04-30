@@ -73,8 +73,6 @@ class ApiClient(loggable.Loggable):
 		if ApiClient._instance:
 			return ApiClient._instance
 
-		__addon__  = get_current_addon()
-
 		iuid = get_install_id()
 
 		# get or generate install-unique ID
@@ -82,8 +80,8 @@ class ApiClient(loggable.Loggable):
 			const.BASE_URL,
 			const.KEY,
 			const.SECRET,
-			__addon__.getSetting('USER'),
-			__addon__.getSetting('PASS'),
+			metadata_addon.getSetting('USER'),
+			metadata_addon.getSetting('PASS'),
 			iuid,
 			debugLvl=logging.ERROR,
 			rel_api_url=const.REL_API_URL

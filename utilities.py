@@ -37,6 +37,9 @@ VERSION   = __addon__.getAddonInfo('version')
 __profile__      = xbmc.translatePath(__addon__.getAddonInfo('profile'))
 __lockLoginScreen__ = threading.Lock()
 
+# scraper addon object
+metadata_addon = xbmcaddon.Addon('metadata.synopsi.tv')
+
 # constant
 BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
