@@ -15,6 +15,19 @@ class SynopsiMovieAgent(Agent.Movies):
 	def search(self, results, media, lang, manual=False):
 		Log.Debug('XXX %s %s' % (media.filename, media.name))
 
+		astv_hash = stv_hash(media.filename)
+
+		ident = {
+			'file_name': media.filename,	# todo: send relative path only
+			'os_title_hash': media.openSubtitlesHash,
+			'stv_title_hash': astv_hash,
+			'total_time': media.duration,
+			'label': media.name,
+		}
+
+		ident_results = apiclient.titleIdentify(**ident)
+
+		Log.Debug('')
 		# result = MetadataSearchResult(
 		# 	)
 		# results.Append(result)
