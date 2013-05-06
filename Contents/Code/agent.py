@@ -13,15 +13,10 @@ class SynopsiMovieAgent(Agent.Movies):
 
 
 	def search(self, results, media, lang, manual=False):
-
 		Log.Debug('XXX %s %s' % (media.filename, media.name))
 
-
-
 		# result = MetadataSearchResult(
-
 		# 	)
-
 		# results.Append(result)
 
 	def update(self, metadata, media, lang, force):
