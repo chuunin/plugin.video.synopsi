@@ -12,9 +12,9 @@ class SynopsiMovieAgent(Agent.Movies):
 	contributes_to = None
 
 
-def search(self, results, media, lang):
-	Log.Warn('XXXX search %s' % media)
+	def search(self, results, media, lang, manual=False):
+		Log.Warn('XXXX search %s' % media)
 
-def update(self, metadata, media, lang, force):
-	metadata.title = media
-	Log.Warn('XXXX  update %s' % media)
+	def update(self, metadata, media, lang, force):
+		metadata.title = 'ZZZ ' + str(media)
+		Log.Warn('XXXX  update %s' % media)
