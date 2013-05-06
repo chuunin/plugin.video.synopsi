@@ -7,13 +7,14 @@ class SynopsiMovieAgent(Agent.Movies):
 	]
 
 	primary_provider = True
-	fallback_agent = False
+	fallback_agent = None
 	accepts_from = None
 	contributes_to = None
 
 
-def search(self, results, media, lang, manual):
-	Log.Info('search %s' % media)
+def search(self, results, media, lang):
+	Log.Warn('XXXX search %s' % media)
 
 def update(self, metadata, media, lang, force):
-	Log.Info('update %s' % media)
+	metadata.title = media
+	Log.Warn('XXXX  update %s' % media)
