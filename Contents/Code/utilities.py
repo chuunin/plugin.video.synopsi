@@ -1,7 +1,3 @@
-# xbmc
-import xbmc, xbmcgui, xbmcaddon, xbmcplugin, xbmcvfs
-import CommonFunctions
-
 # python standart lib
 import json
 import struct
@@ -22,23 +18,19 @@ import sys
 import xml.etree.ElementTree as et
 
 # application
-import resources.const
-import top
-
-common = CommonFunctions
-common.plugin = "SynopsiTV"
+import const
 
 
-__addon__  = xbmcaddon.Addon()
-__addonname__ = __addon__.getAddonInfo('name')
-__addonpath__	= __addon__.getAddonInfo('path')
-__author__  = __addon__.getAddonInfo('author')
-VERSION   = __addon__.getAddonInfo('version')
-__profile__      = xbmc.translatePath(__addon__.getAddonInfo('profile'))
-__lockLoginScreen__ = threading.Lock()
+addon = {}
+addonname = 'XXX'
+addonpath	= 'XXX'
+author  = 'XXX'
+VERSION   = '1.0'
+profile      = 'XXX'
+lockLoginScreen = threading.Lock()
 
 # constant
-BTN_SHOW_ALL_MOVIES = os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
+BTN_SHOW_ALL_MOVIES = os.path.join(addonpath, 'resources', 'skins', 'Default', 'media', 'show_all_button.png')
 CANCEL_DIALOG = (9, 10, 92, 216, 247, 257, 275, 61467, 61448)
 CANCEL_DIALOG2 = (61467, )
 HACK_SHOW_ALL_LOCAL_MOVIES = -1
@@ -199,8 +191,8 @@ def notification(text, name='SynopsiTV Plugin', time=5000):
     xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))
 
 def get_current_addon():
-	global __addon__
-	return __addon__
+	global addon
+	return addon
 
 def addon_openSettings():
 	addon = get_current_addon()
@@ -225,7 +217,7 @@ def exc_text_by_mode(mode):
 def check_first_run():
 	reloadSkin = False
 	# on first run
-	if __addon__.getSetting('FIRSTRUN') == 'true':
+	if addon.getSetting('FIRSTRUN') == 'true':
 		log('SYNOPSI FIRST RUN')
 
 		addon_openSettings()
@@ -233,7 +225,7 @@ def check_first_run():
 		# enable home screen recco
 		xbmc.executebuiltin('Skin.SetBool(homepageShowRecentlyAdded)')
 		reloadSkin = True			
-		__addon__.setSetting('FIRSTRUN', "false")
+		addon.setSetting('FIRSTRUN', "false")
 
 
 	if addon_getSetting('ADDON_SERVICE_FIRSTRUN') != "false":		
@@ -301,12 +293,12 @@ def dialog_yesno(msg):
 
 def clear_setting_cache():
 	"Clear cached addon setting. Useful after update"
-	settingsPath = os.path.join(__profile__, 'settings.xml')
+	settingsPath = os.path.join(profile, 'settings.xml')
 	if xbmcvfs.exists(settingsPath):
 		xbmcvfs.delete(settingsPath)
 
 def setting_cache_append_string(string):
-	settingsPath = os.path.join(__profile__, 'settings.xml')
+	settingsPath = os.path.join(profile, 'settings.xml')
 
 	# load file
 	with open(settingsPath) as f:
@@ -320,7 +312,7 @@ def setting_cache_append_string(string):
 
 	log('appended string')
 
-class XMLRatingDialog(xbmcgui.WindowXMLDialog):
+class XMLRatingDialog():
 	"""
 	Dialog class that asks user about rating of movie.
 	"""
@@ -330,7 +322,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 		xbmcgui.WindowXMLDialog.__init__( self )
 
 	def onInit(self):
-		self.getString = __addon__.getLocalizedString
+		self.getString = addon.getLocalizedString
 		self.getControl(11).setLabel(self.getString(69601))
 		self.getControl(10).setLabel(self.getString(69602))
 		self.getControl(15).setLabel(self.getString(69603))
@@ -356,7 +348,7 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 			self.response = 4
 			self.close()
 
-class XMLLoginDialog(xbmcgui.WindowXMLDialog):
+class XMLLoginDialog():
 	"""
 	Dialog class that asks user about rating of movie.
 	"""
@@ -369,7 +361,7 @@ class XMLLoginDialog(xbmcgui.WindowXMLDialog):
 		self.password = kwargs['password']
 
 	def onInit(self):
-		self.getString = __addon__.getLocalizedString
+		self.getString = addon.getLocalizedString
 		c = self.getControl(10)
 
 		self.getControl(10).setText(self.username)
@@ -406,10 +398,10 @@ def get_protected_folders():
 	Returns array of protected folders.
 	"""
 	array = []
-	if __addon__.getSetting("PROTFOL") == "true":
-		num_folders = int(__addon__.getSetting("NUMFOLD")) + 1
+	if addon.getSetting("PROTFOL") == "true":
+		num_folders = int(addon.getSetting("NUMFOLD")) + 1
 		for i in range(num_folders):
-			path = __addon__.getSetting("FOLDER{0}".format(i + 1))
+			path = addon.getSetting("FOLDER{0}".format(i + 1))
 			array.append(path)
 
 	return array
@@ -420,8 +412,8 @@ def is_protected(path):
 	If file is protected.
 	"""
 	protected = get_protected_folders()
-	for _file in protected:
-		if _file in path:
+	for xfile in protected:
+		if xfile in path:
 			notification("Ignoring file", str(path))
 			return True
 
@@ -493,9 +485,9 @@ def hash_opensubtitle(name):
 		longlongformat = 'q'  # long long
 		bytesize = struct.calcsize(longlongformat)
 
-		_file = xbmcvfs.File(name, 'rb')
+		xfile = xbmcvfs.File(name, 'rb')
 
-		filesize = _file.size()
+		filesize = xfile.size()
 		hash = filesize
 
 		if filesize < 65536 * 2:
@@ -503,19 +495,19 @@ def hash_opensubtitle(name):
 			# return "SizeError"
 
 		for x in range(65536 / bytesize):
-			_buffer = _file.read(bytesize)
-			(l_value,) = struct.unpack(longlongformat, _buffer)
+			xbuffer = xfile.read(bytesize)
+			(l_value,) = struct.unpack(longlongformat, xbuffer)
 			hash += l_value
 			hash = hash & 0xFFFFFFFFFFFFFFFF #to remain as 64bit number
 
-		_file.seek(max(0, filesize - 65536), 0)
+		xfile.seek(max(0, filesize - 65536), 0)
 		for x in range(65536 / bytesize):
-			_buffer = _file.read(bytesize)
-			(l_value,)= struct.unpack(longlongformat, _buffer)
+			xbuffer = xfile.read(bytesize)
+			(l_value,)= struct.unpack(longlongformat, xbuffer)
 			hash += l_value
 			hash = hash & 0xFFFFFFFFFFFFFFFF
 
-		_file.close()
+		xfile.close()
 		returnedhash =  "%016x" % hash
 
 		return returnedhash
@@ -594,13 +586,13 @@ def get_api_port():
 	return value
 
 def get_install_id():
-	global __addon__
+	global addon
 
-	iuid = __addon__.getSetting(id='INSTALL_UID')
+	iuid = addon.getSetting(id='INSTALL_UID')
 	if not iuid:
 		iuid = generate_iuid()
 		log('iuid:' + iuid)
-		__addon__.setSetting(id='INSTALL_UID', value=iuid)
+		addon.setSetting(id='INSTALL_UID', value=iuid)
 
 	return iuid
 
@@ -655,17 +647,17 @@ def home_screen_fill(apiClient, cache):
 
 
 def login_screen(apiClient):
-	if not __lockLoginScreen__.acquire(False):
+	if not lockLoginScreen.acquire(False):
 		log('login_screen not starting duplicate')
 		return False
 
-	username = __addon__.getSetting('USER')
-	password = __addon__.getSetting('PASS')
+	username = addon.getSetting('USER')
+	password = addon.getSetting('PASS')
 
 	log('string type: ' + str(type(username)))
 	log('string type: ' + str(type(password)))
 
-	ui = XMLLoginDialog("LoginDialog.xml", __addonpath__, "Default", username=username, password=password)
+	ui = XMLLoginDialog("LoginDialog.xml", addonpath, "Default", username=username, password=password)
 	ui.doModal()
 	# ui.show()
 
@@ -676,8 +668,8 @@ def login_screen(apiClient):
 		d = ui.getData()
 		if username!=d['username'] or password!=d['password']:
 			# store in settings
-			__addon__.setSetting('USER', value=d['username'])
-			__addon__.setSetting('PASS', value=d['password'])
+			addon.setSetting('USER', value=d['username'])
+			addon.setSetting('PASS', value=d['password'])
 			apiClient.setUserPass(d['username'], d['password'])
 
 		result=True
@@ -687,7 +679,7 @@ def login_screen(apiClient):
 
 	del ui
 
-	__lockLoginScreen__.release()
+	lockLoginScreen.release()
 	log('login_screen result: %d' % result)
 	return result
 
@@ -696,11 +688,11 @@ def get_rating():
 	Get rating from user:
 	1 = Amazing, 2 = OK, 3 = Terrible, 4 = Not rated
 	"""
-	ui = XMLRatingDialog("Rating.xml", __addonpath__, "Default")
+	ui = XMLRatingDialog("Rating.xml", addonpath, "Default")
 	ui.doModal()
-	_response = ui.response
+	response = ui.response
 	del ui
-	return _response
+	return response
 
 def dialog_check_login_correct():
 	if dialog_login_fail_yesno():

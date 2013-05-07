@@ -1,5 +1,3 @@
-# xbmc
-import xbmc, xbmcgui, xbmcaddon
 
 # python standart lib
 import logging
@@ -14,7 +12,7 @@ import httplib
 # application
 from utilities import *
 import loggable
-import resources.const as const
+import const
 
 
 RATING_CODE = {
@@ -45,7 +43,7 @@ class ApiCallError(Exception):
 	pass
 
 class ApiClient(loggable.Loggable):
-	_instance = None
+	instance = None
 	def __init__(self, base_url, key, secret, username, password, device_id, originReqHost=None, debugLvl=logging.INFO, accessTokenTimeout=10, rel_api_url='api/public/1.0/'):
 		super(ApiClient, self).__init__()
 		self.baseUrl = base_url
@@ -59,10 +57,10 @@ class ApiClient(loggable.Loggable):
 		self.originReqHost = originReqHost
 		self.device_id = device_id
 	
-		self._log.setLevel(debugLvl)
+		self.log.setLevel(debugLvl)
 		
-		if len(self._log.handlers)==0:
-			self._log.addHandler(logging.StreamHandler(sys.stdout))
+		if len(self.log.handlers)==0:
+			self.log.addHandler(logging.StreamHandler(sys.stdout))
 
 		self.accessTokenTimeout = accessTokenTimeout		# [minutes] how long is stv accessToken valid ?
 		self.accessTokenSessionStart = None
@@ -70,26 +68,26 @@ class ApiClient(loggable.Loggable):
 
 	@classmethod
 	def getDefaultClient(cls):
-		if ApiClient._instance:
-			return ApiClient._instance
+		if ApiClient.instance:
+			return ApiClient.instance
 
-		__addon__  = get_current_addon()
+		addon  = get_current_addon()
 
 		iuid = get_install_id()
 
 		# get or generate install-unique ID
-		ApiClient._instance = cls(
+		ApiClient.instance = cls(
 			const.BASE_URL,
 			const.KEY,
 			const.SECRET,
-			__addon__.getSetting('USER'),
-			__addon__.getSetting('PASS'),
+			addon.getSetting('USER'),
+			addon.getSetting('PASS'),
 			iuid,
 			debugLvl=logging.ERROR,
 			rel_api_url=const.REL_API_URL
 		)
 
-		return ApiClient._instance
+		return ApiClient.instance
 
 	def setUserPass(self, username, password):
 		self.username = username
@@ -116,7 +114,7 @@ class ApiClient(loggable.Loggable):
 		#~ if not self.isAuthenticated():
 			#~ access = self.getAccessToken()
 			#~ if not access:
-				#~ self._log.error('Could not get the auth token')
+				#~ self.log.error('Could not get the auth token')
 				#~ return False
 
 		# put the cacheable request into queue
@@ -141,8 +139,8 @@ class ApiClient(loggable.Loggable):
 
 		authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))}
 
-		#~ self._log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
-		#~ self._log.debug('apiclient getaccesstoken %s' % str(data))
+		#~ self.log.debug('apiclient getaccesstoken u:%s p:%s' % (self.username, self.password))
+		#~ self.log.debug('apiclient getaccesstoken %s' % str(data))
 
 		# get token
 		try:
@@ -153,14 +151,14 @@ class ApiClient(loggable.Loggable):
 					headers=authHeaders,
 					origin_req_host=self.originReqHost)
 
-			# self._log.debug('request REQ HOST:' + str(req.get_origin_req_host()))
-			# self._log.debug('request URL:' + str(req.get_full_url()))
-			# self._log.debug('request HEADERS:' + str(req.headers.items()))
-			# self._log.debug('request DATA:' + str(req.get_data()))
+			# self.log.debug('request REQ HOST:' + str(req.get_origin_req_host()))
+			# self.log.debug('request URL:' + str(req.get_full_url()))
+			# self.log.debug('request HEADERS:' + str(req.headers.items()))
+			# self.log.debug('request DATA:' + str(req.get_data()))
 
 			response = urlopen(req)
 
-			# self._log.debug('request RESPONSE:' + str(response))
+			# self.log.debug('request RESPONSE:' + str(response))
 			response_json = json.loads(response.readline())
 
 		except HTTPError as e:
@@ -168,30 +166,30 @@ class ApiClient(loggable.Loggable):
 				response = json.loads(e.read())
 			
 				if "User authentication failed" in response['error_description']:
-					self._log.info('%d %s' % (e.code, response['error_description']))
+					self.log.info('%d %s' % (e.code, response['error_description']))
 				else:
-					self._log.error('%d %s' % (e.code, e))
-					self._log.error(e.read())
+					self.log.error('%d %s' % (e.code, e))
+					self.log.error(e.read())
 			except:
-				self._log.error('HTTPError: %d\nReceived:\n"%s"' % (e.code, e.read()))
+				self.log.error('HTTPError: %d\nReceived:\n"%s"' % (e.code, e.read()))
 				
 
 			raise AuthenticationError()
 
 		except URLError as e:
-			self._log.error(unicode(e))
-			self._log.error(e.reason)
+			self.log.error(unicode(e))
+			self.log.error(e.reason)
 			raise AuthenticationError()
 
 		except Exception as e:
-		 	self._log.error('OTHER EXCEPTION:' + unicode(e))
+		 	self.log.error('OTHER EXCEPTION:' + unicode(e))
 			raise AuthenticationError()
 
 
 		self.updateAccessTokenTimeout()
 		self.accessToken = response_json['access_token']
 		self.setRefreshToken(response_json['refresh_token'])
-		self._log.debug('new access token: ' + self.accessToken)
+		self.log.debug('new access token: ' + self.accessToken)
 		return True
 
 	def setRefreshToken(self, token):
@@ -204,13 +202,13 @@ class ApiClient(loggable.Loggable):
 		# if we have some acess token and if access token session didn't timeout
 		return self.accessToken != None and self.accessTokenSessionStart + datetime.timedelta(minutes=self.accessTokenTimeout) > datetime.datetime.now()
 
-	def _unicode_input(self, data):
+	def unicode_input(self, data):
 		safe_data = {}
 		for k, v in data.iteritems():
 			if isinstance(v, unicode):
 				safe_data[k] = unicode(v).encode('utf-8')
 			elif isinstance(v, dict):
-				safe_data[k] = self._unicode_input(v)
+				safe_data[k] = self.unicode_input(v)
 			else:
 				safe_data[k] = v
 
@@ -232,7 +230,7 @@ class ApiClient(loggable.Loggable):
 
 
 	def execute_noauth(self, requestData, cacheable=True):
-		self._log.debug('-' * 20)
+		self.log.debug('-' * 20)
 		
 		url = self.apiUrl + requestData['methodPath']
 		method = requestData['method']
@@ -241,7 +239,7 @@ class ApiClient(loggable.Loggable):
 		if not requestData.has_key('data'):
 			requestData['data'] = {}
 		else:
-			requestData['data'] = self._unicode_input(requestData['data'])
+			requestData['data'] = self.unicode_input(requestData['data'])
 
 		authHeaders = {'AUTHORIZATION': 'BASIC %s' % b64encode("%s:%s" % (self.key, self.secret))} 
 	
@@ -259,12 +257,12 @@ class ApiClient(loggable.Loggable):
 			data = None
 
 		if 'post' in locals():
-			self._log.debug('post:' + str(post))
+			self.log.debug('post:' + str(post))
 		if 'get' in locals():
-			self._log.debug('URL:' + url)
-			self._log.debug('get:' + str(get))
+			self.log.debug('URL:' + url)
+			self.log.debug('get:' + str(get))
 		if data:
-			self._log.debug('data:' + str(data))
+			self.log.debug('data:' + str(data))
 
 		try:
 			response_json = self.doRequest(
@@ -289,12 +287,12 @@ class ApiClient(loggable.Loggable):
 			except:
 				response_json = response_json_str
 				
-			self._log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: "%s"' % (e.code, url, unicode(e), response_json))
+			self.log.error('APICLIENT HTTP %s :\nURL:%s\nERROR STRING: %s\nSERVER RESPONSE: "%s"' % (e.code, url, unicode(e), response_json))
 
 		except URLError as e:
-			self._log.error('APICLIENT:' + url)
-			self._log.error('APICLIENT:' + unicode(e))
-			self._log.error('APICLIENT:' + unicode(e.reason))
+			self.log.error('APICLIENT:' + url)
+			self.log.error('APICLIENT:' + unicode(e))
+			self.log.error('APICLIENT:' + unicode(e.reason))
 			response_json = {}
 
 		return response_json

@@ -1,5 +1,5 @@
 from agent import SynopsiMovieAgent
-from apiclient import apiclient
+from apiclient import ApiClient
 
 apiclient = ApiClient()
 
