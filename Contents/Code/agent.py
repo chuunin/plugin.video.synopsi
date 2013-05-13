@@ -27,7 +27,7 @@ class SynopsiMovieAgent(Agent.Movies):
 
 		ident_results = apiclient.titleIdentify(**ident)
 
-		Log.Debug('')
+		Log.Debug('identified:' + str(ident_results))
 		# result = MetadataSearchResult(
 		# 	)
 		# results.Append(result)

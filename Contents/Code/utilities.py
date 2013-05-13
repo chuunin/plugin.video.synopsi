@@ -182,13 +182,14 @@ def filtertitles(titles):
 
 def log(msg):
 	#~ xbmc.log(unicode(msg).encode('utf-8'))
-	xbmc.log(threading.current_thread().name + ' ' + unicode(msg).encode('utf-8'))
+	# xbmc.log(threading.current_thread().name + ' ' + unicode(msg).encode('utf-8'))
+	Log(unicode(msg).encode('utf-8'))
 
 def notification(text, name='SynopsiTV Plugin', time=5000):
-    """
-    Sends notification to XBMC.
-    """
-    xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))
+	"""
+	Sends notification to XBMC.
+	"""
+	xbmc.executebuiltin("XBMC.Notification({0},{1},{2})".format(name, text, time))
 
 def get_current_addon():
 	global addon

@@ -1,8 +1,9 @@
 from agent import SynopsiMovieAgent
-from apiclient import ApiClient
+# from apiclient import ApiClient
+from debug.debug_apiclient import ApiClient
 
-apiclient = ApiClient()
+apiclient = ApiClient.getDefaultClient()
 
 def Start():
-	apiclient.getAccessToken()
 	Log.Warn('XXX Start')
+	apiclient.getAccessToken()
