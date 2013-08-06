@@ -77,7 +77,7 @@ def main():
 			break
 
 		if xbmc.abortRequested:
-			log('service.py abortRequested')
+			log('abortRequested')
 			log('waiting for: ' + str(','.join([i.name for i in threads if i.isAlive()])))
 			aos.stop()
 
