@@ -22,23 +22,33 @@ class AppApiClient(ApiClient):
 		self.login_state_announce = lsa
 
 	def checkAccountChange(self):
+		""" Checks whether user credentials have changed and launches the event handler"""
 		__addon__ = get_current_addon()
 
-		changed = self.username != __addon__.getSetting('USER') or self.password != __addon__.getSetting('PASS')
+		userchanged = self.username != __addon__.getSetting('USER')
+		changed = userchanged or self.password != __addon__.getSetting('PASS')
+
+		self.onAccountChange(userchanged)
 
 		return changed
 
-	def onAccountChange(self):
-		self.username = __addon__.getSetting('USER')
-		self.password = __addon__.getSetting('PASS')
+	def onAccountChange(self, userChanged):
+		""" Account change event handler """
+		self._log.debug('onAccountChange')
+
+		__addon__ = get_current_addon()
+		self.setUserPass(__addon__.getSetting('USER'), __addon__.getSetting('PASS'))
 		self.clearAccessToken()
+		if userChanged:
+			thread.start_new_thread(top.stvList.rebuild)
 
 	def clearAccessToken(self):
+		""" Clears the access token data, making the function isAuthenticated return False, thus forcing new authentication """
 		self.accessToken = None
 		self.accessTokenSessionStart = None
 
 	def isAuthenticated(self):
-		" Returns true if user is authenticated. This method adds to its parent method a check if user credentials have changed "
+		""" Returns true if user is authenticated. This method adds to its parent method a check if user credentials have changed """
 		self.checkAccountChange()
 		return ApiClient.isAuthenticated(self)
 
