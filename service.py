@@ -14,7 +14,7 @@ import time
 from scrobbler import SynopsiPlayerDecor
 from library import RPCListenerHandler
 from cache import *
-from utilities import home_screen_fill, login_screen, log, VERSION
+from utilities import home_screen_fill, log, VERSION
 from app_apiclient import AppApiClient
 from addonservice import AddonService
 import top
