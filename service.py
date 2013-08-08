@@ -6,6 +6,7 @@ This is default file of SynopsiTV service. See addon.xml
 import xbmc, xbmcgui, xbmcaddon
 
 # python standart lib
+import threading
 import thread
 import sys
 import time
@@ -18,7 +19,6 @@ from utilities import *
 from app_apiclient import AppApiClient
 from addonservice import AddonService
 import top
-import threading
 import dialog
 
 threading.current_thread().name = 'service.py'
