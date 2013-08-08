@@ -42,7 +42,7 @@ class AppApiClient(ApiClient):
 		self.clearAccessToken()
 		if userChanged:
 			self._log.info('Rebuilding cache')
-			thread.start_new_thread(top.stvList.rebuild, ())
+			thread.start_new_thread(cache_rebuild_hp_update, ())
 
 	def clearAccessToken(self):
 		""" Clears the access token data, making the function isAuthenticated return False, thus forcing new authentication """

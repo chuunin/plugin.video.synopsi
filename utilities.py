@@ -653,6 +653,10 @@ def home_screen_fill(apiClient, cache):
 		notification('Movie reccomendation service failed')
 		return
 
+def cache_rebuild_hp_update():
+	top.stvList.rebuild()
+	home_screen_fill(top.apiClient, top.stvList)
+
 def get_rating():
 	"""
 	Get rating from user:

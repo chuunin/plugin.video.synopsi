@@ -34,9 +34,6 @@ def main():
 	
 	top.apiClient = AppApiClient.getDefaultClient()
 
-	# check first run
-	check_first_run()
-
 	# get or generate install-unique ID
 	iuid = get_install_id()
 
@@ -44,7 +41,9 @@ def main():
 	top.stvList = StvList(iuid, top.apiClient)
 	top.player = SynopsiPlayerDecor()
 	top.player.setStvList(top.stvList)
-	
+
+	# check first run
+	check_first_run()
 	
 	try:
 		top.stvList.load()
@@ -52,10 +51,6 @@ def main():
 	except:
 		# first time
 		log('CACHE restore failed. If this is your first run, its ok. Rebuilding cache')
-		def cache_rebuild_hp_update():
-			top.stvList.rebuild()
-			home_screen_fill(top.apiClient, top.stvList)
-
 		thread.start_new_thread(cache_rebuild_hp_update, ())
 
 
