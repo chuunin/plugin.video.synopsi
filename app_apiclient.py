@@ -5,7 +5,7 @@ import xbmcgui
 # application
 from apiclient import *
 from utilities import *
-import threading
+import threading, thread
 import top
 
 
@@ -28,7 +28,8 @@ class AppApiClient(ApiClient):
 		userchanged = self.username != __addon__.getSetting('USER')
 		changed = userchanged or self.password != __addon__.getSetting('PASS')
 
-		self.onAccountChange(userchanged)
+		if changed:
+			self.onAccountChange(userchanged)
 
 		return changed
 
@@ -40,7 +41,8 @@ class AppApiClient(ApiClient):
 		self.setUserPass(__addon__.getSetting('USER'), __addon__.getSetting('PASS'))
 		self.clearAccessToken()
 		if userChanged:
-			thread.start_new_thread(top.stvList.rebuild)
+			self._log.info('Rebuilding cache')
+			thread.start_new_thread(top.stvList.rebuild, ())
 
 	def clearAccessToken(self):
 		""" Clears the access token data, making the function isAuthenticated return False, thus forcing new authentication """

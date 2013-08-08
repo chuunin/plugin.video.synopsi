@@ -30,6 +30,8 @@
         <setting id="DEBUG" type="bool" label="69512" default="false"/>
         <setting id="DISABLE_RATING_IN_PLAYLIST" type="bool" label="69515" default="false"/>
 
+        <setting id="NON_DEBUG_LOGLEVEL" type="text" visible="false" default="10"/>
+
         <setting id="PROTFOL" option="hidden" visible="false" type="bool" label="69511" default="false"/>
         <setting id="NUMFOLD" option="hidden" visible="false" type="enum" label="69514" values="1|2|3|4|5|6|7|8|9" enable="eq(-1,true)" />
         <setting id="FOLDER1" option="hidden" visible="false" type="folder" label="69513" enable="eq(-2,true)" />
