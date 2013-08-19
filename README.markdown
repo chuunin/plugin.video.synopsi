@@ -1,4 +1,4 @@
-## What is [Synopsi.tv](www.synopsi.tv)?##
+## What is [Synopsi.tv](http://www.synopsi.tv)?##
 A safe place where you can store your watching history and get the best personalized recommendations for TV Shows and Movies based on your unique and evolving watching stylYou can share what you like, get to know people with similar taste and find out what to watch next with your friends and family.
 
 **Some interesting features of Synopsi.tv**
