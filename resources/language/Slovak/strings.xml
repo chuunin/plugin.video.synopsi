@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <strings>
-    <string id="69500">Prihlásenie</string>
-    <string id="69501">Prihlasovacie meno</string>
-    <string id="69502">Heslo</string>
+    <string id="30000">Prihlásenie</string>
+    <string id="30001">Prihlasovacie meno</string>
+    <string id="30002">Heslo</string>
 
-    <string id="69504">Prihlásiť sa</string>
+    <string id="30004">Prihlásiť sa</string>
 
     <!--Settings-->
 
-    <string id="69510">Nastavenia</string>
-    <string id="69511">Povoliť chránené priečinky</string>
-    <string id="69512">Povoliť debugovanie</string>
+    <string id="30010">Nastavenia</string>
+    <string id="30011">Povoliť chránené priečinky</string>
+    <string id="30012">Povoliť debugovanie</string>
 
-    <string id="69513">Chránené priečinky</string>
-    <string id="69514">Počet chránených priečinkov</string>
-    <string id="69515">Zakázať hodnotenie v playliste</string>
+    <string id="30013">Chránené priečinky</string>
+    <string id="30014">Počet chránených priečinkov</string>
+    <string id="30015">Zakázať hodnotenie v playliste</string>
 
 
 
     <!-- Dialog --->
-    <string id="69600">Tak, ako si Vam pacil tento film?</string>
-    <string id="69601">Skvelé</string>
-    <string id="69602">OuKej</string>
-    <string id="69603">Hnusné</string>
-    <string id="69604">SynopsiTV Hodnotenie</string>
+    <string id="30100">Tak, ako si Vam pacil tento film?</string>
+    <string id="30101">Skvelé</string>
+    <string id="30102">OuKej</string>
+    <string id="30103">Hnusné</string>
+    <string id="30104">SynopsiTV Hodnotenie</string>
 </strings>

@@ -30,8 +30,8 @@
 			<height>30</height>
 			<font>font13_title</font>
 			<label>SynopsiTV Rating</label>
-			<!-- <label>$LOCALIZE[SCRIPT69604]</label> -->
-			<!-- <label>$LOCALIZE[69604]</label> -->
+			<!-- <label>$LOCALIZE[SCRIPT30104]</label> -->
+			<!-- <label>$LOCALIZE[30104]</label> -->
 			<align>center</align>
 			<aligny>center</aligny>
 			<textcolor>selected</textcolor>
@@ -105,7 +105,7 @@
 			<width>150</width>
 			<height>40</height>
 			<label>Amazing</label>
-			<!-- <label>$LOCALIZE[SCRIPT69604]</label> -->
+			<!-- <label>$LOCALIZE[SCRIPT30104]</label> -->
 			<font>font12_title</font>
 			<textcolor>white</textcolor>
 			<focusedcolor>white</focusedcolor>

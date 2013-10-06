@@ -332,11 +332,11 @@ class XMLRatingDialog(xbmcgui.WindowXMLDialog):
 
 	def onInit(self):
 		self.getString = __addon__.getLocalizedString
-		self.getControl(11).setLabel(self.getString(69601))
-		self.getControl(10).setLabel(self.getString(69602))
-		self.getControl(15).setLabel(self.getString(69603))
-		self.getControl(1 ).setLabel(self.getString(69604))
-		self.getControl(2 ).setLabel(self.getString(69600))
+		self.getControl(11).setLabel(self.getString(30101))
+		self.getControl(10).setLabel(self.getString(30102))
+		self.getControl(15).setLabel(self.getString(30103))
+		self.getControl(1 ).setLabel(self.getString(30104))
+		self.getControl(2 ).setLabel(self.getString(30100))
 
 	def onClick(self, controlId):
 		"""
