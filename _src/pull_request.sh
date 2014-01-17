@@ -8,7 +8,7 @@ echo "
 
 * addon - plugin.video.synopsi
 * version - $VERSION
-* url - git://github.com/Synopsi/XBMC.git
+* url - git://github.com/Synopsi/plugin.video.synopsi
 * revision - $CURRENT_TAG
 * branch - $BRANCH
 * xbmc version - frodo
