@@ -6,6 +6,7 @@ import json
 from copy import copy
 import random
 import string
+from pprint import pprint
 
 # test helper
 from common import connection
@@ -76,7 +77,7 @@ class ApiTest(TestCase):
 			"stv_title_hash": "1defa7f69476e9ffca7b8ceb8c251275afc31ade",
 			"os_title_hash": "486d1f7112f9749d",
 			"imdb_id": "0102536",
-			'title_property[]': ','.join(['name', 'cover_medium']),
+			'title_property[]': ','.join(['name', 'covers']),
 			'type': 'movie'
 		}
 
@@ -154,7 +155,7 @@ class ApiTest(TestCase):
 		}
 
 		data = client.titleIdentify(**ident)
-
+		pprint(data)
 		stv_title_id = data['id']
 
 		data = client.libraryTitleAdd(stv_title_id)
@@ -185,7 +186,7 @@ class ApiTest(TestCase):
 	def test_profile_recco(self):
 
 
-		props = [ 'year', 'cover_small' ]
+		props = [ 'year', 'covers' ]
 		data = client.profileRecco('movie', False, 5, props)
 
 		self.assertTrue(data.has_key('recco_id'))
@@ -202,7 +203,7 @@ class ApiTest(TestCase):
 			- add titles not in global recco to library
 			- test that first title is in local recco, and second not
 		"""
-		props = [ 'id', 'name', 'year', 'cover_small' ]
+		props = [ 'id', 'name', 'year', 'covers' ]
 
 		device_id = ''.join([random.choice(string.hexdigits) for n in xrange(32)])
 		new_client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], device_id, debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
@@ -237,7 +238,7 @@ class ApiTest(TestCase):
 		
 
 	def test_profile_recco_watched(self):
-		props = [ 'id', 'year', 'cover_small' ]
+		props = [ 'id', 'year', 'covers' ]
 		data = client.profileRecco('movie', False, 5, props)
 		all_ids = [ i['id'] for i in data['titles'] ]
 
@@ -262,8 +263,8 @@ class ApiTest(TestCase):
 
 	def test_title(self):
 		title = client.title(1947362, cast_props=['name'])
-
-		self.assertTrue(title.has_key('cover_full'))
+		self.assertTrue(title.has_key('covers'))
+		self.assertTrue(title['covers']['full'])
 		self.assertTrue(title.has_key('cast'))
 		self.assertTrue(title['cast'][0]['name']=='Charlton Heston')
 
@@ -272,7 +273,7 @@ class ApiTest(TestCase):
 
 		# print dump(title)
 
-		self.assertTrue(title.has_key('cover_full'))
+		self.assertTrue(title.has_key('covers'))
 		self.assertTrue(title.get('type')=='tvshow')
 		self.assertTrue(title.get('year')==2005)
 		self.assertTrue(title['cast'][0]['name']=='Josh Radnor')
@@ -312,7 +313,7 @@ class ApiTest(TestCase):
 
 	def test_identify_correct(self):
 		result = client.title_identify_correct(1947362, '8b05ff1ad4865480e4705a42b413115db2bf94db')
-		#~ print dump(result)
+		print dump(result)
 		self.assertTrue(result['status']=='ok')
 
 	@skip('this needs deeper work')
@@ -327,7 +328,7 @@ class ApiTest(TestCase):
 			"stv_title_hash": CORRECTION_FILE_HASH,
 			"os_title_hash": "486d1f7112f9749d",
 			"imdb_id": "0102536",
-			'title_property[]': ','.join(['name', 'cover_medium']),
+			'title_property[]': ','.join(['name', 'covers']),
 			'type': 'movie'
 		}
 
@@ -401,7 +402,7 @@ class ApiTest(TestCase):
 			"stv_title_hash": CORRECTION_FILE_HASH,
 			"os_title_hash": "486d1f7112f9749d",
 			"imdb_id": "0102536",
-			'title_property[]': ','.join(['name', 'cover_medium']),
+			'title_property[]': ','.join(['name', 'covers']),
 			'type': 'movie'
 		}
 
@@ -420,14 +421,14 @@ class ApiTest(TestCase):
 
     
 	def test_library(self):
-		result = client.library(['date', 'genres', 'cover_small'])
+		result = client.library(['date', 'genres', 'covers'])
 		self.assertTrue(result.get('created'))
 		self.assertTrue(result.get('device_id'))
 		self.assertTrue(result.get('name'))
 		self.assertTrue(result.get('titles'))
 		self.assertTrue(type(result['titles']) is list)
 		
-		result2 = client.library(['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'runtime', 'directors', 'writers', 'cast', 'watched'])
+		result2 = client.library(['id', 'covers', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'runtime', 'directors', 'writers', 'cast', 'watched'])
 		self.assertTrue(result2.get('created'))
 		self.assertTrue(result2.get('device_id'))
 		self.assertTrue(result2.get('name'))

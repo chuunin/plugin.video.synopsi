@@ -24,14 +24,14 @@ RATING_CODE = {
 }
 
 # api request title properties
-commonTitleProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
+commonTitleProps = ['id', 'covers', 'date', 'genres', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'url', 'directors', 'writers', 'runtime']
 defaultIdentifyProps = commonTitleProps + ['tvshow_id']
 watchableTitleProps = commonTitleProps + ['watched']
 defaultTVShowProps = commonTitleProps + ['seasons']
-smallListProps = ['id', 'cover_medium', 'name', 'watched', 'type']
-defaultEpisodeProps = smallListProps + ['season_number', 'episode_number', 'cover_large', 'tvshow_id', 'tvshow_name']
-allSeasonProps = ['id', 'cover_full', 'cover_large', 'cover_medium', 'cover_small', 'cover_thumbnail', 'season_number', 'episodes_count', 'watched_count']
-defaultSeasonProps = ['id', 'cover_medium', 'season_number', 'episodes_count', 'watched_count']
+smallListProps = ['id', 'covers', 'name', 'watched', 'type']
+defaultEpisodeProps = smallListProps + ['season_number', 'episode_number', 'tvshow_id', 'tvshow_name']
+allSeasonProps = ['id', 'covers', 'season_number', 'episodes_count', 'watched_count']
+defaultSeasonProps = ['id', 'covers', 'season_number', 'episodes_count', 'watched_count']
 defaultSeasonProps2 = ['id', 'episodes']
 defaultSearchProps = defaultEpisodeProps + ['year', 'directors', 'cast']
 
