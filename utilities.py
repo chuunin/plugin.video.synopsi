@@ -623,7 +623,7 @@ def home_screen_fill(apiClient, cache):
 				WINDOW.setProperty("LatestMovie.{0}.Title".format(i+1), m['name'])
 				if lib_item:
 					WINDOW.setProperty("LatestMovie.{0}.Path".format(i+1), lib_item['file'])
-				WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i+1), m['cover']['large'])
+				WINDOW.setProperty("LatestMovie.{0}.Thumb".format(i+1), m['covers']['large'])
 
 			# recco could return less than 5 items
 			if i < len(episode_recco):
