@@ -49,7 +49,7 @@ exampleEvents = [
 
 
 
-class ApiTest(TestCase):
+class ApiTest10(TestCase):
 	def test_auth(self):
 		client.getAccessToken()
 		self.assertIsInstance(client, ApiClient)
@@ -303,7 +303,7 @@ class ApiTest(TestCase):
 
 	def test_search(self):
 		result = client.search('Adams aebler', 13)
-		
+		pprint(result)		
 		self.assertTrue(result.has_key('search_result'))
 		self.assertTrue(result['search_result'][0]['id'] == 514461)
 
@@ -453,9 +453,24 @@ class ApiTest(TestCase):
 		
 		#~ self.assertEqual(result.get('status'), 'created')
 
+class ApiTest11(ApiTest10):
+	def test_search(self):
+		result = client.search('Adams aebler', 13)
+		pprint(result)		
+		self.assertTrue(result.has_key('search_result'))
+		self.assertTrue(result['search_result'][0]['id'] == 514461)
+
+
+		result = client.search('Love', 13)
+		self.assertTrue(len(result['search_result']) == 13)
+
+
 if __name__ == '__main__':
 	c = connection
 	client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
+	
+	client11 = ApiClient11(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
+	
 
 	logger = logging.getLogger()
 
