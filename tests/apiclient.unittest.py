@@ -6,7 +6,7 @@ import json
 from copy import copy
 import random
 import string
-from pprint import pprint
+from pprint import pformat
 
 # test helper
 from common import connection
@@ -49,22 +49,34 @@ exampleEvents = [
 
 
 
-class ApiTest10(TestCase):
+class ApiTest(TestCase):
+	clientClass = ApiClient
+
+	client = None
+
+	def setUp(self):
+
+		if not self.__class__.client:
+			c = connection
+			self.__class__.client = self.clientClass(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
+
+		self.client = self.__class__.client
+
 	def test_auth(self):
-		client.getAccessToken()
-		self.assertIsInstance(client, ApiClient)
-		return client
+		self.client.getAccessToken()
+		self.assertIsInstance(self.client, ApiClient)
+		return self.client
 
 	def test_auth_fail(self):
 		c = copy(connection)
 		c['password'] = 'aax'		# bad password
-		client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
+		self.client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl=logging.WARNING, rel_api_url=c['rel_api_url'])
 
-		self.assertRaises(AuthenticationError, client.getAccessToken)
-		self.assertTrue(client.isAuthenticated()==False)
+		self.assertRaises(AuthenticationError, self.client.getAccessToken)
+		self.assertTrue(self.client.isAuthenticated()==False)
 
 	def test_unwatched_episodes(self):
-		data = client.unwatchedEpisodes()
+		data = self.client.unwatchedEpisodes()
 
 		self.assertTrue(data.has_key('lineup'))
 		self.assertTrue(data.has_key('new'))
@@ -81,7 +93,7 @@ class ApiTest10(TestCase):
 			'type': 'movie'
 		}
 
-		stv_title = client.titleIdentify(**ident)
+		stv_title = self.client.titleIdentify(**ident)
 
 		self.assertTrue(stv_title.has_key('type'))
 
@@ -92,14 +104,14 @@ class ApiTest10(TestCase):
 			'imdb_id': ''
 		}
 
-		stv_title = client.titleIdentify(**ident2)
+		stv_title = self.client.titleIdentify(**ident2)
 		self.assertTrue(stv_title.has_key('type'))
 
 		ident3 = {
 			'file_name': '_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
 		}
 
-		stv_title = client.titleIdentify(**ident3)
+		stv_title = self.client.titleIdentify(**ident3)
 
 		self.assertTrue(stv_title.has_key('type'))
 
@@ -109,7 +121,7 @@ class ApiTest10(TestCase):
 			'os_title_hash': None
 		}
 
-		stv_title = client.titleIdentify(**ident)
+		stv_title = self.client.titleIdentify(**ident)
 
 		self.assertTrue(stv_title.has_key('type'))
 		
@@ -118,7 +130,7 @@ class ApiTest10(TestCase):
 			'stv_title_hash': ''
 		}
 
-		stv_title = client.titleIdentify(**ident)
+		stv_title = self.client.titleIdentify(**ident)
 
 		self.assertTrue(stv_title.has_key('type'))
 
@@ -127,7 +139,7 @@ class ApiTest10(TestCase):
 			'stv_title_hash': ''
 		}
 
-		stv_title = client.titleIdentify(**ident)
+		stv_title = self.client.titleIdentify(**ident)
 
 		self.assertTrue(stv_title.has_key('type'))
 
@@ -135,17 +147,17 @@ class ApiTest10(TestCase):
 			'file_name': 'Rambo.avi',
 		}
 
-		stv_title = client.titleIdentify(**ident)
+		stv_title = self.client.titleIdentify(**ident)
 
 		self.assertTrue(stv_title.has_key('type'))
 
 
 	def test_library_add(self):
-		client.getAccessToken()
+		self.client.getAccessToken()
 		
 		# change the device id, to use empty library
 		randstr = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10))
-		client.device_id = 'testing_' + randstr
+		self.client.device_id = 'testing_' + randstr
 		
 		ident = {
 			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
@@ -154,11 +166,11 @@ class ApiTest10(TestCase):
 			'imdb_id': '0472198'
 		}
 
-		data = client.titleIdentify(**ident)
-		pprint(data)
+		data = self.client.titleIdentify(**ident)
+		logger.debug(pformat(data))
 		stv_title_id = data['id']
 
-		data = client.libraryTitleAdd(stv_title_id)
+		data = self.client.libraryTitleAdd(stv_title_id)
 
 		#exampleEvents = []
 
@@ -167,12 +179,12 @@ class ApiTest10(TestCase):
 			'player_events': json.dumps(exampleEvents)
 		}
 
-		data = client.titleWatched(stv_title_id, **watched_data)
+		data = self.client.titleWatched(stv_title_id, **watched_data)
 
-		data = client.libraryTitleRemove(stv_title_id)
+		data = self.client.libraryTitleRemove(stv_title_id)
 
 	def test_titleWatched(self):
-		client.getAccessToken()
+		self.client.getAccessToken()
 		stv_title_id = 145948
 		watched_data = {
 			'rating': 1,
@@ -180,14 +192,14 @@ class ApiTest10(TestCase):
 			'software_info': 'Test bullshit'
 		}
 
-		data = client.titleWatched(stv_title_id, **watched_data)
+		data = self.client.titleWatched(stv_title_id, **watched_data)
 		
 
 	def test_profile_recco(self):
 
 
 		props = [ 'year', 'covers' ]
-		data = client.profileRecco('movie', False, 5, props)
+		data = self.client.profileRecco('movie', False, 5, props)
 
 		self.assertTrue(data.has_key('recco_id'))
 		self.assertTrue(data.has_key('titles'))
@@ -206,6 +218,7 @@ class ApiTest10(TestCase):
 		props = [ 'id', 'name', 'year', 'covers' ]
 
 		device_id = ''.join([random.choice(string.hexdigits) for n in xrange(32)])
+		c = connection
 		new_client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], device_id, debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
 		
 		# get global recco
@@ -239,7 +252,7 @@ class ApiTest10(TestCase):
 
 	def test_profile_recco_watched(self):
 		props = [ 'id', 'year', 'covers' ]
-		data = client.profileRecco('movie', False, 5, props)
+		data = self.client.profileRecco('movie', False, 5, props)
 		all_ids = [ i['id'] for i in data['titles'] ]
 
 		self.assertTrue(data.has_key('recco_id'))
@@ -247,9 +260,9 @@ class ApiTest10(TestCase):
 		self.assertTrue(len(data['titles']) > 0)
 
 		check_id = data['titles'][0]['id']
-		client.titleWatched(check_id, **{'rating': 1})
+		self.client.titleWatched(check_id, **{'rating': 1})
 
-		new_data = client.profileRecco('movie', False, 5, props)
+		new_data = self.client.profileRecco('movie', False, 5, props)
 		all_ids = [ i['id'] for i in new_data['titles'] ]
 
 		self.assertFalse(check_id in all_ids)
@@ -258,18 +271,18 @@ class ApiTest10(TestCase):
 
 	def test_title_similar(self):
 		# 1947362 "Ben-Hur (1959)"
-		data_similar = client.titleSimilar(1947362)
+		data_similar = self.client.titleSimilar(1947362)
 		#print data_similar
 
 	def test_title(self):
-		title = client.title(1947362, cast_props=['name'])
+		title = self.client.title(1947362, cast_props=['name'])
 		self.assertTrue(title.has_key('covers'))
 		self.assertTrue(title['covers']['full'])
 		self.assertTrue(title.has_key('cast'))
 		self.assertTrue(title['cast'][0]['name']=='Charlton Heston')
 
 	def test_tvshow(self):
-		title = client.tvshow(14335, cast_props=['name'], season_props=['id','season_number', 'episodes_count', 'watched_count'], season_limit=3)
+		title = self.client.tvshow(14335, cast_props=['name'], season_props=['id','season_number', 'episodes_count', 'watched_count'], season_limit=3)
 
 		# print dump(title)
 
@@ -279,7 +292,7 @@ class ApiTest10(TestCase):
 		self.assertTrue(title['cast'][0]['name']=='Josh Radnor')
 
 	def test_season(self):
-		title = client.season(14376)
+		title = self.client.season(14376)
 
 		self.assertTrue(title.has_key('episodes'))
 		es = title['episodes']
@@ -298,22 +311,22 @@ class ApiTest10(TestCase):
 			}
 		}
 
-		enc_data = client._unicode_input(data)
+		enc_data = self.client._unicode_input(data)
 		self.assertEquals(str(enc_data), r"{'key-one': 'Alfa - \xce\xb1', 'key-dict': {'key-nested': 'Gama - \xce\xb3'}}")
 
 	def test_search(self):
-		result = client.search('Adams aebler', 13)
-		pprint(result)		
+		result = self.client.search('Adams aebler', 13)
+		logger.debug(pformat(result))
 		self.assertTrue(result.has_key('search_result'))
 		self.assertTrue(result['search_result'][0]['id'] == 514461)
 
 
-		result = client.search('Love', 13)
+		result = self.client.search('Love', 13)
 		self.assertTrue(len(result['search_result']) == 13)
 
 	def test_identify_correct(self):
-		result = client.title_identify_correct(1947362, '8b05ff1ad4865480e4705a42b413115db2bf94db')
-		print dump(result)
+		result = self.client.title_identify_correct(1947362, '8b05ff1ad4865480e4705a42b413115db2bf94db')
+		logger.debug(dump(result))
 		self.assertTrue(result['status']=='ok')
 
 	@skip('this needs deeper work')
@@ -333,28 +346,28 @@ class ApiTest10(TestCase):
 		}
 
 		# let the service know about our hash. without this it would not be possible to do correction
-		stv_title = client.titleIdentify(**ident)
+		stv_title = self.client.titleIdentify(**ident)
 
 		# make sure that this unreal id is in library
 		SOME_ID_IN_LIBRARY = 100
-		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
+		result = self.client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
 		self.assertTrue(result.get('status')=='ok')
 
-		library = client.library(['id', 'type', 'name'])
+		library = self.client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
 		#~ print lib_ids
 
 		# the id should already be there after correction, but we can let this code here
 		if SOME_ID_IN_LIBRARY not in lib_ids:
 			print 'adding %d into library' % SOME_ID_IN_LIBRARY
-			client.libraryTitleAdd(SOME_ID_IN_LIBRARY)
+			self.client.libraryTitleAdd(SOME_ID_IN_LIBRARY)
 
 		# remove the target id if it is in the library
 		if TITLE_CORRECTION_TARGET in lib_ids:
 			print 'removing %d from library' % TITLE_CORRECTION_TARGET
-			client.libraryTitleRemove(TITLE_CORRECTION_TARGET)
+			self.client.libraryTitleRemove(TITLE_CORRECTION_TARGET)
 
-		library = client.library(['id', 'type', 'name'])
+		library = self.client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
 		#~ print lib_ids
 
@@ -363,29 +376,29 @@ class ApiTest10(TestCase):
 		# test the correction
 
 		#	get recco
-		recco = client.profileRecco('movie', True)
+		recco = self.client.profileRecco('movie', True)
 		lib_ids = [i['id'] for i in recco['titles']]
 		print 'recco:' + dump(lib_ids)
 
-		result = client.title_identify_correct(TITLE_CORRECTION_TARGET, CORRECTION_FILE_HASH)
+		result = self.client.title_identify_correct(TITLE_CORRECTION_TARGET, CORRECTION_FILE_HASH)
 		self.assertTrue(result.get('status')=='ok')
 
-		library = client.library(['id', 'type', 'name'])
+		library = self.client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
 		self.assertTrue(TITLE_CORRECTION_TARGET in lib_ids, "The correction target id is not in library")
 		self.assertTrue(SOME_ID_IN_LIBRARY not in lib_ids, "The corrected id is still in library")
 
 
-		recco = client.profileRecco('movie', True)
+		recco = self.client.profileRecco('movie', True)
 		lib_ids = [i['id'] for i in recco['titles']]
 		print 'recco:' + dump(lib_ids)
 
 
 		# correct back to stv_id = SOME_ID_IN_LIBRARY
-		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
+		result = self.client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
 		self.assertTrue(result.get('status')=='ok')
 
-		library = client.library(['id', 'type', 'name'])
+		library = self.client.library(['id', 'type', 'name'])
 		lib_ids = [i['id'] for i in library['titles']]
 		self.assertTrue(TITLE_CORRECTION_TARGET not in lib_ids)
 		self.assertTrue(SOME_ID_IN_LIBRARY in lib_ids)
@@ -407,28 +420,28 @@ class ApiTest10(TestCase):
 		}
 
 		# let the service know about our hash. withou this it would not be possible to do correction
-		stv_title = client.titleIdentify(**ident)
+		stv_title = self.client.titleIdentify(**ident)
 
 		# make sure that this unreal id in library
 		SOME_ID_IN_LIBRARY = 100
-		result = client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
+		result = self.client.title_identify_correct(SOME_ID_IN_LIBRARY, CORRECTION_FILE_HASH)
 		self.assertTrue(result.get('status')=='ok')
 
 		# remove the target id if it is in the library
 		if TITLE_CORRECTION_TARGET in lib_ids:
 			print 'removing %d from library' % TITLE_CORRECTION_TARGET
-			client.libraryTitleRemove(TITLE_CORRECTION_TARGET)
+			self.client.libraryTitleRemove(TITLE_CORRECTION_TARGET)
 
     
 	def test_library(self):
-		result = client.library(['date', 'genres', 'covers'])
+		result = self.client.library(['date', 'genres', 'covers'])
 		self.assertTrue(result.get('created'))
 		self.assertTrue(result.get('device_id'))
 		self.assertTrue(result.get('name'))
 		self.assertTrue(result.get('titles'))
 		self.assertTrue(type(result['titles']) is list)
 		
-		result2 = client.library(['id', 'covers', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'runtime', 'directors', 'writers', 'cast', 'watched'])
+		result2 = self.client.library(['id', 'covers', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'runtime', 'directors', 'writers', 'cast', 'watched'])
 		self.assertTrue(result2.get('created'))
 		self.assertTrue(result2.get('device_id'))
 		self.assertTrue(result2.get('name'))
@@ -437,43 +450,27 @@ class ApiTest10(TestCase):
 
 	def test_profileCreate(self):
 		device_id = ''.join([random.choice(string.hexdigits) for n in xrange(32)])
+		c = connection
 		new_client = ApiClient(c['base_url'], c['key'], c['secret'], None, None, device_id, debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
 		
 		# bad request
 		result = new_client.profileCreate('Real \;\"\\"Name', '"select 1\".smid\"@gmail.com')		
-		print result
+		logger.debug(pformat(result))
 		
 		# good request, but repeated
 		result = new_client.profileCreate('Real Second Name', 'martin.smid@gmail.com')		
-		print result
+		logger.debug(pformat(result))
 		
 		# good request, unique
 		result = new_client.profileCreate('Real Third Name', 'martin.smid+%s@gmail.com' % device_id)		
-		print result
+		logger.debug(pformat(result))
 		
 		#~ self.assertEqual(result.get('status'), 'created')
 
-class ApiTest11(ApiTest10):
-	def test_search(self):
-		result = client.search('Adams aebler', 13)
-		pprint(result)		
-		self.assertTrue(result.has_key('search_result'))
-		self.assertTrue(result['search_result'][0]['id'] == 514461)
-
-
-		result = client.search('Love', 13)
-		self.assertTrue(len(result['search_result']) == 13)
-
 
 if __name__ == '__main__':
-	c = connection
-	client = ApiClient(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
-	
-	client11 = ApiClient11(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
-	
-
+	logging.basicConfig(level=logging.DEBUG)
 	logger = logging.getLogger()
-
 
 	if len(sys.argv) < 2:
 		suite = TestLoader().loadTestsFromTestCase(ApiTest)
