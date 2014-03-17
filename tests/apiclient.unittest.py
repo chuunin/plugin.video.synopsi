@@ -55,7 +55,6 @@ class ApiTest(TestCase):
 	client = None
 
 	def setUp(self):
-
 		if not self.__class__.client:
 			c = connection
 			self.__class__.client = self.clientClass(c['base_url'], c['key'], c['secret'], c['username'], c['password'], c['device_id'], debugLvl = logging.DEBUG, rel_api_url=c['rel_api_url'])
@@ -434,19 +433,42 @@ class ApiTest(TestCase):
 
     
 	def test_library(self):
-		result = self.client.library(['date', 'genres', 'covers'])
+		# add data to library
+		ident = {
+			'file_name': '/Volumes/FLOAT/Film/_videne/Notorious/Notorious.[2009self.Eng].TELESYNC.DivX-LTT.avi',
+			'stv_title_hash': '8b05ff1ad4865480e4705a42b413115db2bf94db',
+			'os_title_hash': '484e59acbfaf64e5',
+			'imdb_id': '0472198'
+		}
+
+		data = self.client.titleIdentify(**ident)
+		stv_title_id = data['id']
+
+		data = self.client.libraryTitleAdd(stv_title_id)
+
+		requested_title_props = ['date', 'genres', 'covers']
+		result = self.client.library(requested_title_props)
 		self.assertTrue(result.get('created'))
 		self.assertTrue(result.get('device_id'))
 		self.assertTrue(result.get('name'))
 		self.assertTrue(result.get('titles'))
 		self.assertTrue(type(result['titles']) is list)
+		for title in result['titles']:
+			for prop_name in requested_title_props:
+				self.assertTrue(title.has_key(prop_name))
 		
-		result2 = self.client.library(['id', 'covers', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'runtime', 'directors', 'writers', 'cast', 'watched'])
+		requested_title_props = ['id', 'covers', 'date', 'genres', 'url', 'name', 'plot', 'released', 'trailer', 'type', 'year', 'runtime', 'directors', 'writers', 'cast', 'watched']
+		result2 = self.client.library(requested_title_props)
 		self.assertTrue(result2.get('created'))
 		self.assertTrue(result2.get('device_id'))
 		self.assertTrue(result2.get('name'))
 		self.assertTrue(result2.get('titles'))
 		self.assertTrue(type(result2['titles']) is list)
+		for title in result['titles']:
+			logger.debug(title)
+			for prop_name in requested_title_props:
+				self.assertTrue(title.has_key(prop_name))
+
 
 	def test_profileCreate(self):
 		device_id = ''.join([random.choice(string.hexdigits) for n in xrange(32)])
@@ -469,7 +491,7 @@ class ApiTest(TestCase):
 
 
 if __name__ == '__main__':
-	logging.basicConfig(level=logging.DEBUG)
+	logging.basicConfig(level=logging.ERROR)
 	logger = logging.getLogger()
 
 	if len(sys.argv) < 2:
